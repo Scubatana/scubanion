@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Simulateur</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+	<style>
+		body {
+			min-height: 100vh;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: clamp(10px, 2vh, 24px);
+			padding: clamp(12px, 3vh, 32px) 16px;
+			box-sizing: border-box;
+		}
+
+		.sim-header {
+			text-align: center;
+			max-width: 420px;
+		}
+
+		.sim-header h1 {
+			font-size: 24px;
+		}
+
+		.sim-header p {
+			color: var(--ink-soft);
+			font-size: 14px;
+			margin-top: 8px;
+		}
+
+		.sim-shortcuts {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: 8px;
+			max-width: 460px;
+		}
+
+		.sim-shortcuts button {
+			font-family: 'Inter', sans-serif;
+			font-size: 13px;
+			font-weight: 600;
+			padding: 8px 14px;
+			border-radius: 999px;
+			border: none;
+			background: var(--white);
+			color: var(--ocean-dark);
+			box-shadow: var(--shadow-soft);
+			cursor: pointer;
+		}
+
+		.sim-shortcuts button.current {
+			background: var(--ocean);
+			color: var(--white);
+		}
+
+		.device {
+			position: relative;
+			height: min(78vh, 800px);
+			max-width: 92vw;
+			aspect-ratio: 390 / 844;
+			background: var(--ink);
+			border-radius: 54px;
+			padding: 14px;
+			box-shadow: var(--shadow-float);
+			box-sizing: border-box;
+		}
+
+		.device::before {
+			content: "";
+			position: absolute;
+			top: 14px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: clamp(90px, 30%, 120px);
+			height: 24px;
+			background: var(--ink);
+			border-radius: 0 0 18px 18px;
+			z-index: 5;
+		}
+
+		.device-screen {
+			position: relative;
+			width: 100%;
+			height: 100%;
+			border-radius: 38px;
+			overflow: hidden;
+			background: var(--paper);
+		}
+
+		.device-screen iframe {
+			width: 100%;
+			height: 100%;
+			border: none;
+			display: block;
+		}
+
+		.device-buttons {
+			display: flex;
+			gap: 14px;
+			align-items: center;
+		}
+
+		.device-buttons button {
+			width: 42px;
+			height: 42px;
+			border-radius: 50%;
+			border: none;
+			background: var(--white);
+			box-shadow: var(--shadow-soft);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+		}
+
+		.device-buttons svg {
+			width: 18px;
+			height: 18px;
+			stroke: var(--ocean);
+			fill: none;
+			stroke-width: 2;
+		}
+	</style>
+</head>
+<body>
+	<div class="sim-header">
+		<h1>Simulateur Scoubanion</h1>
+		<p>Un téléphone virtuel pour parcourir l'appli comme un vrai utilisateur : utilise les liens et la navigation du bas directement à l'écran, ou les raccourcis ci-dessous.</p>
+	</div>
+	<div class="sim-shortcuts">
+		<button data-src="login.html">Connexion</button>
+		<button data-src="verification.html">Vérification</button>
+		<button data-src="profil.html">Profil</button>
+		<button data-src="accueil.html" class="current">Accueil</button>
+		<button data-src="equipe.html">Équipe</button>
+		<button data-src="amis.html">Amis</button>
+		<button data-src="chat.html">Chat</button>
+		<button data-src="carte.html">Carte</button>
+		<button data-src="quetes.html">Quêtes</button>
+		<button data-src="compte.html">Compte</button>
+	</div>
+	<div class="device">
+		<div class="device-screen">
+			<iframe id="deviceFrame" src="accueil.html" title="Aperçu Scoubanion"></iframe>
+		</div>
+	</div>
+	<div class="device-buttons">
+		<button id="backBtn" aria-label="Retour">
+			<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+		</button>
+		<button id="homeBtn" aria-label="Accueil">
+			<svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+		</button>
+		<button id="reloadBtn" aria-label="Recharger">
+			<svg viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M5 14a8 8 0 0 0 14.6 3M19 10A8 8 0 0 0 4.4 7"/></svg>
+		</button>
+	</div>
+	<script>
+		var frame = document.getElementById("deviceFrame");
+		var buttons = document.querySelectorAll(".sim-shortcuts button");
+
+		buttons.forEach(function (btn) {
+			btn.addEventListener("click", function () {
+				frame.src = btn.dataset.src;
+			});
+		});
+
+		document.getElementById("homeBtn").addEventListener("click", function () {
+			frame.src = "accueil.html";
+		});
+
+		document.getElementById("reloadBtn").addEventListener("click", function () {
+			frame.contentWindow.location.reload();
+		});
+
+		document.getElementById("backBtn").addEventListener("click", function () {
+			frame.contentWindow.history.back();
+		});
+
+		frame.addEventListener("load", function () {
+			var current = frame.contentWindow.location.pathname.split("/").pop() || "accueil.html";
+			buttons.forEach(function (btn) {
+				btn.classList.toggle("current", btn.dataset.src === current);
+			});
+		});
+	</script>
+</body>
+</html>

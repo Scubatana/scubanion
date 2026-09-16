@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Pitch</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+	<style>
+		html, body {
+			height: 100%;
+			overflow: hidden;
+		}
+
+		body {
+			display: block;
+			padding: 0;
+			margin: 0;
+			background: var(--paper);
+		}
+
+		.flyer {
+			position: relative;
+			width: 100vw;
+			height: 100vh;
+			display: grid;
+			grid-template-columns: 1.05fr 1fr;
+			overflow: hidden;
+		}
+
+		.flyer-left {
+			position: relative;
+			z-index: 2;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: clamp(20px, 3vh, 40px);
+			padding: clamp(28px, 5vw, 80px);
+		}
+
+		.brand-row {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+
+		.brand-row img {
+			width: clamp(40px, 4vw, 56px);
+			height: clamp(40px, 4vw, 56px);
+		}
+
+		.brand-row span {
+			font-family: 'Baloo 2', sans-serif;
+			font-weight: 700;
+			font-size: clamp(20px, 2vw, 26px);
+			color: var(--ocean-dark);
+		}
+
+		.headline {
+			font-family: 'Baloo 2', sans-serif;
+			font-weight: 700;
+			font-size: clamp(34px, 4.6vw, 62px);
+			line-height: 1.05;
+			color: var(--ink);
+			max-width: 12ch;
+		}
+
+		.headline em {
+			font-style: normal;
+			color: var(--ocean);
+		}
+
+		.subhead {
+			font-size: clamp(15px, 1.3vw, 19px);
+			color: var(--ink-soft);
+			max-width: 42ch;
+		}
+
+		.tags {
+			display: flex;
+			flex-direction: column;
+			gap: clamp(10px, 1.6vh, 16px);
+		}
+
+		.tag-row {
+			display: flex;
+			align-items: baseline;
+			gap: 16px;
+			padding-left: 16px;
+			border-left: 4px solid var(--accent, var(--ocean));
+		}
+
+		.tag-row .k {
+			font-family: 'Baloo 2', sans-serif;
+			font-weight: 600;
+			font-size: clamp(13px, 1vw, 15px);
+			color: var(--accent, var(--ocean));
+			min-width: 110px;
+		}
+
+		.tag-row .v {
+			font-size: clamp(15px, 1.15vw, 19px);
+			font-weight: 600;
+			color: var(--ink);
+		}
+
+		.flyer-footer {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: clamp(12px, 0.95vw, 14px);
+			color: var(--ink-soft);
+		}
+
+		.flyer-footer .sep {
+			width: 4px;
+			height: 4px;
+			border-radius: 50%;
+			background: var(--ink-soft);
+		}
+
+		.flyer-right {
+			position: relative;
+			overflow: hidden;
+			background: linear-gradient(160deg, var(--mist) 0%, #cfe4e8 60%, var(--ocean-light) 130%);
+		}
+
+		.blob {
+			position: absolute;
+			border-radius: 50%;
+			filter: blur(2px);
+			opacity: 0.5;
+		}
+
+		.blob-1 {
+			width: 46vw;
+			height: 46vw;
+			background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 70%);
+			top: -14vw;
+			right: -12vw;
+		}
+
+		.blob-2 {
+			width: 26vw;
+			height: 26vw;
+			background: radial-gradient(circle, rgba(240, 133, 90, 0.35), transparent 70%);
+			bottom: -8vw;
+			left: -6vw;
+		}
+
+		.stage-phone {
+			position: absolute;
+			box-sizing: border-box;
+			width: clamp(190px, 19vw, 260px);
+			border-radius: 30px;
+			overflow: hidden;
+			box-shadow: var(--shadow-float);
+			border: 6px solid var(--ink);
+			aspect-ratio: 390 / 844;
+		}
+
+		.stage-phone iframe {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 390px;
+			height: 844px;
+			border: none;
+			transform-origin: top left;
+			pointer-events: none;
+		}
+
+		.phone-a {
+			top: 8%;
+			left: 12%;
+			transform: rotate(-7deg);
+			animation: float-a 7s ease-in-out infinite;
+		}
+
+		.phone-b {
+			bottom: 6%;
+			right: 10%;
+			transform: rotate(6deg);
+			animation: float-b 8s ease-in-out infinite;
+		}
+
+		@keyframes float-a {
+			0%, 100% { transform: rotate(-7deg) translateY(0); }
+			50% { transform: rotate(-7deg) translateY(-14px); }
+		}
+
+		@keyframes float-b {
+			0%, 100% { transform: rotate(6deg) translateY(0); }
+			50% { transform: rotate(6deg) translateY(-10px); }
+		}
+
+		.stage-watch {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) rotate(-4deg);
+			width: clamp(150px, 13vw, 180px);
+			aspect-ratio: 1 / 1.18;
+			background: var(--ink);
+			border-radius: 38px;
+			padding: 10px;
+			box-shadow: var(--shadow-float);
+			animation: float-c 6.5s ease-in-out infinite;
+			z-index: 3;
+		}
+
+		@keyframes float-c {
+			0%, 100% { transform: translate(-50%, -50%) rotate(-4deg) translateY(0); }
+			50% { transform: translate(-50%, -50%) rotate(-4deg) translateY(-12px); }
+		}
+
+		.stage-watch::before {
+			content: "";
+			position: absolute;
+			top: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 34px;
+			height: 14px;
+			background: var(--ink);
+			border-radius: 6px;
+		}
+
+		.stage-watch::after {
+			content: "";
+			position: absolute;
+			bottom: -10px;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 34px;
+			height: 14px;
+			background: var(--ink);
+			border-radius: 6px;
+		}
+
+		.watch-screen {
+			width: 100%;
+			height: 100%;
+			border-radius: 28px;
+			background: #000;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+		}
+
+		.watch-screen img {
+			width: 44%;
+			image-rendering: pixelated;
+		}
+
+		.watch-screen .wlabel {
+			font-family: 'Baloo 2', sans-serif;
+			color: #fff;
+			font-size: 11px;
+		}
+
+		.watch-screen .wsteps {
+			font-family: 'Baloo 2', sans-serif;
+			font-weight: 700;
+			color: #4ade5b;
+			font-size: 15px;
+		}
+
+		.watch-screen .wsteps span {
+			font-family: 'Inter', sans-serif;
+			font-weight: 500;
+			color: #9a9a9a;
+			font-size: 10px;
+			margin-left: 3px;
+		}
+
+		.corner-mark {
+			position: absolute;
+			bottom: 22px;
+			right: 26px;
+			font-size: 11px;
+			color: var(--ink-soft);
+			z-index: 2;
+		}
+	</style>
+</head>
+<body>
+	<div class="flyer">
+		<div class="flyer-left">
+			<div class="brand-row">
+				<img src="assets/img/logo.png" alt="Scoubanion">
+				<span>Scoubanion</span>
+			</div>
+			<h1 class="headline">Il ne grandit que si <em>toi</em> tu sors.</h1>
+			<p class="subhead">Un compagnon virtuel qui progresse avec tes vraies sorties : marche, lieux visités, rencontres.</p>
+			<div class="tags">
+				<div class="tag-row" style="--accent:var(--coral-dark);">
+					<span class="k">Problème</span>
+					<span class="v">Isolement social &amp; sédentarité</span>
+				</div>
+				<div class="tag-row" style="--accent:var(--ocean);">
+					<span class="k">Solution</span>
+					<span class="v">Un Tamagotchi qui récompense la marche</span>
+				</div>
+				<div class="tag-row" style="--accent:var(--ocean-dark);">
+					<span class="k">Cible</span>
+					<span class="v">Étudiants &amp; jeunes actifs connectés</span>
+				</div>
+				<div class="tag-row" style="--accent:var(--coral);">
+					<span class="k">Marché</span>
+					<span class="v">Fitness gamifié × lien social réel</span>
+				</div>
+			</div>
+			<div class="flyer-footer">
+				<span>TBFAR501 — Initiation au management d'une équipe de projet</span>
+				<span class="sep"></span>
+				<span>Pitch élévateur, 3 minutes</span>
+			</div>
+		</div>
+		<div class="flyer-right">
+			<div class="blob blob-1"></div>
+			<div class="blob blob-2"></div>
+			<div class="stage-phone phone-a">
+				<iframe src="equipe.html" tabindex="-1"></iframe>
+			</div>
+			<div class="stage-phone phone-b">
+				<iframe src="carte.html" tabindex="-1"></iframe>
+			</div>
+			<div class="stage-watch">
+				<div class="watch-screen">
+					<img id="watchDog" src="assets/img/dog/dog-frame0.png" alt="Compagnon">
+					<span class="wlabel">Scoubanion</span>
+					<span class="wsteps">2 480<span>pas</span></span>
+				</div>
+			</div>
+			<span class="corner-mark">montre connectée</span>
+		</div>
+	</div>
+	<script>
+		var frame = 0;
+		var dogImg = document.getElementById("watchDog");
+		setInterval(function () {
+			frame = (frame + 1) % 12;
+			dogImg.src = "assets/img/dog/dog-frame" + frame + ".png";
+		}, 600);
+
+		function fitStagePhones() {
+			document.querySelectorAll(".stage-phone").forEach(function (box) {
+				var scale = box.clientWidth / 390;
+				box.querySelector("iframe").style.transform = "scale(" + scale + ")";
+			});
+		}
+		window.addEventListener("load", fitStagePhones);
+		window.addEventListener("resize", fitStagePhones);
+	</script>
+</body>
+</html>

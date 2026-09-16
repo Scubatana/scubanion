@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Chat</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="tide"></div>
+			<div class="topbar">
+				<div class="brand">
+					<img src="assets/img/logo.png" alt="Scoubanion">
+					<span>Chat</span>
+				</div>
+				<a class="avatar-btn" href="compte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6"/></svg>
+				</a>
+			</div>
+			<div class="content">
+				<div class="card" style="padding:8px 20px;">
+					<div class="list-row chat-row">
+						<div class="avatar" style="background:var(--coral);">H</div>
+						<div>
+							<div class="name">Hamza</div>
+							<div class="preview">On se motive pour le parc ce soir ?</div>
+						</div>
+						<div class="col">
+							<span class="time">18:24</span>
+							<span class="unread-badge">2</span>
+						</div>
+					</div>
+					<div class="list-row chat-row">
+						<div class="avatar" style="background:var(--ocean);">T</div>
+						<div>
+							<div class="name">Thomas</div>
+							<div class="preview">Bien joué pour les 220 pas 🎉</div>
+						</div>
+						<div class="col">
+							<span class="time">Hier</span>
+						</div>
+					</div>
+					<div class="list-row chat-row">
+						<div class="avatar" style="background:var(--ocean-light);">É</div>
+						<div>
+							<div class="name">Équipe · Soir</div>
+							<div class="preview">Aya : je suis dispo à 19h</div>
+						</div>
+						<div class="col">
+							<span class="time">Lun</span>
+						</div>
+					</div>
+				</div>
+				<div class="card" style="display:flex;flex-direction:column;gap:4px;">
+					<span class="section-title">Astuce</span>
+					<p class="gallery-note">Discute avec ton équipe pour organiser vos sorties et débloquer le bonus de groupe.</p>
+				</div>
+			</div>
+			<div class="bottomnav">
+				<a class="navitem" href="accueil.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+					<span>Accueil</span>
+				</a>
+				<a class="navitem" href="amis.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M14.5 20c0-2.6 1.9-4.6 4.3-5"/></svg>
+					<span>Amis</span>
+				</a>
+				<a class="navitem active" href="chat.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+					<span>Chat</span>
+				</a>
+				<a class="navitem" href="carte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+					<span>Carte</span>
+				</a>
+				<a class="navitem" href="quetes.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4"/><circle cx="12" cy="16.8" r="0.4" fill="currentColor"/></svg>
+					<span>Quêtes</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>

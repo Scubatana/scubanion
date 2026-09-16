@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Connexion</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="tide"></div>
+			<div class="content centered">
+				<div class="pet-stage">
+					<img class="pet-img" src="assets/img/logo.png" alt="Scoubanion">
+					<h1 style="font-size:26px;">Scoubanion</h1>
+					<p class="gallery-note" style="text-align:center;max-width:220px;">Sors marcher, croise du monde, fais grandir ton compagnon.</p>
+				</div>
+				<div class="card" style="display:flex;flex-direction:column;gap:16px;">
+					<div class="field">
+						<label for="identifiant">Téléphone ou email</label>
+						<input id="identifiant" type="text" placeholder="06 12 34 56 78">
+					</div>
+					<a class="btn btn-primary" href="verification.html">Continuer</a>
+				</div>
+				<p class="link-under">Pas de compte ? La suite se fait automatiquement.</p>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>

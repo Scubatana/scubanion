@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Ébauche</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+	<style>
+		body {
+			display: block;
+			padding: 0;
+		}
+
+		.board-header {
+			max-width: 1180px;
+			margin: 0 auto;
+			padding: 56px 24px 20px;
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 20px;
+		}
+
+		.board-header img {
+			width: 64px;
+			height: 64px;
+		}
+
+		.board-header h1 {
+			font-size: 30px;
+		}
+
+		.board-header p {
+			color: var(--ink-soft);
+			font-size: 15px;
+			margin-top: 4px;
+			max-width: 520px;
+		}
+
+		.board-header .sim-link {
+			margin-left: auto;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 13px 22px;
+			border-radius: 999px;
+			background: var(--ocean);
+			color: var(--white);
+			font-family: 'Baloo 2', sans-serif;
+			font-weight: 600;
+			font-size: 14px;
+			white-space: nowrap;
+			box-shadow: 0 14px 26px -14px rgba(47, 107, 122, 0.7);
+		}
+
+		.board-header .sim-link svg {
+			width: 16px;
+			height: 16px;
+			stroke: var(--white);
+			fill: none;
+			stroke-width: 2;
+		}
+
+		.flow {
+			max-width: 1180px;
+			margin: 0 auto;
+			padding: 0 24px 12px;
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+
+		.board {
+			max-width: 1180px;
+			margin: 0 auto;
+			padding: 24px;
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+			gap: 28px;
+		}
+
+		.frame-card {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			text-decoration: none;
+		}
+
+		.frame-window {
+			position: relative;
+			width: 100%;
+			aspect-ratio: 390 / 844;
+			border-radius: 22px;
+			overflow: hidden;
+			background: var(--paper);
+			box-shadow: var(--shadow-float);
+			border: 4px solid var(--ink);
+		}
+
+		.frame-window iframe {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 390px;
+			height: 844px;
+			border: none;
+			transform-origin: top left;
+			transform: scale(var(--s, 0.538));
+			pointer-events: none;
+		}
+
+		.frame-label {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.frame-label .name {
+			font-family: 'Baloo 2', sans-serif;
+			font-weight: 600;
+			font-size: 15px;
+			color: var(--ink);
+		}
+
+		.frame-label .step {
+			font-size: 12px;
+			color: var(--ink-soft);
+		}
+	</style>
+</head>
+<body>
+	<div class="board-header">
+		<img src="assets/img/logo.png" alt="Scoubanion">
+		<div>
+			<h1>Scoubanion — ébauche visuelle</h1>
+			<p>Un compagnon virtuel qui grandit avec tes vraies sorties : marche, lieux visités, rencontres. Parcours ci-dessous les écrans, du premier lancement jusqu'aux quêtes du quotidien.</p>
+		</div>
+		<a class="sim-link" href="flyer.html" style="background:var(--coral-dark); box-shadow:0 14px 26px -14px rgba(217,106,65,0.7);">
+			<svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4V4z"/></svg>
+			Flyer du pitch
+		</a>
+		<a class="sim-link" href="simulateur.html">
+			<svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 19h2"/></svg>
+			Lancer la simulation
+		</a>
+	</div>
+	<div class="flow">
+		<span class="pill">1 Connexion</span>
+		<span class="pill">2 Vérification</span>
+		<span class="pill">3 Profil</span>
+		<span class="pill">4 Accueil</span>
+		<span class="pill">5 Amis</span>
+		<span class="pill">6 Chat</span>
+		<span class="pill">7 Carte</span>
+		<span class="pill">8 Quêtes</span>
+		<span class="pill">9 Compte</span>
+	</div>
+	<div class="board">
+		<a class="frame-card" href="login.html">
+			<div class="frame-window"><iframe src="login.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Connexion</span><span class="step">01</span></div>
+		</a>
+		<a class="frame-card" href="verification.html">
+			<div class="frame-window"><iframe src="verification.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Vérification</span><span class="step">02</span></div>
+		</a>
+		<a class="frame-card" href="profil.html">
+			<div class="frame-window"><iframe src="profil.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Ton profil</span><span class="step">03</span></div>
+		</a>
+		<a class="frame-card" href="accueil.html">
+			<div class="frame-window"><iframe src="accueil.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Accueil · Soir</span><span class="step">04</span></div>
+		</a>
+		<a class="frame-card" href="equipe.html">
+			<div class="frame-window"><iframe src="equipe.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Accueil · Équipe</span><span class="step">05</span></div>
+		</a>
+		<a class="frame-card" href="amis.html">
+			<div class="frame-window"><iframe src="amis.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Amis</span><span class="step">06</span></div>
+		</a>
+		<a class="frame-card" href="chat.html">
+			<div class="frame-window"><iframe src="chat.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Chat</span><span class="step">07</span></div>
+		</a>
+		<a class="frame-card" href="carte.html">
+			<div class="frame-window"><iframe src="carte.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Carte</span><span class="step">08</span></div>
+		</a>
+		<a class="frame-card" href="quetes.html">
+			<div class="frame-window"><iframe src="quetes.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Quêtes</span><span class="step">09</span></div>
+		</a>
+		<a class="frame-card" href="compte.html">
+			<div class="frame-window"><iframe src="compte.html" tabindex="-1"></iframe></div>
+			<div class="frame-label"><span class="name">Compte</span><span class="step">10</span></div>
+		</a>
+	</div>
+	<script>
+		function fitFrames() {
+			document.querySelectorAll(".frame-window").forEach(function (win) {
+				var scale = win.clientWidth / 390;
+				win.querySelector("iframe").style.setProperty("--s", scale);
+			});
+		}
+		window.addEventListener("load", fitFrames);
+		window.addEventListener("resize", fitFrames);
+	</script>
+</body>
+</html>

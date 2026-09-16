@@ -1,0 +1,10 @@
+node_modules
+.nuxt
+.output
+dist
+android/app/build
+android/.gradle
+android/local.properties
+.env
+android-keystore/*.jks
+*.log

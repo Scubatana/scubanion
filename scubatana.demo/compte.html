@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Ton compte</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="tide"></div>
+			<div class="topbar">
+				<a class="avatar-btn" href="accueil.html" aria-label="Retour">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+				</a>
+				<span style="font-family:'Baloo 2', sans-serif; font-weight:600; font-size:16px;">Ton compte</span>
+				<span style="width:40px;"></span>
+			</div>
+			<div class="content">
+				<div class="pet-stage" style="gap:8px;">
+					<img class="pet-img small" src="assets/img/logo.png" alt="MarcheurDuSoir">
+					<h1 style="font-size:20px;">MarcheurDuSoir</h1>
+					<span class="pill">Retrouver la forme</span>
+				</div>
+				<div class="card stat-row">
+					<div class="stat"><b>4 820</b><span>pas cumulés</span></div>
+					<div class="stat"><b>7</b><span>quêtes finies</span></div>
+					<div class="stat"><b>2</b><span>amis</span></div>
+				</div>
+				<div class="card" style="display:flex;flex-direction:column;gap:0;padding:6px 20px;">
+					<a class="menu-row" href="profil.html">
+						<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6"/></svg>
+						Modifier le profil
+						<svg class="arrow" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+					</a>
+					<a class="menu-row" href="chat.html">
+						<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+						Notifications
+						<svg class="arrow" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+					</a>
+					<a class="menu-row" href="#">
+						<svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+						Confidentialité
+						<svg class="arrow" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+					</a>
+					<a class="menu-row" href="#">
+						<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4"/><circle cx="12" cy="16.8" r="0.4" fill="currentColor"/></svg>
+						Aide
+						<svg class="arrow" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+					</a>
+				</div>
+				<a class="btn btn-ghost" href="login.html">Se déconnecter</a>
+			</div>
+			<div class="bottomnav">
+				<a class="navitem" href="accueil.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+					<span>Accueil</span>
+				</a>
+				<a class="navitem" href="amis.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M14.5 20c0-2.6 1.9-4.6 4.3-5"/></svg>
+					<span>Amis</span>
+				</a>
+				<a class="navitem" href="chat.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+					<span>Chat</span>
+				</a>
+				<a class="navitem" href="carte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+					<span>Carte</span>
+				</a>
+				<a class="navitem" href="quetes.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4"/><circle cx="12" cy="16.8" r="0.4" fill="currentColor"/></svg>
+					<span>Quêtes</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>

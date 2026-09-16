@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Quêtes</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="tide"></div>
+			<div class="topbar">
+				<div class="brand">
+					<img src="assets/img/logo.png" alt="Scoubanion">
+					<span>Quêtes</span>
+				</div>
+				<a class="avatar-btn" href="compte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6"/></svg>
+				</a>
+			</div>
+			<div class="content">
+				<span class="section-title">Catégories</span>
+				<div class="card" style="display:flex;flex-direction:column;gap:2px;padding:6px 20px;">
+					<div class="quest-row">
+						<div class="quest-top"><span>Quiz plongée</span><span class="count">1 / 5</span></div>
+						<div class="wave-bar" style="--fill:20%;"><span></span></div>
+					</div>
+					<div class="quest-row">
+						<div class="quest-top"><span>Photos de sortie</span><span class="count">2 étapes</span></div>
+						<div class="wave-bar" style="--fill:40%;"><span></span></div>
+					</div>
+					<div class="quest-row">
+						<div class="quest-top"><span>Nouveaux lieux</span><span class="count">3 endroits</span></div>
+						<div class="wave-bar" style="--fill:60%;"><span></span></div>
+					</div>
+					<div class="quest-row">
+						<div class="quest-top"><span>Rencontres</span><span class="count">1 ami</span></div>
+						<div class="wave-bar" style="--fill:20%;"><span></span></div>
+					</div>
+				</div>
+				<span class="section-title">Défi de la semaine</span>
+				<div class="card" style="display:flex;flex-direction:column;gap:10px;">
+					<div class="quest-top" style="width:100%;"><span>Cocon d'automne</span><span class="count">3 / 5</span></div>
+					<div class="wave-bar" style="--fill:60%;"><span></span></div>
+					<div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+						<div style="height:9px;border-radius:999px;background:var(--mist);width:92%;"></div>
+						<div style="height:9px;border-radius:999px;background:var(--mist);width:78%;"></div>
+						<div style="height:9px;border-radius:999px;background:var(--mist);width:60%;"></div>
+					</div>
+				</div>
+			</div>
+			<div class="bottomnav">
+				<a class="navitem" href="accueil.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+					<span>Accueil</span>
+				</a>
+				<a class="navitem" href="amis.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M14.5 20c0-2.6 1.9-4.6 4.3-5"/></svg>
+					<span>Amis</span>
+				</a>
+				<a class="navitem" href="chat.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+					<span class="dot"></span>
+					<span>Chat</span>
+				</a>
+				<a class="navitem" href="carte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+					<span>Carte</span>
+				</a>
+				<a class="navitem active" href="quetes.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4"/><circle cx="12" cy="16.8" r="0.4" fill="currentColor"/></svg>
+					<span>Quêtes</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>

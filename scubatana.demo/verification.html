@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Vérification</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="tide"></div>
+			<div class="content centered">
+				<div class="pet-stage">
+					<img class="pet-img small" src="assets/img/logo.png" alt="Scoubanion">
+					<h1 style="font-size:22px;">Vérifie ton code</h1>
+					<p class="gallery-note" style="text-align:center;max-width:240px;">Un code à 6 chiffres vient d'être envoyé par SMS.</p>
+				</div>
+				<div class="card" style="display:flex;flex-direction:column;gap:16px;">
+					<div class="field">
+						<label for="code">Code</label>
+						<input id="code" type="text" placeholder="1 1 M 2 4 6" style="letter-spacing:6px;font-weight:600;">
+					</div>
+					<label class="checkbox-row">
+						<input type="checkbox" checked>
+						Accepter les conditions d'utilisation
+					</label>
+					<a class="btn btn-primary" href="profil.html">Confirmer</a>
+				</div>
+				<p class="link-under">Renvoyer le code</p>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>

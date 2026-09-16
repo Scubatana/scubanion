@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Carte</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="topbar">
+				<div class="brand">
+					<img src="assets/img/logo.png" alt="Scoubanion">
+					<span>Carte</span>
+				</div>
+				<a class="avatar-btn" href="compte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6"/></svg>
+				</a>
+			</div>
+			<div class="searchbar">
+				<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+				Chercher un parc, un lac…
+			</div>
+			<div class="map-frame">
+				<svg class="roads" viewBox="0 0 390 500" preserveAspectRatio="none">
+					<path d="M0 120 C120 60, 220 200, 390 150" stroke="#ffffff" stroke-width="10" fill="none" opacity="0.6"/>
+					<path d="M40 500 C90 380, 60 260, 180 220" stroke="#ffffff" stroke-width="8" fill="none" opacity="0.5"/>
+					<path d="M390 380 C300 360, 260 300, 230 240" stroke="#ffffff" stroke-width="7" fill="none" opacity="0.5"/>
+				</svg>
+				<div class="map-pin">
+					<div class="dot">
+						<svg viewBox="0 0 24 24"><path d="M4 15c4-8 12-8 16 0-4 3-12 3-16 0z"/><circle cx="12" cy="10" r="2"/></svg>
+					</div>
+					<div class="label">Parc des Tilleuls</div>
+				</div>
+			</div>
+			<div class="content" style="padding-top:0;flex:none;">
+				<div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+					<div>
+						<div class="section-title">Parc des Tilleuls</div>
+						<div class="gallery-note">3 amis y sont passés cette semaine</div>
+					</div>
+					<div class="pill">à 850 m</div>
+				</div>
+			</div>
+			<div class="bottomnav">
+				<a class="navitem" href="accueil.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
+					<span>Accueil</span>
+				</a>
+				<a class="navitem" href="amis.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M14.5 20c0-2.6 1.9-4.6 4.3-5"/></svg>
+					<span>Amis</span>
+				</a>
+				<a class="navitem" href="chat.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5z"/></svg>
+					<span class="dot"></span>
+					<span>Chat</span>
+				</a>
+				<a class="navitem active" href="carte.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg>
+					<span>Carte</span>
+				</a>
+				<a class="navitem" href="quetes.html">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4"/><circle cx="12" cy="16.8" r="0.4" fill="currentColor"/></svg>
+					<span>Quêtes</span>
+				</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>

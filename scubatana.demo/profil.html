@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Scoubanion – Ton profil</title>
+	<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+	<div class="phone">
+		<div class="screen">
+			<div class="tide"></div>
+			<div class="topbar">
+				<div class="brand">
+					<img src="assets/img/logo.png" alt="Scoubanion">
+					<span>Scoubanion</span>
+				</div>
+			</div>
+			<div class="content">
+				<h1 style="font-size:24px;">Présente-toi</h1>
+				<p class="gallery-note">Ces infos servent à personnaliser ton compagnon et tes quêtes.</p>
+				<div class="card" style="display:flex;flex-direction:column;gap:16px;">
+					<div class="field">
+						<label for="pseudo">Pseudo</label>
+						<input id="pseudo" type="text" placeholder="MarcheurDuSoir">
+					</div>
+					<div class="field">
+						<label for="naissance">Date de naissance</label>
+						<input id="naissance" type="text" placeholder="JJ / MM / AAAA">
+					</div>
+					<div class="field">
+						<label for="sexe">Sexe</label>
+						<select id="sexe">
+							<option>Femme</option>
+							<option>Homme</option>
+							<option>Autre / je ne dis pas</option>
+						</select>
+					</div>
+					<div class="field">
+						<label for="ambition">Ambition</label>
+						<select id="ambition">
+							<option>Retrouver la forme</option>
+							<option>Sortir plus souvent</option>
+							<option>Rencontrer du monde</option>
+							<option>Explorer mon quartier</option>
+						</select>
+					</div>
+				</div>
+				<p class="gallery-note">Ton ambition débloque des objets pour ton compagnon au fil de tes sorties.</p>
+				<a class="btn btn-primary" href="accueil.html">Faire grandir mon compagnon</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		if (window !== window.top) {
+			document.documentElement.classList.add("embedded");
+			document.body.classList.add("embedded");
+			document.querySelector(".phone").classList.add("embedded");
+		}
+	</script>
+</body>
+</html>
