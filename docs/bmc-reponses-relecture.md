@@ -1,7 +1,7 @@
 # Business Model Canvas — réponses à la relecture
 
 - **Document corrigé** : [business-model-canvas.html](business-model-canvas.html) (version 2 du 08/10/2026)
-- **Version relue** : `SCUBATANA Business Model Canvas.pdf`, annoté le 30/09/2026 par Emmanuelle Rochard
+- **Version relue** : [business-model-canvas-v1-annote.pdf](business-model-canvas-v1-annote.pdf), annoté le 30/09/2026 par Emmanuelle Rochard. Les neuf commentaires y sont en notes dans la marge.
 - **À quoi sert ce document** : retrouver en un coup d'œil, pendant la présentation, quel commentaire a produit quelle correction. Un commentaire = une ligne = une réponse défendable.
 
 ## Vue d'ensemble

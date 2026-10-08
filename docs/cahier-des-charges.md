@@ -298,6 +298,7 @@ Livrables produits à ce jour :
 | Flyer de pitch (3 min)         | `scubatana.demo/flyer.html`                                                      | Fait                                                                   |
 | Business Model Canvas          | [business-model-canvas.html](business-model-canvas.html) (source) et [business-model-canvas.pdf](business-model-canvas.pdf) (à rendre) | Version 2 du 08/10/2026, revue après relecture. Page 1 le canvas, page 2 et 3 les annexes |
 | Réponses à la relecture du BMC | [bmc-reponses-relecture.md](bmc-reponses-relecture.md)                           | Un commentaire = une correction ; sert d'appui pour la présentation |
+| BMC v1 annoté par la relecture | [business-model-canvas-v1-annote.pdf](business-model-canvas-v1-annote.pdf)       | Archive du 30/09/2026 : la trace des neuf commentaires                |
 | Charte de projet               | § 2                                                                              | Objectifs SMART, indicateurs, plan d'action                            |
 
 Le Business Model Canvas laisse cinq hypothèses ouvertes (grille tarifaire B2B, taille du marché, coût unitaire de la borne, lecture de la variabilité cardiaque, validité des personas). Elles sont listées en fin de `bmc-reponses-relecture.md` et l'objectif **O3** du § 2.1 est ce qui doit les lever.
