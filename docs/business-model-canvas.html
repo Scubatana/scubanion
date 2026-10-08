@@ -1,0 +1,1077 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scubanion — Business Model Canvas</title>
+<meta name="description" content="Business Model Canvas de Scubanion, version 2 corrigée après la relecture enseignante. Page 1 : le canvas. Page 2 : les annexes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --cream:#f4f1e8;
+    --card:#ffffff;
+    --line:#e3ded0;
+    --ink:#18181b;
+    --body:#3f3f46;
+    --muted:#6b6b76;
+    --green:#2f6b4f;
+    --green-dark:#1d4634;
+    --peach:#fbeae4;
+    --rust:#bb5230;
+    --mint:#e3efe8;
+    --accent-soft:#eef4f0;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+
+  body{
+    background:var(--cream);
+    color:var(--body);
+    font-family:"Outfit","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    font-size:9px;
+    line-height:1.32;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Page ---------- */
+
+  .page{
+    width:420mm;
+    margin:0 auto 10mm;
+    padding:7mm 8mm 8mm;
+    background:var(--cream);
+    display:flex;
+    flex-direction:column;
+  }
+
+  .page.canvas-page{height:297mm;}
+  .page + .page{border-top:1px dashed #cfc8b5;}
+
+  /* ---------- En-tête ---------- */
+
+  header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12mm;
+    margin-bottom:3mm;
+  }
+
+  h1{
+    margin:0;
+    font-size:21px;
+    font-weight:700;
+    letter-spacing:-.4px;
+    color:var(--ink);
+  }
+
+  .baseline{
+    margin:1px 0 0;
+    font-size:9.8px;
+    color:var(--muted);
+  }
+
+  .meta{
+    text-align:right;
+    font-size:7.8px;
+    line-height:1.45;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  .meta strong{color:var(--ink);font-weight:600;}
+
+  /* ---------- Grille du canvas ---------- */
+
+  .canvas{
+    flex:1;
+    min-height:0;
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    grid-template-rows:auto auto;
+    align-content:start;
+    gap:2.5mm;
+    grid-template-areas:
+      "partenaires activites valeur relation segments"
+      "partenaires ressources valeur canaux segments";
+  }
+
+  .bottom{
+    display:grid;
+    grid-template-columns:1fr 1.2fr;
+    gap:2.5mm;
+    margin-top:2.5mm;
+    height:79mm;
+  }
+
+  .b-partenaires{grid-area:partenaires;}
+  .b-activites{grid-area:activites;}
+  .b-ressources{grid-area:ressources;}
+  .b-valeur{grid-area:valeur;}
+  .b-relation{grid-area:relation;}
+  .b-canaux{grid-area:canaux;}
+  .b-segments{grid-area:segments;}
+
+  /* ---------- Blocs ---------- */
+
+  .block{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:11px;
+    padding:2.5mm 2.8mm 2.8mm;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+
+  .block > h2{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin:0 0 1.9mm;
+    font-size:11px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  .num{
+    flex:none;
+    width:17px;
+    height:17px;
+    border-radius:5px;
+    background:var(--green);
+    color:#fff;
+    font-size:10px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .block-body{flex:1;min-height:0;}
+
+  /* ---------- Sous-groupes ---------- */
+
+  .sub{
+    margin:0 0 1mm;
+    font-size:8.1px;
+    font-weight:600;
+    color:var(--green);
+    text-transform:uppercase;
+    letter-spacing:.45px;
+  }
+
+  .sub .hint{
+    display:block;
+    text-transform:none;
+    letter-spacing:0;
+    font-weight:400;
+    font-style:italic;
+    color:var(--muted);
+  }
+
+  .group + .group{margin-top:1.9mm;}
+
+  ul{margin:0;padding:0 0 0 3.2mm;list-style:none;}
+  li{position:relative;margin-bottom:.75mm;}
+
+  li::before{
+    content:"";
+    position:absolute;
+    left:-2.9mm;
+    top:4.5px;
+    width:2.6px;
+    height:2.6px;
+    border-radius:50%;
+    background:#b9b2a0;
+  }
+
+  li:last-child{margin-bottom:0;}
+  b,strong{color:var(--ink);font-weight:600;}
+
+  .block-note{
+    margin:1.9mm 0 0;
+    font-size:7.9px;
+    font-style:italic;
+    color:var(--muted);
+  }
+
+  /* ---------- Proposition de valeur ---------- */
+
+  .b-valeur{background:var(--green-dark);border-color:var(--green-dark);color:#dfeae3;}
+  .b-valeur > h2{color:#fff;}
+  .b-valeur .num{background:rgba(255,255,255,.16);}
+  .b-valeur .sub{color:#8fc2a8;}
+  .b-valeur .sub .hint{color:#a9bdb2;}
+  .b-valeur b,.b-valeur strong{color:#fff;}
+  .b-valeur li::before{background:#6f9c85;}
+  .b-valeur .block-note{color:#a9bdb2;}
+
+  .pitch{
+    margin:0 0 2.2mm;
+    font-size:13.5px;
+    line-height:1.24;
+    font-weight:600;
+    color:#fff;
+    letter-spacing:-.2px;
+  }
+
+  /* ---------- Bas de canvas ---------- */
+
+  .b-couts{background:var(--peach);border-color:#f3d7cd;}
+  .b-couts .num{background:var(--rust);}
+  .b-couts .sub{color:var(--rust);}
+  .b-couts li::before{background:#d59b83;}
+
+  .b-revenus{background:var(--mint);border-color:#cfe2d7;}
+  .b-revenus li::before{background:#8fb6a0;}
+
+  .cols-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:2mm 4mm;
+    align-content:start;
+  }
+
+  .cols-2 .group,
+  .cols-2 .group + .group{margin-top:0;}
+
+  /* ---------- Bloc 6 : étapes du parcours ---------- */
+
+  .step{display:flex;gap:1.8mm;margin-bottom:1.4mm;}
+  .step:last-child{margin-bottom:0;}
+
+  .step-num{
+    flex:none;
+    width:13px;
+    height:13px;
+    margin-top:1px;
+    border-radius:4px;
+    background:var(--accent-soft);
+    color:var(--green);
+    font-size:8.5px;
+    font-weight:600;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .step-body{min-width:0;}
+
+  .step-name{
+    display:block;
+    font-size:8.7px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:.3mm;
+  }
+
+  .step-body p{margin:0 0 .4mm;font-size:8.1px;}
+  .step-body p:last-child{margin-bottom:0;}
+  .step-body .who{font-weight:600;color:var(--green);}
+
+  /* ---------- Principe ---------- */
+
+  .principle{
+    margin:0 0 1.9mm;
+    padding:1.7mm 2.1mm;
+    background:#fff;
+    border:1px solid #cfe2d7;
+    border-left:3px solid var(--green);
+    border-radius:6px;
+    font-size:8.5px;
+  }
+
+  .principle b{display:block;color:var(--green-dark);}
+
+  /* ---------- Page 2 : annexes ---------- */
+
+  .annexe-head{margin-bottom:4mm;}
+
+  .annexe-head h2{
+    margin:0;
+    font-size:21px;
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:-.3px;
+  }
+
+  .annexe-head p{margin:2px 0 0;font-size:11.5px;color:var(--muted);}
+
+  .annexes{display:flex;flex-direction:column;gap:3.5mm;}
+
+  .annexe{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:4mm 4.5mm 4.5mm;
+    break-inside:avoid;
+    font-size:10.2px;
+  }
+
+  .annexe > h3{
+    margin:0 0 3mm;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+
+  .annexe > h3 .tag{
+    margin-left:6px;
+    padding:1.5px 7px;
+    border-radius:20px;
+    background:var(--accent-soft);
+    color:var(--green);
+    font-size:9px;
+    font-weight:500;
+    vertical-align:1.5px;
+  }
+
+  .annexe .sub{font-size:9.2px;}
+
+  .personas{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5mm;}
+
+  .persona{
+    background:#fbfaf6;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:3mm 3.4mm 3.4mm;
+  }
+
+  .persona h4{margin:0 0 .6mm;font-size:12px;font-weight:600;color:var(--ink);}
+  .persona .role{margin:0 0 2.2mm;font-size:9.6px;font-style:italic;color:var(--green);}
+  .persona dl{margin:0;font-size:9.6px;}
+  .persona dt{float:left;clear:left;width:26mm;font-weight:600;color:var(--muted);}
+  .persona dd{margin:0 0 1mm 26mm;}
+
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm 5mm;}
+
+  /* ---------- Tableaux d'annexe ---------- */
+
+  table{width:100%;border-collapse:collapse;}
+
+  .journey,.money{font-size:9.8px;line-height:1.32;}
+
+  .journey th,.journey td,.money th,.money td{
+    text-align:left;
+    vertical-align:top;
+    padding:1.6mm 2mm;
+    border-bottom:1px solid var(--line);
+  }
+
+  .journey thead th,.money thead th{
+    font-size:9px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--green);
+    border-bottom:1px solid #cfc8b5;
+    padding-bottom:1.2mm;
+  }
+
+  .journey tbody tr:last-child th,
+  .journey tbody tr:last-child td,
+  .money tbody tr:last-child td{border-bottom:none;}
+
+  .journey th[scope="row"]{width:15%;font-weight:600;color:var(--ink);}
+  .journey th[scope="row"] span{display:block;font-weight:400;font-size:8.8px;color:var(--muted);}
+
+  .money td.price{white-space:nowrap;font-weight:600;color:var(--ink);}
+
+  .money tfoot td{
+    border-top:1px solid #cfc8b5;
+    border-bottom:none;
+    padding-top:2mm;
+    font-size:9.4px;
+    font-style:italic;
+    color:var(--muted);
+  }
+
+  footer.sheet-footer{
+    margin-top:3.5mm;
+    font-size:9.2px;
+    color:var(--muted);
+    display:flex;
+    justify-content:space-between;
+    gap:8mm;
+  }
+
+  /* ---------- Impression ---------- */
+
+  @page{size:A3 landscape;margin:7mm;}
+
+  @media print{
+    body{background:#fff;}
+    .page{
+      width:auto;
+      margin:0;
+      padding:0;
+      background:#fff;
+      break-after:page;
+    }
+    .page.canvas-page{height:280mm;}
+    .page:last-child{break-after:auto;}
+    .page + .page{border-top:none;}
+  }
+
+  @media screen and (max-width:430mm){
+    .page{width:100%;padding:5mm;}
+    .page.canvas-page{height:auto;}
+    .canvas{
+      grid-template-columns:1fr;
+      grid-template-rows:none;
+      grid-template-areas:
+        "valeur" "segments" "canaux" "relation"
+        "partenaires" "activites" "ressources";
+    }
+    .bottom{grid-template-columns:1fr;height:auto;}
+    .personas,.grid-2{grid-template-columns:1fr;}
+    .cols-2{column-count:1;}
+    .block{overflow:visible;}
+    header{flex-direction:column;align-items:flex-start;gap:3mm;}
+    .meta{text-align:left;white-space:normal;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= PAGE 1 : LE CANVAS ======================= -->
+<section class="page canvas-page">
+
+  <header>
+    <div>
+      <h1>Scubanion &middot; Business Model Canvas</h1>
+      <p class="baseline">Un animal virtuel qui ne grandit que si tu sors. Tes vrais pas, tes vraies rencontres.</p>
+    </div>
+    <div class="meta">
+      Projet BUT3-IoT &middot; équipe <strong>Scubatana</strong> (4 étudiants)<br>
+      <strong>Version 2</strong> du 08/10/2026 &mdash; revue après relecture<br>
+      Territoire pilote : <strong>Paris intra-muros</strong><br>
+      Chiffres = <em>hypothèses de travail</em>, à valider sur le terrain
+    </div>
+  </header>
+
+  <div class="canvas">
+
+    <!-- 1 — PARTENAIRES CLÉS -->
+    <section class="block b-partenaires">
+      <h2><span class="num">1</span> Partenaires clés</h2>
+      <div class="block-body">
+
+        <div class="group">
+          <p class="sub">Lieux à accès libre<span class="hint">convention gratuite, aucune facturation au passage</span></p>
+          <ul>
+            <li><b>Ville de Paris</b> — espaces verts et sports (parcs, squares, stades)</li>
+            <li><b>Mairies du 11<sup>e</sup> et du 19<sup>e</sup></b> en pilote : population jeune, équipements denses</li>
+            <li>Places, berges, points de vue : rien à vendre sur place, c'est la collectivité qui finance le parcours</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Lieux à billetterie ou à caisse<span class="hint">contrat commercial, intéressement au passage</span></p>
+          <ul>
+            <li><b>Decathlon Châtelet-les-Halles</b>, salles d'escalade, piscines</li>
+            <li>Musées et sites <b>Paris Musées</b> (Carnavalet, Petit Palais)</li>
+            <li>Commerces à flux : cafés, boulangeries, librairies de quartier</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Audience et communauté<span class="hint">acquisition sans budget média</span></p>
+          <ul>
+            <li><b>Paris je t'aime</b> (office de tourisme) : parcours thématiques</li>
+            <li><b>OnVaSortir</b>, Meetup : les sorties existent, on les transforme en quêtes</li>
+            <li>Groupes Facebook de quartier, Nextdoor</li>
+            <li>Organisateurs d'événements (Nuit Blanche, Paris Plages) et voyagistes de groupe</li>
+            <li><b>Applis de rencontres</b> : offre « premier rendez-vous en quête »</li>
+            <li>BDE, clubs de running, associations étudiantes</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Techniques et institutionnels</p>
+          <ul>
+            <li>Google Play, hébergeur, broker MQTT</li>
+            <li><b>Mutuelles étudiantes</b> (LMDE, HEYME) et santé universitaire : le programme bien-être</li>
+            <li>IUT : encadrement, matériel, terrain d'expérimentation</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2 — ACTIVITÉS CLÉS -->
+    <section class="block b-activites">
+      <h2><span class="num">2</span> Activités clés</h2>
+      <div class="block-body">
+
+        <div class="group">
+          <p class="sub">Produit et technique</p>
+          <ul>
+            <li>Développer l'app Android, l'API et le firmware des bornes</li>
+            <li>Lire les pas en BLE, détecter les rencontres entre téléphones</li>
+            <li>Concevoir et équilibrer les quêtes ; calculer l'indice de besoin de contact</li>
+            <li>Prévenir la triche ; exploiter et surveiller le service</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Communication et marketing</p>
+          <ul>
+            <li>Produire le contenu : TikTok et Instagram tenus <b>par le compagnon</b></li>
+            <li>Animer la communauté : guildes de quartier, défis hebdomadaires, modération</li>
+            <li>Presse locale, micro-influence de quartier, fiche Play Store et avis</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Vente et partenariats</p>
+          <ul>
+            <li><b>Démarcher et signer les lieux</b> : prospection, rendez-vous, closing</li>
+            <li>Installer, exploiter et dépanner le parc de bornes</li>
+            <li>Facturer, <b>rendre compte du passage généré</b>, monter les dossiers d'appels à projets</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Juridique et données</p>
+          <ul>
+            <li>Conformité RGPD : registre, analyse d'impact (santé et géolocalisation) ; dépôt et surveillance de la marque</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3 — RESSOURCES CLÉS -->
+    <section class="block b-ressources">
+      <h2><span class="num">3</span> Ressources clés</h2>
+      <div class="block-body">
+
+        <div class="group">
+          <p class="sub">Humaines</p>
+          <ul>
+            <li>SAE : 4 étudiants, développement et design</li>
+            <li>Entreprise : 2 développeurs, 1 designer, <b>1 commercial B2B</b>, <b>1 community manager</b></li>
+            <li>Compétences rares : BLE bas niveau, MQTT, Android natif</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Propriété intellectuelle</p>
+          <ul>
+            <li>Marque <b>Scubanion</b> déposée à l'INPI (classes 9, 41, 42)</li>
+            <li>Code et licence ; univers graphique et sprites originaux</li>
+            <li><b>Base de points d'intérêt qualifiés</b> et moteur de quêtes : l'actif qui se valorise</li>
+            <li>Protocole BLE du Mi Band 3 documenté : savoir-faire rare</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Production et logistique</p>
+          <ul>
+            <li>Nomenclature de la borne, atelier d'assemblage et de test, stock de rechange, parc installé, <b>SAV sous 72 h</b></li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Locaux</p>
+          <ul>
+            <li>SAE : salles et atelier de l'IUT. Entreprise : bureau partagé en incubateur et stockage des bornes</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Techniques et commerciales</p>
+          <ul>
+            <li>Serveur, base, broker MQTT, supervision, chaîne CI/CD</li>
+            <li><b>CRM</b>, kit média, plaquette, borne de démonstration, tableau de bord des passages montré aux partenaires</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4 — PROPOSITION DE VALEUR -->
+    <section class="block b-valeur">
+      <h2><span class="num">4</span> Proposition de valeur</h2>
+      <div class="block-body">
+
+        <p class="pitch">Ton animal n'est en forme que si tu l'es.<br>Marche, explore, rencontre du monde.</p>
+
+        <div class="group">
+          <p class="sub">Pour le joueur<span class="hint">B2C &mdash; quatre promesses distinctes</span></p>
+          <ul>
+            <li><b>Bouger</b> — une raison affective de marcher : chaque pas nourrit un compagnon qui dépérit si on reste chez soi.</li>
+            <li><b>Explorer</b> — des quêtes et des bornes qui font redécouvrir son quartier, avec des récompenses qu'on ne trouve qu'en y allant.</li>
+            <li><b>Rencontrer</b> — un bonus quand deux joueurs se croisent vraiment : le social se vit dehors, pas dans un fil d'actualité.</li>
+            <li><b>Se sentir entouré</b> — un <b>indice de besoin de contact</b> : fréquence cardiaque et variabilité lues au poignet, croisées au nombre de jours sans rencontre réelle. Quand l'indice se dégrade, le compagnon s'étiole et propose une sortie à portée de marche.</li>
+            <li>Aucun matériel à acheter pour qui possède déjà un bracelet.</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Pour les lieux et les marques<span class="hint">B2B commercial</span></p>
+          <ul>
+            <li><b>Du flux qualifié et mesurable</b> : un passage, c'est quelqu'un présent sur place — pas un clic, pas une impression.</li>
+            <li>Une animation clé en main (borne, quête, événement), sans une ligne de code à leur charge.</li>
+            <li>Un tableau de bord des passages par heure et par profil, en données agrégées.</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Pour les collectivités et les employeurs<span class="hint">B2B institutionnel</span></p>
+          <ul>
+            <li>Un levier mesurable contre <b>la sédentarité et l'isolement</b>, les deux problèmes visés par le projet.</li>
+            <li>La valorisation du patrimoine de proximité, <b>y compris des lieux gratuits</b> sans billetterie à faire fructifier.</li>
+            <li>Un programme bien-être pour salariés ou étudiants, avec reporting agrégé et anonymisé.</li>
+          </ul>
+        </div>
+
+        <p class="block-note">L'indice de besoin de contact est un indicateur comportemental et physiologique, inspiré du rôle de l'ocytocine dans le lien social. Ce n'est pas un dosage hormonal : aucun objet porté au poignet ne mesure l'ocytocine aujourd'hui (annexe, page 2).</p>
+
+      </div>
+    </section>
+
+    <!-- 5 — RELATION CLIENT -->
+    <section class="block b-relation">
+      <h2><span class="num">5</span> Relation client</h2>
+      <div class="block-body">
+
+        <div class="group">
+          <p class="sub">Un réseau social dont le fil est le monde réel</p>
+          <ul>
+            <li><b>Chat de proximité</b> : on n'écrit qu'aux joueurs croisés physiquement ou du même quartier</li>
+            <li><b>Guildes de quartier</b> par arrondissement, classement hebdomadaire</li>
+            <li><b>Forum intégré</b> : les quêtes sont proposées par les joueurs et validées par la communauté</li>
+            <li>Rassemblements et chasses au trésor déclenchés depuis une borne</li>
+            <li>C'est le déplacement qui publie, pas le pouce : l'objet connecté est le média</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Lien affectif et automatisé</p>
+          <ul>
+            <li>Attachement au compagnon : soin, humeur, santé, évolution</li>
+            <li>Notifications jamais culpabilisantes : l'animal demande, il ne gronde pas</li>
+            <li>Charte de communauté, modération, signalement</li>
+          </ul>
+        </div>
+
+        <div class="group">
+          <p class="sub">Comptes partenaires</p>
+          <ul>
+            <li>Interlocuteur dédié, point mensuel de performance</li>
+            <li>Disponibilité de la borne garantie à 99 %</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 6 — CANAUX -->
+    <section class="block b-canaux">
+      <h2><span class="num">6</span> Canaux</h2>
+      <div class="block-body">
+
+        <p class="sub" style="margin-bottom:2mm;">Les 5 étapes du parcours client<span class="hint">tableau complet en annexe, page 2</span></p>
+
+        <div class="step">
+          <span class="step-num">1</span>
+          <div class="step-body">
+            <span class="step-name">Notoriété</span>
+            <p><span class="who">Joueur</span> TikTok et Instagram du compagnon, micro-influence et groupes de quartier, QR codes chez les partenaires</p>
+            <p><span class="who">Partenaire</span> prospection terrain et LinkedIn, salons smart city, appels à projets, recommandation des lieux équipés</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">2</span>
+          <div class="step-body">
+            <span class="step-name">Évaluation</span>
+            <p><span class="who">Joueur</span> fiche Play Store, site vitrine, avis, borne à essayer sans compte</p>
+            <p><span class="who">Partenaire</span> kit média, démonstration sur site, <b>pilote gratuit d'un mois</b>, chiffres des pilotes précédents</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">3</span>
+          <div class="step-body">
+            <span class="step-name">Achat</span>
+            <p><span class="who">Joueur</span> téléchargement gratuit, boutique payée via Google Play, aucune carte à saisir</p>
+            <p><span class="who">Partenaire</span> devis, contrat annuel, abonnement mensuel par borne</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">4</span>
+          <div class="step-body">
+            <span class="step-name">Livraison</span>
+            <p><span class="who">Joueur</span> mise en route guidée, <b>première quête à moins de 500 m</b></p>
+            <p><span class="who">Partenaire</span> installation sous 10 jours, formation de 30 min, accès au tableau de bord</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="step-num">5</span>
+          <div class="step-body">
+            <span class="step-name">Après-vente</span>
+            <p><span class="who">Joueur</span> support sous 48 h, FAQ et forum, <b>suppression des données en deux gestes</b></p>
+            <p><span class="who">Partenaire</span> point mensuel, SAV sous 72 h, bilan annuel</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 7 — SEGMENTS DE CLIENTÈLE -->
+    <section class="block b-segments">
+      <h2><span class="num">7</span> Segments de clientèle</h2>
+      <div class="block-body">
+
+        <div class="group">
+          <p class="sub">B2C &mdash; trois personas<span class="hint">fiches détaillées en annexe, page 2</span></p>
+          <ul>
+            <li><b>Léa, 20 ans</b> — étudiante en BUT, Paris 13<sup>e</sup>, 650 €/mois, 3 500 pas par jour. Nostalgique du Tamagotchi, a joué à Pokémon GO. Déclencheur : la guilde du 13<sup>e</sup>.</li>
+            <li><b>Yanis, 27 ans</b> — développeur à Montreuil, 2 400 €/mois net, 4 000 pas les jours de télétravail. Suit déjà ses données. Déclencheur : la série de jours et le classement de quartier.</li>
+            <li><b>Camille, 34 ans</b> — parent de deux enfants à Vincennes, foyer à 4 200 €/mois. Cherche chaque week-end des sorties gratuites. Déclencheur : les quêtes familiales et les bornes des parcs.</li>
+          </ul>
+          <p class="block-note">Cœur de cible au lancement : les <b>18-30 ans de Paris intra-muros</b>, sur Android, déjà porteurs d'un bracelet ou d'une montre. Estimation à sourcer : environ 200 000 personnes.</p>
+        </div>
+
+        <div class="group">
+          <p class="sub">B2B &mdash; quatre segments distincts<span class="hint">ce que chacun achète</span></p>
+          <ul>
+            <li><b>Lieux à flux et billetterie</b> — enseignes de sport et loisir, musées, salles : du passage mesurable.</li>
+            <li><b>Commerces de proximité</b> — cafés, librairies, boulangeries : être placés sur le trajet d'un jeu.</li>
+            <li><b>Collectivités et offices de tourisme</b> — Ville de Paris, mairies, Paris je t'aime : de la santé publique et du patrimoine fréquenté.</li>
+            <li><b>Employeurs et mutuelles</b> — mutuelles étudiantes, santé universitaire, directions RH : un programme dont ils peuvent rendre compte.</li>
+          </ul>
+        </div>
+
+        <p class="block-note">Les deux marchés se nourrissent : sans joueurs, aucun lieu ne paie ; sans lieux, les joueurs n'ont nulle part où aller. Le B2C se construit donc d'abord, à perte assumée.</p>
+
+      </div>
+    </section>
+
+  </div>
+
+  <div class="bottom">
+
+    <!-- 8 — STRUCTURE DE COÛTS -->
+    <section class="block b-couts">
+      <h2><span class="num">8</span> Structure de coûts</h2>
+      <div class="block-body">
+        <div class="cols-2">
+
+          <div class="group">
+            <p class="sub">Produit et technique</p>
+            <ul>
+              <li><b>Temps de développement et de maintenance</b> : le premier poste, et de loin</li>
+              <li>Hébergement : serveur, base, broker MQTT, domaine, supervision</li>
+              <li>Compte développeur Google Play et 15 % de commission sur la boutique</li>
+              <li>Veille sur le protocole BLE et les versions d'Android</li>
+              <li>Création graphique : compagnon, skins, décors, animations</li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <p class="sub">Communication, marketing et vente</p>
+            <ul>
+              <li>Acquisition : contenu, micro-influence, presse — <b>cible sous 1,50 € par joueur</b></li>
+              <li>Community manager : animation et modération</li>
+              <li>Commercial B2B : rémunération, commission, frais de prospection</li>
+              <li>Kit média, plaquettes, borne de démonstration, salons</li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <p class="sub">Production et logistique des bornes</p>
+            <ul>
+              <li>Nomenclature estimée entre <b>70 et 90 € par borne</b>, à affiner après le choix du microcontrôleur</li>
+              <li>Assemblage, test, installation, stock de rechange</li>
+              <li>SAV et remplacement ; connectivité (Wi-Fi du lieu ou forfait data)</li>
+              <li>Électricité laissée à la charge du lieu, à négocier au contrat</li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <p class="sub">Structure</p>
+            <ul>
+              <li>Locaux : bureau partagé et stockage</li>
+              <li><b>Propriété intellectuelle</b> : dépôt INPI, surveillance de la marque</li>
+              <li>Juridique et conformité : contrats, RGPD, analyse d'impact, assurance</li>
+              <li>Comptabilité et frais bancaires</li>
+            </ul>
+          </div>
+
+        </div>
+        <p class="block-note">Des coûts très majoritairement <b>fixes</b> (développement, salaires). Le seul vrai coût variable est la borne et son support : c'est précisément ce que l'abonnement mensuel par borne sert à amortir.</p>
+      </div>
+    </section>
+
+    <!-- 9 — SOURCES DE REVENUS -->
+    <section class="block b-revenus">
+      <h2><span class="num">9</span> Sources de revenus</h2>
+      <div class="block-body">
+
+        <p class="principle">
+          <b>L'XP et le niveau ne s'achètent jamais.</b>
+          Seule l'activité réelle fait progresser le compagnon. Le modèle tient quand même : on vend l'apparence et l'accès, pas la performance.
+        </p>
+
+        <div class="cols-2">
+
+          <div class="group">
+            <p class="sub">B2C &mdash; boutique de cosmétiques<span class="hint">à l'unité, sans abonnement ni publicité</span></p>
+            <ul>
+              <li>Skins et accessoires : 0,99 à 4,99 € ; décors et thèmes d'écran : 1,99 €</li>
+              <li>Hypothèse : 3 % de payants, panier de 4 €/an — le B2C finance l'infrastructure, pas l'équipe</li>
+              <li><b>Aucune publicité</b> : incompatible avec le bien-être et le numérique responsable</li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <p class="sub">B2B &mdash; le cœur du revenu</p>
+            <ul>
+              <li><b>Abonnement par borne : 49 €/mois et par lieu</b>, borne fournie, maintenue, animée</li>
+              <li><b>Quête sponsorisée : 300 € la campagne de 2 semaines, puis 0,50 € par passage vérifié.</b> Le commerce achète un visiteur entré chez lui : voilà ce qui le décide à payer</li>
+              <li><b>Parcours de découverte</b> : 3 000 à 8 000 €, sur budgets tourisme, sport ou santé</li>
+              <li>Lieux gratuits : rien n'est facturé au passage, c'est la collectivité qui achète le parcours</li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <p class="sub">Programme bien-être<span class="hint">3 €/mois par bénéficiaire, dès 50 bénéficiaires</span></p>
+            <ul>
+              <li>Défis entre services ou promotions, classement interne, quêtes autour des sites</li>
+              <li>Tableau de bord <b>agrégé et anonymisé</b>. Jamais de donnée individuelle transmise à l'employeur</li>
+              <li>Ils paient parce qu'absentéisme et décrochage coûtent cher, et que le budget prévention existe déjà</li>
+            </ul>
+          </div>
+
+          <div class="group">
+            <p class="sub">Répartition visée à 18 mois</p>
+            <ul>
+              <li>B2B lieux et collectivités : <b>85 %</b></li>
+              <li>Programme bien-être : <b>10 %</b></li>
+              <li>Cosmétiques : <b>5 %</b></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+</section>
+
+<!-- ======================= PAGE 2 : ANNEXES ======================= -->
+<section class="page">
+
+  <div class="annexe-head">
+    <h2>Annexes du Business Model Canvas</h2>
+    <p>Le détail que le canvas ne peut pas contenir : parcours client complet, personas, chiffrage, et le parti pris sur le capteur d'ocytocine.</p>
+  </div>
+
+  <div class="annexes">
+
+    <!-- Canaux : tableau complet -->
+    <section class="annexe">
+      <h3>Canaux, par étape du parcours client <span class="tag">bloc 6</span></h3>
+      <table class="journey">
+        <thead>
+          <tr>
+            <th scope="col">Étape</th>
+            <th scope="col">Joueur (B2C)</th>
+            <th scope="col">Lieux, collectivités, employeurs (B2B)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">1. Notoriété<span>se faire connaître</span></th>
+            <td>TikTok et Instagram tenus par le compagnon ; micro-influence de quartier ; groupes Facebook locaux et Nextdoor ; OnVaSortir et Meetup ; affichage et QR codes chez les partenaires ; presse locale ; bouche-à-oreille campus par les BDE</td>
+            <td>Prospection directe, terrain et LinkedIn ; salons smart city et tourisme ; appels à projets de la Ville ; recommandation par les lieux déjà équipés</td>
+          </tr>
+          <tr>
+            <th scope="row">2. Évaluation<span>se laisser convaincre</span></th>
+            <td>Fiche Play Store travaillée (captures, vidéo de 30 s) ; site vitrine ; avis et notes ; témoignages de joueurs du même quartier ; borne découverte à essayer sans créer de compte</td>
+            <td>Plaquette et kit média ; démonstration sur site avec une borne mobile ; <b>pilote gratuit d'un mois</b> ; chiffres de passage mesurés sur les pilotes précédents</td>
+          </tr>
+          <tr>
+            <th scope="row">3. Achat<span>passer à l'acte</span></th>
+            <td>Téléchargement gratuit sur Google Play ; boutique de cosmétiques intégrée, payée via Google Play (aucune carte à saisir)</td>
+            <td>Devis, bon de commande, facture ; contrat annuel ; abonnement mensuel par borne prélevé automatiquement ; quêtes sponsorisées vendues à la campagne</td>
+          </tr>
+          <tr>
+            <th scope="row">4. Livraison<span>recevoir la valeur</span></th>
+            <td>Mise en route guidée : appairage du bracelet, choix du compagnon et de l'ambition ; <b>première quête à moins de 500 m</b> ; mises à jour par le Play Store</td>
+            <td>Installation et réglage de la borne par nos soins sous 10 jours ; formation de l'équipe du lieu en 30 min ; ouverture des accès au tableau de bord des passages</td>
+          </tr>
+          <tr>
+            <th scope="row">5. Après-vente<span>rester, revenir</span></th>
+            <td>Support dans l'app et par courriel, réponse sous 48 h ; FAQ et forum communautaire ; enquête de satisfaction trimestrielle ; <b>suppression du compte et des données en deux gestes</b></td>
+            <td>Point mensuel de performance ; SAV de la borne sous 72 h ; bilan annuel avant renouvellement ; co-construction des animations de la saison suivante</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Personas -->
+    <section class="annexe">
+      <h3>Personas B2C <span class="tag">bloc 7</span></h3>
+      <div class="personas">
+
+        <article class="persona">
+          <h4>Léa, 20 ans</h4>
+          <p class="role">L'étudiante sédentarisée</p>
+          <dl>
+            <dt>Localité</dt><dd>Paris 13<sup>e</sup>, studio CROUS</dd>
+            <dt>Situation</dt><dd>2<sup>e</sup> année de BUT</dd>
+            <dt>Revenus</dt><dd>650 €/mois (bourse et job étudiant), dont environ 40 € de loisirs</dd>
+            <dt>Activité</dt><dd>3 500 pas/jour, 5 h d'écran</dd>
+            <dt>Centres d'intérêt</dt><dd>Séries, Vinted, soirées BDE, nostalgie Tamagotchi, a joué à Pokémon GO</dd>
+            <dt>Équipement</dt><dd>Android milieu de gamme, bracelet connecté reçu à Noël et jamais exploité</dd>
+            <dt>Frein</dt><dd>« Je connais personne et j'ai pas le budget »</dd>
+            <dt>Déclencheur</dt><dd>Ses amies y jouent : elle rejoint la guilde du 13<sup>e</sup></dd>
+          </dl>
+        </article>
+
+        <article class="persona">
+          <h4>Yanis, 27 ans</h4>
+          <p class="role">Le jeune actif en télétravail</p>
+          <dl>
+            <dt>Localité</dt><dd>Montreuil, deux pièces</dd>
+            <dt>Situation</dt><dd>Développeur, trois jours de télétravail par semaine</dd>
+            <dt>Revenus</dt><dd>2 400 €/mois net, dont environ 150 € de loisirs</dd>
+            <dt>Activité</dt><dd>4 000 pas en télétravail, 11 000 les jours de bureau</dd>
+            <dt>Centres d'intérêt</dt><dd>Running, jeux vidéo, concerts ; suit déjà ses données (Strava, balance connectée)</dd>
+            <dt>Équipement</dt><dd>Android récent, montre connectée</dd>
+            <dt>Frein</dt><dd>Abonné à une salle qu'il ne fréquente plus : il décroche vite</dd>
+            <dt>Déclencheur</dt><dd>La série de jours consécutifs et le classement de son quartier</dd>
+          </dl>
+        </article>
+
+        <article class="persona">
+          <h4>Camille, 34 ans</h4>
+          <p class="role">Le parent en quête de sorties</p>
+          <dl>
+            <dt>Localité</dt><dd>Vincennes, maison</dd>
+            <dt>Situation</dt><dd>En couple, deux enfants de 6 et 9 ans</dd>
+            <dt>Revenus</dt><dd>Foyer à 4 200 €/mois</dd>
+            <dt>Activité</dt><dd>7 000 pas/jour, essentiellement contraints</dd>
+            <dt>Centres d'intérêt</dt><dd>Parcs, musées gratuits, applis de sorties en famille, brocantes</dd>
+            <dt>Équipement</dt><dd>Android, bracelet d'activité</dd>
+            <dt>Frein</dt><dd>« Le samedi, c'est moi qui dois trouver l'idée, chaque semaine »</dd>
+            <dt>Déclencheur</dt><dd>Les quêtes familiales et les bornes des parcs, via un compte parent-enfant</dd>
+          </dl>
+        </article>
+
+      </div>
+    </section>
+
+    <div class="grid-2">
+
+      <!-- Chiffrage -->
+      <section class="annexe">
+        <h3>Chiffrage des offres <span class="tag">blocs 8 et 9</span></h3>
+        <table class="money">
+          <thead>
+            <tr><th scope="col">Offre</th><th scope="col">Prix</th><th scope="col">Qui paie, et pourquoi</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cosmétiques</td>
+              <td class="price">0,99 à 4,99 €</td>
+              <td>Le joueur attaché à son compagnon. Aucun effet sur l'XP.</td>
+            </tr>
+            <tr>
+              <td>Abonnement par borne</td>
+              <td class="price">49 €/mois</td>
+              <td>Le lieu, pour du flux mesurable et une animation qu'il n'a pas à produire.</td>
+            </tr>
+            <tr>
+              <td>Quête sponsorisée</td>
+              <td class="price">300 €<br>+ 0,50 €/passage</td>
+              <td>Le commerce, parce qu'il ne paie une partie qu'au visiteur effectivement venu.</td>
+            </tr>
+            <tr>
+              <td>Parcours de découverte</td>
+              <td class="price">3 000 à 8 000 €</td>
+              <td>La collectivité ou l'office de tourisme, sur budget sport, santé ou tourisme.</td>
+            </tr>
+            <tr>
+              <td>Programme bien-être</td>
+              <td class="price">3 €/mois<br>par bénéficiaire</td>
+              <td>L'employeur ou la mutuelle, sur un budget prévention déjà existant.</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr><td colspan="3">Hypothèses de travail. La grille B2B n'a encore été testée auprès d'aucun partenaire : à confronter avant d'en faire des engagements.</td></tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <!-- Ocytocine -->
+      <section class="annexe">
+        <h3>L'indice de besoin de contact <span class="tag">bloc 4</span></h3>
+        <p style="margin:0 0 2.6mm;">La suggestion d'un capteur d'ocytocine, qui alerterait l'utilisateur en cas de baisse, touche juste sur le fond : il manquait au canvas une promesse qui ne soit ni le pas, ni le Bluetooth, ni la découverte.</p>
+
+        <p class="sub">Pourquoi pas le capteur lui-même</p>
+        <ul style="margin-bottom:2.6mm;">
+          <li>L'ocytocine se dose dans la salive, le sang ou l'urine, en laboratoire. Aucun objet porté au poignet ne la mesure aujourd'hui, même en recherche.</li>
+          <li>Un tel capteur ferait basculer l'app dans le <b>dispositif médical</b> et dans les données de santé au sens du RGPD : hors de portée d'une SAE.</li>
+        </ul>
+
+        <p class="sub">Ce que nous livrons à la place</p>
+        <ul style="margin-bottom:2.6mm;">
+          <li><b>Signal physiologique</b> : fréquence cardiaque au repos et sa variabilité, déjà lues sur le Mi Band 3. La variabilité baisse avec le stress chronique, qui accompagne l'isolement.</li>
+          <li><b>Signal comportemental</b> : jours sans rencontre validée, lieux distincts visités, régularité des sorties.</li>
+          <li>Les deux forment l'<b>indice de besoin de contact</b>. Quand il se dégrade, le compagnon perd en humeur et propose une sortie à portée de marche, ou une quête à faire à deux. Le mécanisme d'alerte suggéré est donc bien là : c'est la mesure qui change.</li>
+        </ul>
+
+        <p class="sub">Ce que ça apporte au modèle</p>
+        <ul>
+          <li>C'est l'indicateur que le programme bien-être vend aux employeurs et aux mutuelles, sous forme agrégée : il transforme une intuition en chiffre dont on peut rendre compte.</li>
+          <li>Le capteur biochimique reste un axe de recherche, à mener avec un laboratoire partenaire — jamais une promesse de la version 1.</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- Ce qui a changé -->
+    <section class="annexe">
+      <h3>Ce qui a changé depuis la version 1 <span class="tag">réponses à la relecture</span></h3>
+      <div class="grid-2">
+        <ul>
+          <li><b>Bloc 1</b> — les lieux sont désormais <b>typés</b> : accès libre d'un côté, billetterie de l'autre, parce qu'ils ne se contractualisent ni ne se facturent de la même façon. Collectivité pilote nommée. Ajout des organisateurs d'événements, des applis de sortie et de rencontre, des groupes de quartier et des voyagistes.</li>
+          <li><b>Bloc 2</b> — ajout des activités de <b>communication, marketing et vente</b>, absentes de la version 1.</li>
+          <li><b>Bloc 3</b> — ajout de la <b>propriété intellectuelle</b>, de la production et de la logistique des bornes, des locaux, du détail des ressources humaines et des ressources commerciales.</li>
+          <li><b>Bloc 4</b> — quatre promesses au lieu de trois variations sur le même thème, avec la promesse de lien social rendue explicite ; propositions B2C et B2B séparées.</li>
+        </ul>
+        <ul>
+          <li><b>Bloc 5</b> — virage communautaire assumé : chat de proximité, guildes, forum, rassemblements. L'objet connecté devient le média.</li>
+          <li><b>Bloc 6</b> — canaux entièrement réécrits selon les <b>cinq étapes du parcours client</b>, et séparés B2C / B2B. C'était le reproche principal.</li>
+          <li><b>Bloc 7</b> — « étudiants et jeunes adultes équipés » remplacé par <b>trois personas chiffrés</b> ; les quatre segments B2B sont listés à part, avec ce que chacun achète.</li>
+          <li><b>Bloc 8</b> — la structure de coûts a grossi en conséquence des blocs 2 et 3 : acquisition, salaires commerciaux, production des bornes, propriété intellectuelle, juridique.</li>
+          <li><b>Bloc 9</b> — programme bien-être détaillé, grille tarifaire chiffrée, argument explicite de ce qui fait payer un commerce, et position tranchée sur la publicité et sur le premium.</li>
+        </ul>
+      </div>
+      <p class="block-note">Le détail commentaire par commentaire est dans <code>docs/bmc-reponses-relecture.md</code>, avec les cinq hypothèses qui restent à lever.</p>
+    </section>
+
+  </div>
+
+  <footer class="sheet-footer">
+    <span>Scubanion &middot; équipe Scubatana &middot; BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena</span>
+    <span>Business Model Canvas version 2 &middot; 08/10/2026</span>
+  </footer>
+
+</section>
+
+</body>
+</html>
