@@ -1,10 +1,10 @@
 # Scoubanion
 
-Projet scolaire (équipe de 4, IUT). Un animal virtuel connecté (type Tamagotchi) dont la santé et la progression dépendent de l'activité physique réelle de son propriétaire (marche, pas comptés en direct via un bracelet Mi Band 3) et de ses interactions sociales réelles (rencontres physiques avec d'autres utilisateurs).
+Projet scolaire (équipe de 4, IUT). Un animal virtuel connecté (type Tamagotchi) dont la santé et la progression dépendent de l'activité physique réelle de son propriétaire (marche, pas comptés par le podomètre du téléphone) et de ses interactions sociales réelles (rencontres physiques avec d'autres utilisateurs).
 
 ## Comment ça marche
 
-- L'utilisateur porte un Mi Band 3, connecté en direct en Bluetooth Low Energy à l'app mobile (pas de passage par l'app officielle Xiaomi). Voir `docs/android-ble-miband3.md` pour le protocole complet.
+- Les pas sont lus par le podomètre du téléphone (capteur de pas Android), sans matériel supplémentaire. Le seul objet connecté est la borne NFC.
 - Le nombre de pas fait gagner de l'XP à l'animal.
 - Des quêtes géolocalisées invitent à se rendre à des points d'intérêt réels.
 - Quand deux utilisateurs se croisent physiquement (détection Bluetooth entre téléphones, recoupée par géolocalisation côté serveur), un bonus est déclenché.
@@ -13,7 +13,7 @@ Projet scolaire (équipe de 4, IUT). Un animal virtuel connecté (type Tamagotch
 
 | Dossier | Rôle | Stack |
 |---|---|---|
-| `scubatana.frontend` | App mobile Android (BLE Mi Band 3, détection de proximité) | Nuxt 4 / Vue 3 / TypeScript, empaqueté avec Capacitor |
+| `scubatana.frontend` | App mobile Android (podomètre du téléphone, détection de proximité BLE) | Nuxt 4 / Vue 3 / TypeScript, empaqueté avec Capacitor |
 | `scubatana.backend` | API | PHP 8.3 / Laravel |
 | `scubatana.mariadb` | Base de données | MariaDB |
 | `scubatana.nginx` | Reverse proxy (prod uniquement) | nginx |

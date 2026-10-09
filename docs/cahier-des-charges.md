@@ -1,8 +1,8 @@
-# Cahier des charges — Scubanion
+# Cahier des charges - Scubanion
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.2 du 08/10/2026
+- **Version** : 0.3 du 09/10/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -21,7 +21,7 @@ Ce document résume le projet et les règles à respecter. C'est notre référen
 
 Comment ça marche :
 
-1. Le joueur porte un **bracelet Mi Band 3** relié en Bluetooth (BLE) à l'app : ses pas font gagner de l'XP à son compagnon.
+1. Le **podomètre du téléphone** compte les pas du joueur, sans matériel supplémentaire : ils font gagner de l'XP à son compagnon.
 2. Des **quêtes géolocalisées** l'envoient vers des lieux réels : parcs, points d'intérêt.
 3. Quand deux joueurs **se croisent physiquement** (détection BLE entre téléphones, recoupée par la géolocalisation côté serveur), leurs compagnons gagnent un bonus.
 4. Des **bornes IoT** (lecteur NFC + écran), installées dans des lieux publics ou chez des partenaires, débloquent skins, récompenses, événements, jeux et énigmes. Exemple de collab : une borne au Decathlon de Châtelet-les-Halles qui débloque un skin exclusif.
@@ -32,17 +32,17 @@ Cette section est notre engagement commun : ce que le projet doit atteindre (§ 
 
 ### 2.1 Objectifs SMART
 
-**O1 — Produit.** Livrer au **12/12/2026** une application Android et une borne IoT fonctionnelles couvrant les **18 exigences *Must*** du § 5, et en faire la démonstration en direct le 13/01/2027.
+**O1 - Produit.** Livrer au **12/12/2026** une application Android et une borne IoT fonctionnelles couvrant les **18 exigences *Must*** du § 5, et en faire la démonstration en direct le 13/01/2027.
 
 | Critère | Comment il est tenu |
 | --------- | ------------------- |
-| Spécifique | Périmètre fermé : les 18 exigences *Must* (6 `APP-`, 4 `BRA-`, 4 `BOR-`, 4 `BCK-`). Les *Should* et *Could* sont hors objectif. |
-| Mesurable | Cases *Must* cochées au § 5, sur 18. Démonstration réussie = les quatre briques (bracelet → app → serveur → borne) enchaînées sans intervention manuelle. |
+| Spécifique | Périmètre fermé : les 18 exigences *Must* (6 `APP-`, 2 `PAS-`, 6 `BOR-`, 4 `BCK-`). Les *Should* et *Could* sont hors objectif. |
+| Mesurable | Cases *Must* cochées au § 5, sur 18. Démonstration réussie = les trois briques (téléphone → serveur → borne) enchaînées sans intervention manuelle. |
 | Atteignable | 11 semaines à 4 personnes. Les *Should* et *Could* servent de variable d'ajustement ; gel des fonctionnalités le 05/12. |
 | Réaliste | C'est le livrable noté de la SAE et le support de la soutenance. |
 | Temporel | Rendu le 12/12/2026, démonstration le 13/01/2027. |
 
-**O2 — Industrialisation.** Mettre en service au **08/11/2026** un pipeline GitLab CI qui, à chaque fusion sur `master`, enchaîne tests → SonarQube → build → publication DockerHub → déploiement automatique, avec une couverture de tests d'au moins **60 %** et **aucun bug bloquant** SonarQube.
+**O2 - Industrialisation.** Mettre en service au **08/11/2026** un pipeline GitLab CI qui, à chaque fusion sur `master`, enchaîne tests → SonarQube → build → publication DockerHub → déploiement automatique, avec une couverture de tests d'au moins **60 %** et **aucun bug bloquant** SonarQube.
 
 | Critère | Comment il est tenu |
 | --------- | ------------------- |
@@ -52,7 +52,7 @@ Cette section est notre engagement commun : ce que le projet doit atteindre (§ 
 | Réaliste | Exigence explicite de R5.07, et elle est notée (§ 6.2). |
 | Temporel | 08/11/2026, fin du jalon J2. |
 
-**O3 — Validation terrain.** Valider le modèle économique avant le **29/11/2026** avec **3 partenaires parisiens** signataires d'une lettre d'intention et **30 testeurs** du campus ayant utilisé l'app pendant au moins 7 jours.
+**O3 - Validation terrain.** Valider le modèle économique avant le **29/11/2026** avec **3 partenaires parisiens** signataires d'une lettre d'intention et **30 testeurs** du campus ayant utilisé l'app pendant au moins 7 jours.
 
 | Critère | Comment il est tenu |
 | --------- | ------------------- |
@@ -76,24 +76,24 @@ K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui 
 
 ### 2.3 Plan d'action du 09 au 23/10/2026
 
-Ces dix actions couvrent la fin du jalon J0 et le jalon J1 (§ 9). Le responsable est une personne nommée, pas un lot : les noms se remplissent à la réunion de cadrage du 09/10, en même temps que la décision `D9`.
+Ces dix actions couvrent la fin du jalon J0 et le jalon J1 (§ 9). Le responsable est une personne nommée, pas un lot. Les noms ci-dessous sont la répartition proposée par l'équipe ; ils sont confirmés à la réunion de cadrage du 09/10, en même temps que la décision `D9`.
 
 | #   | Action                                                                                                                            | Livrable attendu                                                      | Lot                   | Responsable | Échéance        |
 | --- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- | ----------- | ---------------- |
-| A1  | Réunion de cadrage : trancher `D1` (connexion), `D2` (identification borne), `D3` (microcontrôleur), `D4` (compagnon), `D9` (rôles), `D10` (stratégie Git) | Compte rendu et § 8 mis à jour                                        | Toute l'équipe        | …           | **ven 09/10** |
-| A2  | Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT                                                 | 4 commits de test signés du bon nom                                   | Toute l'équipe        | …           | lun 12/10        |
-| A3  | Mettre en place le miroir GitHub → GitLab IUT et vérifier que le runner démarre (`D8`)                                           | Un push sur GitHub déclenche un pipeline sur GitLab                   | CI/CD et infra        | …           | mar 13/10        |
-| A4  | Commander le matériel de la borne une fois `D3` tranchée : microcontrôleur, lecteur NFC, écran, boîtier                         | Commande passée, délai de livraison connu                            | Borne IoT             | …           | mar 13/10        |
-| A5  | Trancher `D6` (hébergement) et `D7` (SonarQube), ouvrir les accès et les stocker en variables masquées                           | Serveur joignable, projet SonarQube créé                              | CI/CD et infra        | …           | jeu 15/10        |
-| A6  | Écrire le modèle de données v1 en migrations Laravel : joueur, compagnon, activité, quête, lieu, rencontre                      | `php artisan migrate` passe sur MariaDB et sur SQLite                 | Back-end et données   | …           | ven 16/10        |
-| A7  | Créer un `.gitlab-ci.yml` minimal : tests back et front, puis publication SonarQube                                               | Pipeline vert sur une branche, premier rapport Sonar                  | CI/CD et infra        | …           | lun 19/10        |
-| A8  | Preuve de concept BLE : lire les pas du Mi Band 3 depuis l'app, et versionner `docs/android-ble-miband3.md`                        | Nombre de pas affiché à l'écran + protocole documenté              | App mobile et bracelet | …           | mar 20/10        |
-| A9  | API d'authentification selon `D1`, couverte par des tests                                                                         | Inscription et connexion par jeton, tests verts (`APP-01`, `BCK-01`)  | Back-end et données   | …           | mer 21/10        |
-| A10 | Assainir l'image du back (multi-stage) et le compose de prod (retirer `laravel_code`, réseaux explicites, healthchecks), puis taguer `v0.1.0` et reporter les décisions prises dans ce document | Tag `v0.1.0` déployé, § 11 mis à jour                             | CI/CD et infra        | …           | **ven 23/10** |
+| A1  | Réunion de cadrage : trancher `D1` (connexion), `D2` (identification borne), `D3` (microcontrôleur), `D4` (compagnon), `D9` (rôles), `D10` (stratégie Git) | Compte rendu et § 8 mis à jour                                        | Toute l'équipe        | Tous        | **ven 09/10** |
+| A2  | Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT                                                 | 4 commits de test signés du bon nom                                   | Toute l'équipe        | Tous        | lun 12/10        |
+| A3  | Mettre en place le miroir GitHub → GitLab IUT et vérifier que le runner démarre (`D8`)                                           | Un push sur GitHub déclenche un pipeline sur GitLab                   | CI/CD et infra        | Thomas      | mar 13/10        |
+| A4  | Commander le matériel de la borne une fois `D3` tranchée : microcontrôleur, lecteur NFC, écran, boîtier                         | Commande passée, délai de livraison connu                            | Borne IoT             | Shaleena    | mar 13/10        |
+| A5  | Trancher `D6` (hébergement) et `D7` (SonarQube), ouvrir les accès et les stocker en variables masquées                           | Serveur joignable, projet SonarQube créé                              | CI/CD et infra        | Thomas      | jeu 15/10        |
+| A6  | Écrire le modèle de données v1 en migrations Laravel : joueur, compagnon, activité, quête, lieu, rencontre                      | `php artisan migrate` passe sur MariaDB et sur SQLite                 | Back-end et données   | Hamza       | ven 16/10        |
+| A7  | Créer un `.gitlab-ci.yml` minimal : tests back et front, puis publication SonarQube                                               | Pipeline vert sur une branche, premier rapport Sonar                  | CI/CD et infra        | Thomas      | lun 19/10        |
+| A8  | Preuve de concept : lire les pas du podomètre du téléphone dans l'app (permission `ACTIVITY_RECOGNITION`)                           | Nombre de pas affiché à l'écran, y compris app fermée              | App mobile | Evan        | mar 20/10        |
+| A9  | API d'authentification selon `D1`, couverte par des tests                                                                         | Inscription et connexion par jeton, tests verts (`APP-01`, `BCK-01`)  | Back-end et données   | Hamza       | mer 21/10        |
+| A10 | Assainir l'image du back (multi-stage) et le compose de prod (retirer `laravel_code`, réseaux explicites, healthchecks), puis taguer `v0.1.0` et reporter les décisions prises dans ce document | Tag `v0.1.0` déployé, § 11 mis à jour                             | CI/CD et infra        | Hamza       | **ven 23/10** |
 
 **Règles de suivi.** Point d'équipe chaque vendredi : chaque responsable dit *fait / en cours / bloqué*. Une action non terminée est reportée **avec sa cause écrite**, jamais effacée. Toute action nouvelle entre dans ce tableau avec un responsable et une échéance, sinon elle n'existe pas.
 
-**Déséquilibre assumé.** Quatre des dix actions relèvent du lot CI/CD et infra : c'est la nature du jalon « Fondations », où le pipeline conditionne tout le reste. À la réunion du 09/10, répartir ces quatre actions entre **deux membres au moins**, pour éviter le point unique de défaillance et parce que R5.07 demande que chaque membre contribue au pipeline.
+**Déséquilibre assumé.** Quatre des dix actions relèvent du lot CI/CD et infra : c'est la nature du jalon « Fondations », où le pipeline conditionne tout le reste. Elles sont réparties entre **Thomas (A3, A5, A7) et Hamza (A10)**, pour éviter le point unique de défaillance et parce que R5.07 demande que chaque membre contribue au pipeline.
 
 ## 3. Calendrier et livrables
 
@@ -110,8 +110,7 @@ Jalons intermédiaires : § 9.
 ```mermaid
 flowchart LR
   subgraph terrain["Sur le terrain"]
-    MB["Bracelet Mi Band 3"]
-    APP["App Android<br/>Nuxt + Capacitor"]
+    APP["App Android<br/>Nuxt + Capacitor<br/>podomètre du téléphone"]
     APP2["Téléphone d'un autre joueur"]
     BORNE["Borne IoT<br/>microcontrôleur + NFC + écran"]
   end
@@ -122,7 +121,6 @@ flowchart LR
     BROKER["Broker MQTT"]
     MON["Prometheus + Grafana"]
   end
-  MB -->|pas, BLE| APP
   APP <-->|rencontre, BLE| APP2
   APP -.->|identification NFC, D2| BORNE
   APP -->|HTTPS, API REST| NGINX --> API --> DB
@@ -132,8 +130,7 @@ flowchart LR
 
 | Brique                | Techno                                                   | Pourquoi                                                                                                | État            |
 | --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
-| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE par plugin                                                      | Socle posé      |
-| Bracelet              | Xiaomi Mi Band 3 en BLE direct, sans l'app Xiaomi        | Podomètre abordable, protocole documenté par des projets open source (ex. Gadgetbridge)               | À prototyper    |
+| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Socle posé      |
 | Borne                 | ESP32, Arduino ou Raspberry Pi + lecteur NFC + écran    | Vrai système cyber-physique, programmé par l'équipe                                                  | À choisir (D3)  |
 | API                   | PHP 8.3, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Squelette        |
 | Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Conteneur prêt  |
@@ -153,39 +150,36 @@ flowchart LR
 
 ### 5.1 App mobile (Android)
 
-- [ ] **APP-01** · Must — Inscription et connexion (mode à choisir, D1).
-- [ ] **APP-02** · Must — Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.
-- [ ] **APP-03** · Must — Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.
-- [ ] **APP-04** · Must — Objectif de pas du jour (5 000 par défaut) et compteur en direct.
-- [ ] **APP-05** · Must — Quêtes : quiz, photos de sortie, nouveaux lieux, rencontres, défi de la semaine.
-- [ ] **APP-06** · Must — Consentements explicites (localisation, Bluetooth, activité) et suppression du compte (RGPD, § 6.5).
-- [ ] **APP-07** · Should — Amis : liste, invitation par code, activité des amis.
-- [ ] **APP-08** · Should — Rencontres : deux joueurs qui se croisent gagnent un bonus (BLE entre téléphones, recoupé par la géolocalisation côté serveur).
-- [ ] **APP-09** · Should — Carte : lieux, bornes et quêtes à proximité, recherche.
-- [ ] **APP-10** · Could — Équipes : marcher ensemble fait grandir les deux compagnons plus vite.
-- [ ] **APP-11** · Could — Chat entre amis et en équipe.
-- [ ] **APP-12** · Could — Notifications (« passe au parc avant 20 h pour une quête bonus »).
+- [ ] **APP-01** · Must : Inscription et connexion (mode à choisir, D1).
+- [ ] **APP-02** · Must : Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.
+- [ ] **APP-03** · Must : Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.
+- [ ] **APP-04** · Must : Objectif de pas du jour (5 000 par défaut) et compteur en direct.
+- [ ] **APP-05** · Must : Quêtes : quiz, photos de sortie, nouveaux lieux, rencontres, défi de la semaine.
+- [ ] **APP-06** · Must : Consentements explicites (localisation, Bluetooth, activité) et suppression du compte (RGPD, § 6.5).
+- [ ] **APP-07** · Should : Amis : liste, invitation par code, activité des amis.
+- [ ] **APP-08** · Should : Rencontres : deux joueurs qui se croisent gagnent un bonus (BLE entre téléphones, recoupé par la géolocalisation côté serveur).
+- [ ] **APP-09** · Should : Carte : lieux, bornes et quêtes à proximité, recherche.
+- [ ] **APP-10** · Could : Équipes : marcher ensemble fait grandir les deux compagnons plus vite.
+- [ ] **APP-11** · Could : Chat entre amis et en équipe.
+- [ ] **APP-12** · Could : Notifications (« passe au parc avant 20 h pour une quête bonus »).
 
-### 5.2 Bracelet (Mi Band 3)
+### 5.2 Pas (podomètre du téléphone)
 
-- [ ] **BRA-01** · Must — Appairage BLE direct avec l'app, sans l'app officielle Xiaomi (authentification du bracelet comprise).
-- [ ] **BRA-02** · Must — Lecture des pas en temps réel, avec rattrapage à la reconnexion.
-- [ ] **BRA-03** · Must — Envoi des pas au serveur, avec une file d'attente locale quand le réseau coupe.
-- [ ] **BRA-04** · Must — Protocole BLE documenté dans `docs/android-ble-miband3.md`.
-- [ ] **BRA-05** · Could — Vibration ou notification sur le bracelet (quête terminée, ami croisé).
-- [ ] **BRA-06** · Could — Repli sur le podomètre du téléphone pour les joueurs sans bracelet.
+- [ ] **PAS-01** · Must : Lecture des pas par le capteur de pas Android (`STEP_COUNTER`), avec permission explicite et rattrapage après un redémarrage ou une app fermée.
+- [ ] **PAS-02** · Must : Envoi des pas au serveur, avec une file d'attente locale quand le réseau coupe.
+- [ ] **PAS-03** · Could : Lecture via Health Connect, pour les joueurs qui ont déjà une montre ou un bracelet branché à leur téléphone.
 
 ### 5.3 Borne IoT
 
-- [ ] **BOR-01** · Must — Matériel choisi et justifié : microcontrôleur, lecteur NFC, écran (D3).
-- [ ] **BOR-02** · Must — Identification du joueur par NFC (D2), sans exposer son identifiant brut (jeton temporaire ou signé).
-- [ ] **BOR-03** · Must — Communication avec le serveur en MQTT, via Wi-Fi.
-- [ ] **BOR-04** · Must — Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur.
-- [ ] **BOR-05** · Should — Événements limités dans le temps (bonus d'un week-end, skin de saison).
-- [ ] **BOR-06** · Should — Jeux et énigmes à résoudre sur la borne.
-- [ ] **BOR-07** · Should — Collabs : une borne chez un partenaire débloque un contenu exclusif (ex. Decathlon Châtelet-les-Halles).
-- [ ] **BOR-08** · Should — Signal de vie envoyé au serveur, visible dans le monitoring.
-- [ ] **BOR-09** · Could — Mode hors ligne : les passages sont stockés puis renvoyés au retour du réseau.
+- [ ] **BOR-01** · Must : Matériel choisi et justifié : microcontrôleur, lecteur NFC, écran (D3).
+- [ ] **BOR-02** · Must : Identification du joueur par NFC (D2), sans exposer son identifiant brut (jeton temporaire ou signé).
+- [ ] **BOR-03** · Must : Communication avec le serveur en MQTT, via Wi-Fi.
+- [ ] **BOR-04** · Must : Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur.
+- [ ] **BOR-05** · Should : Événements limités dans le temps (bonus d'un week-end, skin de saison).
+- [ ] **BOR-06** · Should : Jeux et énigmes à résoudre sur la borne.
+- [ ] **BOR-07** · Should : Collabs : une borne chez un partenaire débloque un contenu exclusif (ex. Decathlon Châtelet-les-Halles).
+- [ ] **BOR-08** · Must : Signal de vie envoyé au serveur, visible dans le monitoring.
+- [ ] **BOR-09** · Must : Mode hors ligne : les passages sont stockés puis renvoyés au retour du réseau.
 
 Topics MQTT (*proposition*) :
 
@@ -197,14 +191,14 @@ Topics MQTT (*proposition*) :
 
 ### 5.4 Back-end, données et web
 
-- [ ] **BCK-01** · Must — API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.
-- [ ] **BCK-02** · Must — Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
-- [ ] **BCK-03** · Must — Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
-- [ ] **BCK-04** · Must — Abonné MQTT qui traite les passages en borne et répond à la borne.
-- [ ] **BCK-05** · Should — Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).
-- [ ] **BCK-06** · Could — Ressources oneM2M pour décrire les bornes (D5).
-- [ ] **BCK-07** · Could — Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de `scubatana.demo`.
-- [ ] **BCK-08** · Could — Back-office pour créer quêtes, événements, skins et partenaires.
+- [ ] **BCK-01** · Must : API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.
+- [ ] **BCK-02** · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
+- [ ] **BCK-03** · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
+- [ ] **BCK-04** · Must : Abonné MQTT qui traite les passages en borne et répond à la borne.
+- [ ] **BCK-05** · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).
+- [ ] **BCK-06** · Could : Ressources oneM2M pour décrire les bornes (D5).
+- [ ] **BCK-07** · Could : Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de `scubatana.demo`.
+- [ ] **BCK-08** · Could : Back-office pour créer quêtes, événements, skins et partenaires.
 
 Modèle de données (v0, à affiner) :
 
@@ -213,7 +207,7 @@ Modèle de données (v0, à affiner) :
 | Joueur                  | Pseudo, contact (téléphone ou email selon D1), date de naissance, genre (facultatif), ambition, consentements        |
 | Compagnon               | Joueur, nom, espèce, niveau, XP, humeur et santé, skin porté. Le volet « relation, login » reste à définir (D4) |
 | Amitié                 | Deux joueurs, statut (en attente, acceptée), date                                                                     |
-| Activité               | Joueur, jour, nombre de pas, source (bracelet, téléphone)                                                            |
+| Activité               | Joueur, jour, nombre de pas, source (téléphone, Health Connect)                                                            |
 | Quête, progression     | Type, objectif, récompense ; avancement de chaque joueur                                                              |
 | Lieu                    | Nom, coordonnées, type (parc, point d'intérêt, partenaire)                                                          |
 | Borne, passage          | Lieu, partenaire éventuel, état, dernier signal ; passages (joueur, borne, date, récompense)                        |
@@ -233,7 +227,7 @@ Modèle de données (v0, à affiner) :
 
 La lettre de commande et les consignes détaillées de R5.01, R5.13 et R5.04 n'ont pas été communiquées : **à compléter dès réception**.
 
-### 6.2 R5.07 — Automatisation de la chaîne de production
+### 6.2 R5.07 - Automatisation de la chaîne de production
 
 Évaluation : dépôt (coeff. 1) + soutenance (coeff. 1) + contrôle écrit individuel de 60 min (coeff. 1). La documentation fait partie du rendu. **Tous les membres doivent contribuer au pipeline.**
 
@@ -271,7 +265,7 @@ Grille d'évaluation, à relire avant le rendu :
   - [ ] Mécanisme de passage à l'échelle expliqué, s'il est mis en place.
   - [ ] Mécanisme de monitoring expliqué.
 
-### 6.3 R5.04 — Programmation avancée (IoT)
+### 6.3 R5.04 - Programmation avancée (IoT)
 
 Consigne : « Vous utiliserez ce que nous avons vu en cours. Votre code sera évalué. »
 
@@ -279,8 +273,8 @@ Programme : systèmes IoT et cyber-physiques (CPS) · supports de communication 
 
 | Thème du cours                                 | Dans Scubanion                                                                                                                 |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Systèmes cyber-physiques                       | La borne : un geste physique (badge NFC) déclenche un effet dans le jeu. Le bracelet mesure l'activité réelle.              |
-| Supports de communication                       | BLE (bracelet ↔ téléphone, téléphone ↔ téléphone), NFC (joueur ↔ borne), Wi-Fi (borne ↔ serveur), HTTPS (app ↔ API) |
+| Systèmes cyber-physiques                       | La borne : un geste physique (badge NFC) déclenche un effet dans le jeu. Le podomètre du téléphone mesure l'activité réelle.              |
+| Supports de communication                       | BLE (téléphone ↔ téléphone), NFC (joueur ↔ borne), Wi-Fi (borne ↔ serveur), HTTPS (app ↔ API) |
 | Standards et protocoles                         | MQTT (borne ↔ serveur) ; Kafka et oneM2M à évaluer (D5)                                                                     |
 | Frameworks de développement et de déploiement | À compléter avec le cours (côté borne : framework Arduino ou ESP-IDF)                                                      |
 
@@ -301,12 +295,12 @@ Livrables produits à ce jour :
 | BMC v1 annoté par la relecture | [business-model-canvas-v1-annote.pdf](business-model-canvas-v1-annote.pdf)       | Archive du 30/09/2026 : la trace des neuf commentaires                |
 | Charte de projet               | § 2                                                                              | Objectifs SMART, indicateurs, plan d'action                            |
 
-Le Business Model Canvas laisse cinq hypothèses ouvertes (grille tarifaire B2B, taille du marché, coût unitaire de la borne, lecture de la variabilité cardiaque, validité des personas). Elles sont listées en fin de `bmc-reponses-relecture.md` et l'objectif **O3** du § 2.1 est ce qui doit les lever.
+Le Business Model Canvas laisse cinq hypothèses ouvertes (grille tarifaire B2B, taille du marché, coût unitaire de la borne, pertinence de l'indice de besoin de contact sans mesure cardiaque, validité des personas). Elles sont listées en fin de `bmc-reponses-relecture.md` et l'objectif **O3** du § 2.1 est ce qui doit les lever.
 
 Pistes, à confirmer quand les consignes arriveront :
 
 - Modèle économique : abonnement par borne chez les partenaires, quêtes sponsorisées facturées au passage, parcours vendus aux collectivités, programme bien-être pour les employeurs et mutuelles. Le détail et le chiffrage sont dans le Business Model Canvas.
-- Numérique responsable : échanges et consommation d'énergie sobres (bracelet, bornes), matériel réutilisable. Aucune publicité dans l'app, par cohérence avec cet axe.
+- Numérique responsable : échanges et consommation d'énergie sobres (téléphone, bornes), matériel réutilisable. Aucune publicité dans l'app, par cohérence avec cet axe.
 - Organisation : rôles (§ 7), décisions (§ 8), planning (§ 9), suivi par ce document.
 
 ### 6.5 Nos règles d'équipe (*proposition*)
@@ -367,16 +361,16 @@ L'app traite des données personnelles : position, activité physique, rencontre
 
 ## 7. Organisation de l'équipe
 
-Les rôles ne sont pas encore attribués (D9). *Proposition* : un référent par lot, et chaque membre porte une étape du pipeline, ce qui garantit que tout le monde y contribue (exigence R5.07).
+Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par lot, et chaque membre porte une étape du pipeline, ce qui garantit que tout le monde y contribue (exigence R5.07). Thomas et Evan se partagent l'app mobile et l'infra.
 
 | Membre           | Référent du lot | Étape du pipeline |
 | ---------------- | ----------------- | ------------------ |
-| BANDIERAS Thomas | à définir       | à définir        |
-| DALMASSO Evan    | à définir       | à définir        |
-| KARROUCHI Hamza  | à définir       | à définir        |
-| LESUEUR Shaleena | à définir       | à définir        |
+| BANDIERAS Thomas | CI/CD et infra (principal) | Tests et SonarQube |
+| DALMASSO Evan    | App mobile (et appui infra) | Déploiement (compose, Ansible) |
+| KARROUCHI Hamza  | Back-end et données | Build et images DockerHub |
+| LESUEUR Shaleena | Borne IoT | Monitoring et passage à l'échelle |
 
-- **Lots** : app mobile et bracelet · borne IoT · back-end et données · CI/CD et infra.
+- **Lots** : app mobile · borne IoT · back-end et données · CI/CD et infra.
 - **Étapes du pipeline** : tests et SonarQube · build et images DockerHub · déploiement (compose, Ansible) · monitoring et passage à l'échelle.
 
 ## 8. Décisions à prendre
@@ -384,7 +378,7 @@ Les rôles ne sont pas encore attribués (D9). *Proposition* : un référent par
 |     | Décision                                 | Options                                                                                                                                         | À savoir                                                                                                                                                    | Avant le                                |
 | --- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
 | D1  | Mode de connexion                         | SMS + code (maquettes), email + code, email + mot de passe                                                                                      | Les SMS sont payants (Twilio…), un code par email est gratuit                                                                                               | 11/10                                   |
-| D2  | Identification à la borne                | Téléphone en émulation de carte (HCE) ; tag NFC personnel (autocollant, carte) ; ou l'inverse : le téléphone lit un tag posé sur la borne | Le Mi Band 3 standard n'a pas de NFC utilisable. La HCE demande du code Android natif et un lecteur qui gère l'ISO-DEP (le PN532 oui, le RC522 mal)         | 11/10                                   |
+| D2  | Identification à la borne                | Téléphone en émulation de carte (HCE) ; tag NFC personnel (autocollant, carte) ; ou l'inverse : le téléphone lit un tag posé sur la borne | Le téléphone est le seul porteur d'identité à la borne. La HCE demande du code Android natif et un lecteur qui gère l'ISO-DEP (le PN532 oui, le RC522 mal)         | 11/10                                   |
 | D3  | Microcontrôleur de la borne              | ESP32, Arduino, Raspberry Pi                                                                                                                    | ESP32 : Wi-Fi et BLE intégrés, peu cher, sobre. Arduino Uno : pas de réseau sans module. Raspberry Pi : Linux et écran riche, plus cher et plus gourmand | 11/10, pour avoir le temps de commander |
 | D4  | Compagnon : « relation » et « login » | À définir                                                                                                                                     | Conditionne le modèle de données                                                                                                                           | 11/10                                   |
 | D5  | Kafka et oneM2M                           | Utilisés, ou écartés avec une justification écrite                                                                                          | R5.04 demande d'utiliser ce qui est vu en cours                                                                                                              | 31/10                                   |
@@ -399,23 +393,23 @@ Les rôles ne sont pas encore attribués (D9). *Proposition* : un référent par
 | Période       | Jalon                                      | Contenu                                                                                                                                                                                 |
 | -------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 24/09 → 04/10 | **J0 Cadrage**                       | Cahier des charges validé, rôles, stratégie Git, miroir GitLab (D8 à D10)                                                                                                           |
-| 05/10 → 18/10 | **J1 Fondations** · `v0.1.0`      | Pipeline minimal (tests + SonarQube), modèle de données, API d'authentification, lecture des pas du Mi Band 3 (preuve de concept), matériel de la borne commandé (D1 à D4, D6, D7) |
+| 05/10 → 18/10 | **J1 Fondations** · `v0.1.0`      | Pipeline minimal (tests + SonarQube), modèle de données, API d'authentification, lecture des pas du téléphone (preuve de concept), matériel de la borne commandé (D1 à D4, D6, D7) |
 | 19/10 → 08/11 | **J2 Cœur du jeu** · `v0.2.0`    | Compagnon, XP, quêtes, synchro des pas, broker MQTT, prototype de borne (NFC → MQTT → serveur)                                                                                       |
 | 09/11 → 29/11 | **J3 Social et borne** · `v0.3.0` | Amis, rencontres, récompenses et événements en borne ; images DockerHub, déploiement auto, monitoring                                                                               |
 | 30/11 → 12/12 | **J4 Stabilisation** · `v1.0.0`   | Gel des fonctionnalités le 05/12, tests, qualité SonarQube, documentation,**rendu le 12/12**                                                                                    |
-| 13/12 → 13/01 | **J5 Soutenance**                    | Démo (app + bracelet + borne), support, répétitions                                                                                                                                  |
+| 13/12 → 13/01 | **J5 Soutenance**                    | Démo (app + serveur + borne), support, répétitions                                                                                                                                  |
 
 ## 10. Risques
 
 | Risque                                                                                                                        | Parade                                                                                                          |
 | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Le protocole du Mi Band 3 (authentification, firmware) bloque la lecture des pas                                              | Preuve de concept dès J1 ; repli sur le podomètre du téléphone (BRA-06)                                     |
+| Les pas du téléphone sont faciles à tricher (secousses) ou coupés en arrière-plan par Android | Garde-fous serveur (plafond de pas par heure, cohérence avec la position) ; permission `ACTIVITY_RECOGNITION` demandée dès l'onboarding |
 | Rencontres BLE : le plugin`@capacitor-community/bluetooth-le` ne gère que le rôle central, pas l'émission d'annonces BLE | Autre plugin ou code Android natif pour émettre ; à valider tôt, sinon rencontres par géolocalisation seule |
 | Android limite le Bluetooth en arrière-plan pour économiser la batterie                                                     | Service au premier plan, ou détection seulement quand l'app est ouverte                                        |
 | Délais de livraison du matériel de la borne                                                                                 | Trancher D3 et commander avant le 11/10                                                                         |
 | GitLab IUT injoignable depuis GitHub Actions                                                                                  | Double push depuis les postes, ou runner auto-hébergé                                                         |
 | Trop de fonctionnalités pour 11 semaines                                                                                     | Priorités Must / Should / Could, gel le 05/12                                                                  |
-| Connaissances non partagées (ex.`docs/android-ble-miband3.md`, cité dans le README mais absent du dépôt)                | Tout documenter dans`docs/`, relectures croisées                                                             |
+| Connaissances non partagées | Tout documenter dans `docs/`, relectures croisées |
 | Crédits d'hébergement épuisés                                                                                             | Surveiller la consommation, prévoir une VM de repli                                                            |
 | Données personnelles (position, rencontres)                                                                                  | Règles RGPD du § 6.5                                                                                          |
 
@@ -428,7 +422,6 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 - [ ] Mettre en place le miroir GitHub → GitLab IUT (D8).
 - [ ] Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT.
 - [X] Retirer `docs/` du `.gitignore` pour versionner la documentation.
-- [ ] Récupérer et versionner `docs/android-ble-miband3.md`.
 - [ ] Renommer Scoubanion en Scubanion : README, `capacitor.config.json`, `nuxt.config.ts`, `app.vue`, `strings.xml`, `APP_NAME` du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.
 - [ ] Image du back : build multi-stage avec `composer install --no-dev` pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.
 - [ ] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
@@ -442,4 +435,5 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.3     | 09/10/2026 | Abandon du bracelet Mi Band 3 : les pas viennent du podomètre du téléphone (section 5.2 remplacée par `PAS-`), la borne IoT devient le seul objet connecté (BOR-08 et BOR-09 passent en *Must*, toujours 18 *Must*). Responsables du plan d'action et rôles de la section 7 renseignés |
 | 0.2     | 08/10/2026 | Ajout de la charte de projet (§ 2) : 3 objectifs SMART, 5 indicateurs de suivi, plan d'action du 09 au 23/10. Sections 2 à 11 renumérotées en 3 à 12. Business Model Canvas v2 référencé au § 6.4 |
