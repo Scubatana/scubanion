@@ -14,7 +14,7 @@ Projet scolaire (équipe de 4, IUT). Un animal virtuel connecté (type Tamagotch
 | Dossier | Rôle | Stack |
 |---|---|---|
 | `scubatana.frontend` | App mobile Android (podomètre du téléphone, détection de proximité BLE) | Nuxt 4 / Vue 3 / TypeScript, empaqueté avec Capacitor |
-| `scubatana.backend` | API | PHP 8.3 / Laravel |
+| `scubatana.backend` | API | PHP 8.4 / Laravel |
 | `scubatana.mariadb` | Base de données | MariaDB |
 | `scubatana.nginx` | Reverse proxy (prod uniquement) | nginx |
 | `scubatana.phpmyadmin` | Admin base de données | phpMyAdmin |
