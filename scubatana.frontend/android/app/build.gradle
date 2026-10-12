@@ -18,7 +18,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("${rootProject.projectDir}/../android-keystore/scoubanion-dev.keystore")
+            storeFile file("${rootProject.projectDir}/../android-keystore/scubanion-dev.keystore")
             storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
             keyAlias System.getenv("ANDROID_KEY_ALIAS")
             keyPassword System.getenv("ANDROID_KEY_PASSWORD")

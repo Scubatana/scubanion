@@ -7,7 +7,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: "Scoubanion",
+      title: "Scubanion",
       viewport: "width=device-width, initial-scale=1, viewport-fit=cover"
     }
   }

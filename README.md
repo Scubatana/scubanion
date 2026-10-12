@@ -1,4 +1,4 @@
-# Scoubanion
+# Scubanion
 
 Projet scolaire (équipe de 4, IUT). Un animal virtuel connecté (type Tamagotchi) dont la santé et la progression dépendent de l'activité physique réelle de son propriétaire (marche, pas comptés par le podomètre du téléphone) et de ses interactions sociales réelles (rencontres physiques avec d'autres utilisateurs).
 
@@ -58,4 +58,4 @@ Puis, téléphone Android branché en USB avec le débogage activé :
 npm run adb:install
 ```
 
-Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scoubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe.
+Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe.

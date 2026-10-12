@@ -28,7 +28,7 @@ keytool -genkeypair \
 	-keysize 2048 \
 	-validity 10000 \
 	-storepass "$ANDROID_KEYSTORE_PASSWORD" \
-	-dname "CN=Scoubanion, OU=IUT, O=Scoubanion, C=FR"
+	-dname "CN=Scubanion, OU=IUT, O=Scubanion, C=FR"
 
 echo "Keystore genere a $ANDROID_KEYSTORE_PATH."
-echo "A sauvegarder en lieu sur (gestionnaire de mots de passe partage par l'equipe) : ce fichier n'est pas versionne."
+echo "Cle de dev versionnee dans le depot (voir .gitignore) : le mot de passe dans .env reste local, non versionne."

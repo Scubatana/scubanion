@@ -1,6 +1,6 @@
 <template>
 	<div class="app-shell">
-		<h1>Scoubanion</h1>
+		<h1>Scubanion</h1>
 		<p>App mobile en cours de mise en place.</p>
 	</div>
 </template>

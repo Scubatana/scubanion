@@ -1,6 +1,6 @@
 {
   "appId": "com.scubatana.app",
-  "appName": "Scoubanion",
+  "appName": "Scubanion",
   "webDir": ".output/public",
   "android": {
     "allowMixedContent": false
