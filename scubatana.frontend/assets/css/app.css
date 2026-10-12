@@ -1,0 +1,102 @@
+html,
+body,
+#__nuxt {
+	height: 100%;
+}
+
+body {
+	display: block;
+	padding: 0;
+	gap: 0;
+	background: var(--paper);
+}
+
+.phone.embedded {
+	height: 100dvh;
+	padding-top: env(safe-area-inset-top, 0px);
+}
+
+.page {
+	display: contents;
+}
+
+.topbar-title {
+	font-family: 'Baloo 2', sans-serif;
+	font-weight: 600;
+	font-size: 16px;
+}
+
+.topbar-spacer {
+	width: 40px;
+}
+
+.stack {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.stack-tight {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.row-between {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+}
+
+.note-centered {
+	text-align: center;
+	max-width: 260px;
+}
+
+.field input.code-input {
+	letter-spacing: 6px;
+	font-weight: 600;
+}
+
+.field-error,
+.form-error {
+	font-size: 13px;
+	color: var(--coral-dark);
+	font-weight: 500;
+}
+
+.form-error {
+	text-align: center;
+}
+
+.btn:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+
+button.link-under {
+	background: none;
+	border: none;
+	font-family: inherit;
+	cursor: pointer;
+	width: 100%;
+}
+
+button.link-under:disabled {
+	opacity: 0.55;
+}
+
+.companion-name {
+	font-size: 22px;
+}
+
+.xp-row {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.wave-bar.thin {
+	height: 10px;
+}
