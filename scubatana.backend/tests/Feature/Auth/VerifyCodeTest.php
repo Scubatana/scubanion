@@ -5,6 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\User;
 use App\Services\LoginCodeService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class VerifyCodeTest extends TestCase
@@ -136,5 +137,19 @@ class VerifyCodeTest extends TestCase
 		$this->postJson('/api/auth/verify', ['email' => self::EMAIL, 'code' => '123', 'terms_accepted' => true])
 			->assertUnprocessable()
 			->assertJsonValidationErrors('code');
+	}
+
+	public function test_logging_in_on_a_new_phone_logs_the_other_phones_out(): void
+	{
+		$user = User::factory()->create(['email' => self::EMAIL]);
+		$oldPhone = $user->createToken('mobile')->plainTextToken;
+
+		$newPhone = $this->postJson('/api/auth/verify', ['email' => self::EMAIL, 'code' => $this->issueCode()])->assertOk()->json('token');
+
+		$this->assertSame(1, $user->tokens()->count());
+		Auth::forgetGuards();
+		$this->withToken($oldPhone)->getJson('/api/me')->assertUnauthorized();
+		Auth::forgetGuards();
+		$this->withToken($newPhone)->getJson('/api/me')->assertOk();
 	}
 }
