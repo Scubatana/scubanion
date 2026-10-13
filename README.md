@@ -24,6 +24,8 @@ L'application web de consultation (animal, historique, quêtes) n'est pas encore
 
 ## Lancer le projet en développement
 
+Le guide complet (prérequis, démarrage, compilation dev et production, iOS, dépannage) est dans [docs/guide-demarrage.md](docs/guide-demarrage.md). L'essentiel :
+
 ```bash
 cp .env.exemple .env
 cp scubatana.frontend/.env.example scubatana.frontend/.env   # si absent, puis renseigner les mots de passe du keystore
@@ -37,8 +39,33 @@ Le backend n'est pas lancé par docker compose en dev (PHP-FPM derrière nginx n
 
 ```bash
 cd scubatana.backend
+composer install
 php artisan migrate
 php artisan serve
+```
+
+L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`.
+
+Les pas sont lus sur le téléphone par un module Android natif (`StepCounterPlugin`, capteur `STEP_COUNTER`) et envoyés au serveur, qui les plafonne (`STEPS_MAX_PER_HOUR`, `STEPS_MAX_PER_DAY`). L'apparence du compagnon suit la norme décrite dans `docs/skins-compagnon.md`.
+
+### Envoi des mails (code de connexion)
+
+La connexion se fait par email et code à 6 chiffres. L'envoi passe par l'API de Brevo. Dans `scubatana.backend/.env` :
+
+```bash
+MAIL_MAILER=brevo
+BREVO_API_KEY=            # clé d'API Brevo (xkeysib-...), jamais commitée
+MAIL_FROM_ADDRESS=        # adresse d'expéditeur validée dans Brevo
+MAIL_FROM_NAME="Scubanion"
+```
+
+Sans clé, laisser `MAIL_MAILER=log` : le code est alors écrit dans `storage/logs/laravel.log`. Si Brevo répond que l'adresse IP n'est pas reconnue, l'autoriser dans les réglages de sécurité du compte Brevo.
+
+### Tests
+
+```bash
+cd scubatana.backend && php artisan test     # API, sur SQLite en mémoire, mails simulés
+cd scubatana.frontend && npm test            # app, avec Vitest
 ```
 
 ### CI/CD (GitLab)
@@ -66,10 +93,22 @@ npm install
 npx cap add android   # une seule fois, génère le dossier android/
 ```
 
-Puis, téléphone Android branché en USB avec le débogage activé :
+Puis, téléphone Android branché en USB avec le débogage activé.
+
+Pour développer, avec l'API lancée sur ce poste (`php artisan serve`) :
+
+```bash
+npm run adb:install:debug
+```
+
+Cette commande active le pont USB (`adb reverse`, le `localhost:8000` du téléphone pointe vers ce poste), build une version debug et l'installe. L'app ne joint l'API que téléphone branché. Le pont saute dès que le câble est débranché ou qu'adb redémarre : l'app affiche alors « Impossible de joindre le serveur ». Il se rétablit sans rebuild avec `adb reverse tcp:8000 tcp:8000`. Le trafic HTTP non chiffré n'est autorisé que vers `localhost` et que dans ce build debug.
+
+Pour une version release signée, qui appelle le serveur en ligne :
 
 ```bash
 npm run adb:install
 ```
 
-Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe.
+Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe. L'adresse de l'API est choisie au build par le script : `NUXT_PUBLIC_API_URL_DEV` pour `adb:install:debug` (par défaut `http://localhost:8000`) et `NUXT_PUBLIC_API_URL_PROD` pour `adb:install` (par défaut `https://scubatana.picsou06.fr`). Les deux se règlent dans `scubatana.frontend/.env`.
+
+Une version debug et une version release ne peuvent pas se remplacer l'une l'autre : désinstaller l'app avant de changer de type de build.
