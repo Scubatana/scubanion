@@ -14,8 +14,6 @@ class QuestFactory extends Factory
 			'name' => 'Premiers pas',
 			'description' => null,
 			'icon' => null,
-			'reward_xp' => 100,
-			'reward_accessory' => null,
 			'auto_assign' => false,
 			'target_ambition' => null,
 			'target_zone_id' => null,

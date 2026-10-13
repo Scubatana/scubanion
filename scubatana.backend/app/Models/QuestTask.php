@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
 #[Fillable(['quest_id', 'step', 'position', 'task_type_id', 'description', 'target', 'place_id', 'place_type_id', 'params'])]
@@ -44,6 +45,11 @@ class QuestTask extends Model
 			'target' => 'integer',
 			'params' => 'array',
 		];
+	}
+
+	public function rewards(): HasMany
+	{
+		return $this->hasMany(QuestReward::class);
 	}
 
 	public function quest(): BelongsTo
