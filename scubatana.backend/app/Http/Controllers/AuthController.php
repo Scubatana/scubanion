@@ -28,6 +28,14 @@ class AuthController extends Controller
 	public function verify(VerifyCodeRequest $request, LoginCodeService $codes): JsonResponse
 	{
 		$email = $request->validated('email');
+		$loginCode = $codes->find($email, $request->validated('code'));
+
+		if ($loginCode === null) {
+			throw ValidationException::withMessages([
+				'code' => 'Ce code est incorrect ou expiré.',
+			]);
+		}
+
 		$user = User::where('email', $email)->first();
 
 		if ($user === null && ! $request->boolean('terms_accepted')) {
@@ -36,11 +44,7 @@ class AuthController extends Controller
 			]);
 		}
 
-		if (! $codes->verify($email, $request->validated('code'))) {
-			throw ValidationException::withMessages([
-				'code' => 'Ce code est incorrect ou expiré.',
-			]);
-		}
+		$codes->consume($loginCode);
 
 		$user ??= User::create([
 			'email' => $email,
