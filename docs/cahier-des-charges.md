@@ -153,7 +153,7 @@ flowchart LR
 - [x] **APP-01** · Must : Inscription et connexion par email et code à usage unique (D1).
 - [x] **APP-02** · Must : Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.
 - [ ] **APP-03** · Must : Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.
-- [ ] **APP-04** · Must : Objectif de pas du jour (5 000 par défaut) et compteur en direct.
+- [x] **APP-04** · Must : Objectif de pas du jour (5 000 par défaut) et compteur en direct.
 - [ ] **APP-05** · Must : Quêtes : quiz, photos de sortie, nouveaux lieux, rencontres, défi de la semaine.
 - [ ] **APP-06** · Must : Consentements explicites (localisation, Bluetooth, activité) et suppression du compte (RGPD, § 6.5).
 - [ ] **APP-07** · Should : Amis : liste, invitation par code, activité des amis.
@@ -165,8 +165,8 @@ flowchart LR
 
 ### 5.2 Pas (podomètre du téléphone)
 
-- [ ] **PAS-01** · Must : Lecture des pas par le capteur de pas Android (`STEP_COUNTER`), avec permission explicite et rattrapage après un redémarrage ou une app fermée.
-- [ ] **PAS-02** · Must : Envoi des pas au serveur, avec une file d'attente locale quand le réseau coupe.
+- [x] **PAS-01** · Must : Lecture des pas par le capteur de pas Android (`STEP_COUNTER`), avec permission explicite et rattrapage après un redémarrage ou une app fermée.
+- [x] **PAS-02** · Must : Envoi des pas au serveur, avec une file d'attente locale quand le réseau coupe.
 - [ ] **PAS-03** · Could : Lecture via Health Connect, pour les joueurs qui ont déjà une montre ou un bracelet branché à leur téléphone.
 
 ### 5.3 Borne IoT
@@ -435,6 +435,6 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
-| 0.4     | 13/10/2026 | Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01 et APP-02 cochés |
+| 0.4     | 13/10/2026 | Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01, APP-02, APP-04, PAS-01 et PAS-02 cochés |
 | 0.3     | 09/10/2026 | Abandon du bracelet Mi Band 3 : les pas viennent du podomètre du téléphone (section 5.2 remplacée par `PAS-`), la borne IoT devient le seul objet connecté (BOR-08 et BOR-09 passent en *Must*, toujours 18 *Must*). Responsables du plan d'action et rôles de la section 7 renseignés |
 | 0.2     | 08/10/2026 | Ajout de la charte de projet (§ 2) : 3 objectifs SMART, 5 indicateurs de suivi, plan d'action du 09 au 23/10. Sections 2 à 11 renumérotées en 3 à 12. Business Model Canvas v2 référencé au § 6.4 |
