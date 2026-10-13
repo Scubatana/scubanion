@@ -42,6 +42,41 @@ describe("applyReading", () => {
 	});
 });
 
+describe("a reading after the day changed", () => {
+	const YESTERDAY = "2026-10-12";
+
+	function killedYesterdayEvening() {
+		const tracking = resume(emptyLedger(), at(YESTERDAY, 8));
+
+		return applyReading(applyReading(tracking, 20000, YESTERDAY), 25000, YESTERDAY);
+	}
+
+	it("never puts on today the steps walked since a reading of another day", () => {
+		const ledger = applyReading(killedYesterdayEvening(), 30000, TODAY);
+
+		expect(ledger.days).toEqual({ [YESTERDAY]: 5000, [TODAY]: 0 });
+		expect(applyReading(ledger, 30150, TODAY).days[TODAY]).toBe(150);
+	});
+
+	it("counts once the steps walked while the app was killed overnight", () => {
+		let ledger = parseLedger(JSON.stringify(killedYesterdayEvening()));
+		ledger = applyReading(resume(ledger, at(TODAY, 9)), 30000, TODAY);
+		ledger = applyRecorded(ledger, [
+			{ start: at(YESTERDAY, 10), steps: 5000 },
+			{ start: at(YESTERDAY, 20), steps: 3000 },
+			{ start: at(TODAY, 8), steps: 2000 }
+		]);
+
+		expect(ledger.days).toEqual({ [YESTERDAY]: 8000, [TODAY]: 2000 });
+	});
+
+	it("starts again from the sensor when a stored ledger does not say when it was last read", () => {
+		const stored = JSON.stringify({ lastSensorCount: 25000, since: at(YESTERDAY, 8), days: { [YESTERDAY]: 5000 }, synced: {} });
+
+		expect(applyReading(parseLedger(stored), 30000, TODAY).days[TODAY]).toBe(0);
+	});
+});
+
 describe("applyRecorded", () => {
 	const tracking = resume(emptyLedger(), at("2026-10-10", 8));
 
@@ -110,6 +145,7 @@ describe("syncing", () => {
 		let ledger = applyReading(emptyLedger(), 1000, "2026-10-12");
 		ledger = applyReading(ledger, 1800, "2026-10-12");
 		ledger = applyReading(ledger, 2000, TODAY);
+		ledger = applyReading(ledger, 2200, TODAY);
 
 		expect(pendingEntries(ledger, TODAY)).toEqual([
 			{ day: "2026-10-12", steps: 800 },
