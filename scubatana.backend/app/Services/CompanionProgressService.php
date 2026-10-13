@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Companion;
+use App\Models\Passage;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -50,7 +51,8 @@ class CompanionProgressService
 
 	public function rewardXp(User $user): int
 	{
-		return (int) $user->userQuests()->whereNotNull('completed_at')->sum('reward_xp');
+		return (int) $user->userQuests()->whereNotNull('completed_at')->sum('reward_xp')
+			+ (int) Passage::where('user_id', $user->id)->sum('reward_xp');
 	}
 
 	public function levelFor(int $totalXp): array

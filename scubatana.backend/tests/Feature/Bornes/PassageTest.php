@@ -3,6 +3,7 @@
 namespace Tests\Feature\Bornes;
 
 use App\Enums\TerminalStatus;
+use App\Models\Companion;
 use App\Models\Passage;
 use App\Models\Terminal;
 use App\Models\User;
@@ -47,6 +48,15 @@ class PassageTest extends TestCase
 		$this->assertTrue($passage->user->is($this->lea));
 		$this->assertSame(100, $passage->reward_xp);
 		$this->assertSame(TerminalStatus::Online, $this->terminal->fresh()->status);
+	}
+
+	public function test_the_reward_goes_to_the_companion_progression(): void
+	{
+		$companion = Companion::factory()->for($this->lea)->create();
+
+		$this->scan('p-1');
+
+		$this->assertSame(100, $companion->fresh()->xp);
 	}
 
 	public function test_a_second_passage_the_same_day_is_recorded_without_reward(): void

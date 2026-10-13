@@ -12,7 +12,10 @@ class BorneMessageHandler
 {
 	private const FUTURE_TOLERANCE_MINUTES = 5;
 
-	public function __construct(private BadgeTokenService $badges) {}
+	public function __construct(
+		private BadgeTokenService $badges,
+		private CompanionProgressService $progress,
+	) {}
 
 	public function handlePassage(string $terminalCode, string $message): ?array
 	{
@@ -56,6 +59,10 @@ class BorneMessageHandler
 			'scanned_at' => $scannedAt,
 			'reward_xp' => $alreadyRewarded ? 0 : config('bornes.reward_xp'),
 		]);
+
+		if ($passage->isRewarded()) {
+			$this->progress->refresh($player);
+		}
 
 		return $this->resultFor($passage);
 	}
