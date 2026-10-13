@@ -1,5 +1,6 @@
 export interface StepLedger {
 	lastSensorCount: number | null;
+	lastReadingDay: string | null;
 	since: number | null;
 	days: Record<string, number>;
 	synced: Record<string, number>;
@@ -20,7 +21,7 @@ const KEPT_DAYS = 30;
 const RECORDED_DAYS = 9;
 
 export function emptyLedger(): StepLedger {
-	return { lastSensorCount: null, since: null, days: {}, synced: {} };
+	return { lastSensorCount: null, lastReadingDay: null, since: null, days: {}, synced: {} };
 }
 
 export function localDay(date: Date): string {
@@ -40,6 +41,7 @@ export function parseLedger(raw: string | null): StepLedger {
 
 		return {
 			lastSensorCount: typeof parsed?.lastSensorCount === "number" ? parsed.lastSensorCount : null,
+			lastReadingDay: typeof parsed?.lastReadingDay === "string" ? parsed.lastReadingDay : null,
 			since: typeof parsed?.since === "number" ? parsed.since : null,
 			days: parsed?.days && typeof parsed.days === "object" ? parsed.days : {},
 			synced: parsed?.synced && typeof parsed.synced === "object" ? parsed.synced : {}
@@ -70,19 +72,20 @@ export function sensorDelta(lastSensorCount: number | null, sensorCount: number)
 }
 
 export function resume(ledger: StepLedger, now: number): StepLedger {
-	return ledger.since === null ? { ...ledger, since: now, lastSensorCount: null } : ledger;
+	return ledger.since === null ? { ...ledger, since: now, lastSensorCount: null, lastReadingDay: null } : ledger;
 }
 
 export function suspend(ledger: StepLedger): StepLedger {
-	return { ...ledger, since: null, lastSensorCount: null };
+	return { ...ledger, since: null, lastSensorCount: null, lastReadingDay: null };
 }
 
 export function applyReading(ledger: StepLedger, sensorCount: number, today: string): StepLedger {
-	const delta = sensorDelta(ledger.lastSensorCount, sensorCount);
+	const delta = ledger.lastReadingDay === today ? sensorDelta(ledger.lastSensorCount, sensorCount) : 0;
 
 	return {
 		...ledger,
 		lastSensorCount: sensorCount,
+		lastReadingDay: today,
 		days: keepRecent({ ...ledger.days, [today]: (ledger.days[today] ?? 0) + delta }, today),
 		synced: keepRecent(ledger.synced, today)
 	};

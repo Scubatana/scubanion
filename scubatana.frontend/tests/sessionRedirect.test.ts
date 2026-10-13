@@ -13,6 +13,21 @@ describe("resolveRedirect", () => {
 		expect(resolveRedirect("/verification", false, false)).toBeNull();
 	});
 
+	it("brings a visitor who is waiting for a code back to the verification screen", () => {
+		expect(resolveRedirect("/", false, false, true)).toBe("/verification");
+		expect(resolveRedirect("/compte", false, false, true)).toBe("/verification");
+		expect(resolveRedirect("/verification", false, false, true)).toBeNull();
+	});
+
+	it("still lets a visitor who is waiting for a code change the email", () => {
+		expect(resolveRedirect("/login", false, false, true)).toBeNull();
+	});
+
+	it("ignores a pending code once the player is logged in", () => {
+		expect(resolveRedirect("/", true, true, true)).toBeNull();
+		expect(resolveRedirect("/verification", true, true, true)).toBe("/");
+	});
+
 	it("keeps a player with an incomplete profile on the profile screen", () => {
 		expect(resolveRedirect("/", true, false)).toBe("/profil");
 		expect(resolveRedirect("/login", true, false)).toBe("/profil");
