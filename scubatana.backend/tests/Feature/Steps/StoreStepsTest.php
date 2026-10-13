@@ -148,8 +148,43 @@ class StoreStepsTest extends TestCase
 		Sanctum::actingAs(User::factory()->create());
 
 		$this->send([['day' => '2026-10-13', 'steps' => 3000]], 'phone-aaaa-1111')->assertOk();
+		$this->travel(10)->minutes();
 		$this->send([['day' => '2026-10-13', 'steps' => 1500]], 'phone-bbbb-2222')->assertOk()->assertJsonPath('today.steps', 4500);
 		$this->send([['day' => '2026-10-13', 'steps' => 1500]], 'phone-bbbb-2222')->assertOk()->assertJsonPath('today.steps', 4500);
+	}
+
+	public function test_the_hourly_ceiling_is_shared_by_all_the_phones_of_a_player(): void
+	{
+		$user = User::factory()->create();
+		Sanctum::actingAs($user);
+
+		$this->send([['day' => '2026-10-13', 'steps' => 2000]], 'phone-aaaa-1111')->assertOk();
+		$this->travel(60)->seconds();
+
+		foreach (['phone-bbbb-2222', 'phone-cccc-3333', 'phone-dddd-4444'] as $deviceId) {
+			$this->send([['day' => '2026-10-13', 'steps' => 50000]], $deviceId)->assertOk();
+		}
+
+		$this->getJson('/api/me')->assertJsonPath('today.steps', 2200)->assertJsonPath('player.stats.total_steps', 2200);
+	}
+
+	public function test_a_new_phone_never_gets_the_allowance_of_the_whole_day(): void
+	{
+		Sanctum::actingAs(User::factory()->create());
+
+		$this->send([['day' => '2026-10-13', 'steps' => 2000]], 'phone-aaaa-1111')->assertOk();
+
+		$this->send([['day' => '2026-10-13', 'steps' => 90000]], 'phone-bbbb-2222')->assertOk()->assertJsonPath('today.steps', 2000);
+	}
+
+	public function test_the_phones_of_a_player_never_store_more_than_the_daily_ceiling_together(): void
+	{
+		$this->travelTo('2026-10-13 23:00:00');
+		$user = User::factory()->create();
+		Activity::factory()->for($user)->create(['day' => '2026-10-13', 'device_id' => 'phone-aaaa-1111', 'steps' => 99000, 'updated_at' => '2026-10-13 01:00:00']);
+		Sanctum::actingAs($user);
+
+		$this->send([['day' => '2026-10-13', 'steps' => 50000]], 'phone-bbbb-2222')->assertOk()->assertJsonPath('total_steps', 100000);
 	}
 
 	public function test_it_requires_a_device_identifier(): void
