@@ -1,13 +1,14 @@
+<script setup lang="ts">
+useHead({
+	htmlAttrs: { lang: "fr" }
+});
+</script>
+
 <template>
-	<div class="app-shell">
-		<h1>Scubanion</h1>
-		<p>App mobile en cours de mise en place.</p>
+	<div class="phone embedded">
+		<div class="screen">
+			<div class="tide"></div>
+			<NuxtPage />
+		</div>
 	</div>
 </template>
-
-<style>
-.app-shell {
-	font-family: sans-serif;
-	padding: 24px;
-}
-</style>
