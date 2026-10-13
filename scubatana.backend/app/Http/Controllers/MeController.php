@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\CompanionResource;
 use App\Http\Resources\PlayerResource;
+use App\Services\CompanionProgressService;
 use App\Services\CompanionService;
 use App\Services\StepService;
 use Illuminate\Http\JsonResponse;
@@ -12,10 +13,10 @@ use Illuminate\Http\Request;
 
 class MeController extends Controller
 {
-	public function show(Request $request, StepService $steps): JsonResponse
+	public function show(Request $request, StepService $steps, CompanionProgressService $progress): JsonResponse
 	{
 		$user = $request->user();
-		$companion = $user->companion;
+		$companion = $progress->refresh($user);
 
 		return response()->json([
 			'player' => new PlayerResource($user),
