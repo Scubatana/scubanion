@@ -2,6 +2,7 @@ services:
   mariadb:
     build:
       context: ./scubatana.mariadb
+    image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-mariadb:${IMAGE_TAG:-latest}
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
@@ -9,28 +10,59 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
+    networks:
+      - donnees
     restart: unless-stopped
 
   backend:
     build:
       context: ./scubatana.backend
-    volumes:
-      - laravel_code:/var/www/html
+    image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-backend:${IMAGE_TAG:-latest}
+    environment:
+      APP_NAME: Scubanion
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: mysql
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@example.com}
+      MAIL_FROM_NAME: Scubanion
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      RUN_MIGRATIONS: "true"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
+    networks:
+      - donnees
+      - web
     restart: unless-stopped
 
   nginx:
     build:
       context: ./scubatana.nginx
-    volumes:
-      - laravel_code:/var/www/html:ro
+      additional_contexts:
+        backend: ./scubatana.backend
+    image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-nginx:${IMAGE_TAG:-latest}
     ports:
-      - "${NGINX_PORT}:80"
+      - "${NGINX_PORT:-8000}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    networks:
+      - web
     restart: unless-stopped
+
+networks:
+  donnees:
+    internal: true
+  web:
 
 volumes:
   mariadb_data:
-  laravel_code:
