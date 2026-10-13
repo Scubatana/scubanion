@@ -2,16 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DeleteAccountRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\CompanionResource;
 use App\Http\Resources\PlayerResource;
-use App\Services\AccountService;
 use App\Services\CompanionService;
 use App\Services\StepService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class MeController extends Controller
 {
@@ -42,12 +39,5 @@ class MeController extends Controller
 			'player' => new PlayerResource($user),
 			'companion' => new CompanionResource($companions->createFor($user)),
 		]);
-	}
-
-	public function destroy(DeleteAccountRequest $request, AccountService $accounts): Response
-	{
-		$accounts->delete($request->user());
-
-		return response()->noContent();
 	}
 }
