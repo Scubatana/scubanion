@@ -76,11 +76,35 @@ Le pipeline est décrit dans `.gitlab-ci.yml` et ne tourne que sur la branche pa
 | `build` | `build:backend`, `build:frontend` | dépendances de production de l'API, `nuxt generate` avec l'adresse de l'API en ligne |
 | `verify` | `verify:backend`, `verify:frontend` | migrations sur une vraie MariaDB puis appel de `/up` et de `/api/me`, service du site généré |
 | `release` | `release` | étiquette `v0.<numéro du pipeline>` et release GitLab avec l'archive du site généré |
+| `release` | `release:images` | construit les images de prod et les publie sur DockerHub (`scripts/publish-images.sh`), sous l'étiquette de la release et sous `latest` |
 | `deploy` | `deploy` | lance `deploy.sh` du projet `scubatana` sur le VPS |
 
 Le job `deploy` n'existe que si la variable `DEPLOY_SSH_KEY` est définie. Il attend trois variables CI/CD protégées, de type « Variable » : `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` et `DEPLOY_HOST`.
 
-En production, `docker-compose.yml` (racine) conteneurise aussi `backend` et `nginx`.
+Le job `release:images` n'existe que si la variable `DOCKERHUB_TOKEN` est définie. Il attend `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` (jeton d'accès DockerHub, masqué), et `DOCKERHUB_NAMESPACE` si les images vont dans une organisation plutôt que sur le compte. Il construit les images avec Docker-in-Docker : le runner doit l'autoriser (`privileged = true`).
+
+### Production (docker-compose)
+
+`docker-compose.yml` (racine) lance l'application complète à partir de trois images :
+
+| Service | Image | Rôle |
+| ------- | ----- | ---- |
+| `mariadb` | `scubanion-mariadb` | base de données, données dans le volume `mariadb_data` |
+| `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
+| `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
+
+```bash
+cp .env.exemple .env      # puis renseigner les mots de passe et APP_KEY
+docker compose up -d --build
+```
+
+- `APP_KEY` se génère avec `php artisan key:generate --show` (depuis `scubatana.backend`). Sans elle, le conteneur `backend` refuse de démarrer.
+- Au démarrage, `backend` met en cache la configuration, les routes et les vues, puis lance les migrations.
+- Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend (`mariadb`, puis `backend`, puis `nginx`).
+- Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb` et `backend` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
+- Le code est dans les images, pas dans un volume : un redéploiement sert toujours la nouvelle version.
+- L'image nginx se construit par `docker compose build` : elle récupère `public/` dans `scubatana.backend` grâce au contexte de build supplémentaire `backend` (`additional_contexts`). Un `docker build` seul demande `--build-context backend=scubatana.backend`.
+- Les images portent le nom `${DOCKERHUB_NAMESPACE}/scubanion-<service>:${IMAGE_TAG}`. Pour déployer une version publiée sans rebuild : `docker compose pull && docker compose up -d`.
 
 ### App mobile Android (build + installation)
 
