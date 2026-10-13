@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanionController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\StepController;
+use App\Http\Controllers\UserQuestController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/code', [AuthController::class, 'requestCode'])->middleware('throttle:login-code');
@@ -16,6 +17,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::put('/me/companion', [CompanionController::class, 'update']);
 	Route::get('/me/steps', [StepController::class, 'index']);
 	Route::post('/me/steps', [StepController::class, 'store']);
+	Route::get('/me/quests', [UserQuestController::class, 'index']);
+	Route::post('/me/quests/{userQuest}/tasks/{questTask}', [UserQuestController::class, 'act'])->middleware('throttle:30,1');
 	Route::put('/me/goal', [StepController::class, 'updateGoal']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 });
