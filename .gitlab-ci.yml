@@ -1,0 +1,153 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+stages:
+  - test
+  - build
+  - verify
+  - release
+  - deploy
+
+default:
+  tags:
+    - picsou06
+
+variables:
+  RELEASE_TAG: v0.$CI_PIPELINE_IID
+  WEB_ARCHIVE: scubanion-web-v0.$CI_PIPELINE_IID.tar.gz
+  PACKAGE_URL: $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/scubanion-web/v0.$CI_PIPELINE_IID
+
+.backend:
+  image: php:8.4-cli
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends unzip git curl
+    - curl -sS https://getcomposer.org/installer | php -- --quiet --install-dir=/usr/local/bin --filename=composer
+    - cd scubatana.backend
+
+.frontend:
+  image: node:22
+  before_script:
+    - cd scubatana.frontend
+
+test:backend:
+  extends: .backend
+  stage: test
+  script:
+    - composer install --no-interaction --no-progress --prefer-dist
+    - cp .env.example .env
+    - php artisan key:generate
+    - php artisan test
+
+test:frontend:
+  extends: .frontend
+  stage: test
+  script:
+    - npm ci --no-audit --no-fund
+    - npm test
+
+build:backend:
+  extends: .backend
+  stage: build
+  script:
+    - composer install --no-interaction --no-progress --prefer-dist --no-dev --optimize-autoloader
+    - php artisan --version
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - scubatana.backend/vendor
+      - scubatana.backend/bootstrap/cache
+
+build:frontend:
+  extends: .frontend
+  stage: build
+  variables:
+    NUXT_PUBLIC_API_URL: https://scubatana.picsou06.fr
+  script:
+    - npm ci --no-audit --no-fund
+    - npm run generate
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - scubatana.frontend/.output/public
+
+verify:backend:
+  extends: .backend
+  stage: verify
+  needs:
+    - build:backend
+  services:
+    - name: mariadb:11.4
+      alias: mariadb
+  variables:
+    MARIADB_DATABASE: scubatana
+    MARIADB_USER: scubatana
+    MARIADB_PASSWORD: scubatana
+    MARIADB_ROOT_PASSWORD: scubatana
+    APP_ENV: production
+    APP_DEBUG: "false"
+    LOG_CHANNEL: stderr
+    DB_CONNECTION: mysql
+    DB_HOST: mariadb
+    DB_PORT: "3306"
+    DB_DATABASE: scubatana
+    DB_USERNAME: scubatana
+    DB_PASSWORD: scubatana
+  script:
+    - docker-php-ext-install pdo_mysql > /dev/null
+    - cp .env.example .env
+    - php artisan key:generate --force
+    - php artisan migrate --force
+    - php artisan serve --host=127.0.0.1 --port=8000 > /tmp/serve.log 2>&1 &
+    - curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 --output /dev/null http://127.0.0.1:8000/up
+    - 'test "$(curl --silent --output /dev/null --write-out "%{http_code}" --header "Accept: application/json" http://127.0.0.1:8000/api/me)" = "401"'
+
+verify:frontend:
+  extends: .frontend
+  stage: verify
+  needs:
+    - build:frontend
+  script:
+    - test -s .output/public/index.html
+    - npx --yes serve@14 --single --listen 3000 .output/public > /tmp/serve.log 2>&1 &
+    - curl --fail --silent --show-error --retry 30 --retry-connrefused --retry-delay 1 http://127.0.0.1:3000/ | grep --quiet "Scubanion"
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/cli:v1.122.0
+  needs:
+    - verify:backend
+    - verify:frontend
+    - build:frontend
+  script:
+    - apk add --no-cache curl
+    - tar -czf "$WEB_ARCHIVE" -C scubatana.frontend/.output public
+    - 'curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "$WEB_ARCHIVE" "$PACKAGE_URL/$WEB_ARCHIVE"'
+  release:
+    tag_name: $RELEASE_TAG
+    name: Scubanion $RELEASE_TAG
+    description: Version $RELEASE_TAG construite depuis le commit $CI_COMMIT_SHORT_SHA.
+    assets:
+      links:
+        - name: $WEB_ARCHIVE
+          url: $PACKAGE_URL/$WEB_ARCHIVE
+          link_type: package
+
+deploy:
+  stage: deploy
+  image: alpine:3.22
+  needs:
+    - release
+  rules:
+    - if: $DEPLOY_SSH_KEY
+  environment:
+    name: production
+    url: https://scubatana.picsou06.fr
+  script:
+    - apk add --no-cache openssh-client
+    - install -m 700 -d ~/.ssh
+    - printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+    - chmod 600 ~/.ssh/deploy_key
+    - printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+    - ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes deploy@"$DEPLOY_HOST" scubatana

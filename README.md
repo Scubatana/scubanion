@@ -41,6 +41,20 @@ php artisan migrate
 php artisan serve
 ```
 
+### CI/CD (GitLab)
+
+Le pipeline est décrit dans `.gitlab-ci.yml` et ne tourne que sur la branche par défaut (`master`) du dépôt GitLab `de402549/scubanion`. Les jobs portent l'étiquette `picsou06` : ils s'exécutent sur le runner Docker du VPS, pas sur celui de l'IUT.
+
+| Étape | Jobs | Rôle |
+|---|---|---|
+| `test` | `test:backend`, `test:frontend` | `php artisan test` et `npm test` |
+| `build` | `build:backend`, `build:frontend` | dépendances de production de l'API, `nuxt generate` avec l'adresse de l'API en ligne |
+| `verify` | `verify:backend`, `verify:frontend` | migrations sur une vraie MariaDB puis appel de `/up` et de `/api/me`, service du site généré |
+| `release` | `release` | étiquette `v0.<numéro du pipeline>` et release GitLab avec l'archive du site généré |
+| `deploy` | `deploy` | lance `deploy.sh` du projet `scubatana` sur le VPS |
+
+Le job `deploy` n'existe que si la variable `DEPLOY_SSH_KEY` est définie. Il attend trois variables CI/CD protégées, de type « Variable » : `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` et `DEPLOY_HOST`.
+
 En production, `docker-compose.yml` (racine) conteneurise aussi `backend` et `nginx`.
 
 ### App mobile Android (build + installation)
