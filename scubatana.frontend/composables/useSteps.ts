@@ -3,7 +3,7 @@ import { ApiError } from "~/utils/apiError";
 import { Preferences } from "@capacitor/preferences";
 import { openStepSettings, readRecordedSteps, stepPermissionGranted, stepSensorAvailable, watchSteps } from "~/utils/stepCounter";
 import { applyReading, applyRecorded, emptyLedger, localDay, markSynced, parseLedger, pendingEntries, recordedFrom, resume, suspend, unsyncedSteps, type StepLedger } from "~/utils/stepLedger";
-import type { Streak, Today } from "~/utils/types";
+import type { Companion, Streak, Today } from "~/utils/types";
 
 export type StepStatus = "idle" | "unavailable" | "denied" | "tracking";
 
@@ -11,6 +11,7 @@ interface SyncResponse {
 	today: Today;
 	streak: Streak;
 	total_steps: number;
+	companion?: Companion | null;
 }
 
 const DEVICE_KEY = "steps.device";
@@ -29,7 +30,7 @@ let syncing = false;
 export function useSteps() {
 	const status = useState<StepStatus>("steps-status", () => "idle");
 	const unsyncedToday = useState<number>("steps-unsynced-today", () => 0);
-	const { player, today, streak } = usePlayer();
+	const { player, companion, today, streak } = usePlayer();
 
 	const displayedSteps = computed(() => (today.value?.steps ?? 0) + unsyncedToday.value);
 
@@ -85,6 +86,7 @@ export function useSteps() {
 			ledger = markSynced(ledger, entries);
 			today.value = response.today;
 			streak.value = response.streak ?? streak.value;
+			companion.value = response.companion ?? companion.value;
 			await persist();
 
 			if (player.value) {

@@ -120,6 +120,20 @@ describe("useSteps", () => {
 		expect(steps.displayedSteps.value).toBe(120);
 	});
 
+	it("shows the companion as the server computed it after the steps were sent", async () => {
+		const companion = { name: "Scubanion", species: "scuba", color: "ocean", accessories: [], level: 2, xp: 70, xp_for_next_level: 2000, mood: 80, health: 60 };
+		mocks.httpRequest.mockResolvedValue({ status: 200, data: { today: { date: "2026-10-13", steps: 120, goal: 5000 }, streak: { days: 0, active: false }, total_steps: 120, companion } });
+		const steps = useSteps();
+		await steps.start(true);
+
+		mocks.emit?.(5000);
+		await settle();
+		mocks.emit?.(5120);
+		await settle();
+
+		expect(usePlayer().companion.value).toEqual(companion);
+	});
+
 	it("keeps showing the steps while the server is unreachable and sends them when the app is left", async () => {
 		mocks.httpRequest.mockRejectedValue(new TypeError("Failed to fetch"));
 		const steps = useSteps();
