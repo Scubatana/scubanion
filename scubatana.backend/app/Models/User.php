@@ -48,6 +48,16 @@ class User extends Authenticatable
 		return $this->hasMany(UserAccessory::class);
 	}
 
+	public function ownedAccessoryCodes(): array
+	{
+		return Accessory::whereIn('id', $this->accessories()->select('accessory_id'))->pluck('code')->all();
+	}
+
+	public function rewards(): HasMany
+	{
+		return $this->hasMany(UserReward::class);
+	}
+
 	public function position(): HasOne
 	{
 		return $this->hasOne(UserPosition::class);

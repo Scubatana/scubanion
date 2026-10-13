@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'quest_id', 'period', 'current_step', 'source', 'assigned_at', 'expires_at', 'completed_at', 'failed_at', 'reward_xp'])]
+#[Fillable(['user_id', 'quest_id', 'period', 'current_step', 'source', 'assigned_at', 'expires_at', 'completed_at', 'failed_at'])]
 class UserQuest extends Model
 {
 	use HasFactory;
@@ -26,7 +26,6 @@ class UserQuest extends Model
 			'expires_at' => 'datetime',
 			'completed_at' => 'datetime',
 			'failed_at' => 'datetime',
-			'reward_xp' => 'integer',
 		];
 	}
 
@@ -43,6 +42,11 @@ class UserQuest extends Model
 	public function tasks(): HasMany
 	{
 		return $this->hasMany(UserQuestTask::class);
+	}
+
+	public function rewards(): HasMany
+	{
+		return $this->hasMany(UserReward::class);
 	}
 
 	#[Scope]

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
-#[Fillable(['name', 'description', 'icon', 'reward_xp', 'reward_accessory', 'auto_assign', 'target_ambition', 'target_zone_id', 'repeat', 'starts_at', 'ends_at', 'status'])]
+#[Fillable(['name', 'description', 'icon', 'auto_assign', 'target_ambition', 'target_zone_id', 'repeat', 'starts_at', 'ends_at', 'status'])]
 class Quest extends Model
 {
 	use HasFactory;
@@ -34,7 +34,6 @@ class Quest extends Model
 	protected function casts(): array
 	{
 		return [
-			'reward_xp' => 'integer',
 			'auto_assign' => 'boolean',
 			'target_ambition' => Ambition::class,
 			'repeat' => QuestRepeat::class,
@@ -47,6 +46,11 @@ class Quest extends Model
 	public function tasks(): HasMany
 	{
 		return $this->hasMany(QuestTask::class)->orderBy('step')->orderBy('position');
+	}
+
+	public function rewards(): HasMany
+	{
+		return $this->hasMany(QuestReward::class);
 	}
 
 	public function targetZone(): BelongsTo
