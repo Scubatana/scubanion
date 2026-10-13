@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
 		]);
 
 		app(CompanionService::class)->createFor($user);
+
+		$this->call(QuestSeeder::class);
 	}
 }
