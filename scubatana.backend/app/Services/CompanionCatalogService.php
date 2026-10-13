@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Accessory;
 use RuntimeException;
 
 class CompanionCatalogService
@@ -18,10 +19,13 @@ class CompanionCatalogService
 			'categories' => $this->entries(config('companion.categories')),
 			'species' => $this->entries(config('companion.species'), withSvg: true),
 			'colors' => $this->entries(config('companion.colors')),
-			'accessories' => array_map(
-				fn (array $accessory) => [...$accessory, 'earnable' => $accessory['earnable'] ?? false],
-				$this->entries(config('companion.accessories'), withImage: true),
-			),
+			'accessories' => Accessory::active()->orderBy('id')->get()->map(fn (Accessory $accessory) => [
+				'id' => $accessory->code,
+				'label' => $accessory->label,
+				'category' => $accessory->category,
+				'image' => $accessory->dataUri(),
+				'earnable' => $accessory->earnable,
+			])->all(),
 		];
 	}
 
@@ -37,22 +41,22 @@ class CompanionCatalogService
 
 	public function accessoryIds(): array
 	{
-		return array_keys(config('companion.accessories'));
+		return Accessory::active()->pluck('code')->all();
 	}
 
 	public function earnableAccessoryIds(): array
 	{
-		return array_keys(array_filter(config('companion.accessories'), fn (array $accessory) => $accessory['earnable'] ?? false));
+		return Accessory::active()->where('earnable', true)->pluck('code')->all();
 	}
 
 	public function conflictingAccessories(array $accessories): array
 	{
-		$catalog = config('companion.accessories');
+		$categories = Accessory::active()->pluck('category', 'code');
 		$worn = [];
 		$conflicts = [];
 
 		foreach ($accessories as $accessory) {
-			$category = is_string($accessory) ? ($catalog[$accessory]['category'] ?? null) : null;
+			$category = is_string($accessory) ? ($categories[$accessory] ?? null) : null;
 
 			if ($category === null) {
 				continue;
@@ -68,15 +72,11 @@ class CompanionCatalogService
 		return $conflicts;
 	}
 
-	private function entries(array $section, bool $withImage = false, bool $withSvg = false): array
+	private function entries(array $section, bool $withSvg = false): array
 	{
 		$entries = [];
 
 		foreach ($section as $id => $definition) {
-			if ($withImage) {
-				$definition['image'] = $this->dataUri($definition['image']);
-			}
-
 			if ($withSvg) {
 				$definition['svg'] = $this->svgMarkup($definition['image']);
 				unset($definition['image']);
@@ -86,14 +86,6 @@ class CompanionCatalogService
 		}
 
 		return $entries;
-	}
-
-	private function dataUri(string $relativePath): string
-	{
-		$path = $this->assetPath($relativePath);
-		$mimeType = self::MIME_TYPES[strtolower(pathinfo($path, PATHINFO_EXTENSION))];
-
-		return 'data:'.$mimeType.';base64,'.base64_encode(file_get_contents($path));
 	}
 
 	private function svgMarkup(string $relativePath): string

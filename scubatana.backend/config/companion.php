@@ -70,23 +70,4 @@ return [
 		'rose' => ['label' => 'Rose', 'main' => '#F0A3C8', 'shade' => '#D2649A', 'light' => '#FDECF4'],
 	],
 
-	'accessories' => [
-		'tophat' => ['label' => 'Haut-de-forme', 'category' => 'hat', 'image' => 'accessories/tophat.svg'],
-		'crown' => ['label' => 'Couronne', 'category' => 'hat', 'image' => 'accessories/crown.svg', 'earnable' => true],
-		'cap' => ['label' => 'Casquette', 'category' => 'hat', 'image' => 'accessories/cap.svg'],
-		'diving_mask' => ['label' => 'Masque de plongée', 'category' => 'glasses', 'image' => 'accessories/diving_mask.svg', 'earnable' => true],
-		'sunglasses' => ['label' => 'Lunettes de soleil', 'category' => 'glasses', 'image' => 'accessories/sunglasses.svg'],
-		'round_glasses' => ['label' => 'Lunettes rondes', 'category' => 'glasses', 'image' => 'accessories/round_glasses.svg'],
-		'heart_glasses' => ['label' => 'Lunettes cœur', 'category' => 'glasses', 'image' => 'accessories/heart_glasses.svg'],
-		'handlebar' => ['label' => 'Moustache guidon', 'category' => 'moustache', 'image' => 'accessories/handlebar.svg'],
-		'pencil' => ['label' => 'Moustache fine', 'category' => 'moustache', 'image' => 'accessories/pencil.svg'],
-		'walrus' => ['label' => 'Moustache morse', 'category' => 'moustache', 'image' => 'accessories/walrus.svg'],
-		'snorkel' => ['label' => 'Tuba', 'category' => 'mouth', 'image' => 'accessories/snorkel.svg'],
-		'lollipop' => ['label' => 'Sucette', 'category' => 'mouth', 'image' => 'accessories/lollipop.svg'],
-		'flower' => ['label' => 'Fleur', 'category' => 'mouth', 'image' => 'accessories/flower.svg'],
-		'bowtie' => ['label' => 'Nœud papillon', 'category' => 'neck', 'image' => 'accessories/bowtie.svg'],
-		'scarf' => ['label' => 'Écharpe', 'category' => 'neck', 'image' => 'accessories/scarf.svg'],
-		'medal' => ['label' => 'Médaille', 'category' => 'neck', 'image' => 'accessories/medal.svg', 'earnable' => true],
-	],
-
 ];
