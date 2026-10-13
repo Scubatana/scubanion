@@ -1,9 +1,13 @@
-import type { Companion, Player, ProfilePayload, Today } from "~/utils/types";
+import type { Companion, CompanionLookPayload, Player, ProfilePayload, Today } from "~/utils/types";
 
 interface MeResponse {
 	player: Player;
 	companion: Companion | null;
 	today: Today;
+}
+
+interface CompanionResponse {
+	companion: Companion;
 }
 
 interface ProfileResponse {
@@ -33,11 +37,17 @@ export function usePlayer() {
 		await useSession().markProfileCompleted(response.player.profile_completed);
 	}
 
+	async function saveCompanion(payload: CompanionLookPayload): Promise<void> {
+		const response = await useApi().put<CompanionResponse>("/me/companion", payload);
+
+		companion.value = response.companion;
+	}
+
 	function reset(): void {
 		player.value = null;
 		companion.value = null;
 		today.value = null;
 	}
 
-	return { player, companion, today, load, saveProfile, reset };
+	return { player, companion, today, load, saveProfile, saveCompanion, reset };
 }

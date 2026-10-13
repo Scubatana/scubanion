@@ -100,3 +100,107 @@ button.link-under:disabled {
 .wave-bar.thin {
 	height: 10px;
 }
+
+.companion-avatar {
+	position: relative;
+	width: 170px;
+	margin-top: 44px;
+}
+
+.companion-avatar.small {
+	width: 100px;
+	margin-top: 28px;
+}
+
+.companion-avatar-base {
+	display: block;
+	width: 100%;
+	line-height: 0;
+}
+
+.companion-avatar-base svg,
+.option-svg svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.option-svg {
+	display: block;
+	width: 56px;
+	line-height: 0;
+}
+
+.companion-avatar-accessory {
+	position: absolute;
+	pointer-events: none;
+}
+
+.note-self-centered {
+	align-self: center;
+}
+
+.option-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 10px;
+}
+
+.option-tile {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 6px;
+	border-radius: var(--radius-sm);
+	border: 2px solid var(--mist);
+	background: var(--white);
+	color: var(--ink-soft);
+	font-family: inherit;
+	font-size: 11px;
+	font-weight: 600;
+	text-align: center;
+	cursor: pointer;
+}
+
+.option-tile img {
+	width: 52px;
+	height: 52px;
+	object-fit: contain;
+}
+
+.option-tile.active {
+	border-color: var(--ocean);
+	background: var(--mist);
+	color: var(--ocean-dark);
+}
+
+.swatch-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.swatch {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 3px solid var(--white);
+	box-shadow: 0 0 0 2px var(--mist);
+	cursor: pointer;
+	padding: 0;
+}
+
+.swatch.active {
+	box-shadow: 0 0 0 3px var(--ink);
+}
+
+.form-contents {
+	display: contents;
+}
+
+.preview-stage {
+	position: relative;
+	z-index: 2;
+	padding: 0 24px 16px;
+}

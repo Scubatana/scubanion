@@ -34,7 +34,7 @@ const player = {
 	stats: { total_steps: 4820, quests_done: 0, friends_count: 0 }
 };
 
-const companion = { name: "Scubanion", species: "scuba", level: 1, xp: 0, xp_for_next_level: 1000, mood: 100, health: 100 };
+const companion = { name: "Scubanion", species: "scuba", color: "ocean", accessories: [] as string[], level: 1, xp: 0, xp_for_next_level: 1000, mood: 100, health: 100 };
 
 const today = { date: "2026-10-12", steps: 147, goal: 5000 };
 
@@ -114,5 +114,31 @@ describe("usePlayer", () => {
 		expect(state.player.value).toBeNull();
 		expect(state.companion.value).toBeNull();
 		expect(state.today.value).toBeNull();
+	});
+
+	it("saves the look of the companion and keeps the answer of the server", async () => {
+		const look = { name: "Bulle", species: "dog", color: "coral", accessories: ["tophat"] };
+		httpRequest.mockResolvedValue({ status: 200, data: { companion: { ...companion, ...look } } });
+		const state = usePlayer();
+
+		await state.saveCompanion(look);
+
+		expect(httpRequest.mock.calls[0][0]).toBe("PUT");
+		expect(httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/companion$/);
+		expect(httpRequest.mock.calls[0][3]).toEqual(look);
+		expect(state.companion.value?.name).toBe("Bulle");
+		expect(state.companion.value?.accessories).toEqual(["tophat"]);
+	});
+
+	it("keeps the previous look when the server refuses the new one", async () => {
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { player, companion, today } });
+		const state = usePlayer();
+		await state.load();
+		httpRequest.mockResolvedValueOnce({ status: 422, data: { errors: { accessories: ["Un seul accessoire par catégorie."] } } });
+
+		const error = await state.saveCompanion({ name: "Bulle", species: "scuba", color: "ocean", accessories: ["tophat", "crown"] }).catch((caught) => caught);
+
+		expect(error.fields.accessories).toBe("Un seul accessoire par catégorie.");
+		expect(state.companion.value?.accessories).toEqual([]);
 	});
 });
