@@ -18,7 +18,10 @@ class CompanionCatalogService
 			'categories' => $this->entries(config('companion.categories')),
 			'species' => $this->entries(config('companion.species'), withSvg: true),
 			'colors' => $this->entries(config('companion.colors')),
-			'accessories' => $this->entries(config('companion.accessories'), withImage: true),
+			'accessories' => array_map(
+				fn (array $accessory) => [...$accessory, 'earnable' => $accessory['earnable'] ?? false],
+				$this->entries(config('companion.accessories'), withImage: true),
+			),
 		];
 	}
 
@@ -35,6 +38,11 @@ class CompanionCatalogService
 	public function accessoryIds(): array
 	{
 		return array_keys(config('companion.accessories'));
+	}
+
+	public function earnableAccessoryIds(): array
+	{
+		return array_keys(array_filter(config('companion.accessories'), fn (array $accessory) => $accessory['earnable'] ?? false));
 	}
 
 	public function conflictingAccessories(array $accessories): array
