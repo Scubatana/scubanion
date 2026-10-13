@@ -31,7 +31,7 @@ class CompanionProgressService
 		$today = CarbonImmutable::now()->startOfDay();
 		$joined = CarbonImmutable::instance($user->created_at)->startOfDay();
 		$days = $this->days($user, $today);
-		[$level, $xp] = $this->levelFor($this->totalXp($days));
+		[$level, $xp] = $this->levelFor($this->totalXp($days) + $this->rewardXp($user));
 
 		$companion->update([
 			'level' => $level,
@@ -46,6 +46,11 @@ class CompanionProgressService
 	public function totalXp(Collection $days): int
 	{
 		return (int) $days->sum(fn (array $day) => intdiv($day['steps'], self::STEPS_PER_XP) + ($day['steps'] >= $day['goal'] ? self::GOAL_BONUS_XP : 0));
+	}
+
+	public function rewardXp(User $user): int
+	{
+		return (int) $user->userQuests()->whereNotNull('completed_at')->sum('reward_xp');
 	}
 
 	public function levelFor(int $totalXp): array

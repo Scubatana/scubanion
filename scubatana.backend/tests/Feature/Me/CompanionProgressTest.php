@@ -5,6 +5,7 @@ namespace Tests\Feature\Me;
 use App\Models\Activity;
 use App\Models\Companion;
 use App\Models\User;
+use App\Models\UserQuest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -60,6 +61,17 @@ class CompanionProgressTest extends TestCase
 			->assertJsonPath('companion.level', 2)
 			->assertJsonPath('companion.xp', 1070 - 1000)
 			->assertJsonPath('companion.xp_for_next_level', 2000);
+	}
+
+	public function test_completed_quests_add_their_reward_to_the_xp(): void
+	{
+		$user = $this->playerSince('2026-10-01 09:00:00');
+		$this->walked($user, '2026-10-12', 3000);
+		UserQuest::factory()->for($user)->create(['completed_at' => now(), 'reward_xp' => 800]);
+		UserQuest::factory()->for($user)->create(['period' => '2026-10-13', 'reward_xp' => 0]);
+		UserQuest::factory()->for($user)->create(['failed_at' => now(), 'reward_xp' => 0]);
+
+		$this->getJson('/api/me')->assertJsonPath('companion.level', 2)->assertJsonPath('companion.xp', 300 + 800 - 1000);
 	}
 
 	public function test_mood_follows_the_best_of_today_and_yesterday(): void
