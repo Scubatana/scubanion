@@ -16,5 +16,6 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::put('/me/companion', [CompanionController::class, 'update']);
 	Route::get('/me/steps', [StepController::class, 'index']);
 	Route::post('/me/steps', [StepController::class, 'store']);
+	Route::put('/me/goal', [StepController::class, 'updateGoal']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 });

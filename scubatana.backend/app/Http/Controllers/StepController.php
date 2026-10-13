@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ShowStepsRequest;
 use App\Http\Requests\StoreStepsRequest;
+use App\Http\Requests\UpdateGoalRequest;
 use App\Services\StepService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,17 @@ class StepController extends Controller
 			$request->user(),
 			$month ? CarbonImmutable::createFromFormat('!Y-m', $month) : CarbonImmutable::now(),
 		));
+	}
+
+	public function updateGoal(UpdateGoalRequest $request, StepService $steps): JsonResponse
+	{
+		$user = $request->user();
+		$steps->changeGoal($user, $request->validated('daily_step_goal'));
+
+		return response()->json([
+			'today' => $steps->today($user),
+			'streak' => $steps->streak($user),
+		]);
 	}
 
 	public function store(StoreStepsRequest $request, StepService $steps): JsonResponse
