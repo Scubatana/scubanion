@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.3 du 09/10/2026
+- **Version** : 0.4 du 13/10/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -150,8 +150,8 @@ flowchart LR
 
 ### 5.1 App mobile (Android)
 
-- [ ] **APP-01** · Must : Inscription et connexion (mode à choisir, D1).
-- [ ] **APP-02** · Must : Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.
+- [x] **APP-01** · Must : Inscription et connexion par email et code à usage unique (D1).
+- [x] **APP-02** · Must : Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.
 - [ ] **APP-03** · Must : Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.
 - [ ] **APP-04** · Must : Objectif de pas du jour (5 000 par défaut) et compteur en direct.
 - [ ] **APP-05** · Must : Quêtes : quiz, photos de sortie, nouveaux lieux, rencontres, défi de la semaine.
@@ -204,7 +204,7 @@ Modèle de données (v0, à affiner) :
 
 | Entité                 | Contenu principal                                                                                                      |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Joueur                  | Pseudo, contact (téléphone ou email selon D1), date de naissance, genre (facultatif), ambition, consentements        |
+| Joueur                  | Pseudo, contact (email, D1), date de naissance, genre (facultatif), ambition, consentements        |
 | Compagnon               | Joueur, nom, espèce, niveau, XP, humeur et santé, skin porté. Le volet « relation, login » reste à définir (D4) |
 | Amitié                 | Deux joueurs, statut (en attente, acceptée), date                                                                     |
 | Activité               | Joueur, jour, nombre de pas, source (téléphone, Health Connect)                                                            |
@@ -377,7 +377,7 @@ Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par l
 
 |     | Décision                                 | Options                                                                                                                                         | À savoir                                                                                                                                                    | Avant le                                |
 | --- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
-| D1  | Mode de connexion                         | SMS + code (maquettes), email + code, email + mot de passe                                                                                      | Les SMS sont payants (Twilio…), un code par email est gratuit                                                                                               | 11/10                                   |
+| D1  | Mode de connexion                         | **Tranchée : email + code à usage unique.** Écartés : SMS + code (maquettes), email + mot de passe | Code à 6 chiffres envoyé par Brevo, session ouverte par un jeton Sanctum. Les SMS sont payants (Twilio…), un code par email est gratuit | 11/10                                   |
 | D2  | Identification à la borne                | Téléphone en émulation de carte (HCE) ; tag NFC personnel (autocollant, carte) ; ou l'inverse : le téléphone lit un tag posé sur la borne | Le téléphone est le seul porteur d'identité à la borne. La HCE demande du code Android natif et un lecteur qui gère l'ISO-DEP (le PN532 oui, le RC522 mal)         | 11/10                                   |
 | D3  | Microcontrôleur de la borne              | ESP32, Arduino, Raspberry Pi                                                                                                                    | ESP32 : Wi-Fi et BLE intégrés, peu cher, sobre. Arduino Uno : pas de réseau sans module. Raspberry Pi : Linux et écran riche, plus cher et plus gourmand | 11/10, pour avoir le temps de commander |
 | D4  | Compagnon : « relation » et « login » | À définir                                                                                                                                     | Conditionne le modèle de données                                                                                                                           | 11/10                                   |
@@ -435,5 +435,6 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.4     | 13/10/2026 | Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01 et APP-02 cochés |
 | 0.3     | 09/10/2026 | Abandon du bracelet Mi Band 3 : les pas viennent du podomètre du téléphone (section 5.2 remplacée par `PAS-`), la borne IoT devient le seul objet connecté (BOR-08 et BOR-09 passent en *Must*, toujours 18 *Must*). Responsables du plan d'action et rôles de la section 7 renseignés |
 | 0.2     | 08/10/2026 | Ajout de la charte de projet (§ 2) : 3 objectifs SMART, 5 indicateurs de suivi, plan d'action du 09 au 23/10. Sections 2 à 11 renumérotées en 3 à 12. Business Model Canvas v2 référencé au § 6.4 |
