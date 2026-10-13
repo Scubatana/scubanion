@@ -38,6 +38,11 @@ class User extends Authenticatable
 		return $this->hasMany(Activity::class);
 	}
 
+	public function questProgress(): HasMany
+	{
+		return $this->hasMany(QuestProgress::class);
+	}
+
 	public function hasCompletedProfile(): bool
 	{
 		return $this->pseudo !== null;
