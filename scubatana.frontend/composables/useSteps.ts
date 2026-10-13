@@ -1,4 +1,5 @@
 import { App } from "@capacitor/app";
+import { ApiError } from "~/utils/apiError";
 import { Preferences } from "@capacitor/preferences";
 import { openStepSettings, readRecordedSteps, stepPermissionGranted, stepSensorAvailable, watchSteps } from "~/utils/stepCounter";
 import { applyReading, applyRecorded, emptyLedger, localDay, markSynced, parseLedger, pendingEntries, recordedFrom, resume, suspend, unsyncedSteps, type StepLedger } from "~/utils/stepLedger";
@@ -89,8 +90,12 @@ export function useSteps() {
 			if (player.value) {
 				player.value = { ...player.value, stats: { ...player.value.stats, total_steps: response.total_steps } };
 			}
-		} catch {
+		} catch (error) {
 			lastSyncAt = Date.now();
+
+			if (error instanceof ApiError && error.status === 401) {
+				await halt();
+			}
 		} finally {
 			syncing = false;
 		}

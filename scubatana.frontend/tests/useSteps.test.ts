@@ -172,4 +172,20 @@ describe("useSteps", () => {
 		expect(steps.displayedSteps.value).toBe(0);
 		expect([...mocks.storage.keys()]).toContain("steps.ledger.8");
 	});
+
+	it("stops counting on a phone whose session was closed by a login elsewhere, and keeps its unsent steps", async () => {
+		mocks.httpRequest.mockResolvedValue({ status: 401, data: { message: "Unauthenticated." } });
+		const steps = useSteps();
+		await steps.start(true);
+		mocks.emit?.(100);
+		await settle();
+		mocks.emit?.(260);
+		await settle();
+
+		expect(steps.status.value).toBe("idle");
+		expect(mocks.emit).toBeNull();
+		expect(useSession().token.value).toBeNull();
+		expect(navigateTo).toHaveBeenCalledWith("/login");
+		expect(JSON.parse(mocks.storage.get("steps.ledger.7") ?? "{}").days).toEqual({ [Object.keys(JSON.parse(mocks.storage.get("steps.ledger.7") ?? "{}").days)[0]]: 160 });
+	});
 });
