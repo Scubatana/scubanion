@@ -33,6 +33,7 @@ export function useAuth() {
 
 	async function logout(): Promise<void> {
 		await api.post<void>("/auth/logout").catch(() => undefined);
+		await useSteps().reset();
 		await session.clear();
 		player.reset();
 	}

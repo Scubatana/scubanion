@@ -38,6 +38,8 @@ const companion = { name: "Scubanion", species: "scuba", color: "ocean", accesso
 
 const today = { date: "2026-10-12", steps: 147, goal: 5000 };
 
+const streak = { days: 3, active: false };
+
 describe("usePlayer", () => {
 	beforeEach(async () => {
 		httpRequest.mockReset();
@@ -48,11 +50,12 @@ describe("usePlayer", () => {
 	});
 
 	it("loads the player, the companion and the steps of the day", async () => {
-		httpRequest.mockResolvedValue({ status: 200, data: { player, companion, today } });
+		httpRequest.mockResolvedValue({ status: 200, data: { player, companion, today, streak } });
 		const state = usePlayer();
 
 		await state.load();
 
+		expect(state.streak.value).toEqual(streak);
 		expect(httpRequest.mock.calls[0][0]).toBe("GET");
 		expect(httpRequest.mock.calls[0][1]).toMatch(/\/api\/me$/);
 		expect(state.player.value?.pseudo).toBe("MarcheurDuSoir");

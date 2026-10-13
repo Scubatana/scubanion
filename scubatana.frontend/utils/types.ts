@@ -37,6 +37,11 @@ export interface Today {
 	goal: number;
 }
 
+export interface Streak {
+	days: number;
+	active: boolean;
+}
+
 export interface CompanionLookPayload {
 	name: string;
 	species: string;
