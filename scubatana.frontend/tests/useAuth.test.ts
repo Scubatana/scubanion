@@ -1,5 +1,6 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { PENDING_EMAIL_TTL_MS } from "~/utils/pendingEmail";
 
 const { httpRequest, navigateTo, storage } = vi.hoisted(() => ({
 	httpRequest: vi.fn(),
@@ -52,6 +53,31 @@ describe("useAuth", () => {
 		expect(auth.pendingEmail.value).toBe("lea@example.com");
 	});
 
+	it("finds the pending email again after the app was closed while the code was on its way", async () => {
+		httpRequest.mockResolvedValue({ status: 204, data: null });
+		await useAuth().requestCode("lea@example.com");
+		clearNuxtState();
+
+		const auth = useAuth();
+		await auth.restorePendingEmail();
+
+		expect(auth.pendingEmail.value).toBe("lea@example.com");
+	});
+
+	it("forgets the pending email once its code has expired", async () => {
+		vi.useFakeTimers();
+		httpRequest.mockResolvedValue({ status: 204, data: null });
+		await useAuth().requestCode("lea@example.com");
+		clearNuxtState();
+		vi.advanceTimersByTime(PENDING_EMAIL_TTL_MS);
+
+		const auth = useAuth();
+		await auth.restorePendingEmail();
+		vi.useRealTimers();
+
+		expect(auth.pendingEmail.value).toBeNull();
+	});
+
 	it("keeps no pending email when the request fails", async () => {
 		httpRequest.mockResolvedValue({ status: 422, data: { errors: { email: ["invalide"] } } });
 		const auth = useAuth();
@@ -75,6 +101,7 @@ describe("useAuth", () => {
 		expect(storage.get("session.token")).toBe("jeton-1");
 		expect(usePlayer().player.value?.email).toBe("lea@example.com");
 		expect(auth.pendingEmail.value).toBeNull();
+		expect(storage.has("auth.pendingEmail")).toBe(false);
 	});
 
 	it("opens no session when the code is refused", async () => {

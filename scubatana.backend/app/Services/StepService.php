@@ -6,31 +6,45 @@ use App\Models\Activity;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class StepService
 {
 	public function record(User $user, string $deviceId, string $day, int $steps): Activity
 	{
-		$activity = Activity::where('user_id', $user->id)->where('device_id', $deviceId)->whereDate('day', $day)->first()
-			?? new Activity(['user_id' => $user->id, 'day' => $day, 'device_id' => $deviceId, 'steps' => 0, 'source' => 'phone']);
+		return DB::transaction(function () use ($user, $deviceId, $day, $steps) {
+			User::whereKey($user->id)->lockForUpdate()->first();
 
-		if ($activity->goal === null || $day === CarbonImmutable::now()->toDateString()) {
-			$activity->goal = $user->daily_step_goal;
-		}
+			$sameDay = $user->activities()->whereDate('day', $day)->get();
+			$activity = $sameDay->firstWhere('device_id', $deviceId)
+				?? new Activity(['user_id' => $user->id, 'day' => $day, 'device_id' => $deviceId, 'steps' => 0, 'source' => 'phone']);
 
-		if ($steps > $activity->steps) {
-			$dayStart = CarbonImmutable::parse($day)->startOfDay();
-			$from = $activity->exists ? CarbonImmutable::instance($activity->updated_at)->max($dayStart) : $dayStart;
-			$until = CarbonImmutable::now()->min($dayStart->endOfDay());
-			$seconds = max(1, (int) $from->diffInSeconds($until, false));
-			$allowed = $activity->steps + (int) ceil($seconds * config('steps.max_per_hour') / 3600);
+			if ($activity->goal === null || $day === CarbonImmutable::now()->toDateString()) {
+				$activity->goal = $user->daily_step_goal;
+			}
 
-			$activity->steps = min($steps, $allowed, config('steps.max_per_day'));
-		}
+			if ($steps > $activity->steps) {
+				$otherPhones = (int) $sameDay->where('device_id', '!==', $deviceId)->sum('steps');
+				$ceiling = max($activity->steps, config('steps.max_per_day') - $otherPhones);
 
-		$activity->save();
+				$activity->steps = min($steps, $activity->steps + $this->allowedGain($sameDay, $day), $ceiling);
+			}
 
-		return $activity;
+			$activity->save();
+
+			return $activity;
+		});
+	}
+
+	private function allowedGain(Collection $sameDay, string $day): int
+	{
+		$dayStart = CarbonImmutable::parse($day)->startOfDay();
+		$lastUpdate = $sameDay->max('updated_at');
+		$from = $lastUpdate === null ? $dayStart : CarbonImmutable::instance($lastUpdate)->max($dayStart);
+		$until = CarbonImmutable::now()->min($dayStart->endOfDay());
+		$seconds = max(0, (int) $from->diffInSeconds($until, false));
+
+		return (int) ceil($seconds * config('steps.max_per_hour') / 3600);
 	}
 
 	public function changeGoal(User $user, int $goal): void

@@ -133,6 +133,31 @@ describe("usePlayer", () => {
 		expect(state.companion.value?.accessories).toEqual(["tophat"]);
 	});
 
+	it("saves the daily goal and keeps the day and the streak sent back", async () => {
+		httpRequest.mockResolvedValue({ status: 200, data: { today: { ...today, goal: 7500 }, streak } });
+		const state = usePlayer();
+
+		await state.saveGoal(7500);
+
+		expect(httpRequest.mock.calls[0][0]).toBe("PUT");
+		expect(httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/goal$/);
+		expect(httpRequest.mock.calls[0][3]).toEqual({ daily_step_goal: 7500 });
+		expect(state.today.value?.goal).toBe(7500);
+		expect(state.streak.value).toEqual(streak);
+	});
+
+	it("keeps the previous goal when the server refuses the new one", async () => {
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { player, companion, today, streak } });
+		const state = usePlayer();
+		await state.load();
+		httpRequest.mockResolvedValueOnce({ status: 422, data: { errors: { daily_step_goal: ["Objectif trop bas."] } } });
+
+		const error = await state.saveGoal(10).catch((caught) => caught);
+
+		expect(error.fields.daily_step_goal).toBe("Objectif trop bas.");
+		expect(state.today.value?.goal).toBe(5000);
+	});
+
 	it("keeps the previous look when the server refuses the new one", async () => {
 		httpRequest.mockResolvedValueOnce({ status: 200, data: { player, companion, today } });
 		const state = usePlayer();

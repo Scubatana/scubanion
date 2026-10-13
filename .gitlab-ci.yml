@@ -82,9 +82,7 @@ verify:backend:
       alias: mariadb
   variables:
     MARIADB_DATABASE: scubatana
-    MARIADB_USER: scubatana
-    MARIADB_PASSWORD: scubatana
-    MARIADB_ROOT_PASSWORD: scubatana
+    MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "1"
     APP_ENV: production
     APP_DEBUG: "false"
     LOG_CHANNEL: stderr
@@ -92,8 +90,8 @@ verify:backend:
     DB_HOST: mariadb
     DB_PORT: "3306"
     DB_DATABASE: scubatana
-    DB_USERNAME: scubatana
-    DB_PASSWORD: scubatana
+    DB_USERNAME: root
+    DB_PASSWORD: ""
   script:
     - docker-php-ext-install pdo_mysql > /dev/null
     - cp .env.example .env
