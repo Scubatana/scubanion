@@ -200,7 +200,7 @@ Topics MQTT (*proposition*) :
 - [ ] **BCK-07** · Could : Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de `scubatana.demo`.
 - [ ] **BCK-08** · Could : Back-office pour créer quêtes, événements, skins et partenaires.
 
-Modèle de données (v0, à affiner) :
+Modèle de données (v0, à affiner). Les tables déjà créées sont décrites dans [modele-de-donnees.md](modele-de-donnees.md) :
 
 | Entité                 | Contenu principal                                                                                                      |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
