@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Enums\QuestType;
-use App\Models\Place;
+use App\Enums\QuestRepeat;
+use App\Enums\QuestStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class QuestFactory extends Factory
@@ -11,25 +11,23 @@ class QuestFactory extends Factory
 	public function definition(): array
 	{
 		return [
-			'title' => 'Marcher 5 000 pas',
+			'name' => 'Premiers pas',
 			'description' => null,
-			'type' => QuestType::Steps,
-			'ambition' => null,
-			'goal' => 5000,
-			'place_id' => null,
+			'icon' => null,
 			'reward_xp' => 100,
+			'reward_accessory' => null,
+			'auto_assign' => false,
+			'target_ambition' => null,
+			'target_zone_id' => null,
+			'repeat' => QuestRepeat::Once,
 			'starts_at' => null,
 			'ends_at' => null,
+			'status' => QuestStatus::Published,
 		];
 	}
 
-	public function atPlace(): static
+	public function draft(): static
 	{
-		return $this->state(fn (array $attributes) => [
-			'title' => 'Passer au parc',
-			'type' => QuestType::Place,
-			'goal' => 1,
-			'place_id' => Place::factory(),
-		]);
+		return $this->state(fn (array $attributes) => ['status' => QuestStatus::Draft]);
 	}
 }
