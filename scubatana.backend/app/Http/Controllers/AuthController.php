@@ -47,6 +47,8 @@ class AuthController extends Controller
 			'terms_accepted_at' => now(),
 		]);
 
+		$user->tokens()->delete();
+
 		return response()->json([
 			'token' => $user->createToken('mobile')->plainTextToken,
 			'player' => new PlayerResource($user),
