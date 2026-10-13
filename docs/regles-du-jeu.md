@@ -26,3 +26,29 @@ Pour un objectif de 5 000 pas tenu chaque jour, le joueur gagne 550 XP par jour 
 Dans l'app, la bulle du compagnon change selon son état : une santé sous 40 passe en premier, puis l'humeur (70 et plus, de 30 à 69, moins de 30).
 
 Le code est dans `scubatana.backend/app/Services/CompanionProgressService.php`, les tests dans `tests/Feature/Me/CompanionProgressTest.php` et `tests/Unit/Services/CompanionProgressServiceTest.php`.
+
+## Quêtes
+
+La conception suit la proposition d'Evan sur la PR #10.
+
+**Attribution.** Au lancement de l'app (`GET /api/me/quests`), le serveur donne au joueur chaque quête publiée et en cours, attribuée automatiquement, dont il remplit les conditions : l'ambition visée (ou aucune), et la zone visée (ou aucune) qui contient sa dernière position connue. Un admin peut aussi donner une quête à un joueur précis (`php artisan quetes:donner {quête} {joueur}`). Il n'y a pas de prérequis : un joueur qui n'a pas droit à une quête ne la reçoit pas.
+
+**Périodes.** Une quête `once` est donnée une fois. Une quête `daily` est redonnée chaque jour à minuit, une quête `weekly` chaque lundi (heure de Paris). Chaque période a sa propre ligne `user_quests`, qui expire à la fin de la période ou de la quête, la plus proche des deux.
+
+**Étapes.** Une quête reçue est active tout de suite, et un joueur peut en avoir plusieurs à la fois. Il faut finir toutes les tâches de l'étape en cours pour débloquer la suivante ; le joueur ne voit jamais les étapes suivantes. Une quête expirée ou ratée disparaît de l'app.
+
+| Action | Comment la tâche avance |
+| ------ | ----------------------- |
+| `auto` (pas) | les pas comptent seulement depuis le déblocage de l'étape : le total du joueur à ce moment est gardé dans `baseline` |
+| `checkin` | le joueur est dans le rayon du lieu (100 m par défaut) ou à l'intérieur de son contour ; pour un type de lieu, n'importe quel lieu actif de ce type convient |
+| `scan` | le code envoyé correspond, sans tenir compte de la casse ni des espaces ; il n'est jamais envoyé à l'app |
+| `answer` | quiz : une question à la fois, dans l'ordre, un seul essai. Une erreur fait rater la quête. Les réponses ne sortent jamais du serveur |
+| `meet` | chaque rencontre validée depuis le déblocage de l'étape compte |
+
+**Hors ligne.** Une validation faite hors ligne est acceptée jusqu'à 24 h après, si la quête était encore en cours à ce moment-là.
+
+**Récompense.** Finir la dernière étape donne l'XP de la quête (ajoutée à la progression du compagnon) et, s'il y en a un, son accessoire. Les accessoires marqués `earnable` dans le catalogue sont verrouillés tant que le joueur ne les a pas gagnés.
+
+**Anti-triche.** Un joueur sous le coup d'un blocage (`quest_bans`) échoue silencieusement aux tâches de localisation : rien ne lui est affiché, ses validations de lieu échouent simplement.
+
+Le code est dans `app/Services/QuestEngine.php` (avancement), `QuestAssigner.php` (attribution) et `QuestPresenter.php` (ce qui est envoyé à l'app), les tests dans `tests/Feature/Quests/QuestEngineTest.php`.
