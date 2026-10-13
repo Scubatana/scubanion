@@ -12,6 +12,7 @@ Route::post('/auth/verify', [AuthController::class, 'verify'])->middleware('thro
 Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/auth/logout', [AuthController::class, 'logout']);
 	Route::get('/me', [MeController::class, 'show']);
+	Route::delete('/me', [MeController::class, 'destroy']);
 	Route::put('/me/profile', [MeController::class, 'updateProfile']);
 	Route::put('/me/companion', [CompanionController::class, 'update']);
 	Route::get('/me/steps', [StepController::class, 'index']);
