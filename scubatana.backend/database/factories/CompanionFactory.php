@@ -15,6 +15,8 @@ class CompanionFactory extends Factory
 			'user_id' => User::factory(),
 			'name' => CompanionService::DEFAULT_NAME,
 			'species' => CompanionService::DEFAULT_SPECIES,
+			'color' => CompanionService::DEFAULT_COLOR,
+			'accessories' => [],
 			'level' => 1,
 			'xp' => 0,
 			'mood' => 100,

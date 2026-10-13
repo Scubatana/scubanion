@@ -13,6 +13,8 @@ class CompanionResource extends JsonResource
 		return [
 			'name' => $this->name,
 			'species' => $this->species,
+			'color' => $this->color ?? CompanionService::DEFAULT_COLOR,
+			'accessories' => $this->accessories ?? [],
 			'level' => $this->level,
 			'xp' => $this->xp,
 			'xp_for_next_level' => app(CompanionService::class)->xpForNextLevel($this->level),
