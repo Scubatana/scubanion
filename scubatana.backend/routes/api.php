@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/me/steps', [StepController::class, 'store']);
 	Route::get('/me/quests', [UserQuestController::class, 'index']);
 	Route::post('/me/quests/{userQuest}/tasks/{questTask}', [UserQuestController::class, 'act'])->middleware('throttle:30,1');
+	Route::post('/me/quests/{userQuest}/claim', [UserQuestController::class, 'claim']);
 	Route::put('/me/goal', [StepController::class, 'updateGoal']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 });

@@ -6,6 +6,7 @@ use App\Enums\Ambition;
 use App\Enums\QuestRepeat;
 use App\Enums\QuestSource;
 use App\Enums\QuestStatus;
+use App\Models\Accessory;
 use App\Models\Activity;
 use App\Models\Companion;
 use App\Models\Encounter;
@@ -19,6 +20,7 @@ use App\Models\User;
 use App\Models\UserPosition;
 use App\Models\UserQuest;
 use Database\Seeders\QuestSeeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -39,16 +41,14 @@ class QuestEngineTest extends TestCase
 		Sanctum::actingAs($this->lea);
 	}
 
-	/**
-	 * @param  array<int, array{0: int, 1: string, 2: int, 3?: array}>  $tasks  [étape, type, cible, attributs]
-	 */
-	private function quest(array $attributes, array $tasks): Quest
+	private function quest(array $attributes, array $tasks, array $rewards = []): Quest
 	{
 		$quest = Quest::factory()->create(['auto_assign' => true, ...$attributes]);
+		$created = [];
 
 		foreach ($tasks as $index => $task) {
 			[$step, $type, $target, $extra] = array_pad($task, 4, []);
-			QuestTask::factory()->for($quest)->create([
+			$created[] = QuestTask::factory()->for($quest)->create([
 				'step' => $step,
 				'position' => $index + 1,
 				'task_type_id' => TaskType::byCode($type)->id,
@@ -58,7 +58,26 @@ class QuestEngineTest extends TestCase
 			]);
 		}
 
-		return $quest;
+		foreach ($rewards as $reward) {
+			$quest->rewards()->create([
+				'step' => $reward['step'] ?? null,
+				'quest_task_id' => isset($reward['task']) ? $created[$reward['task']]->id : null,
+				'xp' => $reward['xp'] ?? 0,
+				'accessory_id' => isset($reward['accessory']) ? Accessory::where('code', $reward['accessory'])->value('id') : null,
+			]);
+		}
+
+		return $quest->fresh();
+	}
+
+	private function claim(int $userQuestId)
+	{
+		return $this->postJson("/api/me/quests/{$userQuestId}/claim");
+	}
+
+	private function wear(string $accessory)
+	{
+		return $this->putJson('/api/me/companion', ['name' => 'Bulle', 'species' => 'scuba', 'color' => 'ocean', 'accessories' => [$accessory]]);
 	}
 
 	private function walked(string $day, int $steps): void
@@ -176,23 +195,80 @@ class QuestEngineTest extends TestCase
 		$this->myQuests()->assertJsonPath('quests.0.tasks.0.value', 1700);
 	}
 
-	public function test_finishing_the_last_step_gives_the_xp_and_the_accessory(): void
+	public function test_rewards_are_earned_by_tasks_steps_and_the_quest_then_claimed_with_a_button(): void
 	{
-		$this->quest(['name' => 'Couronnement', 'reward_xp' => 800, 'reward_accessory' => 'crown'], [[1, 'steps', 1000]]);
-		$this->myQuests();
+		Accessory::create(['code' => 'leaf_hat', 'label' => 'Chapeau de feuilles', 'category' => 'hat', 'image' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"/>', 'earnable' => true]);
+		$castle = $this->castle();
+		$quest = $this->quest(['name' => 'Forêt enchantée'], [
+			[1, 'scan_code', 1, ['params' => ['code' => 'RENCONTRE']]],
+			[1, 'visit_place', 1, ['place_id' => $castle->id]],
+			[2, 'scan_code', 1, ['params' => ['code' => 'CLAIRIERE']]],
+		], [
+			['task' => 1, 'accessory' => 'leaf_hat'],
+			['step' => 2, 'xp' => 120],
+			['xp' => 300],
+		]);
+		[$meetTask, $castleTask, $clearingTask] = $quest->tasks;
 
-		$this->walked('2026-10-14', 1000);
+		$userQuestId = $this->myQuests()
+			->assertJsonPath('quests.0.status', 'active')
+			->assertJsonPath('quests.0.tasks.0.rewards', [])
+			->assertJsonPath('quests.0.tasks.1.rewards', [['xp' => 0, 'accessory' => 'leaf_hat']])
+			->assertJsonPath('quests.0.step_rewards', [])
+			->assertJsonPath('quests.0.quest_rewards', [['xp' => 300, 'accessory' => null]])
+			->assertJsonPath('quests.0.rewards_to_claim', [])
+			->json('quests.0.id');
 
-		$this->myQuests()
-			->assertJsonCount(0, 'quests')
-			->assertJsonPath('completed.0.name', 'Couronnement')
-			->assertJsonPath('completed.0.reward', ['xp' => 800, 'accessory' => 'crown']);
+		$this->act($userQuestId, $castleTask->id, ['latitude' => 43.6953, 'longitude' => 7.2806])
+			->assertOk()
+			->assertJsonPath('quest.rewards_to_claim.0.accessory', 'leaf_hat');
+		$this->wear('leaf_hat')->assertUnprocessable();
 
-		$this->getJson('/api/me')
-			->assertJsonPath('companion.xp', 100 + 800)
-			->assertJsonPath('companion.unlocked_accessories', ['crown']);
+		$this->claim($userQuestId)
+			->assertOk()
+			->assertJsonPath('claimed.0.accessory', 'leaf_hat')
+			->assertJsonPath('quest.rewards_to_claim', [])
+			->assertJsonPath('companion.unlocked_accessories', ['leaf_hat']);
+		$this->wear('leaf_hat')->assertOk();
 
-		$this->putJson('/api/me/companion', ['name' => 'Bulle', 'species' => 'scuba', 'color' => 'ocean', 'accessories' => ['crown']])->assertOk();
+		$this->act($userQuestId, $meetTask->id, ['code' => 'RENCONTRE'])
+			->assertOk()
+			->assertJsonPath('quest.step', 2)
+			->assertJsonPath('quest.step_rewards', [['xp' => 120, 'accessory' => null]]);
+
+		$this->act($userQuestId, $clearingTask->id, ['code' => 'CLAIRIERE'])
+			->assertOk()
+			->assertJsonPath('status', 'completed')
+			->assertJsonPath('quest.tasks', [])
+			->assertJsonCount(2, 'quest.rewards_to_claim');
+
+		$this->myQuests()->assertJsonCount(1, 'quests')->assertJsonPath('quests.0.status', 'completed');
+
+		$this->claim($userQuestId)
+			->assertOk()
+			->assertJsonCount(2, 'claimed')
+			->assertJsonPath('quest', null)
+			->assertJsonPath('companion.xp', 120 + 300);
+
+		$this->myQuests()->assertJsonCount(0, 'quests');
+		$this->claim($userQuestId)->assertStatus(409);
+
+		Sanctum::actingAs(User::factory()->create());
+		$this->claim($userQuestId)->assertNotFound();
+	}
+
+	public function test_rewards_already_earned_can_still_be_claimed_after_a_failed_quest(): void
+	{
+		$questions = [['question' => 'Quelle mer ?', 'choices' => ['Manche', 'Méditerranée'], 'answer' => 1]];
+		$quest = $this->quest(['name' => 'Quiz du port'], [[1, 'scan_code', 1, ['params' => ['code' => 'PORT']]], [2, 'quiz', 1, ['params' => ['questions' => $questions]]]], [['task' => 0, 'xp' => 40]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+
+		$this->act($userQuestId, $quest->tasks[0]->id, ['code' => 'PORT'])->assertOk();
+		$this->act($userQuestId, $quest->tasks[1]->id, ['question' => 0, 'choice' => 0])->assertOk()->assertJsonPath('status', 'failed');
+
+		$this->myQuests()->assertJsonPath('quests.0.status', 'failed')->assertJsonPath('quests.0.rewards_to_claim.0.xp', 40);
+		$this->claim($userQuestId)->assertOk()->assertJsonPath('quest', null);
+		$this->myQuests()->assertJsonCount(0, 'quests');
 	}
 
 	public function test_earnable_accessories_are_locked_until_won(): void
@@ -222,14 +298,198 @@ class QuestEngineTest extends TestCase
 
 		$this->act($userQuest['id'], $castleTask->id, ['latitude' => 43.6957, 'longitude' => 7.2810])
 			->assertOk()
-			->assertJsonPath('status', 'in_progress')
+			->assertJsonPath('status', 'active')
 			->assertJsonPath('quest.tasks.0.completed', true);
 
 		$this->act($userQuest['id'], $parkTask->id, ['latitude' => 43.6956, 'longitude' => 7.2690])
 			->assertOk()
 			->assertJsonPath('status', 'completed')
-			->assertJsonPath('quest', null)
-			->assertJsonPath('reward.xp', 100);
+			->assertJsonPath('quest', null);
+	}
+
+	public function test_a_place_type_task_needs_different_places(): void
+	{
+		$parkType = PlaceType::where('code', 'park')->value('id');
+		Place::factory()->create(['name' => 'Jardin Albert Ier', 'latitude' => 43.6956, 'longitude' => 7.2686]);
+		Place::factory()->create(['name' => 'Parc du Château', 'latitude' => 43.6953, 'longitude' => 7.2806]);
+		$quest = $this->quest(['name' => 'Tour des parcs'], [[1, 'visit_place_type', 2, ['place_type_id' => $parkType]]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+		$albert = ['latitude' => 43.6956, 'longitude' => 7.2686];
+
+		$this->act($userQuestId, $quest->tasks[0]->id, $albert)->assertOk()->assertJsonPath('quest.tasks.0.value', 1);
+		$this->travel(1)->minutes();
+		$this->act($userQuestId, $quest->tasks[0]->id, $albert)
+			->assertUnprocessable()
+			->assertJsonValidationErrors(['position' => 'Tu as déjà validé ce lieu : trouves-en un autre.']);
+		$this->travel(1)->minutes();
+
+		$this->act($userQuestId, $quest->tasks[0]->id, ['latitude' => 43.6953, 'longitude' => 7.2806])->assertOk()->assertJsonPath('status', 'completed');
+	}
+
+	public function test_a_precise_place_is_reached_in_one_visit_whatever_its_target(): void
+	{
+		$castle = $this->castle();
+		$quest = $this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 2, ['place_id' => $castle->id]]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+
+		$this->act($userQuestId, $quest->tasks[0]->id, ['latitude' => 43.6953, 'longitude' => 7.2806])->assertOk()->assertJsonPath('status', 'completed');
+	}
+
+	public function test_being_at_the_place_validates_the_task_without_the_button(): void
+	{
+		$castle = $this->castle();
+		$this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]], [2, 'scan_code', 1, ['params' => ['code' => 'X']]]], [['step' => 1, 'xp' => 30]]);
+		$this->myQuests();
+
+		$this->postJson('/api/me/position', ['latitude' => 43.70, 'longitude' => 7.25])->assertNoContent();
+		$this->myQuests()->assertJsonPath('quests.0.step', 1);
+		$this->travel(1)->minutes();
+
+		$this->postJson('/api/me/position', ['latitude' => 43.6954, 'longitude' => 7.2807, 'accuracy_m' => 12])->assertNoContent();
+
+		$this->myQuests()
+			->assertJsonPath('quests.0.step', 2)
+			->assertJsonPath('quests.0.rewards_to_claim.0.xp', 30);
+	}
+
+	public function test_walking_past_several_places_of_a_type_counts_each_of_them(): void
+	{
+		$parkType = PlaceType::where('code', 'park')->value('id');
+		Place::factory()->create(['name' => 'Jardin Albert Ier', 'latitude' => 43.6956, 'longitude' => 7.2686]);
+		Place::factory()->create(['name' => 'Parc du Château', 'latitude' => 43.6953, 'longitude' => 7.2806]);
+		$this->quest(['name' => 'Tour des parcs'], [[1, 'visit_place_type', 2, ['place_type_id' => $parkType]]]);
+		$this->myQuests();
+
+		$this->postJson('/api/me/position', ['latitude' => 43.6956, 'longitude' => 7.2686])->assertNoContent();
+		$this->travel(1)->minutes();
+		$this->postJson('/api/me/position', ['latitude' => 43.6956, 'longitude' => 7.2687])->assertNoContent();
+		$this->myQuests()->assertJsonPath('quests.0.tasks.0.value', 1);
+		$this->travel(10)->minutes();
+
+		$this->postJson('/api/me/position', ['latitude' => 43.6953, 'longitude' => 7.2806])->assertNoContent();
+
+		$this->assertNotNull(UserQuest::sole()->completed_at);
+	}
+
+	public function test_a_teleported_or_mocked_position_never_validates_a_place(): void
+	{
+		$castle = $this->castle();
+		$this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]]]);
+		$this->myQuests();
+		$this->postJson('/api/me/position', ['latitude' => 48.8566, 'longitude' => 2.3522])->assertNoContent();
+		$this->travel(1)->minutes();
+
+		$this->postJson('/api/me/position', ['latitude' => 43.6953, 'longitude' => 7.2806])->assertNoContent();
+		$this->postJson('/api/me/position', ['latitude' => 43.6953, 'longitude' => 7.2806, 'mocked' => true])->assertNoContent();
+
+		$this->assertNull(UserQuest::sole()->completed_at);
+		$this->assertSame(0, UserQuest::sole()->tasks()->whereNotNull('completed_at')->count());
+	}
+
+	public function test_an_old_position_never_validates_a_place(): void
+	{
+		$castle = $this->castle();
+		$this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]]]);
+		$this->myQuests();
+
+		$this->postJson('/api/me/position', ['latitude' => 43.6953, 'longitude' => 7.2806, 'recorded_at' => '2026-10-13T14:00:00+02:00'])->assertNoContent();
+
+		$this->assertNull(UserQuest::sole()->completed_at);
+	}
+
+	public function test_the_gps_accuracy_helps_a_check_in_only_up_to_a_limit(): void
+	{
+		$castle = $this->castle();
+		$quest = $this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+		$justOutside = ['latitude' => 43.6966, 'longitude' => 7.2806];
+
+		$this->act($userQuestId, $quest->tasks[0]->id, [...$justOutside, 'accuracy_m' => 5])->assertUnprocessable();
+		$this->act($userQuestId, $quest->tasks[0]->id, ['latitude' => 43.6990, 'longitude' => 7.2806, 'accuracy_m' => 1000000])->assertUnprocessable();
+		$this->act($userQuestId, $quest->tasks[0]->id, [...$justOutside, 'accuracy_m' => 50])->assertOk()->assertJsonPath('status', 'completed');
+	}
+
+	public function test_a_check_in_from_a_teleported_position_bans_the_player_silently(): void
+	{
+		$castle = $this->castle();
+		$quest = $this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+		$this->postJson('/api/me/position', ['latitude' => 48.8566, 'longitude' => 2.3522])->assertNoContent();
+		$this->travel(1)->minutes();
+
+		$this->act($userQuestId, $quest->tasks[0]->id, ['latitude' => 43.6953, 'longitude' => 7.2806])
+			->assertUnprocessable()
+			->assertJsonValidationErrors(['position' => "Tu n'es pas encore sur place."]);
+
+		$this->assertSame('teleport', QuestBan::sole()->reason);
+	}
+
+	public function test_an_offline_check_in_is_still_checked_against_a_newer_position(): void
+	{
+		$castle = $this->castle();
+		$quest = $this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+		$this->postJson('/api/me/position', ['latitude' => 48.8566, 'longitude' => 2.3522])->assertNoContent();
+
+		$this->act($userQuestId, $quest->tasks[0]->id, ['latitude' => 43.6953, 'longitude' => 7.2806, 'recorded_at' => '2026-10-14T14:50:00+02:00'])
+			->assertUnprocessable()
+			->assertJsonValidationErrors(['position' => "Tu n'es pas encore sur place."]);
+
+		$this->assertSame('teleport', QuestBan::sole()->reason);
+		$this->assertSame(48.8566, UserPosition::sole()->latitude);
+	}
+
+	public function test_sending_steps_ignores_the_quests_with_no_automatic_task(): void
+	{
+		$this->quest(['name' => 'Marche'], [[1, 'steps', 100000]]);
+		$this->myQuests();
+		$send = fn () => $this->postJson('/api/me/steps', ['device_id' => 'phone-aaaa-1111', 'days' => [['day' => '2026-10-14', 'steps' => 100]]])->assertOk();
+		$queries = function () use ($send): int {
+			DB::flushQueryLog();
+			DB::enableQueryLog();
+			$send();
+			DB::disableQueryLog();
+
+			return count(DB::getQueryLog());
+		};
+		$send();
+		$this->travel(1)->minutes();
+		$before = $queries();
+
+		foreach (range(1, 5) as $index) {
+			$this->quest(['name' => "Code {$index}"], [[1, 'scan_code', 1, ['params' => ['code' => "C{$index}"]]]]);
+		}
+
+		$this->myQuests()->assertJsonCount(6, 'quests');
+		$this->travel(1)->minutes();
+
+		$this->assertSame($before, $queries());
+	}
+
+	public function test_a_check_in_from_a_mocked_position_bans_the_player_silently(): void
+	{
+		$castle = $this->castle();
+		$quest = $this->quest(['name' => 'Belvédère'], [[1, 'visit_place', 1, ['place_id' => $castle->id]]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+
+		$this->act($userQuestId, $quest->tasks[0]->id, ['latitude' => 43.6953, 'longitude' => 7.2806, 'mocked' => true])
+			->assertUnprocessable()
+			->assertJsonValidationErrors(['position' => "Tu n'es pas encore sur place."]);
+
+		$this->assertSame('mocked', QuestBan::sole()->reason);
+	}
+
+	public function test_steps_sent_by_the_phone_finish_a_quest_without_opening_the_quests(): void
+	{
+		$this->quest(['name' => 'Couronnement'], [[1, 'steps', 1000]], [['xp' => 800]]);
+		$userQuestId = $this->myQuests()->json('quests.0.id');
+
+		$this->postJson('/api/me/steps', ['device_id' => 'phone-aaaa-1111', 'days' => [['day' => '2026-10-14', 'steps' => 1000]]])
+			->assertOk()
+			->assertJsonPath('companion.xp', 100);
+
+		$this->assertNotNull(UserQuest::sole()->completed_at);
+		$this->claim($userQuestId)->assertOk()->assertJsonPath('companion.xp', 100 + 800);
 	}
 
 	public function test_a_banned_player_silently_fails_location_tasks(): void
@@ -289,7 +549,7 @@ class QuestEngineTest extends TestCase
 		$this->act($userQuestId, $taskId, ['question' => 0, 'choice' => 1])->assertOk()->assertJsonPath('quest.tasks.0.value', 1);
 		$this->act($userQuestId, $taskId, ['question' => 1, 'choice' => 1])->assertOk()->assertJsonPath('status', 'failed')->assertJsonPath('quest', null);
 
-		$this->myQuests()->assertJsonCount(0, 'quests')->assertJsonCount(0, 'completed');
+		$this->myQuests()->assertJsonCount(0, 'quests');
 		$this->act($userQuestId, $taskId, ['question' => 1, 'choice' => 0])->assertStatus(409);
 	}
 
@@ -305,7 +565,8 @@ class QuestEngineTest extends TestCase
 		$this->myQuests()->assertJsonPath('quests.0.tasks.0.value', 0);
 
 		Encounter::query()->latest('id')->first()->update(['validated_at' => now()]);
-		$this->myQuests()->assertJsonCount(0, 'quests')->assertJsonPath('completed.0.name', 'Rencontre');
+		$this->myQuests()->assertJsonCount(0, 'quests');
+		$this->assertNotNull(UserQuest::sole()->completed_at);
 	}
 
 	public function test_tasks_can_only_be_acted_on_by_their_player_in_the_current_step(): void

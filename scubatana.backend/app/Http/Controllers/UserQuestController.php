@@ -3,13 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AppAction;
+use App\Enums\CheckInResult;
+use App\Http\Resources\CompanionResource;
 use App\Models\QuestTask;
 use App\Models\UserQuest;
 use App\Models\UserQuestTask;
+use App\Models\UserReward;
 use App\Services\QuestAssigner;
 use App\Services\QuestEngine;
+use App\Services\PositionService;
 use App\Services\QuestPresenter;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -20,60 +25,90 @@ class UserQuestController extends Controller
 
 	private const CLOCK_TOLERANCE_MINUTES = 5;
 
-	private const RECENT_DAYS = 7;
-
 	public function index(Request $request, QuestAssigner $assigner, QuestEngine $engine, QuestPresenter $presenter): JsonResponse
 	{
 		$player = $request->user();
 		$assigner->assign($player, now());
+		$engine->refreshPlayer($player);
 
-		$active = $player->userQuests()->activeAt(now())->with('quest')->orderBy('id')->get()
-			->each(fn (UserQuest $userQuest) => $engine->refresh($userQuest))
-			->filter(fn (UserQuest $userQuest) => $userQuest->isActiveAt(now()));
-
-		$completed = $player->userQuests()->with('quest')
-			->where('completed_at', '>=', now()->subDays(self::RECENT_DAYS))
-			->orderByDesc('completed_at')
+		$visible = $player->userQuests()->with('quest')
+			->where(fn (Builder $shown) => $shown->activeAt(now())->orWhereHas('rewards', fn (Builder $rewards) => $rewards->unclaimed()))
+			->orderBy('id')
 			->get();
 
 		return response()->json([
-			'quests' => $active->map(fn (UserQuest $userQuest) => $presenter->active($userQuest))->values()->all(),
-			'completed' => $completed->map(fn (UserQuest $userQuest) => $presenter->completed($userQuest))->all(),
+			'quests' => $visible->map(fn (UserQuest $userQuest) => $presenter->present($userQuest))->all(),
 		]);
 	}
 
-	public function act(Request $request, UserQuest $userQuest, QuestTask $questTask, QuestEngine $engine, QuestPresenter $presenter): JsonResponse
+	public function act(Request $request, UserQuest $userQuest, QuestTask $questTask, QuestEngine $engine, QuestPresenter $presenter, PositionService $positions): JsonResponse
 	{
-		abort_unless($userQuest->user_id === $request->user()->id && $questTask->quest_id === $userQuest->quest_id && $questTask->step === $userQuest->current_step, 404);
+		abort_unless($userQuest->user_id === $request->user()->id && $questTask->quest_id === $userQuest->quest_id, 404);
 
-		$userTask = $userQuest->tasks()->where('quest_task_id', $questTask->id)->firstOrFail();
+		$action = $questTask->type->app_action;
+
+		if ($action === AppAction::Auto || $action === AppAction::Meet) {
+			return response()->json(['message' => 'Cette tâche avance toute seule.'], 409);
+		}
+
 		$recordedAt = $this->recordedAt($request);
+		$input = $this->input($request, $action);
 
-		if ($userQuest->completed_at !== null || $userQuest->failed_at !== null || ! $userQuest->isActiveAt($recordedAt)) {
-			return response()->json(['message' => "Cette quête n'est plus disponible."], 409);
+		if ($action === AppAction::Checkin) {
+			$positions->record($request->user(), $input['latitude'], $input['longitude'], $input['accuracy'], $input['mocked'], $recordedAt);
 		}
 
-		if ($userTask->isCompleted()) {
-			return response()->json(['message' => 'Cette tâche est déjà faite.'], 409);
-		}
+		$refusal = $engine->exclusively($userQuest, function () use ($engine, $userQuest, $questTask, $action, $input, $recordedAt): ?JsonResponse {
+			abort_unless($questTask->step === $userQuest->current_step, 404);
 
-		match ($questTask->type->app_action) {
-			AppAction::Checkin => $this->checkIn($request, $engine, $userQuest, $userTask),
-			AppAction::Scan => $this->scan($request, $engine, $userQuest, $userTask),
-			AppAction::Answer => $this->answer($request, $engine, $userQuest, $userTask),
-			AppAction::Auto, AppAction::Meet => abort(response()->json(['message' => 'Cette tâche avance toute seule.'], 409)),
-		};
+			$userTask = $userQuest->tasks()->where('quest_task_id', $questTask->id)->firstOrFail();
+
+			if ($userQuest->completed_at !== null || $userQuest->failed_at !== null || ! $userQuest->isActiveAt($recordedAt)) {
+				return response()->json(['message' => "Cette quête n'est plus disponible."], 409);
+			}
+
+			if ($userTask->isCompleted()) {
+				return response()->json(['message' => 'Cette tâche est déjà faite.'], 409);
+			}
+
+			match ($action) {
+				AppAction::Checkin => $this->checkIn($engine, $userQuest, $userTask, $input),
+				AppAction::Scan => $this->scan($engine, $userQuest, $userTask, $input['code']),
+				AppAction::Answer => $this->answer($engine, $userQuest, $userTask, $input['question'], $input['choice']),
+			};
+
+			return null;
+		});
+
+		if ($refusal !== null) {
+			return $refusal;
+		}
 
 		$userQuest->refresh();
 
 		return response()->json([
-			'status' => match (true) {
-				$userQuest->failed_at !== null => 'failed',
-				$userQuest->completed_at !== null => 'completed',
-				default => 'in_progress',
-			},
-			'quest' => $userQuest->failed_at === null && $userQuest->completed_at === null ? $presenter->active($userQuest) : null,
-			'reward' => $userQuest->completed_at !== null ? $presenter->completed($userQuest)['reward'] : null,
+			'status' => $presenter->status($userQuest),
+			'quest' => $engine->isVisible($userQuest) ? $presenter->present($userQuest) : null,
+		]);
+	}
+
+	public function claim(Request $request, UserQuest $userQuest, QuestEngine $engine, QuestPresenter $presenter): JsonResponse
+	{
+		abort_unless($userQuest->user_id === $request->user()->id, 404);
+
+		$claimed = $engine->claim($userQuest);
+
+		if ($claimed->isEmpty()) {
+			return response()->json(['message' => 'Rien à récupérer pour cette quête.'], 409);
+		}
+
+		$userQuest->refresh();
+		$companion = $request->user()->companion()->first();
+
+		return response()->json([
+			'claimed' => $claimed->map(fn (UserReward $reward) => ['id' => $reward->id, 'xp' => $reward->xp, 'accessory' => $reward->accessory?->code])->all(),
+			'quest' => $engine->isVisible($userQuest) ? $presenter->present($userQuest) : null,
+			'companion' => $companion === null ? null : new CompanionResource($companion),
 		]);
 	}
 
@@ -94,38 +129,57 @@ class UserQuestController extends Controller
 		return $recordedAt;
 	}
 
-	private function checkIn(Request $request, QuestEngine $engine, UserQuest $userQuest, UserQuestTask $userTask): void
+	private function input(Request $request, AppAction $action): array
+	{
+		return match ($action) {
+			AppAction::Checkin => $this->position($request),
+			AppAction::Scan => $request->validate(['code' => ['required', 'string', 'max:64']]),
+			AppAction::Answer => array_map('intval', $request->validate([
+				'question' => ['required', 'integer'],
+				'choice' => ['required', 'integer', 'min:0'],
+			])),
+		};
+	}
+
+	private function position(Request $request): array
 	{
 		$position = $request->validate([
 			'latitude' => ['required', 'numeric', 'between:-90,90'],
 			'longitude' => ['required', 'numeric', 'between:-180,180'],
+			'accuracy_m' => ['nullable', 'integer', 'min:0'],
+			'mocked' => ['sometimes', 'boolean'],
 		]);
 
-		if (! $engine->checkIn($userQuest, $userTask, (float) $position['latitude'], (float) $position['longitude'])) {
-			throw ValidationException::withMessages(['position' => "Tu n'es pas encore sur place."]);
-		}
+		return [
+			'latitude' => (float) $position['latitude'],
+			'longitude' => (float) $position['longitude'],
+			'accuracy' => isset($position['accuracy_m']) ? (int) $position['accuracy_m'] : null,
+			'mocked' => $request->boolean('mocked'),
+		];
 	}
 
-	private function scan(Request $request, QuestEngine $engine, UserQuest $userQuest, UserQuestTask $userTask): void
+	private function checkIn(QuestEngine $engine, UserQuest $userQuest, UserQuestTask $userTask, array $position): void
 	{
-		$code = $request->validate(['code' => ['required', 'string', 'max:64']])['code'];
+		match ($engine->checkIn($userQuest, $userTask, $position['latitude'], $position['longitude'], $position['accuracy'])) {
+			CheckInResult::Validated => null,
+			CheckInResult::NotThere => throw ValidationException::withMessages(['position' => "Tu n'es pas encore sur place."]),
+			CheckInResult::AlreadyVisited => throw ValidationException::withMessages(['position' => 'Tu as déjà validé ce lieu : trouves-en un autre.']),
+		};
+	}
 
+	private function scan(QuestEngine $engine, UserQuest $userQuest, UserQuestTask $userTask, string $code): void
+	{
 		if (! $engine->scan($userQuest, $userTask, $code)) {
 			throw ValidationException::withMessages(['code' => 'Ce code ne correspond pas.']);
 		}
 	}
 
-	private function answer(Request $request, QuestEngine $engine, UserQuest $userQuest, UserQuestTask $userTask): void
+	private function answer(QuestEngine $engine, UserQuest $userQuest, UserQuestTask $userTask, int $question, int $choice): void
 	{
-		$answer = $request->validate([
-			'question' => ['required', 'integer'],
-			'choice' => ['required', 'integer', 'min:0'],
-		]);
-
-		if ((int) $answer['question'] !== $userTask->value) {
+		if ($question !== $userTask->value) {
 			throw ValidationException::withMessages(['question' => 'Réponds aux questions dans l\'ordre.']);
 		}
 
-		$engine->answer($userQuest, $userTask, (int) $answer['choice']);
+		$engine->answer($userQuest, $userTask, $choice);
 	}
 }
