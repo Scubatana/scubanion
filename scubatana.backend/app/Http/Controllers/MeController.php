@@ -6,25 +6,22 @@ use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\CompanionResource;
 use App\Http\Resources\PlayerResource;
 use App\Services\CompanionService;
+use App\Services\StepService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MeController extends Controller
 {
-	public function show(Request $request): JsonResponse
+	public function show(Request $request, StepService $steps): JsonResponse
 	{
 		$user = $request->user();
-		$today = now()->toDateString();
 		$companion = $user->companion;
 
 		return response()->json([
 			'player' => new PlayerResource($user),
 			'companion' => $companion ? new CompanionResource($companion) : null,
-			'today' => [
-				'date' => $today,
-				'steps' => (int) $user->activities()->whereDate('day', $today)->value('steps'),
-				'goal' => $user->daily_step_goal,
-			],
+			'today' => $steps->today($user),
+			'streak' => $steps->streak($user),
 		]);
 	}
 
