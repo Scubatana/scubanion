@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'accessory', 'quest_id', 'unlocked_at'])]
+#[Fillable(['user_id', 'accessory_id', 'quest_id', 'unlocked_at'])]
 #[WithoutTimestamps]
 class UserAccessory extends Model
 {
@@ -21,6 +21,11 @@ class UserAccessory extends Model
 	public function user(): BelongsTo
 	{
 		return $this->belongsTo(User::class);
+	}
+
+	public function accessory(): BelongsTo
+	{
+		return $this->belongsTo(Accessory::class);
 	}
 
 	public function quest(): BelongsTo
