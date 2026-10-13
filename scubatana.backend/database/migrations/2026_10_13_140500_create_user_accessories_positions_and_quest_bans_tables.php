@@ -11,10 +11,10 @@ return new class extends Migration
 		Schema::create('user_accessories', function (Blueprint $table) {
 			$table->id();
 			$table->foreignId('user_id')->constrained()->cascadeOnDelete();
-			$table->string('accessory', 32);
+			$table->foreignId('accessory_id')->constrained()->restrictOnDelete();
 			$table->foreignId('quest_id')->nullable()->constrained()->restrictOnDelete();
 			$table->timestamp('unlocked_at');
-			$table->unique(['user_id', 'accessory']);
+			$table->unique(['user_id', 'accessory_id']);
 		});
 
 		Schema::create('user_positions', function (Blueprint $table) {

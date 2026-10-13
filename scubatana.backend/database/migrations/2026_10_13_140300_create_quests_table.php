@@ -13,8 +13,6 @@ return new class extends Migration
 			$table->string('name', 120);
 			$table->text('description')->nullable();
 			$table->string('icon', 64)->nullable();
-			$table->unsignedInteger('reward_xp')->default(0);
-			$table->string('reward_accessory', 32)->nullable();
 			$table->boolean('auto_assign')->default(false);
 			$table->string('target_ambition', 32)->nullable();
 			$table->foreignId('target_zone_id')->nullable()->constrained('places')->restrictOnDelete();
@@ -28,7 +26,7 @@ return new class extends Migration
 
 		Schema::create('quest_tasks', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('quest_id')->constrained()->cascadeOnDelete();
+			$table->foreignId('quest_id')->constrained()->restrictOnDelete();
 			$table->unsignedSmallInteger('step');
 			$table->unsignedSmallInteger('position');
 			$table->foreignId('task_type_id')->constrained()->restrictOnDelete();
@@ -40,10 +38,22 @@ return new class extends Migration
 			$table->timestamps();
 			$table->unique(['quest_id', 'step', 'position']);
 		});
+
+		Schema::create('quest_rewards', function (Blueprint $table) {
+			$table->id();
+			$table->foreignId('quest_id')->constrained()->restrictOnDelete();
+			$table->unsignedSmallInteger('step')->nullable();
+			$table->foreignId('quest_task_id')->nullable()->constrained()->restrictOnDelete();
+			$table->unsignedInteger('xp')->default(0);
+			$table->foreignId('accessory_id')->nullable()->constrained()->restrictOnDelete();
+			$table->timestamps();
+			$table->index(['quest_id', 'step']);
+		});
 	}
 
 	public function down(): void
 	{
+		Schema::dropIfExists('quest_rewards');
 		Schema::dropIfExists('quest_tasks');
 		Schema::dropIfExists('quests');
 	}
