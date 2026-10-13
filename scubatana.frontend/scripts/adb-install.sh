@@ -42,6 +42,9 @@ if [ -f ".env" ]; then
 	set +a
 fi
 
+export NUXT_PUBLIC_API_URL="${NUXT_PUBLIC_API_URL_PROD:-https://scubatana.picsou06.fr}"
+echo "Build production : l'app appellera $NUXT_PUBLIC_API_URL"
+
 npm run cap:sync
 
 cd android
