@@ -194,7 +194,7 @@ Topics MQTT (*proposition*) :
 - [ ] **BCK-01** · Must : API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.
 - [ ] **BCK-02** · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
 - [ ] **BCK-03** · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
-- [ ] **BCK-04** · Must : Abonné MQTT qui traite les passages en borne et répond à la borne.
+- [x] **BCK-04** · Must : Abonné MQTT qui traite les passages en borne et répond à la borne.
 - [ ] **BCK-05** · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).
 - [ ] **BCK-06** · Could : Ressources oneM2M pour décrire les bornes (D5).
 - [ ] **BCK-07** · Could : Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de `scubatana.demo`.
