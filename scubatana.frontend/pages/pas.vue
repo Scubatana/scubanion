@@ -9,13 +9,7 @@ const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
 
 const api = useApi();
 const steps = useSteps();
-const { saveGoal } = usePlayer();
 
-const GOAL_STEP = 500;
-const GOAL_MIN = 1000;
-const GOAL_MAX = 50000;
-
-const savingGoal = ref(false);
 const loaded = ref<StepHistory | null>(null);
 const selectedDay = ref<string | null>(null);
 const loading = ref(false);
@@ -48,26 +42,6 @@ async function open(month: string | null): Promise<void> {
 function move(offset: number): void {
 	if (history.value) {
 		void open(shiftMonth(history.value.month, offset));
-	}
-}
-
-async function changeGoal(offset: number): Promise<void> {
-	const goal = (history.value?.goal ?? 0) + offset;
-
-	if (savingGoal.value || loaded.value === null || goal < GOAL_MIN || goal > GOAL_MAX) {
-		return;
-	}
-
-	savingGoal.value = true;
-	loadError.value = "";
-
-	try {
-		await saveGoal(goal);
-		loaded.value = await api.get<StepHistory>(`/me/steps?month=${loaded.value.month}`);
-	} catch (error) {
-		loadError.value = readableMessage(error);
-	} finally {
-		savingGoal.value = false;
 	}
 }
 
@@ -121,18 +95,6 @@ onMounted(async () => {
 					<b>{{ formatCount(selected.steps ?? 0) }}</b>
 					<svg v-if="selected.reached" viewBox="0 0 24 24" aria-label="Objectif atteint"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>
 				</div>
-			</div>
-			<div v-if="history" class="card row-center" aria-label="Objectif de pas par jour">
-				<button class="avatar-btn goal-btn" type="button" aria-label="Baisser l'objectif" :disabled="savingGoal || history.goal <= GOAL_MIN" @click="changeGoal(-GOAL_STEP)">
-					<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 12h12"/></svg>
-				</button>
-				<div class="hero-steps">
-					<svg class="goal-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle class="solid" cx="12" cy="12" r="1.6"/></svg>
-					<span class="goal-value">{{ formatCount(history.goal) }}</span>
-				</div>
-				<button class="avatar-btn goal-btn" type="button" aria-label="Augmenter l'objectif" :disabled="savingGoal || history.goal >= GOAL_MAX" @click="changeGoal(GOAL_STEP)">
-					<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 12h12M12 6v12"/></svg>
-				</button>
 			</div>
 			<div v-if="history" class="stat-grid">
 				<div class="card stat-tile" aria-label="Jours où l'objectif est atteint">
