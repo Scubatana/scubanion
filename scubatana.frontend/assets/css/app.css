@@ -220,6 +220,171 @@ button.link-under:disabled {
 	display: block;
 }
 
+.month-nav {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 24px 14px;
+}
+
+.month-nav .avatar-btn {
+	flex: 0 0 40px;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	cursor: pointer;
+}
+
+.month-nav .avatar-btn:disabled {
+	opacity: 0.35;
+}
+
+.calendar {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 6px;
+	justify-items: center;
+}
+
+.calendar-weekday {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--ink-soft);
+	padding-bottom: 2px;
+}
+
+.calendar-day {
+	width: 100%;
+	max-width: 40px;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	border: none;
+	padding: 3px;
+	background: conic-gradient(var(--coral) var(--fill, 0%), var(--mist) 0);
+	font-family: inherit;
+	cursor: pointer;
+}
+
+.calendar-day span {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background: var(--white);
+	color: var(--ink);
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.calendar-day.reached span {
+	background: var(--coral);
+	color: var(--white);
+}
+
+.calendar-day.future {
+	background: none;
+	cursor: default;
+}
+
+.calendar-day.future span {
+	background: none;
+	color: var(--ocean-light);
+}
+
+.calendar-day.blank {
+	visibility: hidden;
+}
+
+.calendar-day.selected {
+	box-shadow: 0 0 0 2px var(--ink);
+}
+
+.stat-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+}
+
+.stat-tile {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-rows: auto auto;
+	column-gap: 10px;
+	align-items: center;
+	padding: 14px 16px;
+}
+
+.stat-tile svg {
+	grid-row: 1 / 3;
+	width: 30px;
+	height: 30px;
+	fill: none;
+	stroke: var(--coral);
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.stat-tile svg .solid {
+	fill: var(--coral);
+	stroke: none;
+}
+
+.stat-tile b {
+	font-family: 'Baloo 2', sans-serif;
+	font-size: 22px;
+	line-height: 1.1;
+	color: var(--ocean-dark);
+}
+
+.stat-tile span {
+	font-size: 12px;
+	color: var(--ink-soft);
+}
+
+.hero-steps {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.hero-icon {
+	width: 34px;
+	height: 34px;
+	fill: var(--ocean);
+}
+
+.day-detail {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding-top: 6px;
+	border-top: 1px solid var(--mist);
+	font-size: 13px;
+	color: var(--ink-soft);
+}
+
+.day-detail b {
+	font-family: 'Baloo 2', sans-serif;
+	font-size: 18px;
+	color: var(--ocean-dark);
+}
+
+.day-detail svg {
+	width: 18px;
+	height: 18px;
+	fill: var(--coral);
+	stroke: var(--white);
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
 .streak {
 	display: inline-flex;
 	align-items: center;
@@ -268,4 +433,34 @@ button.link-under:disabled {
 	align-items: center;
 	justify-content: space-between;
 	gap: 10px;
+}
+
+.goal-btn {
+	flex: 0 0 40px;
+	padding: 0;
+	cursor: pointer;
+}
+
+.goal-btn:disabled {
+	opacity: 0.35;
+}
+
+.goal-icon {
+	width: 28px;
+	height: 28px;
+	fill: none;
+	stroke: var(--coral);
+	stroke-width: 1.8;
+}
+
+.goal-icon .solid {
+	fill: var(--coral);
+	stroke: none;
+}
+
+.goal-value {
+	font-family: 'Baloo 2', sans-serif;
+	font-size: 26px;
+	font-weight: 700;
+	color: var(--ocean-dark);
 }
