@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanionController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\StepController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/code', [AuthController::class, 'requestCode'])->middleware('throttle:login-code');
@@ -13,5 +14,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me', [MeController::class, 'show']);
 	Route::put('/me/profile', [MeController::class, 'updateProfile']);
 	Route::put('/me/companion', [CompanionController::class, 'update']);
+	Route::get('/me/steps', [StepController::class, 'index']);
+	Route::post('/me/steps', [StepController::class, 'store']);
+	Route::put('/me/goal', [StepController::class, 'updateGoal']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 });

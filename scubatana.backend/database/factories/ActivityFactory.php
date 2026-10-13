@@ -13,6 +13,7 @@ class ActivityFactory extends Factory
 		return [
 			'user_id' => User::factory(),
 			'day' => now()->toDateString(),
+			'device_id' => 'unknown',
 			'steps' => 0,
 			'source' => 'phone',
 		];

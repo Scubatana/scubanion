@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'day', 'steps', 'source'])]
+#[Fillable(['user_id', 'day', 'device_id', 'steps', 'goal', 'source'])]
 class Activity extends Model
 {
 	use HasFactory;
@@ -18,6 +18,7 @@ class Activity extends Model
 		return [
 			'day' => 'date',
 			'steps' => 'integer',
+			'goal' => 'integer',
 		];
 	}
 
