@@ -2,44 +2,32 @@
 
 namespace Database\Factories;
 
+use App\Enums\Ambition;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
-/**
- * @extends Factory<User>
- */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
+	public function definition(): array
+	{
+		return [
+			'email' => fake()->unique()->safeEmail(),
+			'pseudo' => 'joueur'.fake()->unique()->numerify('######'),
+			'birth_date' => '2000-01-01',
+			'gender' => null,
+			'ambition' => Ambition::Fitness,
+			'daily_step_goal' => 5000,
+			'terms_accepted_at' => now(),
+		];
+	}
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
-    {
-        return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
-        ];
-    }
-
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
-        ]);
-    }
+	public function withoutProfile(): static
+	{
+		return $this->state(fn (array $attributes) => [
+			'pseudo' => null,
+			'birth_date' => null,
+			'gender' => null,
+			'ambition' => null,
+		]);
+	}
 }

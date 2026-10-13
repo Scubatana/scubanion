@@ -3,23 +3,21 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Services\CompanionService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+	use WithoutModelEvents;
 
-    /**
-     * Seed the application's database.
-     */
-    public function run(): void
-    {
-        // User::factory(10)->create();
+	public function run(): void
+	{
+		$user = User::factory()->create([
+			'email' => 'test@example.com',
+			'pseudo' => 'MarcheurDuSoir',
+		]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-    }
+		app(CompanionService::class)->createFor($user);
+	}
 }

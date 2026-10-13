@@ -2,31 +2,44 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Ambition;
+use App\Enums\Gender;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['email', 'pseudo', 'birth_date', 'gender', 'ambition', 'daily_step_goal', 'terms_accepted_at'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+	use HasApiTokens, HasFactory;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+	protected function casts(): array
+	{
+		return [
+			'birth_date' => 'date',
+			'gender' => Gender::class,
+			'ambition' => Ambition::class,
+			'daily_step_goal' => 'integer',
+			'terms_accepted_at' => 'datetime',
+		];
+	}
+
+	public function companion(): HasOne
+	{
+		return $this->hasOne(Companion::class);
+	}
+
+	public function activities(): HasMany
+	{
+		return $this->hasMany(Activity::class);
+	}
+
+	public function hasCompletedProfile(): bool
+	{
+		return $this->pseudo !== null;
+	}
 }
