@@ -49,6 +49,16 @@ class PositionTest extends TestCase
 		$this->assertSame(43.6953, UserPosition::sole()->latitude);
 	}
 
+	public function test_an_older_position_far_away_is_still_checked_for_teleportation(): void
+	{
+		$this->send(43.6953, 7.2806);
+
+		$this->send(48.8566, 2.3522, ['recorded_at' => '2026-10-14T14:58:00+02:00'])->assertNoContent();
+
+		$this->assertSame('teleport', QuestBan::sole()->reason);
+		$this->assertSame(43.6953, UserPosition::sole()->latitude);
+	}
+
 	public function test_moving_faster_than_a_plane_blocks_location_tasks_for_a_day_without_saying_so(): void
 	{
 		$this->send(43.6953, 7.2806);

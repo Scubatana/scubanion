@@ -13,7 +13,7 @@ La dernière position connue du joueur. L'app l'envoie chaque minute quand elle 
 | `mocked` | booléen : vrai si Android signale une position simulée |
 | `recorded_at` | facultatif (ISO 8601), l'heure de la mesure ; par défaut, l'heure de réception |
 
-Réponse **204**, toujours, quoi que le serveur en conclue. Une seule position est gardée par joueur : chaque envoi remplace le précédent, et une position plus ancienne que celle gardée est ignorée. Limite : 10 envois par minute.
+Réponse **204**, toujours, quoi que le serveur en conclue. Une seule position est gardée par joueur : chaque envoi remplace le précédent. Une position plus ancienne que celle gardée ne la remplace pas, mais passe quand même le contrôle anti téléportation. Limite : 10 envois par minute.
 
 **Anti-téléportation.** Chaque nouvelle position est comparée à la précédente. Plus de 1 000 km/h sur plus de 5 km, ou une position simulée, et le joueur est bloqué 24 h sur les tâches de localisation uniquement. Un nouveau signalement pendant le blocage le prolonge au lieu d'en créer un autre. Le blocage est silencieux : rien n'est affiché, ses validations de lieu échouent simplement. Les preuves (positions, distance, vitesse) sont gardées dans `quest_bans.evidence`.
 
@@ -23,6 +23,7 @@ Les lieux de la zone affichée : ceux dont le type est affiché sur la carte (`o
 
 ```json
 {
+  "truncated": false,
   "places": [
     { "id": 1, "name": "Colline du Château", "type": "point_of_interest", "latitude": 43.6953, "longitude": 7.2806, "radius_m": 150, "outline": null },
     { "id": 7, "name": "Forêt", "type": "forest", "latitude": 43.80, "longitude": 7.25, "radius_m": null, "outline": [[43.76, 7.24], [43.74, 7.26], [43.84, 7.26]] }
@@ -31,7 +32,7 @@ Les lieux de la zone affichée : ceux dont le type est affiché sur la carte (`o
 ```
 
 - `bbox` : longitude ouest, latitude sud, longitude est, latitude nord, en degrés décimaux. **422** si elle est mal formée ou plus large qu'un demi-degré : l'app doit zoomer.
-- 500 lieux au plus par réponse.
+- 500 lieux au plus par réponse, les plus proches du centre de la zone en premier. `truncated` vaut `true` quand d'autres lieux existent dans la zone : l'app peut inviter à zoomer.
 - `type` renvoie au `code` du catalogue des types de lieux, pour l'icône et la couleur.
 
 ## `GET /catalog/types`

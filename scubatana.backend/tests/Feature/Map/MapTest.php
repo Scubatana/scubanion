@@ -41,6 +41,24 @@ class MapTest extends TestCase
 			->assertJsonPath('places.1.outline', [[43.76, 7.24], [43.74, 7.26], [43.84, 7.26]]);
 	}
 
+	public function test_a_crowded_area_keeps_the_places_closest_to_its_centre_and_says_so(): void
+	{
+		config(['positions.map_max_places' => 2]);
+		Place::factory()->create(['name' => 'Bord', 'latitude' => 43.66, 'longitude' => 7.21]);
+		Place::factory()->create(['name' => 'Centre', 'latitude' => 43.70, 'longitude' => 7.275]);
+		Place::factory()->create(['name' => 'Près du centre', 'latitude' => 43.71, 'longitude' => 7.28]);
+
+		$this->getJson('/api/map?bbox='.self::NICE)
+			->assertOk()
+			->assertJsonPath('truncated', true)
+			->assertJsonPath('places.0.name', 'Centre')
+			->assertJsonPath('places.1.name', 'Près du centre');
+
+		config(['positions.map_max_places' => 3]);
+
+		$this->getJson('/api/map?bbox='.self::NICE)->assertJsonPath('truncated', false)->assertJsonCount(3, 'places');
+	}
+
 	public function test_the_area_must_be_valid_and_not_too_large(): void
 	{
 		$this->getJson('/api/map')->assertUnprocessable()->assertJsonValidationErrors('bbox');

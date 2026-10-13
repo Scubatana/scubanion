@@ -14,14 +14,14 @@ class PositionService
 	{
 		$previous = $player->position()->first();
 
-		if ($previous !== null && $recordedAt->lt($previous->recorded_at)) {
-			return;
-		}
-
 		if ($mocked) {
 			$this->ban($player, 'mocked', ['position' => [$latitude, $longitude], 'recorded_at' => $recordedAt->toIso8601String()]);
 		} elseif ($previous !== null) {
 			$this->checkSpeed($player, $previous, $latitude, $longitude, $recordedAt);
+		}
+
+		if ($previous !== null && $recordedAt->lt($previous->recorded_at)) {
+			return;
 		}
 
 		UserPosition::updateOrCreate(
@@ -38,7 +38,7 @@ class PositionService
 			return;
 		}
 
-		$seconds = $previous->recorded_at->diffInSeconds($recordedAt);
+		$seconds = abs($previous->recorded_at->diffInSeconds($recordedAt, false));
 		$speed = $seconds > 0 ? $distance / $seconds * 3.6 : INF;
 
 		if ($speed > config('positions.teleport_speed_kmh')) {

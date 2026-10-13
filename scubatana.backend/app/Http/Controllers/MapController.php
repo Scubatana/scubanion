@@ -16,27 +16,29 @@ class MapController extends Controller
 	public function index(Request $request): JsonResponse
 	{
 		[$minLng, $minLat, $maxLng, $maxLat] = $this->boundingBox($request);
+		$limit = config('positions.map_max_places');
 
 		$places = Place::with(['type', 'points'])
 			->where('active', true)
 			->whereHas('type', fn (Builder $type) => $type->where('on_map', true)->where('active', true))
-			->where(fn (Builder $inside) => $inside
-				->where(fn (Builder $point) => $point->whereNull('min_lat')->whereBetween('latitude', [$minLat, $maxLat])->whereBetween('longitude', [$minLng, $maxLng]))
-				->orWhere(fn (Builder $area) => $area->whereNotNull('min_lat')
-					->where('min_lat', '<=', $maxLat)->where('max_lat', '>=', $minLat)
-					->where('min_lng', '<=', $maxLng)->where('max_lng', '>=', $minLng)))
+			->where('min_lat', '<=', $maxLat)->where('max_lat', '>=', $minLat)
+			->where('min_lng', '<=', $maxLng)->where('max_lng', '>=', $minLng)
+			->orderByRaw('ABS(latitude - ?) + ABS(longitude - ?)', [($minLat + $maxLat) / 2, ($minLng + $maxLng) / 2])
 			->orderBy('id')
-			->limit(config('positions.map_max_places'))
+			->limit($limit + 1)
 			->get();
+		$truncated = $places->count() > $limit;
+		$places = $places->take($limit);
 
 		return response()->json([
+			'truncated' => $truncated,
 			'places' => $places->map(fn (Place $place) => [
 				'id' => $place->id,
 				'name' => $place->name,
 				'type' => $place->type->code,
 				'latitude' => $place->latitude,
 				'longitude' => $place->longitude,
-				'radius_m' => $place->points->isEmpty() ? ($place->radius_m ?? config('places.default_radius_m')) : null,
+				'radius_m' => $place->points->isEmpty() ? $place->effectiveRadius() : null,
 				'outline' => $place->points->isEmpty() ? null : $place->points->map(fn (PlacePoint $point) => [$point->latitude, $point->longitude])->all(),
 			])->all(),
 		]);
