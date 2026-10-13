@@ -22,6 +22,8 @@ export interface Player {
 export interface Companion {
 	name: string;
 	species: string;
+	color: string;
+	accessories: string[];
 	level: number;
 	xp: number;
 	xp_for_next_level: number;
@@ -33,6 +35,57 @@ export interface Today {
 	date: string;
 	steps: number;
 	goal: number;
+}
+
+export interface CompanionLookPayload {
+	name: string;
+	species: string;
+	color: string;
+	accessories: string[];
+}
+
+export interface CatalogPoint {
+	x: number;
+	y: number;
+}
+
+export interface CatalogAnchor extends CatalogPoint {
+	width: number;
+}
+
+export interface CatalogCategory {
+	id: string;
+	label: string;
+	origin: CatalogPoint;
+}
+
+export interface CatalogSpecies {
+	id: string;
+	label: string;
+	svg: string;
+	anchors: Record<string, CatalogAnchor>;
+}
+
+export interface CatalogColor {
+	id: string;
+	label: string;
+	main: string;
+	shade: string;
+	light: string;
+}
+
+export interface CatalogAccessory {
+	id: string;
+	label: string;
+	category: string;
+	image: string;
+}
+
+export interface CompanionCatalog {
+	categories: CatalogCategory[];
+	species: CatalogSpecies[];
+	colors: CatalogColor[];
+	accessories: CatalogAccessory[];
 }
 
 export interface ProfilePayload {
