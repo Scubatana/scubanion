@@ -22,7 +22,7 @@ class LoginCodeService
 		return $code;
 	}
 
-	public function verify(string $email, string $code): bool
+	public function find(string $email, string $code): ?LoginCode
 	{
 		$loginCode = LoginCode::where('email', $email)
 			->whereNull('consumed_at')
@@ -32,16 +32,32 @@ class LoginCodeService
 			->first();
 
 		if ($loginCode === null) {
-			return false;
+			return null;
 		}
 
 		if (! Hash::check($code, $loginCode->code_hash)) {
 			$loginCode->increment('attempts');
 
+			return null;
+		}
+
+		return $loginCode;
+	}
+
+	public function consume(LoginCode $loginCode): void
+	{
+		$loginCode->update(['consumed_at' => now()]);
+	}
+
+	public function verify(string $email, string $code): bool
+	{
+		$loginCode = $this->find($email, $code);
+
+		if ($loginCode === null) {
 			return false;
 		}
 
-		$loginCode->update(['consumed_at' => now()]);
+		$this->consume($loginCode);
 
 		return true;
 	}

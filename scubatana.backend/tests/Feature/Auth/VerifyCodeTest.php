@@ -119,6 +119,18 @@ class VerifyCodeTest extends TestCase
 		$this->postJson('/api/auth/verify', ['email' => self::EMAIL, 'code' => $code, 'terms_accepted' => true])->assertOk();
 	}
 
+	public function test_a_wrong_code_never_reveals_whether_an_account_exists(): void
+	{
+		$unknown = $this->postJson('/api/auth/verify', ['email' => self::EMAIL, 'code' => $this->wrongCodeFor($this->issueCode()), 'terms_accepted' => false]);
+
+		User::factory()->create(['email' => self::EMAIL]);
+		$known = $this->postJson('/api/auth/verify', ['email' => self::EMAIL, 'code' => $this->wrongCodeFor($this->issueCode()), 'terms_accepted' => false]);
+
+		$unknown->assertUnprocessable()->assertJsonValidationErrors('code')->assertJsonMissingValidationErrors('terms_accepted');
+		$known->assertUnprocessable()->assertJsonValidationErrors('code')->assertJsonMissingValidationErrors('terms_accepted');
+		$this->assertSame($unknown->json(), $known->json());
+	}
+
 	public function test_it_rejects_a_malformed_code(): void
 	{
 		$this->postJson('/api/auth/verify', ['email' => self::EMAIL, 'code' => '123', 'terms_accepted' => true])
