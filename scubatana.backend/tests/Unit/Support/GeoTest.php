@@ -25,4 +25,22 @@ class GeoTest extends TestCase
 		$this->assertTrue(Geo::insidePolygon(3.0, 1.0, $elbow));
 		$this->assertFalse(Geo::insidePolygon(3.0, 3.0, $elbow));
 	}
+
+	public function test_it_measures_the_distance_to_the_closest_edge_of_an_outline(): void
+	{
+		$square = [[43.70, 7.20], [43.70, 7.30], [43.60, 7.30], [43.60, 7.20]];
+
+		$this->assertEqualsWithDelta(33.4, Geo::distanceToOutlineInMeters(43.7003, 7.25, $square), 0.5);
+		$this->assertEqualsWithDelta(33.4, Geo::distanceToOutlineInMeters(43.6997, 7.25, $square), 0.5);
+		$this->assertEqualsWithDelta(Geo::distanceInMeters(43.7010, 7.31, 43.70, 7.30), Geo::distanceToOutlineInMeters(43.7010, 7.31, $square), 2);
+	}
+
+	public function test_it_draws_a_bounding_box_around_a_point(): void
+	{
+		$box = Geo::boundingBox(43.0, 7.0, 1113.2);
+
+		$this->assertEqualsWithDelta(42.99, $box['min_lat'], 0.000001);
+		$this->assertEqualsWithDelta(43.01, $box['max_lat'], 0.000001);
+		$this->assertEqualsWithDelta(0.01 / cos(deg2rad(43.0)), $box['max_lng'] - 7.0, 0.000001);
+	}
 }
