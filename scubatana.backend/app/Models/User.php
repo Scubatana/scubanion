@@ -38,9 +38,29 @@ class User extends Authenticatable
 		return $this->hasMany(Activity::class);
 	}
 
-	public function questProgress(): HasMany
+	public function userQuests(): HasMany
 	{
-		return $this->hasMany(QuestProgress::class);
+		return $this->hasMany(UserQuest::class);
+	}
+
+	public function accessories(): HasMany
+	{
+		return $this->hasMany(UserAccessory::class);
+	}
+
+	public function position(): HasOne
+	{
+		return $this->hasOne(UserPosition::class);
+	}
+
+	public function questBans(): HasMany
+	{
+		return $this->hasMany(QuestBan::class);
+	}
+
+	public function isBannedFromLocationTasks(): bool
+	{
+		return $this->questBans()->activeAt(now())->exists();
 	}
 
 	public function hasCompletedProfile(): bool

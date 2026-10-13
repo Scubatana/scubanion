@@ -33,7 +33,7 @@ class ShowMeTest extends TestCase
 	public function test_it_returns_the_player_the_companion_and_the_steps(): void
 	{
 		$user = User::factory()->create(['pseudo' => 'MarcheurDuSoir']);
-		Companion::factory()->for($user)->create(['level' => 2, 'xp' => 340]);
+		Companion::factory()->for($user)->create();
 		Activity::factory()->for($user)->create(['steps' => 147]);
 		Activity::factory()->for($user)->create(['day' => now()->subDay()->toDateString(), 'steps' => 4673]);
 		Activity::factory()->create(['steps' => 9999]);
@@ -48,9 +48,9 @@ class ShowMeTest extends TestCase
 			->assertJsonPath('player.stats.quests_done', 0)
 			->assertJsonPath('player.stats.friends_count', 0)
 			->assertJsonPath('companion.name', 'Scubanion')
-			->assertJsonPath('companion.level', 2)
-			->assertJsonPath('companion.xp', 340)
-			->assertJsonPath('companion.xp_for_next_level', 2000)
+			->assertJsonPath('companion.level', 1)
+			->assertJsonPath('companion.xp', 467 + 14)
+			->assertJsonPath('companion.xp_for_next_level', 1000)
 			->assertJsonPath('today.date', now()->toDateString())
 			->assertJsonPath('today.steps', 147)
 			->assertJsonPath('today.goal', 5000);
