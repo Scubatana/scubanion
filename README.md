@@ -59,6 +59,8 @@ MAIL_FROM_NAME="Scubanion"
 
 Sans clé, laisser `MAIL_MAILER=log` : le code est alors écrit dans `storage/logs/laravel.log`. Si Brevo répond que l'adresse IP n'est pas reconnue, l'autoriser dans les réglages de sécurité du compte Brevo.
 
+Les codes expirés depuis plus d'un jour sont supprimés chaque nuit par `php artisan model:prune`, planifié dans `routes/console.php` : on ne garde pas l'adresse d'une personne qui a demandé un code sans créer de compte. Le planificateur de Laravel doit donc tourner sur le serveur : `php artisan schedule:work` en continu, ou une tâche cron qui lance `php artisan schedule:run` chaque minute.
+
 ### Tests
 
 ```bash
