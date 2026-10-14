@@ -47,10 +47,11 @@ export function usePlayer() {
 	}
 
 	async function saveGoal(goal: number): Promise<void> {
-		const response = await useApi().put<{ today: Today; streak: Streak }>("/me/goal", { daily_step_goal: goal });
+		const response = await useApi().put<{ today: Today; streak: Streak; companion?: Companion | null }>("/me/goal", { daily_step_goal: goal });
 
 		today.value = response.today;
 		streak.value = response.streak;
+		companion.value = response.companion ?? companion.value;
 	}
 
 	function reset(): void {

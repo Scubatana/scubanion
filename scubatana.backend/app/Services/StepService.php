@@ -66,6 +66,17 @@ class StepService
 			]);
 	}
 
+	public function totalSteps(User $user): int
+	{
+		$firstDay = $user->activities()->min('day');
+
+		if ($firstDay === null) {
+			return 0;
+		}
+
+		return (int) $this->dailyTotals($user, CarbonImmutable::parse($firstDay)->startOfDay(), CarbonImmutable::now()->startOfDay())->sum('steps');
+	}
+
 	public function today(User $user): array
 	{
 		$today = CarbonImmutable::now()->startOfDay();

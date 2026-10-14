@@ -2,13 +2,17 @@
 
 namespace Tests\Unit\Services;
 
+use App\Models\Accessory;
 use App\Services\CompanionCatalogService;
 use App\Services\CompanionService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;
 
 class CompanionCatalogServiceTest extends TestCase
 {
+	use RefreshDatabase;
+
 	public function test_catalog_lists_entries_with_ids_and_embedded_images(): void
 	{
 		$catalog = app(CompanionCatalogService::class)->catalog();
@@ -34,7 +38,7 @@ class CompanionCatalogServiceTest extends TestCase
 	{
 		$assets = config('companion.assets_path');
 		$categories = array_keys(config('companion.categories'));
-		$skinsPerCategory = array_count_values(array_column(config('companion.accessories'), 'category'));
+		$skinsPerCategory = Accessory::active()->pluck('category')->countBy()->all();
 
 		foreach (config('companion.categories') as $id => $category) {
 			$this->assertArrayHasKey('x', $category['origin']);
@@ -43,10 +47,10 @@ class CompanionCatalogServiceTest extends TestCase
 			$this->assertGreaterThanOrEqual(2, $skinsPerCategory[$id] ?? 0, "Category {$id} needs at least two skins.");
 		}
 
-		foreach (config('companion.accessories') as $id => $accessory) {
-			$this->assertContains($accessory['category'], $categories, "Accessory {$id} uses an unknown category.");
-			$this->assertFileExists($assets.'/'.$accessory['image']);
-			$this->assertStringContainsString('viewBox="0 0 100 100"', file_get_contents($assets.'/'.$accessory['image']), "Accessory {$id} must be drawn in the 100 by 100 template.");
+		foreach (Accessory::all() as $accessory) {
+			$this->assertContains($accessory->category, $categories, "Accessory {$accessory->code} uses an unknown category.");
+			$this->assertStringStartsWith('<svg', $accessory->image);
+			$this->assertStringContainsString('viewBox="0 0 100 100"', $accessory->image, "Accessory {$accessory->code} must be drawn in the 100 by 100 template.");
 		}
 
 		foreach (config('companion.species') as $id => $species) {
@@ -66,19 +70,30 @@ class CompanionCatalogServiceTest extends TestCase
 		$this->assertFileExists("{$assets}/templates/base.svg");
 	}
 
-	public function test_an_accessory_added_to_the_configuration_appears_in_the_catalog(): void
+	public function test_an_accessory_added_to_the_database_appears_in_the_catalog(): void
 	{
-		config(['companion.accessories.beanie' => ['label' => 'Bonnet', 'category' => 'hat', 'image' => 'accessories/cap.svg']]);
+		$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>';
+		Accessory::create(['code' => 'leaf_hat', 'label' => 'Chapeau de feuilles', 'category' => 'hat', 'image' => $svg, 'earnable' => true]);
+		$service = app(CompanionCatalogService::class);
+		$entry = collect($service->catalog()['accessories'])->firstWhere('id', 'leaf_hat');
+
+		$this->assertSame(['id' => 'leaf_hat', 'label' => 'Chapeau de feuilles', 'category' => 'hat', 'image' => 'data:image/svg+xml;base64,'.base64_encode($svg), 'earnable' => true], $entry);
+		$this->assertContains('leaf_hat', $service->earnableAccessoryIds());
+		$this->assertSame(['leaf_hat'], $service->conflictingAccessories(['tophat', 'leaf_hat']));
+	}
+
+	public function test_an_inactive_accessory_leaves_the_catalog(): void
+	{
+		Accessory::where('code', 'tophat')->update(['active' => false]);
 		$service = app(CompanionCatalogService::class);
 
-		$this->assertContains('beanie', $service->accessoryIds());
-		$this->assertContains('beanie', array_column($service->catalog()['accessories'], 'id'));
-		$this->assertSame(['beanie'], $service->conflictingAccessories(['tophat', 'beanie']));
+		$this->assertNotContains('tophat', $service->accessoryIds());
+		$this->assertNotContains('tophat', array_column($service->catalog()['accessories'], 'id'));
 	}
 
 	public function test_a_missing_asset_fails_loudly(): void
 	{
-		config(['companion.accessories.ghost' => ['label' => 'Fantôme', 'category' => 'hat', 'image' => 'accessories/ghost.svg']]);
+		config(['companion.species.ghost' => ['label' => 'Fantôme', 'image' => 'species/ghost.svg', 'anchors' => []]]);
 
 		$this->expectException(RuntimeException::class);
 
