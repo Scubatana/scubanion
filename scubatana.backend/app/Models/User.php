@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Ambition;
 use App\Enums\Gender;
+use App\Support\FriendCode;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,13 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
 	use HasApiTokens, HasFactory;
+
+	protected static function booted(): void
+	{
+		static::creating(function (User $user): void {
+			$user->friend_code ??= FriendCode::generate();
+		});
+	}
 
 	protected function casts(): array
 	{
