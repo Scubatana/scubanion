@@ -156,6 +156,24 @@ release:
           url: $PACKAGE_URL/$WEB_ARCHIVE
           link_type: package
 
+release:images:
+  stage: release
+  image: docker:28
+  services:
+    - name: docker:28-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKERHUB_NAMESPACE: $DOCKERHUB_USERNAME
+  needs:
+    - verify:backend
+  rules:
+    - if: $DOCKERHUB_TOKEN
+  script:
+    - printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+    - sh scripts/publish-images.sh "$RELEASE_TAG"
+
 deploy:
   stage: deploy
   image: alpine:3.22

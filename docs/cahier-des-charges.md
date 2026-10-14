@@ -142,7 +142,7 @@ flowchart LR
 | Admin BDD             | phpMyAdmin                                               | En développement uniquement                                                                            | Conteneur prêt  |
 | CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI en place sur `master`, GitHub Actions à faire |
 | Qualité              | SonarQube                                                | Exigé par R5.07                                                                                        | À faire (D7)    |
-| Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | À faire         |
+| Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | Job prêt, attend les accès |
 | Hébergement          | Azure ou autre, hôte configuré par Ansible (optionnel) | Exigé par R5.07                                                                                        | À choisir (D6)  |
 | Monitoring            | Prometheus + Grafana (+ Alertmanager)                    | Pile vue en R5.07                                                                                       | À faire         |
 | Passage à l'échelle | Docker Swarm (réplicas de l'API)                        | Bonus R5.07                                                                                             | Bonus            |
@@ -239,7 +239,7 @@ Pipeline de déploiement continu exigé :
 - [ ] 2. Construire l'application.
 - [ ] 3. Publier les résultats sur un SonarQube.
 - [ ] 4. Publier les images Docker sur DockerHub.
-- [ ] 5. Pouvoir lancer l'application avec un fichier docker-compose.
+- [x] 5. Pouvoir lancer l'application avec un fichier docker-compose.
 - [ ] 6. Déployer automatiquement sur Azure ou ailleurs (Ansible possible pour configurer l'hôte).
 - [ ] 7. *Bonus* : faire passer à l'échelle les services qui en ont besoin.
 - [ ] 8. Mettre en place une pile de monitoring.
@@ -348,8 +348,8 @@ flowchart LR
 **Qualité et sécurité**
 
 - [ ] Aucune IP ni aucun secret en dur : noms de services Docker et variables d'environnement. Les secrets (tokens DockerHub et SonarQube, clé SSH, mots de passe du keystore) vont dans les variables masquées des CI.
-- [ ] Images Docker : multi-stage, base alpine, application construite avant et seul le résultat copié, sans dépendances de dev, avec `.dockerignore` et `HEALTHCHECK`.
-- [ ] docker-compose : réseaux explicites, healthchecks, `depends_on` conditionnels, volumes réservés aux données.
+- [x] Images Docker : multi-stage, base alpine, application construite avant et seul le résultat copié, sans dépendances de dev, avec `.dockerignore` et `HEALTHCHECK` (MariaDB garde l'image officielle, qui n'existe pas en alpine).
+- [x] docker-compose : réseaux explicites, healthchecks, `depends_on` conditionnels, volumes réservés aux données.
 - [ ] Tests unitaires et fonctionnels, mocks pour le BLE, le MQTT et les services externes, couverture suivie dans SonarQube.
 
 **Données personnelles (RGPD)**
@@ -425,9 +425,9 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 - [ ] Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT.
 - [X] Retirer `docs/` du `.gitignore` pour versionner la documentation.
 - [ ] Renommer Scoubanion en Scubanion : README, `capacitor.config.json`, `nuxt.config.ts`, `app.vue`, `strings.xml`, `APP_NAME` du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.
-- [ ] Image du back : build multi-stage avec `composer install --no-dev` pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.
-- [ ] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
-- [ ] Compose : réseaux explicites, healthchecks, `depends_on` avec `condition: service_healthy`.
+- [x] Image du back : build multi-stage avec `composer install --no-dev` pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.
+- [x] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
+- [x] Compose : réseaux explicites, healthchecks, `depends_on` avec `condition: service_healthy`.
 - [ ] Image du front : elle lance le serveur de développement (`npm run dev`) ; prévoir une image de prod si une app web est servie (BCK-07).
 - [x] Remplacer les tests d'exemple par de vrais tests.
 - [ ] Créer `.gitlab-ci.yml` (fait) et `.github/workflows/` (à faire).
