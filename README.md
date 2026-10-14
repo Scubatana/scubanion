@@ -91,6 +91,7 @@ Le job `release:images` n'existe que si la variable `DOCKERHUB_TOKEN` est défin
 | ------- | ----- | ---- |
 | `mariadb` | `scubanion-mariadb` | base de données, données dans le volume `mariadb_data` |
 | `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
+| `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
 | `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
 
 ```bash
@@ -100,8 +101,9 @@ docker compose up -d --build
 
 - `APP_KEY` se génère avec `php artisan key:generate --show` (depuis `scubatana.backend`). Sans elle, le conteneur `backend` refuse de démarrer.
 - Au démarrage, `backend` met en cache la configuration, les routes et les vues, puis lance les migrations.
-- Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend (`mariadb`, puis `backend`, puis `nginx`).
-- Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb` et `backend` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
+- Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend (`mariadb`, puis `backend`, puis `nginx` et `scheduler`). `scheduler` remplace le healthcheck de l'image par la présence du processus `schedule:work`.
+- Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb`, `backend` et `scheduler` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
+- `backend` et `scheduler` partagent la même configuration (bloc `x-laravel-environment` du compose) ; seul `backend` lance les migrations.
 - Le code est dans les images, pas dans un volume : un redéploiement sert toujours la nouvelle version.
 - L'image nginx se construit par `docker compose build` : elle récupère `public/` dans `scubatana.backend` grâce au contexte de build supplémentaire `backend` (`additional_contexts`). Un `docker build` seul demande `--build-context backend=scubatana.backend`.
 - Les images portent le nom `${DOCKERHUB_NAMESPACE}/scubanion-<service>:${IMAGE_TAG}`. Pour déployer une version publiée sans rebuild : `docker compose pull && docker compose up -d`.
