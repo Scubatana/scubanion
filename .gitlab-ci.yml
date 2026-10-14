@@ -40,6 +40,30 @@ test:backend:
     - php artisan key:generate
     - php artisan test
 
+test:backend:mariadb:
+  extends: .backend
+  stage: test
+  services:
+    - name: mariadb:11.4
+      alias: mariadb
+  variables:
+    MARIADB_DATABASE: scubatana
+    MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "1"
+    DB_CONNECTION: mysql
+    DB_HOST: mariadb
+    DB_PORT: "3306"
+    DB_DATABASE: scubatana
+    DB_USERNAME: root
+    DB_PASSWORD: ""
+    RUN_CONCURRENCY_TESTS: "1"
+  script:
+    - docker-php-ext-install pdo_mysql pcntl > /dev/null
+    - composer install --no-interaction --no-progress --prefer-dist
+    - cp .env.example .env
+    - php artisan key:generate
+    - until php -r 'new PDO("mysql:host=mariadb;port=3306", "root", "");' 2>/dev/null; do sleep 1; done
+    - php artisan test --group=mariadb
+
 test:frontend:
   extends: .frontend
   stage: test
@@ -131,6 +155,24 @@ release:
         - name: $WEB_ARCHIVE
           url: $PACKAGE_URL/$WEB_ARCHIVE
           link_type: package
+
+release:images:
+  stage: release
+  image: docker:28
+  services:
+    - name: docker:28-dind
+      alias: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKERHUB_NAMESPACE: $DOCKERHUB_USERNAME
+  needs:
+    - verify:backend
+  rules:
+    - if: $DOCKERHUB_TOKEN
+  script:
+    - printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+    - sh scripts/publish-images.sh "$RELEASE_TAG"
 
 deploy:
   stage: deploy

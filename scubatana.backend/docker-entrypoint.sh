@@ -1,14 +1,17 @@
 #!/bin/sh
 set -e
 
-if [ ! -f "composer.json" ]; then
-	echo "Laravel n'est pas encore initialise dans scubatana.backend/."
-	echo "Lancer une seule fois : docker run --rm -v \"\$PWD/scubatana.backend:/app\" -w /app composer:2 create-project laravel/laravel ."
+if [ -z "$APP_KEY" ]; then
+	echo "APP_KEY manquante : la générer avec « php artisan key:generate --show » et la renseigner dans le .env racine." >&2
 	exit 1
 fi
 
-if [ ! -d "vendor" ]; then
-	composer install --no-interaction --prefer-dist
+php artisan optimize
+
+if [ "$RUN_MIGRATIONS" = "true" ]; then
+	php artisan migrate --force
 fi
+
+chown -R www-data:www-data storage bootstrap/cache
 
 exec "$@"

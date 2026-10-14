@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ShowStepsRequest;
 use App\Http\Requests\StoreStepsRequest;
 use App\Http\Requests\UpdateGoalRequest;
+use App\Http\Resources\CompanionResource;
+use App\Services\CompanionProgressService;
+use App\Services\QuestEngine;
 use App\Services\StepService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -21,18 +24,20 @@ class StepController extends Controller
 		));
 	}
 
-	public function updateGoal(UpdateGoalRequest $request, StepService $steps): JsonResponse
+	public function updateGoal(UpdateGoalRequest $request, StepService $steps, CompanionProgressService $progress): JsonResponse
 	{
 		$user = $request->user();
 		$steps->changeGoal($user, $request->validated('daily_step_goal'));
+		$companion = $progress->refresh($user);
 
 		return response()->json([
 			'today' => $steps->today($user),
 			'streak' => $steps->streak($user),
+			'companion' => $companion ? new CompanionResource($companion) : null,
 		]);
 	}
 
-	public function store(StoreStepsRequest $request, StepService $steps): JsonResponse
+	public function store(StoreStepsRequest $request, StepService $steps, QuestEngine $quests, CompanionProgressService $progress): JsonResponse
 	{
 		$user = $request->user();
 
@@ -40,10 +45,14 @@ class StepController extends Controller
 			$steps->record($user, $request->validated('device_id'), $entry['day'], $entry['steps']);
 		}
 
+		$quests->refreshPlayer($user);
+		$companion = $progress->refresh($user);
+
 		return response()->json([
 			'today' => $steps->today($user),
 			'streak' => $steps->streak($user),
 			'total_steps' => (int) $user->activities()->sum('steps'),
+			'companion' => $companion ? new CompanionResource($companion) : null,
 		]);
 	}
 }

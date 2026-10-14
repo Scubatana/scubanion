@@ -85,6 +85,11 @@ body {
 	cursor: default;
 }
 
+.btn-danger {
+	background: var(--coral-dark);
+	color: var(--white);
+}
+
 button.link-under {
 	background: none;
 	border: none;
@@ -184,6 +189,17 @@ button.link-under:disabled {
 	border-color: var(--ocean);
 	background: var(--mist);
 	color: var(--ocean-dark);
+}
+
+.option-tile.locked {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.option-lock {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--coral-dark);
 }
 
 .swatch-row {
@@ -463,4 +479,39 @@ button.link-under:disabled {
 	font-size: 26px;
 	font-weight: 700;
 	color: var(--ocean-dark);
+}
+
+.quest-task {
+	padding-top: 10px;
+	border-top: 1px solid var(--mist);
+}
+
+.quest-task .row-between {
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.quest-task .eyebrow {
+	white-space: nowrap;
+}
+
+.quest-notice {
+	color: var(--ocean-dark);
+	font-weight: 600;
+}
+
+.prompt-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: rgba(30, 58, 66, 0.45);
+}
+
+.prompt-card {
+	width: 100%;
+	max-width: 360px;
 }

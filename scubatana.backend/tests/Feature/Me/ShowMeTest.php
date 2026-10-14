@@ -5,6 +5,7 @@ namespace Tests\Feature\Me;
 use App\Models\Activity;
 use App\Models\Companion;
 use App\Models\User;
+use App\Models\UserQuest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -33,7 +34,7 @@ class ShowMeTest extends TestCase
 	public function test_it_returns_the_player_the_companion_and_the_steps(): void
 	{
 		$user = User::factory()->create(['pseudo' => 'MarcheurDuSoir']);
-		Companion::factory()->for($user)->create(['level' => 2, 'xp' => 340]);
+		Companion::factory()->for($user)->create();
 		Activity::factory()->for($user)->create(['steps' => 147]);
 		Activity::factory()->for($user)->create(['day' => now()->subDay()->toDateString(), 'steps' => 4673]);
 		Activity::factory()->create(['steps' => 9999]);
@@ -48,11 +49,24 @@ class ShowMeTest extends TestCase
 			->assertJsonPath('player.stats.quests_done', 0)
 			->assertJsonPath('player.stats.friends_count', 0)
 			->assertJsonPath('companion.name', 'Scubanion')
-			->assertJsonPath('companion.level', 2)
-			->assertJsonPath('companion.xp', 340)
-			->assertJsonPath('companion.xp_for_next_level', 2000)
+			->assertJsonPath('companion.level', 1)
+			->assertJsonPath('companion.xp', 467 + 14)
+			->assertJsonPath('companion.xp_for_next_level', 1000)
 			->assertJsonPath('today.date', now()->toDateString())
 			->assertJsonPath('today.steps', 147)
 			->assertJsonPath('today.goal', 5000);
+	}
+
+	public function test_it_counts_the_quests_finished_by_the_player_only(): void
+	{
+		$user = User::factory()->create();
+		Companion::factory()->for($user)->create();
+		UserQuest::factory()->for($user)->count(2)->create(['completed_at' => now()]);
+		UserQuest::factory()->for($user)->create();
+		UserQuest::factory()->for($user)->create(['failed_at' => now()]);
+		UserQuest::factory()->create(['completed_at' => now()]);
+		Sanctum::actingAs($user);
+
+		$this->getJson('/api/me')->assertOk()->assertJsonPath('player.stats.quests_done', 2);
 	}
 }

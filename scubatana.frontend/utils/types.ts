@@ -24,6 +24,7 @@ export interface Companion {
 	species: string;
 	color: string;
 	accessories: string[];
+	unlocked_accessories?: string[];
 	level: number;
 	xp: number;
 	xp_for_next_level: number;
@@ -84,6 +85,7 @@ export interface CatalogAccessory {
 	label: string;
 	category: string;
 	image: string;
+	earnable?: boolean;
 }
 
 export interface CompanionCatalog {
@@ -98,4 +100,62 @@ export interface ProfilePayload {
 	birth_date: string;
 	gender: Gender | null;
 	ambition: Ambition;
+}
+
+export type QuestAction = "auto" | "checkin" | "scan" | "answer" | "meet";
+
+export type QuestStatus = "active" | "completed" | "failed" | "expired";
+
+export interface QuestReward {
+	xp: number;
+	accessory: string | null;
+}
+
+export interface ClaimableReward extends QuestReward {
+	id: number;
+}
+
+export interface QuestQuestion {
+	question: string;
+	choices: string[];
+}
+
+export interface QuestPlace {
+	id: number;
+	name: string;
+	latitude: number;
+	longitude: number;
+	radius_m: number | null;
+	outline: [number, number][] | null;
+}
+
+export interface QuestTask {
+	id: number;
+	type: string;
+	action: QuestAction;
+	description: string;
+	target: number;
+	value: number;
+	completed: boolean;
+	place: QuestPlace | null;
+	place_type: { code: string; label: string } | null;
+	questions: QuestQuestion[] | null;
+	rewards: QuestReward[];
+}
+
+export interface PlayerQuest {
+	id: number;
+	quest_id: number;
+	name: string;
+	description: string | null;
+	icon: string | null;
+	period: string;
+	expires_at: string | null;
+	status: QuestStatus;
+	step: number;
+	steps: number;
+	tasks: QuestTask[];
+	step_rewards: QuestReward[];
+	quest_rewards: QuestReward[];
+	rewards_to_claim: ClaimableReward[];
 }

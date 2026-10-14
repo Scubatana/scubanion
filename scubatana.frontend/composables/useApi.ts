@@ -44,5 +44,9 @@ export function useApi() {
 		return request<T>("PUT", path, body);
 	}
 
-	return { get, post, put };
+	function del<T>(path: string): Promise<T> {
+		return request<T>("DELETE", path);
+	}
+
+	return { get, post, put, del };
 }

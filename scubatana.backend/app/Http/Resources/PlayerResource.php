@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\FriendshipService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,8 +20,8 @@ class PlayerResource extends JsonResource
 			'profile_completed' => $this->hasCompletedProfile(),
 			'stats' => [
 				'total_steps' => (int) $this->activities()->sum('steps'),
-				'quests_done' => 0,
-				'friends_count' => 0,
+				'quests_done' => $this->userQuests()->whereNotNull('completed_at')->count(),
+				'friends_count' => app(FriendshipService::class)->friendsCount($this->resource),
 			],
 		];
 	}
