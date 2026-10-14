@@ -33,7 +33,7 @@
     <div><dt>Projet</dt><dd>Scubanion &middot; SAE BUT3-IoT</dd></div>
     <div><dt>Équipe</dt><dd>Scubatana &middot; 4 étudiants</dd></div>
     <div><dt>Membres</dt><dd>BANDIERAS Thomas &middot; DALMASSO Evan<br>KARROUCHI Hamza &middot; LESUEUR Shaleena</dd></div>
-    <div><dt>Version</dt><dd>2.0 du 13/10/2026</dd></div>
+    <div><dt>Version</dt><dd>2.1 du 14/10/2026</dd></div>
     <div><dt>Rendu</dt><dd>samedi 12 décembre 2026</dd></div>
     <div><dt>Soutenance</dt><dd>mercredi 13 janvier 2027</dd></div>
   </dl>
@@ -276,7 +276,7 @@
     <div class="field" style="margin-bottom:0;">
       <div class="label"><span class="en">Dependencies</span><span class="fr">Dépendances</span><span class="from">Cours p. 6</span></div>
       <ul class="small">
-        <li>Le prototype de borne dépend de la <strong>livraison du matériel</strong>, donc des décisions <code>D2</code> et <code>D3</code>.</li>
+        <li>Le prototype de borne dépend de la <strong>livraison du matériel</strong>, donc de la décision <code>D3</code> (microcontrôleur).</li>
         <li>Le déploiement automatique dépend de l'ouverture de l'hébergement (<code>D6</code>) et de SonarQube (<code>D7</code>).</li>
         <li>La démonstration en borne dépend du broker MQTT en production.</li>
         <li>Le miroir GitLab dépend de la joignabilité du GitLab IUT depuis GitHub Actions (<code>D8</code>).</li>
@@ -311,7 +311,7 @@
         <li>Matériel commandé trop tard, ou délai de livraison qui déborde.</li>
         <li>Périmètre non gelé : les <em>Should</em> qui grignotent le temps des <em>Must</em>.</li>
         <li>Pipeline repoussé en fin de projet, donc découverte tardive des problèmes d'intégration.</li>
-        <li>Décisions laissées ouvertes : <code>D2</code> à <code>D10</code> bloquent encore des travaux.</li>
+        <li>Décisions laissées ouvertes : <code>D3</code> à <code>D10</code> bloquent encore des travaux.</li>
       </ul>
     </div>
   </div>
@@ -402,8 +402,8 @@
       <strong>8 demandes de fusion</strong> sont ouvertes et couvriraient 9 exigences de
       plus (compagnon, quêtes, amis, positions, bornes côté serveur, suppression du
       compte). Le point dur est ailleurs : <strong>la borne physique n'est pas
-      commencée</strong>, les décisions <code>D2</code> et <code>D3</code> sont encore
-      ouvertes alors qu'elles conditionnent une commande de matériel. C'est ce constat
+      commencée</strong>, et le choix du microcontrôleur (<code>D3</code>) est encore ouvert
+      alors qu'il conditionne une commande de matériel ; l'identification à la borne (<code>D2</code>) a été tranchée le 13/10. C'est ce constat
       qui ordonne le plan d'action de la partie 5.
     </p>
   </div>
@@ -507,10 +507,10 @@
       </tr>
       <tr>
         <td class="num k">R2</td>
-        <td><strong>La borne n'est pas commencée</strong> et porte 6 exigences <em>Must</em>. Les décisions <code>D2</code> et <code>D3</code> restent ouvertes.</td>
+        <td><strong>La borne n'est pas commencée</strong> et porte 6 exigences <em>Must</em>. Le choix du microcontrôleur (<code>D3</code>) reste ouvert.</td>
         <td class="num">Probable</td><td class="num">Critique</td>
         <td class="num"><span class="badge b4">IV</span></td>
-        <td>Trancher <code>D2</code> et <code>D3</code> au 17/10 et commander le jour même ; montage sur table avant le 07/11.</td>
+        <td>Trancher <code>D3</code> au 17/10 et commander le jour même ; montage sur table avant le 07/11.</td>
         <td>Démonstration avec un simulateur de borne publiant en MQTT, et la borne physique en appoint.</td>
       </tr>
       <tr>
@@ -644,8 +644,8 @@
     <tbody>
       <tr>
         <td class="num k">A1</td>
-        <td><strong>Trancher <code>D2</code> et <code>D3</code></strong> (identification à la borne, microcontrôleur) et <strong>commander le matériel</strong> le jour même.</td>
-        <td>Décisions écrites au § 8 du cahier des charges, bon de commande, délai de livraison connu</td>
+        <td><strong>Trancher <code>D3</code></strong> (microcontrôleur, dont dépend le moyen matériel de <code>D2</code>, tranchée le 13/10) et <strong>commander le matériel</strong> le jour même.</td>
+        <td>Décision écrite au § 8 du cahier des charges, bon de commande, délai de livraison connu</td>
         <td>LESUEUR Shaleena</td>
         <td class="num"><strong>17/10</strong></td>
         <td class="num">O1</td>
@@ -870,7 +870,7 @@
   </div>
 
   <div class="foot">
-    <span>Scubanion &middot; équipe Scubatana &middot; charte de projet v2.0</span>
+    <span>Scubanion &middot; équipe Scubatana &middot; charte de projet v2.1</span>
     <span>R5.01 &middot; 13 octobre 2026</span>
   </div>
 </section>

@@ -144,8 +144,9 @@ les trois PDF renommés `1-Charte-de-projet.pdf`, `2-Marketing-mix.pdf`,
 Elles ne bloquent pas les livrables R5.01, mais elles figurent dans la charte et dans le
 plan d'action.
 
-- **`D2` et `D3`** (identification à la borne, microcontrôleur) : **échéance 17/10**, et il
-  faut commander le matériel le jour même. C'est le chemin critique : la borne porte
+- **`D3`** (microcontrôleur) : **échéance 17/10**, et il faut commander le matériel le
+  jour même. `D2` (identification à la borne) a été tranchée le 13/10 : le téléphone lit
+  un jeton signé par la borne. C'est le chemin critique : la borne porte
   6 exigences *Must* sur 18 et n'est pas commencée. Action **A1**, responsable Shaleena.
 - **K4, l'équilibre des contributions Git**, est hors cible : 47, 13, 1 et 0 commits selon
   les membres. Git étant noté individuellement, c'est le risque **R1** de la charte,
