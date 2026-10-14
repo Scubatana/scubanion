@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanionController;
+use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PassageController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\TerminalController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +18,9 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me', [MeController::class, 'show']);
 	Route::put('/me/profile', [MeController::class, 'updateProfile']);
 	Route::put('/me/companion', [CompanionController::class, 'update']);
+	Route::post('/me/position', [PositionController::class, 'store'])->middleware('throttle:10,1');
+	Route::get('/map', [MapController::class, 'index']);
+	Route::get('/catalog/types', [MapController::class, 'types'])->middleware('cache.headers:private;etag');
 	Route::get('/me/steps', [StepController::class, 'index']);
 	Route::post('/me/steps', [StepController::class, 'store']);
 	Route::put('/me/goal', [StepController::class, 'updateGoal']);
