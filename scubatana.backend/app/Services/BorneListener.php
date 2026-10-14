@@ -15,14 +15,13 @@ class BorneListener
 		$prefix = config('bornes.topic_prefix');
 
 		$client->registerMessageReceivedEventHandler(function (MqttClient $client, string $topic, string $message): void {
-			$this->dispatch($client, $topic, $message);
+			$this->dispatch($topic, $message);
 		});
 
-		$client->subscribe("{$prefix}/+/passages", null, Mqtt::QOS_AT_LEAST_ONCE);
 		$client->subscribe("{$prefix}/+/etat", null, Mqtt::QOS_AT_LEAST_ONCE);
 	}
 
-	private function dispatch(MqttClient $client, string $topic, string $message): void
+	private function dispatch(string $topic, string $message): void
 	{
 		$prefix = config('bornes.topic_prefix');
 
@@ -32,13 +31,7 @@ class BorneListener
 
 		[$code, $channel] = array_pad(explode('/', Str::after($topic, $prefix.'/'), 2), 2, null);
 
-		if ($channel === 'passages') {
-			$display = $this->handler->handlePassage($code, $message);
-
-			if ($display !== null) {
-				$client->publish("{$prefix}/{$code}/affichage", json_encode($display, JSON_UNESCAPED_UNICODE), Mqtt::QOS_AT_LEAST_ONCE);
-			}
-		} elseif ($channel === 'etat') {
+		if ($channel === 'etat') {
 			$this->handler->handleState($code, $message);
 		}
 	}

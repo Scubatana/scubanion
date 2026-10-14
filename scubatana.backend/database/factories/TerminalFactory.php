@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\TerminalStatus;
+use App\Services\TerminalTokenService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TerminalFactory extends Factory
@@ -12,6 +13,7 @@ class TerminalFactory extends Factory
 		return [
 			'code' => 'borne-'.fake()->unique()->numerify('###'),
 			'name' => 'Borne du parc',
+			'secret' => TerminalTokenService::newSecret(),
 			'place_id' => null,
 			'status' => TerminalStatus::Offline,
 			'firmware' => null,

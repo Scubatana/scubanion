@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Place;
 use App\Models\Terminal;
+use App\Services\TerminalTokenService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
@@ -34,8 +35,10 @@ class CreateTerminal extends Command
 			return self::FAILURE;
 		}
 
-		$terminal = Terminal::create($validator->validated());
+		$secret = TerminalTokenService::newSecret();
+		$terminal = Terminal::create([...$validator->validated(), 'secret' => $secret]);
 		$this->info("Borne {$terminal->code} créée. Topics : ".config('bornes.topic_prefix')."/{$terminal->code}/…");
+		$this->line("Secret à enregistrer dans la borne (il ne sera plus affiché) : {$secret}");
 
 		return self::SUCCESS;
 	}

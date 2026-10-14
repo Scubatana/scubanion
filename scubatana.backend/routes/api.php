@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanionController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\PassageController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\TerminalController;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me/steps', [StepController::class, 'index']);
 	Route::post('/me/steps', [StepController::class, 'store']);
 	Route::put('/me/goal', [StepController::class, 'updateGoal']);
-	Route::get('/me/badge', [TerminalController::class, 'badge']);
+	Route::post('/me/passages', [PassageController::class, 'store'])->middleware('throttle:30,1');
 	Route::get('/bornes', [TerminalController::class, 'index']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 });

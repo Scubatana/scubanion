@@ -12,11 +12,11 @@ return [
 
 	'topic_prefix' => 'scubanion/bornes',
 
-	'badge_ttl_seconds' => (int) env('BADGE_TTL_SECONDS', 300),
-
 	'reward_xp' => (int) env('BORNE_REWARD_XP', 100),
 
 	'max_replay_hours' => (int) env('BORNE_MAX_REPLAY_HOURS', 24),
+
+	'future_tolerance_minutes' => (int) env('BORNE_FUTURE_TOLERANCE_MINUTES', 5),
 
 	'offline_after_seconds' => (int) env('BORNE_OFFLINE_AFTER_SECONDS', 120),
 

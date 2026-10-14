@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Enums\TerminalStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['code', 'name', 'place_id', 'status', 'firmware', 'last_seen_at'])]
+#[Fillable(['code', 'name', 'secret', 'place_id', 'status', 'firmware', 'last_seen_at'])]
+#[Hidden(['secret'])]
 class Terminal extends Model
 {
 	use HasFactory;
@@ -17,6 +19,7 @@ class Terminal extends Model
 	protected function casts(): array
 	{
 		return [
+			'secret' => 'encrypted',
 			'status' => TerminalStatus::class,
 			'last_seen_at' => 'datetime',
 		];

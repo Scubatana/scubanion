@@ -4,8 +4,6 @@ namespace Tests\Feature\Bornes;
 
 use App\Enums\TerminalStatus;
 use App\Models\Terminal;
-use App\Models\User;
-use App\Services\BadgeTokenService;
 use App\Services\BorneListener;
 use Closure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,7 +33,7 @@ class BorneListenerTest extends TestCase
 
 			return $this->client;
 		});
-		$this->client->shouldReceive('subscribe')->twice()->andReturnUsing(function (string $topic, ?callable $callback, int $qualityOfService): void {
+		$this->client->shouldReceive('subscribe')->once()->andReturnUsing(function (string $topic, ?callable $callback, int $qualityOfService): void {
 			$this->subscriptions[$topic] = [$callback, $qualityOfService];
 		});
 
@@ -47,34 +45,18 @@ class BorneListenerTest extends TestCase
 		($this->onMessage)($this->client, $topic, is_array($message) ? json_encode($message) : $message, 1, false);
 	}
 
-	public function test_it_subscribes_to_the_passages_and_the_heartbeats_of_every_terminal(): void
+	public function test_it_only_listens_to_the_heartbeats_of_every_terminal(): void
 	{
-		$this->assertSame([
-			'scubanion/bornes/+/passages' => [null, 1],
-			'scubanion/bornes/+/etat' => [null, 1],
-		], $this->subscriptions);
+		$this->assertSame(['scubanion/bornes/+/etat' => [null, 1]], $this->subscriptions);
 	}
 
-	public function test_a_passage_is_answered_on_the_display_topic_of_its_terminal(): void
+	public function test_it_ignores_an_unknown_terminal_and_an_unrelated_topic(): void
 	{
-		$token = app(BadgeTokenService::class)->issue(User::factory()->create(['pseudo' => 'Lea']))['token'];
-
-		$this->client->shouldReceive('publish')->once()->with(
-			'scubanion/bornes/chateau-01/affichage',
-			json_encode(['passage' => 'p-1', 'status' => 'rewarded', 'message' => 'Bravo Lea ! +100 XP', 'reward_xp' => 100], JSON_UNESCAPED_UNICODE),
-			1,
-		);
-
-		$this->receive('scubanion/bornes/chateau-01/passages', ['id' => 'p-1', 'token' => $token, 'scanned_at' => now()->toIso8601String()]);
-	}
-
-	public function test_nothing_is_published_for_an_unknown_terminal_or_an_unrelated_topic(): void
-	{
-		$this->client->shouldNotReceive('publish');
-
-		$this->receive('scubanion/bornes/inconnue/passages', ['id' => 'p-1', 'token' => 'x', 'scanned_at' => now()->toIso8601String()]);
-		$this->receive('scubanion/bornes/chateau-01/affichage', ['message' => 'écho']);
+		$this->receive('scubanion/bornes/inconnue/etat', ['status' => 'online']);
+		$this->receive('scubanion/bornes/chateau-01/passages', ['token' => 'x']);
 		$this->receive('autre/chose', 'rien');
+
+		$this->assertSame(TerminalStatus::Offline, Terminal::sole()->status);
 	}
 
 	public function test_a_heartbeat_updates_its_terminal(): void

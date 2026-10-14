@@ -12,6 +12,7 @@ return new class extends Migration
 			$table->id();
 			$table->string('code', 32)->unique();
 			$table->string('name', 80);
+			$table->text('secret');
 			$table->foreignId('place_id')->nullable()->constrained()->nullOnDelete();
 			$table->string('status', 16)->default('offline');
 			$table->string('firmware', 32)->nullable();

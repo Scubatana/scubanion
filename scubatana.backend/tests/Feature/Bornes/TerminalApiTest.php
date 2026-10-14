@@ -6,7 +6,6 @@ use App\Enums\TerminalStatus;
 use App\Models\Place;
 use App\Models\Terminal;
 use App\Models\User;
-use App\Services\BadgeTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -17,19 +16,7 @@ class TerminalApiTest extends TestCase
 
 	public function test_it_requires_a_token(): void
 	{
-		$this->getJson('/api/me/badge')->assertUnauthorized();
 		$this->getJson('/api/bornes')->assertUnauthorized();
-	}
-
-	public function test_a_player_gets_a_short_lived_badge_for_the_terminals(): void
-	{
-		$this->travelTo('2026-10-13 15:00:00');
-		$player = User::factory()->create();
-		Sanctum::actingAs($player);
-
-		$response = $this->getJson('/api/me/badge')->assertOk()->assertJsonPath('expires_at', '2026-10-13T15:05:00+02:00');
-
-		$this->assertTrue(app(BadgeTokenService::class)->verify($response->json('token'), now())->is($player));
 	}
 
 	public function test_it_lists_the_terminals_with_their_place_and_whether_they_are_online(): void

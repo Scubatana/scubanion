@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Terminal;
-use App\Services\BadgeTokenService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class TerminalController extends Controller
 {
@@ -25,12 +23,5 @@ class TerminalController extends Controller
 		]);
 
 		return response()->json(['terminals' => $terminals]);
-	}
-
-	public function badge(Request $request, BadgeTokenService $badges): JsonResponse
-	{
-		$badge = $badges->issue($request->user());
-
-		return response()->json(['token' => $badge['token'], 'expires_at' => $badge['expires_at']->toIso8601String()]);
 	}
 }

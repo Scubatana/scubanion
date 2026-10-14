@@ -15,9 +15,12 @@ class CreateTerminalCommandTest extends TestCase
 	{
 		$place = Place::factory()->create();
 
-		$this->artisan('bornes:creer', ['code' => 'chateau-01', 'nom' => 'Borne du Château', '--lieu' => $place->id])->assertSuccessful();
+		$this->artisan('bornes:creer', ['code' => 'chateau-01', 'nom' => 'Borne du Château', '--lieu' => $place->id])
+			->expectsOutputToContain('Secret à enregistrer dans la borne')
+			->assertSuccessful();
 
 		$terminal = Terminal::sole();
+		$this->assertSame(43, strlen($terminal->secret));
 		$this->assertSame('chateau-01', $terminal->code);
 		$this->assertTrue($terminal->place->is($place));
 	}

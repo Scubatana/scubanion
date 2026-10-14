@@ -7,9 +7,12 @@ use App\Models\Companion;
 use App\Models\Passage;
 use App\Models\Terminal;
 use App\Models\User;
-use App\Services\BadgeTokenService;
 use App\Services\BorneMessageHandler;
+use App\Services\TerminalDisplay;
+use App\Services\TerminalTokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class PassageTest extends TestCase
@@ -20,101 +23,117 @@ class PassageTest extends TestCase
 
 	private User $lea;
 
+	private MockInterface $display;
+
 	protected function setUp(): void
 	{
 		parent::setUp();
 
 		$this->travelTo('2026-10-13 15:00:00');
-		$this->terminal = Terminal::factory()->create(['code' => 'chateau-01']);
+		$this->terminal = Terminal::factory()->create(['code' => 'chateau-01', 'name' => 'Borne du Château']);
 		$this->lea = User::factory()->create(['pseudo' => 'Lea']);
+		$this->display = $this->mock(TerminalDisplay::class);
+		$this->display->shouldReceive('show')->byDefault();
+		Sanctum::actingAs($this->lea);
 	}
 
-	private function scan(string $id, ?string $token = null, ?string $scannedAt = null, string $terminal = 'chateau-01'): ?array
+	private function token(?string $scannedAt = null, ?Terminal $terminal = null): string
 	{
-		$message = json_encode([
-			'id' => $id,
-			'token' => $token ?? app(BadgeTokenService::class)->issue($this->lea)['token'],
-			'scanned_at' => $scannedAt ?? now()->toIso8601String(),
-		]);
-
-		return app(BorneMessageHandler::class)->handlePassage($terminal, $message);
+		return app(TerminalTokenService::class)->generate($terminal ?? $this->terminal, $scannedAt === null ? now() : now()->parse($scannedAt));
 	}
 
-	public function test_a_first_passage_of_the_day_gives_a_reward(): void
+	private function send(string $token)
 	{
-		$this->assertSame(['passage' => 'p-1', 'status' => 'rewarded', 'message' => 'Bravo Lea ! +100 XP', 'reward_xp' => 100], $this->scan('p-1'));
+		return $this->postJson('/api/me/passages', ['token' => $token]);
+	}
+
+	public function test_it_requires_a_token(): void
+	{
+		$this->app['auth']->forgetGuards();
+
+		$this->withHeader('Authorization', 'Bearer faux')->postJson('/api/me/passages', ['token' => $this->token()])->assertUnauthorized();
+	}
+
+	public function test_a_first_passage_of_the_day_gives_a_reward_and_is_shown_on_the_terminal(): void
+	{
+		$this->display->shouldReceive('show')->once()->withArgs(fn (Terminal $terminal, array $display) => $terminal->is($this->terminal)
+			&& $display === ['scanned_at' => '2026-10-13T15:00:00+02:00', 'status' => 'rewarded', 'message' => 'Bravo Lea ! +100 XP', 'reward_xp' => 100]);
+
+		$this->send($this->token())
+			->assertOk()
+			->assertJsonPath('status', 'rewarded')
+			->assertJsonPath('message', 'Bravo Lea ! +100 XP')
+			->assertJsonPath('reward_xp', 100)
+			->assertJsonPath('terminal', ['code' => 'chateau-01', 'name' => 'Borne du Château']);
 
 		$passage = Passage::sole();
 		$this->assertTrue($passage->user->is($this->lea));
-		$this->assertSame(100, $passage->reward_xp);
-		$this->assertSame(TerminalStatus::Online, $this->terminal->fresh()->status);
+		$this->assertSame('2026-10-13 15:00:00', $passage->scanned_at->toDateTimeString());
+	}
+
+	public function test_a_second_passage_the_same_day_is_recorded_without_reward(): void
+	{
+		$this->send($this->token())->assertOk();
+		$this->travel(2)->hours();
+
+		$this->send($this->token())
+			->assertOk()
+			->assertJsonPath('status', 'already_rewarded')
+			->assertJsonPath('message', "Déjà passé aujourd'hui, Lea. Reviens demain !")
+			->assertJsonPath('reward_xp', 0);
+
+		$this->travelTo('2026-10-14 09:00:00');
+
+		$this->send($this->token())->assertOk()->assertJsonPath('status', 'rewarded');
+		$this->assertSame([100, 0, 100], Passage::orderBy('id')->pluck('reward_xp')->all());
+	}
+
+	public function test_a_token_can_only_be_used_once_even_by_another_player(): void
+	{
+		$token = $this->token();
+
+		$this->send($token)->assertOk();
+		$this->send($token)->assertStatus(409)->assertJsonPath('message', 'Ce code de borne a déjà été utilisé.');
+
+		Sanctum::actingAs(User::factory()->create(['pseudo' => 'Yanis']));
+		$this->send($token)->assertStatus(409);
+
+		$this->assertSame(1, Passage::count());
+	}
+
+	public function test_a_forged_or_damaged_token_is_refused(): void
+	{
+		$token = $this->token();
+		[$code, $time, $signature] = explode('.', $token);
+		$other = Terminal::factory()->create(['code' => 'parc-01']);
+
+		$this->send("{$code}.".base_convert((string) (now()->getTimestamp() + 60), 10, 36).".{$signature}")->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->send("parc-01.{$time}.{$signature}")->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->send("inconnue.{$time}.{$signature}")->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->send('pas un jeton')->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->postJson('/api/me/passages', [])->assertUnprocessable()->assertJsonValidationErrors('token');
+
+		$this->send($this->token(null, $other))->assertOk();
+		$this->assertSame(1, Passage::count());
+	}
+
+	public function test_a_token_scanned_offline_is_accepted_for_a_day(): void
+	{
+		$this->send($this->token('2026-10-12 15:30:00'))->assertOk()->assertJsonPath('status', 'rewarded');
+		$this->send($this->token('2026-10-13 15:00:00'))->assertOk()->assertJsonPath('status', 'rewarded');
+
+		$this->send($this->token('2026-10-12 14:59:00'))->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->send($this->token('2026-10-13 15:06:00'))->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->assertSame(2, Passage::count());
 	}
 
 	public function test_the_reward_goes_to_the_companion_progression(): void
 	{
 		$companion = Companion::factory()->for($this->lea)->create();
 
-		$this->scan('p-1');
+		$this->send($this->token())->assertOk()->assertJsonPath('companion.xp', 100);
 
 		$this->assertSame(100, $companion->fresh()->xp);
-	}
-
-	public function test_a_second_passage_the_same_day_is_recorded_without_reward(): void
-	{
-		$this->scan('p-1');
-
-		$this->travelTo('2026-10-13 18:00:00');
-		$this->assertSame('already_rewarded', $this->scan('p-2')['status']);
-
-		$this->travelTo('2026-10-14 09:00:00');
-		$this->assertSame('rewarded', $this->scan('p-3')['status']);
-
-		$this->assertSame([100, 0, 100], Passage::orderBy('id')->pluck('reward_xp')->all());
-	}
-
-	public function test_a_passage_sent_twice_is_counted_once_and_answered_the_same_way(): void
-	{
-		$first = $this->scan('p-1');
-
-		$this->assertSame($first, $this->scan('p-1'));
-		$this->assertSame(1, Passage::count());
-	}
-
-	public function test_passages_stored_offline_are_accepted_within_a_day(): void
-	{
-		$token = app(BadgeTokenService::class)->issue($this->lea)['token'];
-
-		$this->travelTo('2026-10-14 10:00:00');
-
-		$this->assertSame('rewarded', $this->scan('p-1', $token, '2026-10-13T15:01:00+02:00')['status']);
-		$this->assertSame('2026-10-13 15:01:00', Passage::sole()->scanned_at->toDateTimeString());
-		$this->assertSame('invalid_message', $this->scan('p-2', $token, '2026-10-13T09:00:00+02:00')['status']);
-	}
-
-	public function test_a_badge_that_expired_before_the_scan_is_refused(): void
-	{
-		$token = app(BadgeTokenService::class)->issue($this->lea)['token'];
-
-		$this->travelTo('2026-10-13 15:10:00');
-
-		$this->assertSame(['passage' => 'p-1', 'status' => 'invalid_token', 'message' => 'Badge non reconnu.', 'reward_xp' => 0], $this->scan('p-1', $token));
-		$this->assertSame(0, Passage::count());
-	}
-
-	public function test_an_unreadable_message_is_answered_without_being_recorded(): void
-	{
-		$handler = app(BorneMessageHandler::class);
-
-		$this->assertSame('invalid_message', $handler->handlePassage('chateau-01', 'pas du json')['status']);
-		$this->assertSame('invalid_message', $handler->handlePassage('chateau-01', json_encode(['id' => 'p-1']))['status']);
-		$this->assertSame('invalid_message', $this->scan('p-1', null, '2026-10-13T16:00:00+02:00')['status']);
-		$this->assertSame(0, Passage::count());
-	}
-
-	public function test_an_unknown_terminal_is_ignored(): void
-	{
-		$this->assertNull($this->scan('p-1', null, null, 'borne-inconnue'));
-		$this->assertSame(0, Passage::count());
 	}
 
 	public function test_the_heartbeat_tells_whether_a_terminal_is_online(): void
@@ -140,7 +159,7 @@ class PassageTest extends TestCase
 
 	public function test_passages_go_away_with_the_player(): void
 	{
-		$this->scan('p-1');
+		$this->send($this->token())->assertOk();
 
 		$this->lea->delete();
 

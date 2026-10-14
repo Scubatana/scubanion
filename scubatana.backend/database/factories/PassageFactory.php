@@ -14,7 +14,7 @@ class PassageFactory extends Factory
 		return [
 			'terminal_id' => Terminal::factory(),
 			'user_id' => User::factory(),
-			'client_id' => (string) Str::uuid(),
+			'token_hash' => hash('sha256', (string) Str::uuid()),
 			'scanned_at' => now(),
 			'reward_xp' => 100,
 		];

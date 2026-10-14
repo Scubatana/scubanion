@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['terminal_id', 'user_id', 'client_id', 'scanned_at', 'reward_xp'])]
+#[Fillable(['terminal_id', 'user_id', 'token_hash', 'scanned_at', 'reward_xp'])]
 class Passage extends Model
 {
 	use HasFactory;

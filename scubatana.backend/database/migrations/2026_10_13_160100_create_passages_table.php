@@ -12,11 +12,10 @@ return new class extends Migration
 			$table->id();
 			$table->foreignId('terminal_id')->constrained()->cascadeOnDelete();
 			$table->foreignId('user_id')->constrained()->cascadeOnDelete();
-			$table->string('client_id', 64);
+			$table->char('token_hash', 64)->unique();
 			$table->timestamp('scanned_at');
 			$table->unsignedInteger('reward_xp')->default(0);
 			$table->timestamps();
-			$table->unique(['terminal_id', 'client_id']);
 			$table->index(['user_id', 'scanned_at']);
 		});
 	}
