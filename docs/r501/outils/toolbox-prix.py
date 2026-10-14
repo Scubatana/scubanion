@@ -5,7 +5,7 @@ Ce fichier EST la trace des entretiens. Les reponses sont recopiees telles
 qu'elles ont ete donnees, sans retouche ; les decisions de lecture (inclusion,
 exclusion, interpretation d'une reponse ambigue) sont ecrites a cote.
 
-Il regenere la partie 4 du livrable « experience utilisateur ».
+Il regenere les parties 4 et 5 du livrable « experience utilisateur ».
 Usage : python docs/r501/outils/toolbox-prix.py
 """
 import io, pathlib
@@ -40,22 +40,29 @@ ENTRETIENS = [
     dict(nom="Nathan", age=19, ville="Nice (06)", pas=5000,
          budget=60, min_inclus=0.49, max_exclu=3.99, cible=True),
 
+    # « Louche en dessous de 0 EUR » : aucun prix ne la ferait douter, borne basse a 0.
+    # A la question preliminaire, posee avant l'echelle, elle a cite 1,99 EUR.
+    dict(nom="Ines", age=24, ville="Paris (75)", pas=10000,
+         budget=150, min_inclus=0, max_exclu=2.00,
+         min_note="aucun prix ne la ferait douter de la qualité (« 0 € »)",
+         note="prix cité spontanément, avant l'échelle : 1,99 €", cible=True),
+
+    # Deux plafonds selon l'objet. Le skin teste est une piece achetee a l'unite :
+    # on retient 2,99 EUR, et on garde 4,99 EUR (tenue complete) en remarque.
+    dict(nom="Nicholas", age=18, ville="Nice (06)", pas=6000,
+         budget=200, min_inclus=0.49, max_exclu=2.99,
+         max_note="4,99 € pour une tenue complète, 2,99 € pour une seule pièce (retenu)",
+         cible=True),
+
+    dict(nom="Celia", age=19, ville="Nice (06)", pas=7000,
+         budget=50, min_inclus=0.99, max_exclu=1.99, cible=True),
+
     # Hors cible : 16 ans, en dessous des 18-30 ans vises. Conserve a part,
     # pour ne pas ecarter une reponse au seul motif qu'elle derange.
     dict(nom="Damien B.", age=16, ville="Le Mans (72)", pas=6000,
          pas_note="podomètre désactivé, chiffre donné de mémoire",
          budget=5, budget_note="entre 0 et 10 €",
          min_inclus=0.99, max_exclu=2.99, cible=False),
-]
-
-# Ecarte : Diego, 17 ans. Reponses contradictoires (« trop cher a partir de 8 EUR »
-# mais « louche en dessous de 5 EUR », puis « 5 EUR 8 EUR » sans trancher), ville
-# non exploitable, et hors de la tranche d'age visee. Une relance n'a pas permis
-# de lever la contradiction. A refaire proprement plutot qu'a interpreter.
-ECARTES = [
-    dict(nom="Diego", age=17,
-         raison="reponses contradictoires sur les deux bornes de prix, et hors "
-                "de la tranche d'age visee"),
 ]
 
 
@@ -185,13 +192,13 @@ def tableau_profils():
     notes = []
     for e in ENTRETIENS:
         marque = ""
-        n = [x for x in (e.get("pas_note"), e.get("budget_note"), e.get("min_note")) if x]
+        n = [e[k] for k in ("pas_note", "budget_note", "min_note", "max_note", "note") if e.get(k)]
         if n:
             marque = '<sup>%d</sup>' % (len(notes) + 1)
             notes.append((len(notes) + 1, e["nom"], " ; ".join(n)))
         hors = "" if e["cible"] else ' <span class="tag" style="background:#FDE7DC;color:#D96A41;">hors cible</span>'
-        pas = "{:,}".format(e["pas"]).replace(",", " ") if e["pas"] else "—"
-        bud = ("%d €" % e["budget"]) if e["budget"] is not None else "—"
+        pas = "{:,}".format(e["pas"]).replace(",", " ") if e["pas"] else "<em>non donné</em>"
+        bud = ("%d €" % e["budget"]) if e["budget"] is not None else "<em>non donné</em>"
         mini = eur(e["min_inclus"]) if e.get("min_inclus") is not None else '<em>non exprimé</em>'
         if e.get("max_exclu") is not None:
             maxi = eur(e["max_exclu"])
@@ -239,10 +246,10 @@ FRAGMENT = """<!-- ===================== TOOLBOX : RESULTATS ===================
   <h2><span class="n">4</span>Résultats des entretiens</h2>
 
   <p class="lead" style="margin-bottom:4mm;">
-    Sept personnes ont été interrogées en message privé individuel, le 14/10/2026.
-    <strong>Cinq réponses sont exploitables et dans la cible</strong> — c'est le minimum
-    demandé par le cours. Une sixième, hors tranche d'âge, est conservée à part ; une
-    septième a été écartée. Les réponses brutes et les règles de lecture sont dans
+    Neuf personnes ont été interrogées en message privé individuel, le 14/10/2026.
+    <strong>Huit réponses sont exploitables et dans la cible</strong>, au-delà des cinq
+    demandées par le cours. La neuvième, hors tranche d'âge, est conservée à part. Les
+    réponses brutes et les règles de lecture sont dans
     <code>docs/r501/outils/toolbox-prix.py</code>.
   </p>
 
@@ -252,24 +259,23 @@ FRAGMENT = """<!-- ===================== TOOLBOX : RESULTATS ===================
   <div class="card card-accent" style="margin-top:3mm;">
     <h4 style="margin-top:0;">Trois décisions de lecture, assumées</h4>
     <ul class="small" style="margin-bottom:0;">
-      <li><strong>Diego, 17 ans, est écarté.</strong> Il situait le « trop cher » à 8 € et
-        le « doute sur la qualité » à 5 €, puis a répondu « 5 € 8 € » sans trancher
-        lorsqu'on lui a demandé de préciser. Une fourchette inversée n'est pas
-        exploitable, et il est hors de la tranche d'âge visée. Mieux vaut un entretien
-        refait qu'une réponse interprétée.</li>
       <li><strong>Damien B., 16 ans, est conservé mais hors cible.</strong> Il est en
         dessous des 18-30 ans visés, donc exclu du calcul. Nous l'affichons quand même :
         écarter une réponse parce qu'elle dérange serait une faute, et la sienne
-        <em>confirme</em> la fourchette trouvée.</li>
-      <li><strong>Damien N. n'a pas de borne basse.</strong> Il a contesté la deuxième
-        question, et son objection est juste : pour un objet purement décoratif, qui ne
-        change rien au jeu, un prix bas ne fait pas douter de la qualité. Nous le comptons
-        donc comme acceptant tous les niveaux sous son maximum. Cela n'affecte que la
-        colonne 0,49 €, qui n'est pas couverte à 100 % de toute façon.</li>
+        <em>contient</em> entièrement la zone trouvée.</li>
+      <li><strong>Damien N. et Ines n'ont pas de borne basse utile.</strong> Damien N. a
+        contesté la deuxième question, Ines a répondu « 0 € » : pour un objet purement
+        décoratif, qui ne change rien au jeu, un prix bas ne les fait pas douter de la
+        qualité. Nous les comptons donc comme acceptant tous les niveaux sous leur maximum.
+        Cela n'affecte que la colonne 0,49 €, qui n'est pas couverte à 100 % de toute
+        façon.</li>
+      <li><strong>Nicholas a donné deux plafonds.</strong> 2,99 € pour une pièce seule,
+        4,99 € pour une tenue complète. Le skin présenté est une pièce achetée à l'unité :
+        nous retenons 2,99 €, et gardons la tenue complète comme piste à part.</li>
     </ul>
   </div>
 
-  <h3>La grille</h3>
+  <h3 style="break-before:page;margin-top:0;">La grille</h3>
   __GRILLE__
 
   <div class="legend" style="margin-bottom:4mm;">
@@ -278,38 +284,39 @@ FRAGMENT = """<!-- ===================== TOOLBOX : RESULTATS ===================
     <span><i style="background:#FDF3D7;"></i> Trop bas : doute sur la qualité</span>
     <span><i style="background:#F7CFC7;"></i> Trop cher : pas d'achat</span>
   </div>
+
+  <h3>Combien de personnes chaque prix convainc-t-il ?</h3>
+  <figure style="margin-bottom:0;">
+    __SVG_COUVERTURE__
+    <figcaption>Nombre de personnes, sur les huit de la cible, pour qui le prix est
+      acceptable. <b>Deux niveaux font l'unanimité</b> : 0,99 € et 1,49 €. Le prix retenu,
+      1,99 €, en convainc sept.</figcaption>
+  </figure>
 </section>
 
 <!-- ===================== TOOLBOX : LECTURE ===================== -->
 <section class="page">
   <h2><span class="n">5</span>Lecture et prix retenu</h2>
 
-  <h3 style="margin-top:0;">Combien de personnes chaque prix convainc-t-il ?</h3>
-  <figure style="margin-bottom:4mm;">
-    __SVG_COUVERTURE__
-    <figcaption>Nombre de personnes, sur les cinq de la cible, pour qui le prix est
-      acceptable. <b>Quatre niveaux font l'unanimité</b> : de 0,99 € à 2,49 €.</figcaption>
-  </figure>
-
-  <h3>La fourchette de chacun</h3>
+  <h3 style="margin-top:0;">La fourchette de chacun</h3>
   <figure style="margin-bottom:4mm;">
     __SVG_FOURCHETTES__
     <figcaption>Chaque barre est l'intervalle que la personne juge acceptable. La bande
       verte est leur intersection. Damien B., hors cible, est en clair : sa fourchette
-      tombe entièrement dans la zone commune.</figcaption>
+      contient entièrement la zone commune.</figcaption>
   </figure>
 
   <div class="grid g-2-1" style="margin-bottom:3mm;">
     <div class="card card-ocean" style="margin-bottom:0;">
       <h4 style="margin-top:0;">Ce que les entretiens disent</h4>
       <ul class="small" style="margin-bottom:0;">
-        <li><strong>La zone de chevauchement va de 0,99 € à 2,49 €</strong> : quatre
-          niveaux conviennent aux cinq personnes de la cible.</li>
-        <li><strong>Au-delà de 2,99 €, ça décroche vite</strong> : 4 personnes sur 5 à
-          2,99 €, plus que 2 sur 5 à 3,99 €, et une seule à 4,99 €.</li>
-        <li><strong>Personne n'accepte 6,99 € ni 9,99 €.</strong> Le haut de l'échelle est
-          mort : il n'y a pas de marché pour un skin au-delà de 5 € sur cette cible.</li>
-        <li><strong>Le bas de l'échelle inquiète peu.</strong> Trois personnes sur cinq
+        <li><strong>La zone de chevauchement va de 0,99 € à 1,49 €</strong> : deux
+          niveaux conviennent aux huit personnes de la cible.</li>
+        <li><strong>1,99 € en convainc sept sur huit.</strong> Seule Celia décroche, et sa
+          limite tombe exactement sur 1,99 €.</li>
+        <li><strong>Au-delà, ça décroche vite</strong> : 6 personnes sur 8 à 2,49 €, 4 à
+          2,99 €, 2 à 3,99 €, une seule à 4,99 €, et personne à 6,99 € ni 9,99 €.</li>
+        <li><strong>Le bas de l'échelle inquiète peu.</strong> Six personnes sur huit
           acceptent 0,49 €. Le mécanisme de doute sur la qualité, central dans la méthode,
           joue faiblement sur un objet décoratif.</li>
       </ul>
@@ -317,48 +324,60 @@ FRAGMENT = """<!-- ===================== TOOLBOX : RESULTATS ===================
     <div class="card on-white" style="margin-bottom:0;text-align:center;">
       <p class="small muted" style="margin-bottom:1mm;">Prix retenu</p>
       <p style="font-family:'Baloo 2',sans-serif;font-size:30pt;font-weight:800;color:var(--ocean);line-height:1;margin:0;">1,99 €</p>
-      <p class="small" style="margin-top:2mm;margin-bottom:0;">Zone de chevauchement<br><strong>0,99 € — 2,49 €</strong></p>
+      <p class="small" style="margin-top:2mm;margin-bottom:0;">7 personnes sur 8<br>Zone de chevauchement<br><strong>0,99 € à 1,49 €</strong></p>
     </div>
   </div>
 
   <div class="card card-accent">
-    <h4 style="margin-top:0;">Pourquoi 1,99 € et pas 2,49 €</h4>
+    <h4 style="margin-top:0;">Pourquoi 1,99 € et pas 1,49 €</h4>
     <p class="small" style="margin-bottom:0;">
-      2,49 € est le haut de la zone d'unanimité : ce serait le prix qui rapporte le plus
-      en conservant 100 % de couverture. Nous retenons pourtant <strong>1,99 €</strong>,
-      pour deux raisons. D'abord, 2,49 € est <em>exactement</em> le plafond de Stacy : au
-      moindre optimisme dans sa réponse, nous la perdons, et la couverture n'est plus
-      réelle. Ensuite 1,99 € laisse un cran de marge des deux côtés, ce qui autorise une
-      remise ponctuelle à 1,49 € et une gamme rare à 2,49 € sans jamais sortir de la zone.
-      Un prix qui tient sous la pression vaut mieux qu'un prix optimal en théorie.
+      La méthode place le prix optimal dans la zone de chevauchement, ici 0,99 € à 1,49 €.
+      Nous retenons pourtant <strong>1,99 €</strong>, un cran au-dessus, pour trois
+      raisons. D'abord, la seule personne perdue est Celia, dont la limite est
+      <em>exactement</em> 1,99 € : c'est la réponse la plus proche de la frontière, pas un
+      refus franc. Ensuite, Ines, interrogée avant de voir l'échelle, a cité d'elle-même
+      1,99 € : un seul avis, mais le seul donné sans ancrage. Enfin, sept acheteurs à
+      1,99 € rapportent 13,93 €, contre 11,92 € pour huit à 1,49 € (+17 %) ; 2,49 €
+      rapporterait 14,94 € mais perdrait un quart de la cible. 1,49 € devient le prix des
+      remises ponctuelles, qui retombent ainsi dans la zone d'unanimité.
     </p>
   </div>
 
-  <h3>Trois enseignements inattendus</h3>
+  <h3 style="break-before:page;margin-top:0;">Quatre enseignements inattendus</h3>
   <table class="tight">
     <tbody>
       <tr>
         <td class="k" style="width:42mm;">Le podomètre n'est pas activé</td>
-        <td><strong>Deux personnes sur sept n'ont pas su donner leur nombre de pas</strong>,
-          parce que le capteur n'est pas actif sur leur téléphone. C'est un signal produit
-          sérieux : notre promesse repose entièrement sur ce capteur. L'activation doit
-          être une étape explicite et guidée de la mise en route, pas une permission
+        <td><strong>Deux personnes sur neuf n'ont pas de podomètre actif</strong> sur leur
+          téléphone : Radu ne l'a jamais activé, Damien B. l'a désactivé. C'est un signal
+          produit sérieux : notre promesse repose entièrement sur ce capteur. L'activation
+          doit être une étape explicite et guidée de la mise en route, pas une permission
           demandée en passant.</td>
       </tr>
       <tr>
         <td class="k">La question du prix bas s'applique mal</td>
-        <td>L'objection de Damien N. est fondée. La deuxième question du cours suppose que
-          le prix signale la qualité ; pour un objet décoratif sans effet sur le jeu, ce
-          lien est faible. Trois personnes sur cinq acceptent d'ailleurs le niveau le plus
-          bas. <strong>Nous gardons la méthode telle que le cours la définit</strong>, mais
-          nous notons que sa borne basse est peu informative dans ce cas précis.</td>
+        <td>L'objection de Damien N. est fondée, et Ines va dans le même sens : aucun prix
+          ne la ferait douter. La deuxième question du cours suppose que le prix signale la
+          qualité ; pour un objet décoratif sans effet sur le jeu, ce lien est faible. Six
+          personnes sur huit acceptent d'ailleurs le niveau le plus bas. <strong>Nous
+          gardons la méthode telle que le cours la définit</strong>, mais sa borne basse
+          est peu informative dans ce cas précis.</td>
       </tr>
       <tr>
-        <td class="k">Le persona Léa est confirmé, les deux autres non</td>
-        <td>L'échantillon valide <strong>Léa</strong> : 19-20 ans, 30 à 60 € de budget
-          loisirs, 4 000 à 8 000 pas par jour. En revanche <strong>Yanis (27 ans) et
-          Camille (34 ans) ne sont représentés par personne</strong> : toutes les réponses
-          viennent de 16-20 ans. Ces deux personas restent des hypothèses.</td>
+        <td class="k">Une tenue vaut plus qu'une pièce</td>
+        <td>Nicholas accepte 4,99 € pour une tenue complète, contre 2,99 € pour une pièce
+          seule. <strong>Des lots peuvent donc se vendre au-dessus de la zone</strong> sans
+          la contredire, puisque la grille ne porte que sur une pièce. Piste à tester
+          séparément avant d'en faire une offre.</td>
+      </tr>
+      <tr>
+        <td class="k">Léa est confirmée, Yanis approché, Camille non</td>
+        <td>L'échantillon valide <strong>Léa</strong> : sept des huit répondants de la cible
+          ont 18 à 20 ans, 30 à 200 € de budget loisirs et 4 000 à 10 500 pas par jour.
+          Ines, 24 ans et parisienne, se rapproche de <strong>Yanis</strong>, mais elle
+          marche déjà 10 000 pas par jour, quand Yanis en fait 4 000 les jours de
+          télétravail. <strong>Camille (34 ans) n'est représentée par personne</strong> :
+          ce persona reste une hypothèse.</td>
       </tr>
     </tbody>
   </table>
@@ -366,26 +385,27 @@ FRAGMENT = """<!-- ===================== TOOLBOX : RESULTATS ===================
   <div class="card card-accent">
     <h4 style="margin-top:0;">Les limites, et la suite</h4>
     <ul class="small" style="margin-bottom:0;">
-      <li><strong>Cinq réponses, c'est le minimum du cours, pas un échantillon
-        statistique.</strong> On obtient un ordre de grandeur et un point de départ, pas
-        une certitude.</li>
-      <li><strong>L'échantillon n'est pas sur le marché pilote.</strong> Les réponses
-        viennent des Alpes-Maritimes, du Cantal et de la Sarthe, alors que le Business
-        Model Canvas vise Paris intra-muros. Le prix d'un cosmétique varie peu d'une ville
-        à l'autre, mais <strong>le pouvoir d'achat parisien est plus élevé</strong> : notre
-        fourchette est donc probablement prudente. À retester sur le territoire visé, ou à
-        rapprocher le territoire de notre terrain réel.</li>
+      <li><strong>Huit réponses, c'est plus que le minimum du cours, mais pas un
+        échantillon statistique.</strong> On obtient un ordre de grandeur et un point de
+        départ, pas une certitude.</li>
+      <li><strong>L'échantillon est presque entièrement hors du marché pilote.</strong> Une
+        seule réponse vient de Paris, celle d'Ines ; les autres viennent des
+        Alpes-Maritimes, du Cantal et de la Sarthe, alors que le Business Model Canvas vise
+        Paris intra-muros. La réponse parisienne ne montre pas de prime (son plafond est à
+        2 €), mais une réponse ne suffit pas à conclure. À retester sur le territoire visé,
+        ou à rapprocher le territoire pilote de notre terrain réel.</li>
       <li><strong>La méthode mesure une intention déclarée.</strong> Entre dire « j'achète
         à 1,99 € » et sortir sa carte, il y a un écart que seul un vrai lancement mesure.</li>
       <li><strong>Prochaine étape</strong> : reposer les deux questions aux 20 testeurs du
         campus (action <strong>A6</strong> de la charte, échéance 29/11), cette fois après
-        qu'ils auront utilisé l'application une semaine. Un joueur attaché à son compagnon
-        n'a pas la même disposition à payer qu'un inconnu à qui on montre une capture.</li>
+        une semaine d'usage. Un joueur attaché à son compagnon n'a pas la même disposition
+        à payer qu'un inconnu. <strong>Si 1,99 € y perd plus d'un testeur sur huit, nous
+        passerons à 1,49 €.</strong></li>
     </ul>
   </div>
 
   <div class="foot">
-    <span>Scubanion &middot; équipe Scubatana &middot; expérience utilisateur v2.0</span>
+    <span>Scubanion &middot; équipe Scubatana &middot; expérience utilisateur v2.1</span>
     <span>R5.01 &middot; 14 octobre 2026</span>
   </div>
 </section>
@@ -403,15 +423,17 @@ def main():
             .replace("__SVG_COUVERTURE__", svg_couverture())
             .replace("__SVG_FOURCHETTES__", svg_fourchettes()))
 
-    debut = s.index("<!-- ===================== TOOLBOX : ")
+    # Les sections 4 et 5 sont remplacees ; la section 3 (protocole), qui porte
+    # aussi un marqueur « TOOLBOX : », doit rester intacte.
+    debut = s.index("<!-- ===================== TOOLBOX : RESULTATS")
     fin = s.rindex("</section>") + len("</section>")
     io.open(cible, "w", encoding="utf-8", newline="\n").write(s[:debut] + frag.rstrip() + s[fin:])
 
     print("Niveaux    :", " ".join(eur(p) for p in NIVEAUX))
     print("Couverture :", " ".join("%d/%d" % (c, len(CIBLE)) for c in COUV))
     print("Chevauchement : %s a %s" % (eur(PLEIN[0]), eur(PLEIN[-1])))
-    print("Entretiens : %d dans la cible, %d hors cible, %d ecarte(s)"
-          % (len(CIBLE), len(ENTRETIENS) - len(CIBLE), len(ECARTES)))
+    print("Entretiens : %d dans la cible, %d hors cible"
+          % (len(CIBLE), len(ENTRETIENS) - len(CIBLE)))
     print("-> experience-utilisateur.html mis a jour")
 
 

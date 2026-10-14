@@ -1,6 +1,6 @@
-SCUBANION — R5.01, Initiation au management d'une équipe de projet informatique
+SCUBANION : R5.01, Initiation au management d'une équipe de projet informatique
 Équipe Scubatana : BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
-SAE BUT3-IoT — 14 octobre 2026
+SAE BUT3-IoT, 14 octobre 2026
 
 -------------------------------------------------------------------------------
 CONTENU
@@ -9,13 +9,13 @@ CONTENU
 1-Charte-de-projet.pdf              14 pages
     Parties 1 à 3 : la charte de projet, reprise champ par champ de la structure
                     du cours (Cadrage / Périmètre & Contraintes / Pilotage).
-    Partie 4      : l'analyse des risques — formule de criticité, matrice
+    Partie 4      : l'analyse des risques : formule de criticité, matrice
                     Fréquence x Gravité, échelles de probabilité et de gravité
                     transposées au projet, dix Top Risks avec plan préventif et
                     plan correctif, et un pré-mortem.
-    Partie 5      : le plan d'action — dix actions avec responsable et échéance,
+    Partie 5      : le plan d'action : dix actions avec responsable et échéance,
                     planning et jalons.
-    Partie 6      : le tableau de bord — cinq indicateurs, chacun avec sa cible,
+    Partie 6      : le tableau de bord : cinq indicateurs, chacun avec sa cible,
                     sa fréquence de relevé et la décision qu'il déclenche.
 
 2-Marketing-mix.pdf                 14 pages
@@ -23,10 +23,10 @@ CONTENU
     Produit, Prix, Place, Promotion. Puis les 7 P, les 4 C, et la démonstration
     de cohérence entre les quatre leviers.
 
-3-Experience-utilisateur.pdf         7 pages
+3-Experience-utilisateur.pdf         9 pages
     L'histoire racontée en six pictogrammes, le storyboard des deux films, et
     la méthode Toolbox Persona appliquée à la fixation du prix : protocole,
-    grille vierge, puis les résultats des sept entretiens menés le 14/10 et
+    grille vierge, puis les résultats des neuf entretiens menés le 14/10 et
     la lecture qui en découle.
 
 videos/
@@ -38,26 +38,27 @@ videos/
 LE RÉSULTAT DE LA TOOLBOX PERSONA
 -------------------------------------------------------------------------------
 
-Sept personnes ont été interrogées individuellement, en message privé, le
-14/10/2026. Cinq réponses sont exploitables et dans la cible des 18-30 ans,
-ce qui correspond au minimum demandé par la méthode.
+Neuf personnes ont été interrogées individuellement, en message privé, le
+14/10/2026. Huit réponses sont exploitables et dans la cible des 18-30 ans,
+au-delà des cinq demandées par la méthode.
 
-    Zone de chevauchement : 0,99 € à 2,49 €   (4 niveaux à l'unanimité)
-    Prix retenu           : 1,99 € le skin
+    Zone de chevauchement : 0,99 € à 1,49 €   (2 niveaux à l'unanimité)
+    Prix retenu           : 1,99 € le skin    (7 personnes sur 8)
 
-Les décisions de lecture sont écrites dans le document : une réponse a été
-écartée pour cause de fourchette inversée, une autre est conservée mais hors
-tranche d'âge, et une troisième n'a pas de borne basse parce que la personne
-a contesté la question — son objection est reprise et discutée.
+Le choix d'un prix un cran au-dessus de la zone est argumenté dans le
+document : la seule personne perdue a son plafond exactement à 1,99 €, et
+1,49 € reste le prix des remises. Les décisions de lecture y sont aussi
+écrites : une réponse est conservée mais hors tranche d'âge, deux personnes
+n'ont pas de borne basse utile (l'une a contesté la question, son objection
+est reprise et discutée), et une autre a donné deux plafonds selon l'objet.
 
 -------------------------------------------------------------------------------
 DEUX PRÉCISIONS DE TRANSPARENCE
 -------------------------------------------------------------------------------
 
-- L'échantillon des entretiens vient des Alpes-Maritimes, du Cantal et de la
-  Sarthe, alors que le marché pilote visé est Paris intra-muros. Le pouvoir
-  d'achat parisien étant plus élevé, notre fourchette est probablement prudente.
-  Le point est signalé dans le document.
+- L'échantillon des entretiens vient surtout des Alpes-Maritimes, avec une
+  seule réponse de Paris, alors que le marché pilote visé est Paris
+  intra-muros. Le point est signalé dans le document.
 
 - L'objectif O3 de la charte a été revu à la baisse le 13/10 (2 partenaires et
   20 testeurs, au lieu de 3 et 30) au vu de l'avancement réel du projet. La

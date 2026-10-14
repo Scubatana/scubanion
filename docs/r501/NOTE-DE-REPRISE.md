@@ -1,4 +1,4 @@
-# Note de reprise — livrables R5.01
+# Note de reprise : livrables R5.01
 
 > **Note de travail interne, pas un livrable.** À supprimer avant le rendu final du 12/12.
 > Elle sert à reprendre le travail sur une autre machine, ou après une coupure.
@@ -18,39 +18,45 @@ déposé sur le OneDrive universitaire. Il n'y a plus de tâche bloquante avant 
 | -------- | ------- | ---- |
 | Charte de projet | `charte-de-projet.pdf` (14 p.) | Terminé |
 | Marketing mix | `marketing-mix.pdf` (14 p.) | Terminé, prix validé par les entretiens |
-| Expérience utilisateur | `experience-utilisateur.pdf` (7 p.) | Terminé, avec les résultats réels |
+| Expérience utilisateur | `experience-utilisateur.pdf` (9 p.) | Terminé, avec les résultats réels |
 | Films de borne | `videos/*.mp4` | Terminé |
 
 ### Les entretiens Toolbox Persona sont faits
 
-Sept personnes interrogées en message privé le 14/10/2026, cinq réponses
-exploitables dans la cible. **Zone de chevauchement : 0,99 € à 2,49 €. Prix retenu :
-1,99 € le skin.**
+Neuf personnes interrogées en message privé le 14/10/2026, huit réponses
+exploitables dans la cible (Damien B., 16 ans, est gardé à part). **Zone de
+chevauchement : 0,99 € à 1,49 €. Prix retenu : 1,99 € le skin, accepté par 7
+personnes sur 8.** Le choix d'un cran au-dessus de la zone est argumenté en
+section 5 du livrable 3 ; repli prévu à 1,49 € si les 20 testeurs décrochent.
 
 Les réponses brutes et les règles de lecture sont dans
-`outils/toolbox-prix.py` — c'est ce fichier qui régénère la partie résultats du
-livrable 3. Pour ajouter des entretiens plus tard, compléter la liste `ENTRETIENS`
-puis relancer :
+`outils/toolbox-prix.py` : c'est ce fichier qui régénère les sections 4 et 5 du
+livrable 3 (la section 3, le protocole, n'est pas touchée). Pour ajouter des
+entretiens plus tard, compléter la liste `ENTRETIENS`, relire les textes du
+`FRAGMENT` (ils citent les chiffres en toutes lettres), puis relancer :
 
 ```bash
 python docs/r501/outils/toolbox-prix.py
 bash docs/r501/outils/rendre-pdf.sh experience-utilisateur
 ```
 
-Tout se recalcule : la grille, les deux graphiques et les compteurs.
+Sans Python sur le poste, le script passe par Docker, depuis la racine du dépôt :
+`docker run --rm -v "$PWD/docs/r501:/r501" python:3-alpine python /r501/outils/toolbox-prix.py`.
+
+La grille, les deux graphiques, les compteurs et le tableau des réponses se
+recalculent seuls.
 
 ## 2. Ce qui reste, et qui n'est pas bloquant
 
 - **Reposer les deux questions aux 20 testeurs** après une semaine d'usage
   (action **A6**, échéance 29/11). Un joueur attaché à son compagnon n'a pas la
   même disposition à payer qu'un inconnu.
-- **Les personas Yanis (27 ans) et Camille (34 ans) ne sont validés par personne** :
-  tous les répondants ont entre 16 et 20 ans. Seule Léa est confirmée.
-- **L'échantillon n'est pas sur le marché pilote** : réponses des Alpes-Maritimes,
-  du Cantal et de la Sarthe, alors que le Business Model Canvas vise Paris. À
-  trancher : retester à Paris, ou rapprocher le territoire pilote du terrain réel.
-- **Diego, 17 ans, est à réinterroger** si on veut récupérer sa réponse : sa
-  fourchette était inversée (trop cher à 8 €, doute en dessous de 5 €).
+- **Les personas ne sont pas tous validés** : Léa est confirmée, Yanis (27 ans)
+  seulement approché par Ines (24 ans, Paris), Camille (34 ans) par personne.
+- **L'échantillon n'est presque pas sur le marché pilote** : une seule réponse de
+  Paris, les autres surtout des Alpes-Maritimes, alors que le Business Model Canvas
+  vise Paris. À trancher : retester à Paris, ou rapprocher le territoire pilote du
+  terrain réel.
 
 ## 3. Où sont les choses
 
@@ -66,6 +72,7 @@ docs/r501/
 ├── videos/                             les deux MP4 rendus
 ├── outils/
 │   ├── rendre-pdf.sh                   HTML -> PDF
+│   ├── toolbox-prix.py                 entretiens -> sections 4 et 5 du livrable 3
 │   └── capturer-videos.py              animations -> MP4
 ├── LISEZ-MOI.txt                       fichier joint au ZIP, pour l'enseignante
 └── NOTE-DE-REPRISE.md                  ce fichier
@@ -112,7 +119,7 @@ les trois PDF renommés `1-Charte-de-projet.pdf`, `2-Marketing-mix.pdf`,
 ## 5. Pièges déjà rencontrés, à ne pas redécouvrir
 
 - **Couverture pleine page** : les marges négatives ne débordent pas la boîte de page en
-  impression. Il faut une page nommée — `@page cover{margin:0}` et `.page.cover{page:cover}`.
+  impression. Il faut une page nommée : `@page cover{margin:0}` et `.page.cover{page:cover}`.
 - **Colonnes CSS** : `column-count` avec une hauteur contrainte envoie le contenu
   excédentaire dans une colonne hors cadre, **sans aucun avertissement**. Les blocs de
   bas de canvas utilisent une grille `2 × 2`, pas du multi-colonnes.
@@ -125,6 +132,10 @@ les trois PDF renommés `1-Charte-de-projet.pdf`, `2-Marketing-mix.pdf`,
 - **Backticks dans un `python -c "..."`** sous Git Bash : ils sont interprétés par le
   shell. Passer par un fichier `.py` ou un heredoc `<<'EOF'` pour tout texte contenant des
   backticks.
+- **Sauts de page du livrable 3** : la grille et le premier graphique ouvrent une
+  page à eux (`break-before:page` sur « La grille »), de même que les enseignements.
+  Si des entretiens s'ajoutent, vérifier que le tableau des réponses et la carte des
+  décisions tiennent encore sur la page de la section 4.
 
 ---
 
@@ -134,7 +145,7 @@ Elles ne bloquent pas les livrables R5.01, mais elles figurent dans la charte et
 plan d'action.
 
 - **`D2` et `D3`** (identification à la borne, microcontrôleur) : **échéance 17/10**, et il
-  faut commander le matériel le jour même. C'est le chemin critique — la borne porte
+  faut commander le matériel le jour même. C'est le chemin critique : la borne porte
   6 exigences *Must* sur 18 et n'est pas commencée. Action **A1**, responsable Shaleena.
 - **K4, l'équilibre des contributions Git**, est hors cible : 47, 13, 1 et 0 commits selon
   les membres. Git étant noté individuellement, c'est le risque **R1** de la charte,
