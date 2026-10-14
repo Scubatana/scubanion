@@ -1,17 +1,36 @@
 # Bornes
 
-Le protocole entre les bornes et le serveur est décrit dans [../mqtt.md](../mqtt.md). Côté app, deux routes.
+Le fonctionnement complet des bornes (jeton, messages MQTT) est décrit dans [../mqtt.md](../mqtt.md). Côté app, deux routes.
 
-## `GET /me/badge`
+## `POST /me/passages`
 
-Un badge de courte durée qui identifie le joueur auprès d'une borne. L'app le transmet à la borne (par NFC, selon la décision D2).
+Enregistre un passage à une borne. L'app envoie le jeton lu sur la borne par NFC, tel quel.
+
+| Champ | Règle |
+| ----- | ----- |
+| `token` | obligatoire, le jeton donné par la borne (`{code}.{heure}.{signature}`, 40 caractères au plus) |
+
+Réponse **200** :
 
 ```json
-{ "token": "7.mhq4xk.Qm9uam91ciBMw6lh", "expires_at": "2026-10-13T15:05:00+02:00" }
+{
+  "scanned_at": "2026-10-13T15:00:00+02:00",
+  "status": "rewarded",
+  "message": "Bravo Lea ! +100 XP",
+  "reward_xp": 100,
+  "terminal": { "code": "chateau-01", "name": "Borne du Château" },
+  "companion": { "...": "voir compagnon.md" }
+}
 ```
 
-- Valable 5 minutes : l'app en redemande un quand il expire, ou juste avant de badger.
-- Le jeton ne contient ni l'email ni le pseudo du joueur, et ne peut pas être fabriqué sans la clé du serveur.
+- `status` : `rewarded` au premier passage du jour à cette borne (100 XP, ajoutés tout de suite au compagnon), `already_rewarded` ensuite (passage enregistré, sans récompense).
+- Le même message est publié sur l'écran de la borne.
+- Sans réseau, l'app garde le jeton et l'envoie plus tard : il reste valable 24 h après l'heure du scan.
+
+Erreurs :
+- **422** sur `token` : jeton illisible, signature fausse, borne inconnue, scan de plus de 24 h ou dans le futur ;
+- **409** : jeton déjà utilisé, par ce joueur ou un autre ;
+- **429** : plus de 30 envois par minute.
 
 ## `GET /bornes`
 
