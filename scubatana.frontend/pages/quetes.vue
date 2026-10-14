@@ -59,7 +59,7 @@ function queuedNotice(outcome: string): string {
 function checkIn(quest: PlayerQuest, task: QuestTask): void {
 	void run(`task-${task.id}`, async () => {
 		const outcome = await act(quest.id, task.id, { ...(await currentPosition(true)) }, true);
-		void usePosition().start();
+		void usePosition().start(false);
 
 		return queuedNotice(outcome);
 	});

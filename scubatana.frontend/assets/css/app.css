@@ -494,3 +494,19 @@ button.link-under:disabled {
 	color: var(--ocean-dark);
 	font-weight: 600;
 }
+
+.prompt-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 10;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: rgba(30, 58, 66, 0.45);
+}
+
+.prompt-card {
+	width: 100%;
+	max-width: 360px;
+}

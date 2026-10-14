@@ -2,6 +2,8 @@ import { Capacitor, registerPlugin } from "@capacitor/core";
 
 export type PositionPermission = "granted" | "denied" | "prompt" | "prompt-with-rationale";
 
+export type PositionAccess = "granted" | "denied" | "unsupported";
+
 export interface CurrentPosition {
 	latitude: number;
 	longitude: number;
@@ -22,6 +24,7 @@ interface PositionPlugin {
 	checkPermissions(): Promise<{ location: PositionPermission }>;
 	requestPermissions(): Promise<{ location: PositionPermission }>;
 	current(): Promise<NativeFix>;
+	openSettings(): Promise<void>;
 }
 
 const Position = registerPlugin<PositionPlugin>("Position");
@@ -40,18 +43,26 @@ export function toCurrentPosition(fix: NativeFix): CurrentPosition {
 	};
 }
 
-export async function positionAllowed(askIfNeeded: boolean): Promise<boolean> {
+export async function positionAccess(askIfNeeded: boolean): Promise<PositionAccess> {
 	if (!Capacitor.isNativePlatform()) {
-		return false;
+		return "unsupported";
 	}
 
-	const current = (await Position.checkPermissions()).location;
+	let current = (await Position.checkPermissions()).location;
 
-	if (current === "granted" || !askIfNeeded) {
-		return current === "granted";
+	if (current !== "granted" && askIfNeeded) {
+		current = (await Position.requestPermissions()).location;
 	}
 
-	return (await Position.requestPermissions()).location === "granted";
+	return current === "granted" ? "granted" : "denied";
+}
+
+export async function positionAllowed(askIfNeeded: boolean): Promise<boolean> {
+	return (await positionAccess(askIfNeeded)) === "granted";
+}
+
+export async function openLocationSettings(): Promise<void> {
+	await Position.openSettings();
 }
 
 export async function currentPosition(askIfNeeded: boolean): Promise<CurrentPosition> {
