@@ -27,9 +27,12 @@ Réponse **200** :
 {
   "today": { "date": "2026-10-13", "steps": 3200, "goal": 5000 },
   "streak": { "days": 4, "active": false },
-  "total_steps": 48210
+  "total_steps": 48210,
+  "companion": { "...": "voir compagnon.md" }
 }
 ```
+
+Chaque envoi fait aussi avancer les tâches de pas des quêtes en cours ([quetes.md](quetes.md)) et recalcule le compagnon, renvoyé à jour (`null` avant le profil).
 
 Garde-fous côté serveur : un total plus bas que celui déjà reçu ne retire rien ; le gain est plafonné à 12 000 pas par heure écoulée depuis le dernier envoi du joueur, tous téléphones confondus ; un jour ne dépasse jamais 100 000 pas. Les pas refusés par le plafond horaire sont récupérés aux envois suivants, à mesure que le temps passe.
 
@@ -72,4 +75,4 @@ Change l'objectif quotidien. Il s'applique à aujourd'hui et aux jours suivants 
 | ----- | ----- |
 | `daily_step_goal` | entier entre 1 000 et 50 000 |
 
-Réponse **200** : `{ "today": {...}, "streak": {...} }`.
+Réponse **200** : `{ "today": {...}, "streak": {...}, "companion": {...} }`. Changer l'objectif change aussitôt l'humeur et le bonus d'XP du compagnon, renvoyé à jour.

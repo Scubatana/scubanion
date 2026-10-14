@@ -51,7 +51,7 @@ Révoque le jeton utilisé. Réponse **204**.
 
 ### `GET /me`
 
-Le joueur, son compagnon et ses pas du jour : c'est l'appel de l'écran d'accueil.
+Le joueur, son compagnon et ses pas du jour : c'est l'appel de l'écran d'accueil. Le serveur recalcule au passage le niveau, l'XP, l'humeur et la santé du compagnon.
 
 ```json
 {
@@ -74,6 +74,7 @@ Le joueur, son compagnon et ses pas du jour : c'est l'appel de l'écran d'accuei
 - `gender` vaut `female`, `male`, `other` ou `null` ; `ambition` vaut `fitness`, `go_out`, `meet_people` ou `explore` (ou `null` avant le profil).
 - `profile_completed` est faux tant que le joueur n'a pas de pseudo : l'app l'envoie alors sur l'écran de profil. `companion` vaut `null` jusque-là.
 - `streak.days` compte les jours consécutifs où l'objectif est atteint ; `streak.active` dit si aujourd'hui en fait déjà partie.
+- `stats.friends_count` compte les amitiés acceptées ([amis.md](amis.md)). `stats.quests_done` vaut encore 0 : il sera branché sur les quêtes terminées.
 
 ### `PUT /me/profile`
 
@@ -87,3 +88,11 @@ Enregistre le profil et crée le compagnon de départ s'il n'existe pas.
 | `ambition` | obligatoire : `fitness`, `go_out`, `meet_people` ou `explore` |
 
 Réponse **200** : `{ "player": {...}, "companion": {...} }`.
+
+### `DELETE /me?confirm=1`
+
+Supprime le compte et toutes ses données : compagnon, pas, quêtes et leur avancement, récompenses, accessoires débloqués, amitiés, passages en borne, position, codes de connexion et jetons (tous les téléphones sont déconnectés).
+
+- La confirmation passe dans l'adresse (`confirm=1`), car certains clients n'envoient pas de corps avec un `DELETE`.
+- Réponse **204**. **422** sur `confirm` sans confirmation explicite : rien n'est supprimé.
+- Après la suppression, l'app oublie la session, l'email en attente et les pas gardés sur le téléphone, puis revient à l'écran de connexion.
