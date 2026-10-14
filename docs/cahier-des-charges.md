@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.4 du 13/10/2026
+- **Version** : 0.5 du 13/10/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -130,16 +130,16 @@ flowchart LR
 
 | Brique                | Techno                                                   | Pourquoi                                                                                                | État            |
 | --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
-| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Socle posé      |
+| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas |
 | Borne                 | ESP32, Arduino ou Raspberry Pi + lecteur NFC + écran    | Vrai système cyber-physique, programmé par l'équipe                                                  | À choisir (D3)  |
-| API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Squelette        |
-| Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Conteneur prêt  |
+| API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Connexion, profil, compagnon, pas |
+| Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Joueurs, compagnons, pas |
 | Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | À faire         |
 | Flux d'événements   | Kafka                                                    | Découpler la réception des événements des règles de jeu, pouvoir les rejouer (vu en R5.04)         | À évaluer (D5) |
 | Standard IoT          | oneM2M                                                   | Décrire les bornes selon un standard (vu en R5.04)                                                     | À évaluer (D5) |
 | Reverse proxy         | nginx                                                    | Point d'entrée HTTP unique                                                                             | Conteneur prêt  |
 | Admin BDD             | phpMyAdmin                                               | En développement uniquement                                                                            | Conteneur prêt  |
-| CI/CD                 | GitHub Actions + GitLab CI (runner IUT)                  | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | À faire         |
+| CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI en place sur `master`, GitHub Actions à faire |
 | Qualité              | SonarQube                                                | Exigé par R5.07                                                                                        | À faire (D7)    |
 | Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | À faire         |
 | Hébergement          | Azure ou autre, hôte configuré par Ansible (optionnel) | Exigé par R5.07                                                                                        | À choisir (D6)  |
@@ -427,14 +427,15 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 - [ ] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
 - [ ] Compose : réseaux explicites, healthchecks, `depends_on` avec `condition: service_healthy`.
 - [ ] Image du front : elle lance le serveur de développement (`npm run dev`) ; prévoir une image de prod si une app web est servie (BCK-07).
-- [ ] Remplacer les tests d'exemple par de vrais tests.
-- [ ] Créer `.gitlab-ci.yml` et `.github/workflows/`.
+- [x] Remplacer les tests d'exemple par de vrais tests.
+- [ ] Créer `.gitlab-ci.yml` (fait) et `.github/workflows/` (à faire).
 
 ## 12. Historique du document
 
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.5     | 13/10/2026 | État des briques mis à jour au § 4 (app, API, base, CI/CD) ; au § 11, tests d'exemple remplacés et `.gitlab-ci.yml` créé |
 | 0.4     | 13/10/2026 | Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01, APP-02, APP-04, PAS-01 et PAS-02 cochés |
 | 0.3     | 09/10/2026 | Abandon du bracelet Mi Band 3 : les pas viennent du podomètre du téléphone (section 5.2 remplacée par `PAS-`), la borne IoT devient le seul objet connecté (BOR-08 et BOR-09 passent en *Must*, toujours 18 *Must*). Responsables du plan d'action et rôles de la section 7 renseignés |
 | 0.2     | 08/10/2026 | Ajout de la charte de projet (§ 2) : 3 objectifs SMART, 5 indicateurs de suivi, plan d'action du 09 au 23/10. Sections 2 à 11 renumérotées en 3 à 12. Business Model Canvas v2 référencé au § 6.4 |
