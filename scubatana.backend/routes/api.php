@@ -4,8 +4,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanionController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\PassageController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\StepController;
+use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UserQuestController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,5 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/me/quests/{userQuest}/tasks/{questTask}', [UserQuestController::class, 'act'])->middleware('throttle:30,1');
 	Route::post('/me/quests/{userQuest}/claim', [UserQuestController::class, 'claim']);
 	Route::put('/me/goal', [StepController::class, 'updateGoal']);
+	Route::post('/me/passages', [PassageController::class, 'store'])->middleware('throttle:30,1');
+	Route::get('/bornes', [TerminalController::class, 'index']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 });
