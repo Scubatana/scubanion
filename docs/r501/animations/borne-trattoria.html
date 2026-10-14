@@ -1,0 +1,686 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Scubanion Borne Trattoria (Copy)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Scène 16:9 (1920×1080) en calques superposés : chaque grand mouvement (caméra, téléphone) est un calque
+   déplacé par la carte graphique, sans redessin. Vue subjective, un seul thème assumé. */
+:root{
+  --encre:#1E3A42; --encre-douce:#4C6B73; --ocean:#2F6B7A; --ocean-fonce:#204E5A;
+  --ocean-clair:#8FB9C2; --brume:#DCEBEE; --papier:#F5FAFB; --corail:#F0855A;
+  --corail-fonce:#D96A41; --blanc:#FFFFFF; --led:#34C77B; --nuit:#16282E;
+  --titre:'Baloo 2','Nunito','Trebuchet MS',system-ui,sans-serif;
+  --texte:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%;overflow:hidden}
+body{margin:0;background:var(--nuit);color:var(--encre);display:grid;place-items:center}
+.stage{position:relative;width:min(100vw,calc(100dvh * 16 / 9));aspect-ratio:16/9;max-width:100%;background:var(--papier);overflow:hidden;user-select:none}
+.layer{position:absolute;inset:0;width:100%;height:100%;display:block}
+svg.layer{overflow:visible}
+#cam{will-change:transform;transform-origin:50% 39.8%}
+#phoneL{will-change:transform;transform-origin:50% 12.685%}
+#vig{background:radial-gradient(ellipse 75% 75% at 50% 45%,rgba(58,36,24,0) 55%,rgba(58,36,24,.32) 100%)}
+#dim{background:var(--nuit);opacity:0;will-change:opacity}
+#veil{background:var(--papier);will-change:opacity}
+#appL,#endL{will-change:opacity}
+.b{font-family:var(--titre)} .i{font-family:var(--texte)}
+#replay{position:absolute;right:2.2%;bottom:3.2%;font:600 clamp(11px,1.5vw,22px) var(--titre);color:var(--ocean);
+  background:var(--blanc);border:2px solid var(--ocean-clair);border-radius:12px;padding:.35em 1em;cursor:pointer;opacity:0;visibility:hidden}
+#replay:hover{background:var(--brume)}
+#replay:focus-visible{outline:3px solid var(--corail);outline-offset:3px}
+
+/* Boucles d'ambiance du compagnon (repos) */
+.float{animation:float 3.4s ease-in-out infinite}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}
+.breathe{transform-box:fill-box;transform-origin:center;animation:breathe 2.8s ease-in-out infinite}
+.w1,.w2,.w3{animation:wifi 2.4s ease-in-out infinite}
+.w2{animation-delay:.25s}.w3{animation-delay:.5s}
+@keyframes float{50%{transform:translateY(-8px)}}
+@keyframes blink{0%,46%,50%,100%{transform:scaleY(1)}48%{transform:scaleY(.08)}}
+@keyframes breathe{50%{transform:scale(1.06)}}
+@keyframes wifi{0%,100%{opacity:.35}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){ .float,.blink,.breathe,.w1,.w2,.w3{animation:none} }
+</style>
+
+<div class="stage" role="img" aria-label="Démonstration Scubanion en vue subjective : devant un restaurant italien, on pose son téléphone sur la borne de la façade et la Moustache du Chef arrive sur le compagnon">
+
+<!-- Dégradés et masques partagés par tous les calques -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="gBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FB9C2"/><stop offset="1" stop-color="#C9DFE4"/></linearGradient>
+  <linearGradient id="gWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F1D5A9"/><stop offset="1" stop-color="#E3BE88"/></linearGradient>
+  <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A9744F"/><stop offset=".35" stop-color="#8A5A3C"/><stop offset=".7" stop-color="#6B4129"/><stop offset="1" stop-color="#9A6845"/></linearGradient>
+  <linearGradient id="gGold2" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B98560"/><stop offset=".5" stop-color="#94623F"/><stop offset="1" stop-color="#7A4D30"/></linearGradient>
+  <linearGradient id="gPaint" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B7261"/><stop offset="1" stop-color="#24493D"/></linearGradient>
+  <linearGradient id="gBorne" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFCF5"/><stop offset="1" stop-color="#F4E9D6"/></linearGradient>
+  <linearGradient id="gSkin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#EDBE9E"/><stop offset="1" stop-color="#DBA683"/></linearGradient>
+  <radialGradient id="gSpot"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gScrVig" cx=".5" cy=".5" r=".7"><stop offset=".6" stop-color="#16282E" stop-opacity="0"/><stop offset="1" stop-color="#16282E" stop-opacity=".35"/></radialGradient>
+  <radialGradient id="gHaloA"><stop offset="0" stop-color="#8FB9C2" stop-opacity=".6"/><stop offset="1" stop-color="#8FB9C2" stop-opacity="0"/></radialGradient>
+  <radialGradient id="gHaloB"><stop offset="0" stop-color="#F0855A" stop-opacity=".24"/><stop offset="1" stop-color="#F0855A" stop-opacity="0"/></radialGradient>
+  <pattern id="pWave" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="28" height="28" fill="#F0855A"/><rect width="14" height="28" fill="#D96A41"/></pattern>
+  <pattern id="pAwn" x="1020" width="80" height="80" patternUnits="userSpaceOnUse"><rect width="40" height="80" fill="#C8452F"/><rect x="40" width="40" height="80" fill="#FFF6E6"/></pattern>
+  <clipPath id="cpBody"><rect x="1020" y="40" width="640" height="572" rx="36"/></clipPath>
+  <clipPath id="cpPhone"><rect x="10" y="10" width="360" height="720" rx="37"/></clipPath>
+  <clipPath id="cpScreen"><rect x="1040" y="120" width="600" height="240" rx="14"/></clipPath>
+  <clipPath id="cpPaint"><rect x="795" y="85" width="330" height="410"/></clipPath>
+  <clipPath id="cpLens"><circle id="lensC" cx="1340" cy="200" r="0"/></clipPath>
+</defs></svg>
+
+<!-- ============ CALQUE 1 : LA FAÇADE DU RESTAURANT, DANS LA RUE (la caméra s'en approche) ============ -->
+<div id="cam" class="layer">
+<svg class="layer" viewBox="0 0 1920 1080">
+  <!-- La façade du restaurant, vue depuis le trottoir -->
+  <rect x="-500" y="-400" width="2920" height="1900" fill="url(#gWall)"/>
+  <g fill="#fff" opacity=".12"><ellipse cx="1100" cy="560" rx="260" ry="120"/><ellipse cx="300" cy="60" rx="300" ry="90"/><ellipse cx="1700" cy="80" rx="240" ry="70"/></g>
+  <rect x="-500" y="820" width="2920" height="80" fill="#B9A88F"/><rect x="-460" y="820" width="3" height="80" fill="#A39279"/><rect x="-220" y="820" width="3" height="80" fill="#A39279"/><rect x="20" y="820" width="3" height="80" fill="#A39279"/><rect x="260" y="820" width="3" height="80" fill="#A39279"/><rect x="500" y="820" width="3" height="80" fill="#A39279"/><rect x="740" y="820" width="3" height="80" fill="#A39279"/><rect x="980" y="820" width="3" height="80" fill="#A39279"/><rect x="1220" y="820" width="3" height="80" fill="#A39279"/><rect x="1460" y="820" width="3" height="80" fill="#A39279"/><rect x="1700" y="820" width="3" height="80" fill="#A39279"/><rect x="1940" y="820" width="3" height="80" fill="#A39279"/><rect x="2180" y="820" width="3" height="80" fill="#A39279"/><rect x="2420" y="820" width="3" height="80" fill="#A39279"/>
+  <rect x="-500" y="814" width="2920" height="10" fill="#CDBDA4"/>
+  <rect x="-500" y="900" width="2920" height="700" fill="#A8A297"/><rect x="-500" y="970" width="2920" height="3" fill="#8F897F"/><rect x="-500" y="1040" width="2920" height="3" fill="#8F897F"/><rect x="-500" y="1110" width="2920" height="3" fill="#8F897F"/><rect x="-480" y="900" width="3" height="70" fill="#8F897F"/><rect x="-270" y="900" width="3" height="70" fill="#8F897F"/><rect x="-60" y="900" width="3" height="70" fill="#8F897F"/><rect x="150" y="900" width="3" height="70" fill="#8F897F"/><rect x="360" y="900" width="3" height="70" fill="#8F897F"/><rect x="570" y="900" width="3" height="70" fill="#8F897F"/><rect x="780" y="900" width="3" height="70" fill="#8F897F"/><rect x="990" y="900" width="3" height="70" fill="#8F897F"/><rect x="1200" y="900" width="3" height="70" fill="#8F897F"/><rect x="1410" y="900" width="3" height="70" fill="#8F897F"/><rect x="1620" y="900" width="3" height="70" fill="#8F897F"/><rect x="1830" y="900" width="3" height="70" fill="#8F897F"/><rect x="2040" y="900" width="3" height="70" fill="#8F897F"/><rect x="2250" y="900" width="3" height="70" fill="#8F897F"/><rect x="2460" y="900" width="3" height="70" fill="#8F897F"/><rect x="-375" y="970" width="3" height="70" fill="#8F897F"/><rect x="-165" y="970" width="3" height="70" fill="#8F897F"/><rect x="45" y="970" width="3" height="70" fill="#8F897F"/><rect x="255" y="970" width="3" height="70" fill="#8F897F"/><rect x="465" y="970" width="3" height="70" fill="#8F897F"/><rect x="675" y="970" width="3" height="70" fill="#8F897F"/><rect x="885" y="970" width="3" height="70" fill="#8F897F"/><rect x="1095" y="970" width="3" height="70" fill="#8F897F"/><rect x="1305" y="970" width="3" height="70" fill="#8F897F"/><rect x="1515" y="970" width="3" height="70" fill="#8F897F"/><rect x="1725" y="970" width="3" height="70" fill="#8F897F"/><rect x="1935" y="970" width="3" height="70" fill="#8F897F"/><rect x="2145" y="970" width="3" height="70" fill="#8F897F"/><rect x="2355" y="970" width="3" height="70" fill="#8F897F"/><rect x="2565" y="970" width="3" height="70" fill="#8F897F"/><rect x="-480" y="1040" width="3" height="70" fill="#8F897F"/><rect x="-270" y="1040" width="3" height="70" fill="#8F897F"/><rect x="-60" y="1040" width="3" height="70" fill="#8F897F"/><rect x="150" y="1040" width="3" height="70" fill="#8F897F"/><rect x="360" y="1040" width="3" height="70" fill="#8F897F"/><rect x="570" y="1040" width="3" height="70" fill="#8F897F"/><rect x="780" y="1040" width="3" height="70" fill="#8F897F"/><rect x="990" y="1040" width="3" height="70" fill="#8F897F"/><rect x="1200" y="1040" width="3" height="70" fill="#8F897F"/><rect x="1410" y="1040" width="3" height="70" fill="#8F897F"/><rect x="1620" y="1040" width="3" height="70" fill="#8F897F"/><rect x="1830" y="1040" width="3" height="70" fill="#8F897F"/><rect x="2040" y="1040" width="3" height="70" fill="#8F897F"/><rect x="2250" y="1040" width="3" height="70" fill="#8F897F"/><rect x="2460" y="1040" width="3" height="70" fill="#8F897F"/><rect x="-375" y="1110" width="3" height="70" fill="#8F897F"/><rect x="-165" y="1110" width="3" height="70" fill="#8F897F"/><rect x="45" y="1110" width="3" height="70" fill="#8F897F"/><rect x="255" y="1110" width="3" height="70" fill="#8F897F"/><rect x="465" y="1110" width="3" height="70" fill="#8F897F"/><rect x="675" y="1110" width="3" height="70" fill="#8F897F"/><rect x="885" y="1110" width="3" height="70" fill="#8F897F"/><rect x="1095" y="1110" width="3" height="70" fill="#8F897F"/><rect x="1305" y="1110" width="3" height="70" fill="#8F897F"/><rect x="1515" y="1110" width="3" height="70" fill="#8F897F"/><rect x="1725" y="1110" width="3" height="70" fill="#8F897F"/><rect x="1935" y="1110" width="3" height="70" fill="#8F897F"/><rect x="2145" y="1110" width="3" height="70" fill="#8F897F"/><rect x="2355" y="1110" width="3" height="70" fill="#8F897F"/><rect x="2565" y="1110" width="3" height="70" fill="#8F897F"/>
+  <rect x="-500" y="900" width="2920" height="10" fill="#3A2418" opacity=".18"/>
+
+  <!-- L'enseigne : le logo du restaurant, avec sa moustache (en hauteur, loin de la borne) -->
+  <path d="M420,-60 V16" stroke="#2B2B2B" stroke-width="8"/><path d="M386,16 H454 L442,40 H398Z" fill="#2B2B2B"/>
+  <ellipse cx="420" cy="200" rx="330" ry="240" fill="url(#gSpot)"/>
+  <circle cx="426" cy="212" r="136" fill="#3A2418" opacity=".2"/>
+  <circle cx="420" cy="200" r="136" fill="#2E5E4E"/>
+  <g transform="translate(-415.2,-61) scale(.87)" data-portrait></g>
+  <text x="640" y="118" class="b" font-size="62" font-weight="800" fill="#2E5E4E" letter-spacing="6">TRATTORIA BAFFI</text>
+  <rect x="644" y="134" width="420" height="6" rx="3" fill="#C8452F"/>
+
+  <!-- Le store et la vitrine -->
+  <rect x="80" y="420" width="700" height="400" fill="#234A3E"/>
+  <rect x="100" y="440" width="660" height="360" fill="#3A2A20"/>
+  <g>
+    <ellipse cx="260" cy="520" rx="150" ry="110" fill="#FFD98A" opacity=".2"/><ellipse cx="600" cy="520" rx="150" ry="110" fill="#FFD98A" opacity=".2"/>
+    <path d="M260,440 V486 M600,440 V486" stroke="#1E1612" stroke-width="4"/>
+    <path d="M226,512 Q260,470 294,512Z M566,512 Q600,470 634,512Z" fill="#C8452F"/><circle cx="260" cy="516" r="9" fill="#FFE9B0"/><circle cx="600" cy="516" r="9" fill="#FFE9B0"/>
+    <rect x="130" y="590" width="20" height="210" rx="6" fill="#1E1612"/><rect x="130" y="590" width="90" height="16" rx="6" fill="#1E1612"/>
+    <rect x="390" y="590" width="20" height="210" rx="6" fill="#1E1612"/><rect x="320" y="590" width="90" height="16" rx="6" fill="#1E1612"/>
+    <rect x="150" y="690" width="40" height="20" fill="#C8452F"/><rect x="190" y="690" width="40" height="20" fill="#FFF6E6"/><rect x="230" y="690" width="40" height="20" fill="#C8452F"/><rect x="270" y="690" width="40" height="20" fill="#FFF6E6"/><rect x="310" y="690" width="40" height="20" fill="#C8452F"/><rect x="350" y="690" width="40" height="20" fill="#FFF6E6"/><rect x="150" y="710" width="40" height="20" fill="#FFF6E6"/><rect x="190" y="710" width="40" height="20" fill="#C8452F"/><rect x="230" y="710" width="40" height="20" fill="#FFF6E6"/><rect x="270" y="710" width="40" height="20" fill="#C8452F"/><rect x="310" y="710" width="40" height="20" fill="#FFF6E6"/><rect x="350" y="710" width="40" height="20" fill="#C8452F"/><rect x="150" y="730" width="40" height="20" fill="#C8452F"/><rect x="190" y="730" width="40" height="20" fill="#FFF6E6"/><rect x="230" y="730" width="40" height="20" fill="#C8452F"/><rect x="270" y="730" width="40" height="20" fill="#FFF6E6"/><rect x="310" y="730" width="40" height="20" fill="#C8452F"/><rect x="350" y="730" width="40" height="20" fill="#FFF6E6"/><rect x="150" y="750" width="40" height="20" fill="#FFF6E6"/><rect x="190" y="750" width="40" height="20" fill="#C8452F"/><rect x="230" y="750" width="40" height="20" fill="#FFF6E6"/><rect x="270" y="750" width="40" height="20" fill="#C8452F"/><rect x="310" y="750" width="40" height="20" fill="#FFF6E6"/><rect x="350" y="750" width="40" height="20" fill="#C8452F"/><rect x="150" y="770" width="40" height="20" fill="#C8452F"/><rect x="190" y="770" width="40" height="20" fill="#FFF6E6"/><rect x="230" y="770" width="40" height="20" fill="#C8452F"/><rect x="270" y="770" width="40" height="20" fill="#FFF6E6"/><rect x="310" y="770" width="40" height="20" fill="#C8452F"/><rect x="350" y="770" width="40" height="20" fill="#FFF6E6"/>
+    <rect x="258" y="630" width="18" height="60" rx="6" fill="#2F5D50"/><rect x="263" y="606" width="8" height="30" rx="3" fill="#2F5D50"/>
+    <path d="M300,690 V664 Q300,650 312,650 Q324,650 324,664 V690Z" fill="#F6ECDA" opacity=".8"/>
+    <rect x="500" y="660" width="220" height="14" rx="5" fill="#5A3A26"/><rect x="600" y="674" width="18" height="126" fill="#5A3A26"/>
+    <rect x="540" y="610" width="16" height="190" rx="5" fill="#1E1612"/><rect x="664" y="610" width="16" height="190" rx="5" fill="#1E1612"/>
+  </g>
+  <polygon points="100,440 330,440 190,800 100,800" fill="#fff" opacity=".07"/><polygon points="430,440 520,440 380,800 290,800" fill="#fff" opacity=".05"/>
+  <rect x="424" y="440" width="12" height="360" fill="#234A3E"/>
+  <rect x="100" y="440" width="660" height="40" fill="#16282E" opacity=".3"/>
+  <polygon points="60.0,330 106.2,330 88.8,410 40.0,410" fill="#C8452F"/><polygon points="106.2,330 152.5,330 137.5,410 88.8,410" fill="#FFF6E6"/><polygon points="152.5,330 198.8,330 186.2,410 137.5,410" fill="#C8452F"/><polygon points="198.8,330 245.0,330 235.0,410 186.2,410" fill="#FFF6E6"/><polygon points="245.0,330 291.2,330 283.8,410 235.0,410" fill="#C8452F"/><polygon points="291.2,330 337.5,330 332.5,410 283.8,410" fill="#FFF6E6"/><polygon points="337.5,330 383.8,330 381.2,410 332.5,410" fill="#C8452F"/><polygon points="383.8,330 430.0,330 430.0,410 381.2,410" fill="#FFF6E6"/><polygon points="430.0,330 476.2,330 478.8,410 430.0,410" fill="#C8452F"/><polygon points="476.2,330 522.5,330 527.5,410 478.8,410" fill="#FFF6E6"/><polygon points="522.5,330 568.8,330 576.2,410 527.5,410" fill="#C8452F"/><polygon points="568.8,330 615.0,330 625.0,410 576.2,410" fill="#FFF6E6"/><polygon points="615.0,330 661.2,330 673.8,410 625.0,410" fill="#C8452F"/><polygon points="661.2,330 707.5,330 722.5,410 673.8,410" fill="#FFF6E6"/><polygon points="707.5,330 753.8,330 771.2,410 722.5,410" fill="#C8452F"/><polygon points="753.8,330 800.0,330 820.0,410 771.2,410" fill="#FFF6E6"/><circle cx="64.4" cy="410" r="24.4" fill="#B63A26"/><circle cx="113.2" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="161.9" cy="410" r="24.4" fill="#B63A26"/><circle cx="210.7" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="259.4" cy="410" r="24.4" fill="#B63A26"/><circle cx="308.1" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="356.9" cy="410" r="24.4" fill="#B63A26"/><circle cx="405.6" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="454.4" cy="410" r="24.4" fill="#B63A26"/><circle cx="503.1" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="551.9" cy="410" r="24.4" fill="#B63A26"/><circle cx="600.6" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="649.4" cy="410" r="24.4" fill="#B63A26"/><circle cx="698.1" cy="410" r="24.4" fill="#F3E6CF"/><circle cx="746.9" cy="410" r="24.4" fill="#B63A26"/><circle cx="795.6" cy="410" r="24.4" fill="#F3E6CF"/>
+  <rect x="56" y="322" width="748" height="12" rx="4" fill="#5A361F"/>
+  <rect x="70" y="800" width="720" height="46" rx="6" fill="#6B4129"/><rect x="70" y="838" width="720" height="8" rx="4" fill="#4A2C19"/>
+  <circle cx="110" cy="786" r="24" fill="#3F7A45"/><circle cx="156" cy="793" r="24" fill="#4E8B4A"/><circle cx="202" cy="800" r="24" fill="#3F7A45"/><circle cx="248" cy="786" r="24" fill="#4E8B4A"/><circle cx="294" cy="793" r="24" fill="#3F7A45"/><circle cx="340" cy="800" r="24" fill="#4E8B4A"/><circle cx="386" cy="786" r="24" fill="#3F7A45"/><circle cx="432" cy="793" r="24" fill="#4E8B4A"/><circle cx="478" cy="800" r="24" fill="#3F7A45"/><circle cx="524" cy="786" r="24" fill="#4E8B4A"/><circle cx="570" cy="793" r="24" fill="#3F7A45"/><circle cx="616" cy="800" r="24" fill="#4E8B4A"/><circle cx="662" cy="786" r="24" fill="#3F7A45"/><circle cx="708" cy="793" r="24" fill="#4E8B4A"/><circle cx="754" cy="800" r="24" fill="#3F7A45"/><circle cx="124" cy="776" r="9" fill="#D9412B"/><circle cx="186" cy="786" r="9" fill="#D9412B"/><circle cx="248" cy="776" r="9" fill="#D9412B"/><circle cx="310" cy="786" r="9" fill="#D9412B"/><circle cx="372" cy="776" r="9" fill="#D9412B"/><circle cx="434" cy="786" r="9" fill="#D9412B"/><circle cx="496" cy="776" r="9" fill="#D9412B"/><circle cx="558" cy="786" r="9" fill="#D9412B"/><circle cx="620" cy="776" r="9" fill="#D9412B"/><circle cx="682" cy="786" r="9" fill="#D9412B"/><circle cx="744" cy="776" r="9" fill="#D9412B"/>
+
+  <!-- La porte d'entrée, à droite -->
+  <rect x="1660" y="170" width="420" height="734" fill="#234A3E"/>
+  <rect x="1684" y="194" width="380" height="710" fill="#3B7261"/>
+  <rect x="1716" y="230" width="320" height="400" rx="6" fill="#4A3324"/>
+  <ellipse cx="1876" cy="380" rx="150" ry="150" fill="#FFD98A" opacity=".22"/>
+  <polygon points="1716,230 1840,230 1760,630 1716,630" fill="#fff" opacity=".07"/>
+  <rect x="1716" y="670" width="320" height="190" rx="6" fill="#33665A"/>
+  <rect x="1700" y="560" width="14" height="110" rx="7" fill="#C9A227"/>
+  <path d="M1790,330 L1860,290 L1930,330" fill="none" stroke="#1E1612" stroke-width="3"/>
+  <rect x="1784" y="328" width="152" height="60" rx="8" fill="#FFF6E6"/>
+  <text x="1860" y="369" text-anchor="middle" class="b" font-size="30" font-weight="800" fill="#C8452F">APERTO</text>
+  <rect x="1640" y="892" width="460" height="14" fill="#8F8372"/>
+
+  <!-- La borne, fixée sur la façade à côté de la porte : une petite devanture avec son store rayé, écran en vitrine,
+       zone NFC en forme d'assiette. Dessinée dans son propre repère, puis réduite : la bulle utilise le même repère. -->
+  <g id="borne" transform="translate(335,125) scale(.75)">
+    <g data-sh="1020,56,640,572,36,.09"></g>
+    <rect x="1020" y="52" width="640" height="572" rx="36" fill="#D9C7A8"/>
+    <rect x="1020" y="40" width="640" height="572" rx="36" fill="url(#gBorne)"/>
+    <g clip-path="url(#cpBody)">
+      <rect x="1020" y="40" width="640" height="36" fill="url(#pAwn)"/>
+      <circle cx="1040" cy="76" r="20" fill="#C8452F"/><circle cx="1080" cy="76" r="20" fill="#FFF6E6"/><circle cx="1120" cy="76" r="20" fill="#C8452F"/><circle cx="1160" cy="76" r="20" fill="#FFF6E6"/><circle cx="1200" cy="76" r="20" fill="#C8452F"/><circle cx="1240" cy="76" r="20" fill="#FFF6E6"/><circle cx="1280" cy="76" r="20" fill="#C8452F"/><circle cx="1320" cy="76" r="20" fill="#FFF6E6"/><circle cx="1360" cy="76" r="20" fill="#C8452F"/><circle cx="1400" cy="76" r="20" fill="#FFF6E6"/><circle cx="1440" cy="76" r="20" fill="#C8452F"/><circle cx="1480" cy="76" r="20" fill="#FFF6E6"/><circle cx="1520" cy="76" r="20" fill="#C8452F"/><circle cx="1560" cy="76" r="20" fill="#FFF6E6"/><circle cx="1600" cy="76" r="20" fill="#C8452F"/><circle cx="1640" cy="76" r="20" fill="#FFF6E6"/>
+      <rect x="1020" y="96" width="640" height="6" fill="#3A2418" opacity=".06"/>
+    </g>
+    <rect x="1029" y="49" width="622" height="554" rx="28" fill="none" stroke="#2E5E4E" stroke-width="3" opacity=".75"/>
+    <!-- Écran -->
+    <rect x="1034" y="114" width="612" height="252" rx="20" fill="#16282E"/>
+    <g clip-path="url(#cpScreen)">
+      <rect x="1040" y="120" width="600" height="240" fill="#F5FAFB"/>
+      <circle cx="1090" cy="130" r="240" fill="url(#gHaloA)"/><circle cx="1600" cy="140" r="220" fill="url(#gHaloB)"/>
+      <g id="bsIdle">
+        <g class="breathe"><g transform="translate(1340,268) scale(1.1)" data-hat data-sil></g></g>
+        <text x="1340" y="328" text-anchor="middle" class="b" font-size="34" font-weight="700" fill="#204E5A">Approche ton téléphone</text>
+      </g>
+      <!-- Le logo du restaurant affiché sur l'écran -->
+      <g id="bsPaint" opacity="0">
+        <rect x="1040" y="120" width="600" height="240" fill="#2E5E4E"/>
+        <g transform="translate(648.8,24) scale(.72)" data-portrait></g>
+        <rect x="1040" y="120" width="600" height="240" fill="url(#gScrVig)"/>
+        <g id="pctChip">
+          <rect id="pctBg" x="1524" y="134" width="102" height="42" rx="21" fill="#16282E" opacity=".8"/>
+          <text x="1575" y="164" text-anchor="middle" class="b" font-size="26" font-weight="700" fill="#fff"><tspan id="pct">0</tspan> %</text>
+        </g>
+      </g>
+      <g id="bsDone" opacity="0">
+        <rect x="1040" y="120" width="600" height="240" fill="#F5FAFB"/>
+        <circle cx="1090" cy="130" r="240" fill="url(#gHaloA)"/><circle cx="1600" cy="140" r="220" fill="url(#gHaloB)"/>
+        <g transform="translate(1168,262) scale(.6)" data-comp="miniB" data-withhat></g>
+        <text x="1276" y="232" class="b" font-size="35" font-weight="800" fill="#1E3A42">Moustache du Chef</text>
+        <rect x="1276" y="254" width="290" height="50" rx="25" fill="#F0855A"/>
+        <text x="1421" y="289" text-anchor="middle" class="b" font-size="28" font-weight="700" fill="#fff">Exclusif Trattoria</text>
+      </g>
+      <polygon points="1040,120 1300,120 1180,360 1040,360" fill="#fff" opacity=".06"/>
+    </g>
+    <ellipse id="lip" cx="1340" cy="362" rx="70" ry="9" fill="none" stroke="#fff" stroke-width="4" opacity="0"/>
+    <!-- QR code vers le site -->
+    <rect x="1064" y="430" width="104" height="104" rx="14" fill="#fff" stroke="#E6DAC4" stroke-width="2"/>
+    <path id="qr" fill="#1E3A42"/>
+    <text x="1116" y="560" text-anchor="middle" class="i" font-size="18" font-weight="600" fill="#4C6B73">Le site</text>
+    <!-- Couverts -->
+    <g fill="none" stroke="#B9AE9A" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1194,424 V448 Q1194,460 1204,460 Q1214,460 1214,448 V424 M1204,424 V540"/>
+      <path d="M1476,540 V424 Q1492,440 1488,478 H1476" fill="#D6CCB9"/>
+    </g>
+    <!-- Zone NFC en assiette et anneau de LED -->
+    <circle cx="1340" cy="482" r="92" fill="none" stroke="#EFE6D6" stroke-width="19"/>
+    <circle cx="1340" cy="482" r="102" fill="none" stroke="#DDD0BA" stroke-width="1.5"/>
+    <circle id="ledGlow" cx="1340" cy="482" r="92" fill="none" stroke="#34C77B" stroke-width="26" opacity="0"
+            stroke-dasharray="0 999" transform="rotate(146 1340 482)"/>
+    <g id="ledDots"></g>
+    <circle cx="1340" cy="482" r="72" fill="#fff" stroke="#E6DAC4" stroke-width="2"/>
+    <circle cx="1340" cy="482" r="56" fill="none" stroke="#EFE6D6" stroke-width="2.5"/>
+    <g fill="none" stroke="#2F6B7A" stroke-width="6" stroke-linecap="round">
+      <path d="M1322,466 A12,12 0 0 1 1322,484"/><path d="M1333,456 A26,26 0 0 1 1333,494"/><path d="M1344,446 A40,40 0 0 1 1344,504"/>
+    </g>
+    <text x="1340" y="530" text-anchor="middle" class="i" font-size="16" font-weight="600" fill="#4C6B73">NFC</text>
+    <circle class="nfcW" cx="1340" cy="482" r="120" fill="none" stroke="#34C77B" stroke-width="5" opacity="0"/>
+    <circle class="nfcW" cx="1340" cy="482" r="120" fill="none" stroke="#34C77B" stroke-width="5" opacity="0"/>
+    <!-- Marque -->
+    <g transform="translate(1560,472) scale(.3)" data-comp="stickerComp" data-static></g>
+    <text x="1560" y="554" text-anchor="middle" class="b" font-size="26" font-weight="700" fill="#204E5A">Scubanion</text>
+  </g>
+</svg>
+</div>
+<div id="vig" class="layer"></div>
+<div id="dim" class="layer"></div>
+
+<!-- ============ CALQUE 2 : fond et textes de la séquence finale ============ -->
+<svg id="appL" class="layer" viewBox="0 0 1920 1080" opacity="0">
+  <rect width="1920" height="1080" fill="#F5FAFB"/>
+  <circle cx="220" cy="60" r="760" fill="url(#gHaloA)"/><circle cx="1720" cy="80" r="640" fill="url(#gHaloB)"/>
+  <g id="sideL" opacity="0">
+    <rect x="170" y="392" width="304" height="56" rx="28" fill="#F0855A"/>
+    <text x="322" y="430" text-anchor="middle" class="b" font-size="29" font-weight="700" fill="#fff">Exclusif Trattoria</text>
+    <text x="166" y="536" class="b" font-size="78" font-weight="800" fill="#204E5A">Moustache</text>
+    <text x="166" y="620" class="b" font-size="78" font-weight="800" fill="#204E5A">du Chef</text>
+    <text x="170" y="690" class="i" font-size="30" font-weight="500" fill="#4C6B73">Débloquée chez Baffi, prête à porter.</text>
+  </g>
+  <g id="sideR" opacity="0">
+    <g data-sh="1262,304,396,92,46,.05"></g>
+    <path d="M1272,334 L1234,352 L1274,368Z" fill="#fff"/>
+    <rect x="1262" y="304" width="396" height="92" rx="46" fill="#fff"/>
+    <text x="1460" y="363" text-anchor="middle" class="b" font-size="38" font-weight="700" fill="#1E3A42">Mamma mia !</text>
+  </g>
+</svg>
+
+<!-- ============ CALQUE 3 : LE TÉLÉPHONE, TENU EN MAIN (dessiné à sa plus grande taille, puis réduit) ============ -->
+<svg id="phoneL" class="layer" viewBox="0 0 1920 1080">
+<g transform="translate(960,137) scale(1.3) translate(-190,-60)">
+  <g id="handBack">
+    <rect x="130" y="640" width="330" height="2600" rx="70" fill="url(#gSkin)"/>
+    <ellipse cx="408" cy="680" rx="84" ry="160" transform="rotate(-14 408 680)" fill="#E3B08E"/>
+    <g fill="url(#gSkin)"><rect x="-26" y="318" width="70" height="62" rx="28"/><rect x="-30" y="390" width="70" height="64" rx="28"/><rect x="-28" y="464" width="70" height="62" rx="28"/><rect x="-20" y="536" width="70" height="56" rx="26"/></g>
+  </g>
+  <rect id="phShadow" x="8" y="14" width="380" height="744" rx="48" fill="#16282E" opacity="0"/>
+  <rect x="380" y="190" width="5" height="76" rx="2" fill="#0E1D22"/>
+  <rect width="380" height="740" rx="46" fill="#16282E"/>
+  <rect x="2" y="2" width="376" height="736" rx="44" fill="none" stroke="#41616A" stroke-width="2"/>
+  <g clip-path="url(#cpPhone)">
+    <rect width="380" height="740" fill="#F5FAFB"/>
+    <circle cx="40" cy="30" r="270" fill="url(#gHaloA)"/><circle cx="350" cy="50" r="240" fill="url(#gHaloB)"/>
+    <text id="phHeader" x="30" y="88" class="b" font-size="31" font-weight="700" fill="#204E5A">Scubanion</text>
+    <g id="phHome">
+      <g data-sh="45,112,290,58,29,.04"></g>
+      <rect x="45" y="112" width="290" height="58" rx="29" fill="#fff"/>
+      <text x="190" y="151" text-anchor="middle" class="i" font-size="28" font-weight="600" fill="#1E3A42">Hey, on sort ? 🌊</text>
+      <g data-sh="24,470,332,150,18,.04"></g>
+      <rect x="24" y="470" width="332" height="150" rx="18" fill="#fff"/>
+      <rect x="44" y="494" width="292" height="22" rx="11" fill="#DCEBEE"/><rect x="44" y="494" width="150" height="22" rx="11" fill="url(#pWave)"/>
+      <text x="44" y="590" class="b" font-size="48" font-weight="800" fill="#204E5A">147 pas</text>
+    </g>
+    <g id="phUnlock" opacity="0">
+      <text id="dbl" x="190" y="160" text-anchor="middle" class="b" font-size="50" font-weight="800" fill="#F0855A">DÉBLOQUÉ !</text>
+      <g data-sh="24,470,332,150,18,.04"></g>
+      <rect x="24" y="470" width="332" height="150" rx="18" fill="#fff"/>
+      <text x="190" y="526" text-anchor="middle" class="b" font-size="29" font-weight="700" fill="#1E3A42">Moustache du Chef</text>
+      <rect x="45" y="548" width="290" height="50" rx="25" fill="#F0855A"/>
+      <text x="190" y="583" text-anchor="middle" class="b" font-size="28" font-weight="700" fill="#fff">Exclusif Trattoria</text>
+    </g>
+    <!-- Écran « Nouvel objet », en portrait -->
+    <g id="phApp" opacity="0">
+      <text x="30" y="88" class="b" font-size="31" font-weight="800" fill="#204E5A">Nouvel objet</text>
+      <g data-sh="24,318,332,152,18,.04"></g>
+      <rect x="24" y="318" width="332" height="152" rx="18" fill="#fff"/>
+      <rect x="40" y="334" width="72" height="72" rx="12" fill="#DCEBEE"/>
+      <g transform="translate(76,394) scale(.5)" data-hat></g>
+      <text x="126" y="362" class="b" font-size="22" font-weight="800" fill="#1E3A42">Moustache du Chef</text>
+      <text x="126" y="384" class="i" font-size="13.5" font-weight="500" fill="#4C6B73">Trattoria · Exclusif</text>
+      <rect x="126" y="394" width="60" height="26" rx="13" fill="#F0855A"/>
+      <text x="156" y="412" text-anchor="middle" class="b" font-size="15" font-weight="700" fill="#fff">Rare</text>
+      <rect x="40" y="430" width="300" height="1.5" fill="#DCEBEE"/>
+      <text x="40" y="454" class="i" font-size="13" fill="#4C6B73">La moustache du logo, pour ton compagnon.</text>
+      <g id="btnEq">
+        <rect id="btnEqBg" x="24" y="484" width="332" height="56" rx="12" fill="#2F6B7A"/>
+        <text id="btnEqT1" x="190" y="521" text-anchor="middle" class="b" font-size="26" font-weight="700" fill="#fff">Équiper</text>
+        <text id="btnEqT2" x="190" y="521" text-anchor="middle" class="b" font-size="26" font-weight="700" fill="#fff" opacity="0">Équipé ✓</text>
+      </g>
+      <rect x="26" y="552" width="328" height="54" rx="12" fill="#F5FAFB" stroke="#8FB9C2" stroke-width="2.5"/>
+      <text x="190" y="587" text-anchor="middle" class="b" font-size="21" font-weight="700" fill="#2F6B7A">Voir mon inventaire</text>
+      <circle id="tapRing" cx="190" cy="512" r="60" fill="none" stroke="#fff" stroke-width="4" opacity="0"/>
+      <circle id="tapDot" cx="190" cy="512" r="20" fill="#fff" opacity="0"/>
+    </g>
+    <g id="phCompPos"><g transform="translate(190,345) scale(.78)" data-comp="phComp"></g></g>
+    <!-- Barre de navigation : 5 onglets -->
+    <rect x="10" y="640" width="360" height="90" fill="#fff"/><rect x="10" y="639" width="360" height="2" fill="#DCEBEE"/>
+    <rect x="16" y="648" width="60" height="64" rx="16" fill="#DCEBEE"/>
+    <g fill="none" stroke-width="5.5" stroke-linejoin="round" stroke-linecap="round">
+      <g transform="translate(46,670) scale(.5)" stroke="#2F6B7A"><path d="M-18,2 L0,-16 L18,2 V18 H-18Z"/></g>
+      <g transform="translate(118,670) scale(.5)" stroke="#4C6B73"><circle cx="-8" cy="-8" r="7"/><circle cx="13" cy="-6" r="5"/><path d="M-22,18 Q-8,0 6,18"/></g>
+      <g transform="translate(190,670) scale(.5)" stroke="#4C6B73"><path d="M-18,-14 H18 V10 H-6 L-16,18 V10 H-18Z"/></g>
+      <g transform="translate(262,670) scale(.5)" stroke="#4C6B73"><path d="M-20,-12 L-7,-16 L7,-12 L20,-16 V12 L7,16 L-7,12 L-20,16Z M-7,-16 V12 M7,-12 V16"/></g>
+      <g transform="translate(334,670) scale(.5)" stroke="#4C6B73"><circle r="17"/><path d="M-5,-4 Q-5,-10 0,-10 Q6,-10 6,-5 Q6,-1 0,2 V4"/></g>
+    </g>
+    <g class="i" font-size="11.5" font-weight="600" text-anchor="middle" fill="#4C6B73">
+      <text x="46" y="702" fill="#2F6B7A">Accueil</text><text x="118" y="702">Amis</text><text x="190" y="702">Chat</text><text x="262" y="702">Carte</text><text x="334" y="702">Quêtes</text>
+    </g>
+  </g>
+  <rect x="148" y="24" width="84" height="22" rx="11" fill="#0E1D22"/>
+  <g id="thumb" transform="translate(358,500) rotate(-24)">
+    <rect x="-34" y="-34" width="68" height="330" rx="34" fill="url(#gSkin)"/>
+    <rect x="-21" y="-24" width="42" height="46" rx="19" fill="#F6D7C2" opacity=".75"/>
+  </g>
+</g>
+</svg>
+
+<!-- ============ CALQUE 4 : LA BULLE (dans le repère de la borne) ET LES CONFETTIS ============ -->
+<svg id="fxL" class="layer" viewBox="0 0 1920 1080">
+  <g transform="translate(335,125) scale(.75)">
+    <g id="bubTop" style="display:none">
+      <ellipse id="bubShadow" fill="#16282E" opacity="0"/>
+      <g id="lens" clip-path="url(#cpLens)"><g id="lensIn">
+        <rect x="700" y="-200" width="1280" height="800" fill="#2E5E4E"/>
+        <g transform="translate(648.8,24) scale(.72)" data-portrait></g>
+      </g></g>
+      <ellipse id="bubFill" fill="#A9D6DF" opacity="0"/>
+      <g id="bubHat" data-hat></g>
+      <ellipse id="bubRim" fill="none" stroke="#fff" stroke-width="3.5"/>
+      <ellipse id="bubShine" fill="#fff"/>
+    </g>
+    <g id="droplets"></g>
+  </g>
+  <g id="confetti"></g>
+</svg>
+<div id="veil" class="layer"></div>
+
+<!-- ============ CALQUE 5 : FIN, LOGO ET SLOGAN ============ -->
+<svg id="endL" class="layer" viewBox="0 0 1920 1080" opacity="0">
+  <rect width="1920" height="1080" fill="#F5FAFB"/>
+  <circle cx="220" cy="60" r="760" fill="url(#gHaloA)"/><circle cx="1720" cy="80" r="640" fill="url(#gHaloB)"/>
+  <g id="endCompIn"><g transform="translate(960,410) scale(1.35)" data-comp="endComp"></g></g>
+  <g id="endText">
+    <text x="960" y="730" text-anchor="middle" class="b" font-size="118" font-weight="800" fill="#204E5A">Scubanion</text>
+    <text x="960" y="812" text-anchor="middle" class="b" font-size="52" font-weight="600" fill="#1E3A42">Il ne grandit que si toi tu sors.</text>
+    <rect x="850" y="852" width="220" height="22" rx="11" fill="url(#pWave)"/>
+  </g>
+</svg>
+<button id="replay" type="button">Rejouer</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ================= RÉGLAGES : durée de chaque scène, en secondes ================= */
+const D = {
+  marche:     1.8,  // 1. On avance vers la façade, téléphone en main, borne au repos
+  pose:       1.3,  // 2. On pose le téléphone sur la zone NFC de la borne
+  chargement: 2.2,  // 3. Le logo du restaurant apparaît sur la borne, les LED vertes remplissent l'anneau jusqu'à 100 %
+  bulle:      2.5,  // 4. Pop : la bulle sort la moustache de l'image, descend, sort par le bas de l'écran, entre dans le téléphone
+  telephone:  2.2,  // 5. Le téléphone revient vers nous : « DÉBLOQUÉ ! »
+  app:        3.4,  // 6. Écran « Nouvel objet » en portrait, appui sur « Équiper »
+  fin:        0.8   //    Fondu vers le logo et le slogan
+};
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $ = s => document.querySelector(s);
+const INK = '#1E3A42';
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/* ================= DESSINS RÉUTILISÉS ================= */
+// L'objet à débloquer : la moustache du logo. Un seul dessin, de l'enseigne jusqu'au compagnon.
+// Son centre est placé 45 au-dessus de l'origine (repère commun à la bulle et aux poses).
+function hatSVG(){
+  return `<g transform="translate(0,-45) scale(1.15)">
+  <path d="M0,-6 C-14,-22 -44,-20 -58,-2 C-66,8 -62,20 -52,18 C-58,14 -56,6 -50,6 C-36,18 -12,16 0,2 C12,16 36,18 50,6 C56,6 58,14 52,18 C62,20 66,8 58,-2 C44,-20 14,-22 0,-6Z" fill="#2A1B14" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
+  <path class="shine" d="M-40,-8 Q-28,-14 -14,-9 M40,-8 Q28,-14 14,-9" fill="none" stroke="#fff" opacity=".28" stroke-width="4" stroke-linecap="round"/></g>`;
+}
+// Le logo du restaurant (centré sur x = 960, y = 300), repris tel quel sur l'enseigne, sur l'écran de la borne et dans la bulle.
+const PS = 1;                                              // taille de la moustache dans le logo
+const SK = .72, LY = 24 + 334 * SK;                        // échelle du logo sur l'écran de la borne, hauteur de sa moustache
+function portraitSVG(){
+  return `<circle cx="960" cy="300" r="150" fill="#FFF6E6"/>
+  <circle cx="960" cy="300" r="138" fill="none" stroke="#C8452F" stroke-width="6"/>
+  <g transform="translate(0,-10)">
+    <path d="M908,244 Q876,196 922,178 Q938,140 974,160 Q1014,140 1022,182 Q1054,202 1012,244Z" fill="#fff" stroke="#2E5E4E" stroke-width="5" stroke-linejoin="round"/>
+    <rect x="908" y="236" width="104" height="30" rx="7" fill="#fff" stroke="#2E5E4E" stroke-width="5"/>
+  </g>
+  <g transform="translate(960,${334 + 45 * PS}) scale(${PS})">${hatSVG()}</g>
+  <text x="962" y="412" text-anchor="middle" class="b" font-size="46" font-weight="800" fill="#2E5E4E" letter-spacing="4">BAFFI</text>`;
+}
+// Le compagnon, origine au centre du corps (rayon 100).
+function compSVG(id, withHat, isStatic){
+  const s = `stroke="${INK}" stroke-linejoin="round" stroke-linecap="round"`;
+  return `<g class="${isStatic ? '' : 'float'}"><g class="comp" id="${id}"><g class="spin">
+    <path class="finL" d="M-86,8 Q-140,-44 -160,-30 Q-142,2 -150,18 Q-168,44 -152,64 Q-118,62 -84,42Z" fill="#6FA3AF" ${s} stroke-width="7"/>
+    <path d="M-70,70 L-100,106 Q-70,106 -46,90Z M70,70 L100,106 Q70,106 46,90Z" fill="#6FA3AF" ${s} stroke-width="7"/>
+    <path d="M-16,-95 Q10,-162 20,-160 Q38,-126 50,-84Z" fill="#7FAFB9" ${s} stroke-width="7"/>
+    <circle r="100" fill="url(#gBody)" stroke="${INK}" stroke-width="7"/>
+    <ellipse cx="0" cy="68" rx="56" ry="25" fill="#EEF6F7"/>
+    <path d="M-62,-64 Q-48,-84 -24,-91" fill="none" stroke="#fff" stroke-width="8" opacity=".6" stroke-linecap="round"/>
+    <path d="M-96,-30 L96,-30 L99,-4 L-99,-4Z" fill="#5E9A8F" ${s} stroke-width="5"/>
+    <rect x="-72" y="-58" width="144" height="80" rx="36" fill="#7FB5A8" stroke="${INK}" stroke-width="6"/>
+    <rect x="-60" y="-47" width="120" height="58" rx="27" fill="#DDF0F2" stroke="${INK}" stroke-width="4"/>
+    <path d="M-48,-28 L-38,-40" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+    <g class="eyesOpen"><g class="blink">
+      <ellipse cx="-26" cy="-17" rx="11" ry="15" fill="#12232A"/><ellipse cx="26" cy="-17" rx="11" ry="15" fill="#12232A"/>
+      <circle cx="-22" cy="-23" r="4.2" fill="#fff"/><circle cx="30" cy="-23" r="4.2" fill="#fff"/>
+    </g></g>
+    <path class="eyesHappy" d="M-38,-12 Q-26,-30 -14,-12 M14,-12 Q26,-30 38,-12" fill="none" stroke="#12232A" stroke-width="7" stroke-linecap="round" opacity="0"/>
+    <path d="M-15,13 Q0,-10 15,13Z" fill="#7FB5A8" ${s} stroke-width="5"/>
+    <path d="M92,-128 L92,18 Q92,50 58,50 L14,48" fill="none" stroke="${INK}" stroke-width="23" stroke-linecap="round"/>
+    <path d="M92,-128 L92,18 Q92,50 58,50 L14,48" fill="none" stroke="#7FB5A8" stroke-width="12" stroke-linecap="round"/>
+    <rect x="79" y="-30" width="26" height="22" rx="5" fill="#5E9A8F" stroke="${INK}" stroke-width="5"/>
+    <circle cx="6" cy="48" r="14" fill="#A9CCD3" stroke="${INK}" stroke-width="5"/><circle cx="6" cy="48" r="4.5" fill="${INK}"/>
+    <g fill="none" stroke="#2F6B7A" stroke-width="8" stroke-linecap="round">
+      <path class="w1" d="M80.7,-153.3 A16,16 0 0 1 103.3,-153.3"/>
+      <path class="w2" d="M70.8,-163.2 A30,30 0 0 1 113.2,-163.2"/>
+      <path class="w3" d="M60.9,-173.1 A44,44 0 0 1 123.1,-173.1"/>
+    </g>
+    <g class="hat" transform="translate(0,78) scale(1.1)" opacity="${withHat ? 1 : 0}">${hatSVG()}</g>
+  </g></g></g>`;
+}
+document.querySelectorAll('[data-portrait]').forEach(g => { g.innerHTML = portraitSVG(); });
+document.querySelectorAll('[data-hat]').forEach(g => {
+  g.innerHTML = hatSVG();
+  if (g.hasAttribute('data-sil')) g.querySelectorAll('*').forEach(p => {   // silhouette sur l'écran de la borne
+    p.setAttribute('fill', p.classList.contains('shine') ? 'none' : '#8FB9C2');
+    p.setAttribute('stroke', p.classList.contains('shine') ? 'none' : '#2F6B7A');
+  });
+});
+document.querySelectorAll('[data-comp]').forEach(g => {
+  g.innerHTML = compSVG(g.dataset.comp, g.hasAttribute('data-withhat'), g.hasAttribute('data-static'));
+});
+// Ampoules de la guirlande, réparties le long du fil
+(function(){
+  const p = $('#guirlande'); if (!p) return; const n = 22, len = p.getTotalLength(); let h = '';
+  for (let i = 1; i < n; i++){
+    const q = p.getPointAtLength(len * i / n);
+    h += `<circle cx="${q.x.toFixed(1)}" cy="${(q.y + 12).toFixed(1)}" r="26" fill="#FFD98A" opacity=".16"/><rect x="${(q.x - 4).toFixed(1)}" y="${q.y.toFixed(1)}" width="8" height="8" fill="#5A4A3A"/><circle cx="${q.x.toFixed(1)}" cy="${(q.y + 15).toFixed(1)}" r="9" fill="#FFD98A"/>`;
+  }
+  $('#bulbs').innerHTML = h;
+})();
+// Ombres douces sans filtre
+document.querySelectorAll('[data-sh]').forEach(g => {
+  const [x, y, w, h, r, o] = g.dataset.sh.split(',').map(Number);
+  g.innerHTML = [6, 14, 24, 36].map(k => `<rect x="${x - k / 2}" y="${y + k * .7}" width="${w + k}" height="${h + k * .2}" rx="${r + k / 2}" fill="#16282E" opacity="${o}"/>`).join('');
+});
+// QR code décoratif (motif fixe, à remplacer par le vrai QR du site)
+(function(){
+  const n = 21, m = 4, ox = 1074, oy = 440; let seed = 42, d = '';
+  const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const finder = (r, c) => { for (const [fr, fc] of [[0, 0], [0, n - 7], [n - 7, 0]]) { const a = r - fr, b = c - fc;
+    if (a >= -1 && a <= 7 && b >= -1 && b <= 7) return (a >= 0 && a <= 6 && b >= 0 && b <= 6 && (a === 0 || a === 6 || b === 0 || b === 6 || (a >= 2 && a <= 4 && b >= 2 && b <= 4))) ? 1 : 0; } return -1; };
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++){
+    const f = finder(r, c), on = f >= 0 ? f : (r === 6 || c === 6 ? (r + c) % 2 === 0 : rnd() > .52);
+    if (on) d += `M${ox + c * m},${oy + r * m}h${m}v${m}h${-m}z`;
+  }
+  $('#qr').setAttribute('d', d);
+})();
+// Anneau de LED autour de la zone NFC. Le téléphone posé cache le bas de l'anneau :
+// le remplissage part donc du bord gauche du téléphone, passe par le haut, et finit au bord droit.
+const NLED = 40, LEDS = [], LED_START = 236, LED_SPAN = 248, LED_R = 92;
+(function(){
+  let h = '';
+  for (let i = 0; i < NLED; i++){
+    const deg = i / NLED * 360, a = deg * Math.PI / 180 - Math.PI / 2;
+    h += `<circle cx="${(1340 + LED_R * Math.cos(a)).toFixed(1)}" cy="${(482 + LED_R * Math.sin(a)).toFixed(1)}" r="4.6" fill="#D2E1E5"/>`;
+    const rel = (deg - LED_START + 360) % 360;
+    LEDS.push({fv: rel / LED_SPAN, fc: rel / 360});
+  }
+  $('#ledDots').innerHTML = h;
+  document.querySelectorAll('#ledDots circle').forEach((c, i) => LEDS[i].el = c);
+})();
+// Confettis corail et océan, gouttelettes de la bulle
+const CONF = [], DROPS = [];
+(function(){
+  const cols = ['#F0855A', '#D96A41', '#2F6B7A', '#8FB9C2', '#F0855A'];
+  let h = '';
+  for (let i = 0; i < 40; i++){
+    const a = Math.random() * Math.PI * 2, d = 200 + Math.random() * 380;
+    CONF.push({dx: Math.cos(a) * d, dy: Math.sin(a) * d - 80, r: Math.random() * 540 - 270, fall: 160 + Math.random() * 220});
+    h += i % 3 ? `<rect class="cf" x="952" y="424" width="17" height="10" rx="2" fill="${cols[i % 5]}" opacity="0"/>`
+               : `<circle class="cf" cx="960" cy="430" r="7" fill="${cols[i % 5]}" opacity="0"/>`;
+  }
+  $('#confetti').innerHTML = h;
+  h = '';
+  for (let i = 0; i < 10; i++){
+    const a = i / 10 * Math.PI * 2 + .3;
+    DROPS.push({dx: Math.cos(a) * (46 + (i % 3) * 12), dy: Math.sin(a) * (46 + (i % 3) * 12)});
+    h += `<circle class="dp" cx="1336" cy="556" r="${3.5 + (i % 3) * 1.5}" fill="#BFE3EA" opacity="0"/>`;
+  }
+  $('#droplets').innerHTML = h;
+})();
+
+/* ================= ÉLÉMENTS PILOTÉS À LA MAIN (positions exactes) ================= */
+// Repère de la borne → écran : la borne est dessinée à l'échelle 1 puis réduite.
+const BK = .75, BX = 335, BY = 125;
+// Téléphone : (x, y) = position à l'écran de son antenne NFC, s = taille (1 = près de nous).
+// Le calque est dessiné à la taille 1.3 et déplacé en CSS : aucun redessin pendant ses mouvements.
+const ph = {x: 960, y: 680, r: -5, s: 1};
+const POSE_B = {x: 1340, y: 482, s: .4};                                            // pose, dans le repère de la borne
+const POSE = {x: POSE_B.x * BK + BX, y: POSE_B.y * BK + BY, s: POSE_B.s * BK};      // pose, à l'écran
+const phoneEl = $('#phoneL');
+function upPhone(){
+  phoneEl.style.transform = `translate(${((ph.x - 960) / 19.2).toFixed(4)}%,${((ph.y - 137) / 10.8).toFixed(4)}%) rotate(${ph.r.toFixed(3)}deg) scale(${(ph.s / 1.3).toFixed(5)})`;
+}
+
+// LED : spin = position de la tête lumineuse, fill = remplissage 0 à 1
+const led = {spin: 0, speed: .22, comet: 1, green: 0, fill: 0, flash: 0};
+let lastPct = -1, lastSig = '';
+function upLed(){
+  const sig = `${led.spin.toFixed(3)}|${led.comet.toFixed(2)}|${led.green.toFixed(2)}|${led.fill.toFixed(3)}|${led.flash.toFixed(2)}`;
+  if (sig === lastSig) return;                                                       // rien n'a bougé : pas de redessin
+  lastSig = sig;
+  const head = ((led.spin % 1) + 1) % 1;
+  for (let i = 0; i < NLED; i++){
+    const L = LEDS[i], behind = (head - L.fc + 1) % 1;
+    let g = behind < .3 ? (1 - behind / .3) * led.comet : 0;
+    const filled = led.fill >= 1 || L.fv < led.fill - 1e-4;
+    if (filled) g = 1;
+    const gr = filled ? 1 : led.green, k = led.flash;
+    // éteinte → océan clair (repos) ou vert (lecture), puis éclat presque blanc au flash
+    const R = lerp(lerp(210, lerp(94, 52, gr), g), 205, k), G = lerp(lerp(225, lerp(151, 199, gr), g), 255, k), B = lerp(lerp(229, lerp(163, 123, gr), g), 225, k);
+    L.el.setAttribute('fill', `rgb(${R | 0},${G | 0},${B | 0})`);
+    L.el.setAttribute('r', (4.6 + 1.5 * g + 1.1 * k).toFixed(2));
+  }
+  const glow = $('#ledGlow'), f = Math.min(1, led.fill);
+  glow.setAttribute('stroke-dasharray', `${(f * LED_SPAN / 360 * 2 * Math.PI * LED_R).toFixed(1)} 999`);
+  glow.setAttribute('opacity', (led.fill > 0 ? .2 + .45 * led.flash : 0).toFixed(3));
+  glow.setAttribute('stroke-width', (26 + 18 * led.flash).toFixed(1));
+  const p = Math.round(f * 100);
+  if (p !== lastPct){ lastPct = p; $('#pct').textContent = p; }
+}
+
+// Bulle (repère de la borne) : r = rayon, m = grossissement de l'image au moment du pop, lo = image visible dedans,
+// fo = bulle teintée, ho / hs / hr = chapeau, sx / sy = déformation, sh = ombre portée une fois sortie de l'écran
+const HAT_END = {x: 1340, y: 482 + (345 - 60) * POSE_B.s + 78 * .78 * POSE_B.s, s: 1.1 * .78 * POSE_B.s};  // sur le compagnon du téléphone posé
+const POP_M = 1.5;
+const bub = {x: 1340, y: LY, r: 0, m: 1, lo: 1, fo: 0, ho: 0, hs: PS * SK * POP_M, hr: 0, sx: 1, sy: 1, sh: 0, o: 0};
+const E = {};
+['lensC', 'lensIn', 'lens', 'bubFill', 'bubRim', 'bubShine', 'bubShadow', 'bubHat'].forEach(id => E[id] = document.getElementById(id));
+function upBub(){
+  const bx = bub.x, by = bub.y, rx = Math.max(0, bub.r * bub.sx), ry = Math.max(0, bub.r * bub.sy);
+  const set = (e, a) => { for (const k in a) e.setAttribute(k, a[k]); };
+  set(E.lensC, {cx: bx, cy: by, r: Math.max(0, bub.r).toFixed(1)});
+  E.lensIn.setAttribute('transform', `translate(1340,${LY}) scale(${bub.m.toFixed(4)}) translate(-1340,${-LY})`);
+  E.lens.setAttribute('opacity', bub.lo);
+  set(E.bubFill, {cx: bx, cy: by, rx: rx.toFixed(1), ry: ry.toFixed(1), opacity: .45 * bub.fo});
+  set(E.bubRim, {cx: bx, cy: by, rx: Math.max(0, rx - 5).toFixed(1), ry: Math.max(0, ry - 5).toFixed(1), opacity: .7 * bub.o});
+  set(E.bubShine, {cx: bx - rx * .42, cy: by - ry * .46, rx: (rx * .2).toFixed(1), ry: (ry * .1).toFixed(1),
+    transform: `rotate(-35 ${bx - rx * .42} ${by - ry * .46})`, opacity: .8 * bub.o});
+  set(E.bubShadow, {cx: bx + 10, cy: by + ry * .95 + 12, rx: (rx * .8).toFixed(1), ry: (ry * .16).toFixed(1), opacity: .13 * bub.sh * bub.o});
+  set(E.bubHat, {transform: `translate(${bx},${by + 45 * bub.hs}) rotate(${bub.hr}) scale(${bub.hs * bub.sx},${bub.hs * bub.sy})`, opacity: bub.ho});
+}
+function upAll(){ lastSig = ''; upPhone(); upLed(); upBub(); }
+upAll();
+
+/* ================= ANIMATION ================= */
+if (window.gsap) {
+  gsap.ticker.lagSmoothing(0);                                                       // la timeline suit l'horloge réelle, sans à-coups de rattrapage
+  const tl = gsap.timeline({paused: true});
+  // F : fondu ou changement de couleur. M : mouvement, remplacé par un saut net si « mouvement réduit ».
+  const F = (t, v, p) => tl.to(t, v, p);
+  const M = (t, v, p) => tl.to(t, RM ? {...v, duration: .001, yoyo: false, repeat: 0} : v, p);
+  const P = (v, p) => M(ph, {...v, onUpdate: upPhone}, p);
+  const BB = (v, p) => M(bub, {...v, onUpdate: upBub}, p);
+
+  // Les LED tournent en continu (vitesse et couleur pilotées par la timeline)
+  if (RM) { led.comet = 0; led.speed = 0; }
+  gsap.ticker.add((t, dt) => { led.spin += led.speed * dt / 1000; upLed(); });
+
+  // États de départ
+  gsap.set('#cam', {scale: .86, force3D: true});
+  gsap.set('#dbl', {scale: .3, transformOrigin: '50% 50%'});
+  gsap.set('.nfcW', {scale: .5, transformOrigin: '50% 50%'});
+  gsap.set('#lip', {scale: .4, transformOrigin: '50% 50%'});
+  gsap.set('#phApp', {x: 70});
+  gsap.set('#tapRing', {scale: .3, transformOrigin: '50% 50%'});
+  gsap.set('#sideL', {x: -50});
+  gsap.set('#sideR', {scale: .4, transformOrigin: '0% 50%'});
+  gsap.set('#endCompIn', {scale: .7, transformOrigin: '50% 50%'});
+  gsap.set('#endText', {y: 36, opacity: 0});
+  gsap.set('#replay', {autoAlpha: 0});
+
+  // Le compagnon content : écrasement, rebond, vrille, yeux souriants
+  function happy(id, t, turn){
+    F(`#${id} .eyesOpen`, {opacity: 0, duration: .1}, t);
+    F(`#${id} .eyesHappy`, {opacity: 1, duration: .1}, t);
+    M(`#${id}`, {scaleY: .78, scaleX: 1.16, duration: .14, ease: 'power2.out', transformOrigin: '50% 100%'}, t);
+    M(`#${id}`, {scaleY: 1.12, scaleX: .92, y: -46, duration: .26, ease: 'power2.out'}, t + .14);
+    M(`#${id} .spin`, {rotation: 360 * turn, duration: .62, ease: 'power2.inOut', transformOrigin: '50% 50%'}, t + .14);
+    M(`#${id}`, {scaleY: 1, scaleX: 1, y: 0, duration: .8, ease: 'elastic.out(1,.45)'}, t + .42);
+  }
+
+  const T1 = D.marche, T2 = T1 + D.pose, T3 = T2 + D.chargement, T4 = T3 + D.bulle,
+        T5 = T4 + D.telephone, T6 = T5 + D.app;
+
+  /* ---------- Scène 1 : on avance vers le tableau ---------- */
+  F('#veil', {opacity: 0, duration: .9, ease: 'power1.out'}, 0);
+  M('#cam', {scale: 1, duration: T2, ease: 'sine.inOut'}, 0);                        // la caméra avance jusqu'au contact
+  P({y: 650, r: -3, duration: T1 * .5, ease: 'sine.inOut'}, 0);                      // léger balancement de la marche
+  P({y: 672, r: -5, duration: T1 * .5, ease: 'sine.inOut'}, T1 * .5);
+
+  /* ---------- Scène 2 : on pose le téléphone sur la zone NFC ---------- */
+  P({x: POSE.x, y: POSE.y, r: 0, s: POSE.s, duration: D.pose, ease: 'power2.inOut'}, T1);
+  F('#phShadow', {opacity: .28, duration: .4}, T2 - .4);
+  P({s: POSE.s - .01, duration: .09, ease: 'power1.out', yoyo: true, repeat: 1}, T2);    // petit contact
+  tl.to('.nfcW', {scale: 1, opacity: 0, duration: .8, ease: 'power2.out', stagger: .3, startAt: {opacity: .8}}, T2);
+
+  /* ---------- Scène 3 : le tableau s'affiche, les LED vertes remplissent l'anneau ---------- */
+  tl.to(led, {green: 1, speed: 1.3, duration: .35, ease: 'power1.out'}, T2);
+  F('#bsIdle', {opacity: 0, duration: .2}, T2);
+  F('#bsPaint', {opacity: 1, duration: .5, ease: 'power1.inOut'}, T2 + .1);
+  const L = D.chargement - .45;                                                      // progression avec un léger palier, comme une vraie lecture
+  tl.to(led, {fill: .4, duration: L * .38, ease: 'power1.inOut'}, T2 + .25);
+  tl.to(led, {fill: .74, duration: L * .34, ease: 'power1.inOut'}, T2 + .25 + L * .38);
+  tl.to(led, {fill: 1, duration: L * .28, ease: 'power2.in'}, T2 + .25 + L * .72);
+  tl.to(led, {comet: 0, speed: 0, duration: .15}, T3 - .2);
+  tl.to(led, {flash: 1, duration: .14, ease: 'power2.out', yoyo: true, repeat: 1}, T3 - .2);   // 100 % : éclat de l'anneau
+  F('#pctBg', {fill: '#34C77B', opacity: 1, duration: .15}, T3 - .2);
+  F('#pctChip', {opacity: 0, duration: .3}, T3 + .25);
+
+  /* ---------- Scène 4 : pop, la bulle sort le chapeau de l'image et l'emmène au compagnon ---------- */
+  const TB = T3 + .05;
+  tl.set('#bubTop', {display: 'block'}, TB - .02);
+  BB({o: 1, duration: .12}, TB);
+  BB({r: 88, m: POP_M, duration: .22, ease: 'back.out(2.5)'}, TB);                   // pop : l'image gonfle d'un coup autour du chapeau
+  const SN = TB + .24;                                                               // la bulle se détache avec le chapeau
+  BB({lo: 0, fo: 1, ho: 1, duration: .1, ease: 'power1.in'}, SN);
+  BB({hs: 1, r: 76, duration: .5, ease: 'elastic.out(1,.5)'}, SN + .04);
+  BB({y: 300, duration: .44, ease: 'sine.inOut'}, SN + .18);                         // elle descend dans l'écran
+  BB({y: 392, sx: .74, sy: 1.22, duration: .26, ease: 'power2.in'}, SN + .62);       // elle se faufile par le bas de l'écran, au milieu
+  tl.to('#lip', {scale: 1.3, opacity: 0, duration: .5, ease: 'power2.out', startAt: {opacity: .9}}, SN + .7);
+  BB({y: 436, sx: 1.16, sy: .88, sh: 1, duration: .16, ease: 'power2.out'}, SN + .88);   // elle ressort, bien réelle
+  BB({sx: 1, sy: 1, duration: .5, ease: 'elastic.out(1.2,.3)'}, SN + 1.04);
+  BB({y: 522, r: 36, hs: .44, sh: 0, duration: .4, ease: 'power2.inOut'}, SN + 1.08);    // elle entre par le haut du téléphone
+  BB({x: HAT_END.x, y: HAT_END.y - 45 * HAT_END.s, r: 30, hs: HAT_END.s, hr: 0, duration: .24, ease: 'sine.inOut'}, SN + 1.48);
+  const POP = SN + 1.74;                                                             // elle éclate sur le compagnon
+  BB({r: 0, o: 0, duration: .14, ease: 'back.in(3)'}, POP);
+  DROPS.forEach((c, i) => {
+    if (RM) return;
+    tl.fromTo(document.querySelectorAll('.dp')[i], {x: 0, y: 0, opacity: .9}, {x: c.dx, y: c.dy, opacity: 0, duration: .45, ease: 'power2.out', immediateRender: false}, POP + .08);
+  });
+  F('#phComp .hat', {opacity: 1, duration: .05}, POP + .1);
+  BB({ho: 0, duration: .04}, POP + .13);
+  tl.set('#bubTop', {display: 'none'}, POP + .3);
+  happy('phComp', POP + .12, 1);
+  F('#bsDone', {opacity: 1, duration: .4}, POP + .1);
+  M('#miniB .finL', {rotation: -28, transformOrigin: '100% 50%', duration: .16, yoyo: true, repeat: 7, ease: 'sine.inOut'}, POP + .5);
+
+  /* ---------- Scène 5 : le téléphone revient vers nous, « DÉBLOQUÉ ! » ---------- */
+  F('#phShadow', {opacity: 0, duration: .25}, T4);
+  P({x: 960, y: 183, s: 1.15, r: 0, duration: 1, ease: 'power2.inOut'}, T4);
+  F('#dim', {opacity: .4, duration: .8, ease: 'power1.inOut'}, T4 + .1);
+  const UN = T4 + .8;
+  F('#phHome', {opacity: 0, duration: .2}, UN - .1);
+  F('#phUnlock', {opacity: 1, duration: .2}, UN);
+  M('#dbl', {scale: 1, duration: .55, ease: 'back.out(2.6)'}, UN);
+  CONF.forEach((c, i) => {
+    const el = document.querySelectorAll('.cf')[i];
+    if (RM) { gsap.set(el, {x: c.dx, y: c.dy}); F(el, {opacity: 1, duration: .3}, UN); F(el, {opacity: 0, duration: .5}, UN + .7); return; }
+    tl.fromTo(el, {x: 0, y: 0, rotation: 0, scale: .3, opacity: 1, transformOrigin: '50% 50%'},
+      {x: c.dx, y: c.dy, rotation: c.r, scale: 1, duration: .7, ease: 'power3.out', immediateRender: false}, UN + .05);
+    tl.to(el, {y: c.dy + c.fall, opacity: 0, duration: .8, ease: 'power1.in'}, UN + .7);
+  });
+
+  /* ---------- Scène 6 : l'app en portrait, dans le téléphone ---------- */
+  F('#thumb', {opacity: 0, duration: .3}, T5);
+  F('#handBack', {opacity: 0, duration: .3}, T5);
+  F('#appL', {opacity: 1, duration: .55, ease: 'power1.inOut'}, T5);
+  P({x: 960, y: 137, s: 1.3, duration: .8, ease: 'power2.inOut'}, T5);               // le téléphone se centre, plein cadre en hauteur
+  F('#phUnlock', {opacity: 0, duration: .25}, T5 + .15);
+  F('#phHeader', {opacity: 0, duration: .2}, T5 + .15);
+  F('#phApp', {opacity: 1, duration: .3}, T5 + .3);
+  M('#phApp', {x: 0, duration: .55, ease: 'power3.out'}, T5 + .3);
+  M('#phCompPos', {y: -112, scale: .82, transformOrigin: '50% 50%', duration: .6, ease: 'back.out(1.4)'}, T5 + .25);
+  F('#sideL', {opacity: 1, duration: .4}, T5 + .55);
+  M('#sideL', {x: 0, duration: .6, ease: 'power3.out'}, T5 + .55);
+  const TAP = T5 + 1.5;                                                              // appui sur « Équiper »
+  F('#tapDot', {opacity: .55, duration: .12}, TAP - .12);
+  F('#tapDot', {opacity: 0, duration: .25}, TAP + .1);
+  tl.to('#tapRing', {scale: 1, opacity: 0, duration: .55, ease: 'power2.out', startAt: {opacity: .7}}, TAP);
+  M('#btnEq', {scale: .95, transformOrigin: '50% 50%', duration: .1, yoyo: true, repeat: 1, ease: 'power1.inOut'}, TAP);
+  F('#btnEqT1', {opacity: 0, duration: .1}, TAP + .1);
+  F('#btnEqT2', {opacity: 1, duration: .15}, TAP + .15);
+  F('#btnEqBg', {fill: '#204E5A', duration: .2}, TAP + .1);
+  happy('phComp', TAP + .2, 2);
+  F('#sideR', {opacity: 1, duration: .2}, TAP + .75);
+  M('#sideR', {scale: 1, duration: .5, ease: 'back.out(2.2)'}, TAP + .75);
+
+  /* ---------- Fin : logo et slogan ---------- */
+  F('#endL', {opacity: 1, duration: D.fin, ease: 'power1.inOut'}, T6);
+  M('#endCompIn', {scale: 1, duration: .8, ease: 'back.out(1.7)'}, T6 + .2);
+  F('#endText', {opacity: 1, duration: .5}, T6 + .45);
+  M('#endText', {y: 0, duration: .6, ease: 'back.out(1.5)'}, T6 + .45);
+  F('#replay', {autoAlpha: 1, duration: .4}, T6 + D.fin + .6);
+
+  $('#replay').addEventListener('click', () => { tl.pause(0); upAll(); tl.play(); });
+  window.__tl = tl; window.__upAll = upAll;
+  const start = () => tl.play();
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start, start);
+} else {
+  // GSAP indisponible : on montre la scène du musée, fixe.
+  $('#veil').style.opacity = 0;
+}
+</script>
+
+</body></html>
