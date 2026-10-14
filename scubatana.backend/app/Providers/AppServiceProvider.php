@@ -29,5 +29,7 @@ class AppServiceProvider extends ServiceProvider
 		]);
 
 		RateLimiter::for('login-verify', fn (Request $request): Limit => Limit::perMinute(config('login.verifications_per_ip_per_minute'))->by('ip:'.$request->ip()));
+
+		RateLimiter::for('friend-invite', fn (Request $request): Limit => Limit::perMinute(20)->by('user:'.$request->user()?->id));
 	}
 }

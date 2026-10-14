@@ -146,6 +146,17 @@ describe("usePlayer", () => {
 		expect(state.streak.value).toEqual(streak);
 	});
 
+	it("keeps the companion sent back with a new goal", async () => {
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { player, companion, today, streak } });
+		const state = usePlayer();
+		await state.load();
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { today: { ...today, goal: 7500 }, streak, companion: { ...companion, mood: 40 } } });
+
+		await state.saveGoal(7500);
+
+		expect(state.companion.value?.mood).toBe(40);
+	});
+
 	it("keeps the previous goal when the server refuses the new one", async () => {
 		httpRequest.mockResolvedValueOnce({ status: 200, data: { player, companion, today, streak } });
 		const state = usePlayer();

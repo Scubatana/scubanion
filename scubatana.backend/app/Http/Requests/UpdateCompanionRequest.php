@@ -25,7 +25,7 @@ class UpdateCompanionRequest extends FormRequest
 			'species' => ['required', Rule::in($catalog->speciesIds())],
 			'color' => ['required', Rule::in($catalog->colorIds())],
 			'accessories' => ['present', 'array'],
-			'accessories.*' => ['string', 'distinct', Rule::in($catalog->accessoryIds())],
+			'accessories.*' => ['string', 'distinct', Rule::in([...$catalog->accessoryIds(), ...$this->wornAccessories()])],
 		];
 	}
 
@@ -37,13 +37,25 @@ class UpdateCompanionRequest extends FormRequest
 					return;
 				}
 
-				$conflicts = app(CompanionCatalogService::class)->conflictingAccessories($this->input('accessories', []));
+				$catalog = app(CompanionCatalogService::class);
+				$accessories = $this->input('accessories', []);
 
-				if ($conflicts !== []) {
+				if ($catalog->conflictingAccessories($accessories) !== []) {
 					$validator->errors()->add('accessories', 'Un seul accessoire par catégorie.');
+				}
+
+				$locked = array_diff(array_intersect($accessories, $catalog->earnableAccessoryIds()), $this->user()->ownedAccessoryCodes(), $this->wornAccessories());
+
+				if ($locked !== []) {
+					$validator->errors()->add('accessories', 'Cet accessoire se gagne en terminant une quête.');
 				}
 			},
 		];
+	}
+
+	private function wornAccessories(): array
+	{
+		return $this->user()->companion?->accessories ?? [];
 	}
 
 	public function messages(): array

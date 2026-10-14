@@ -120,6 +120,20 @@ describe("useSteps", () => {
 		expect(steps.displayedSteps.value).toBe(120);
 	});
 
+	it("shows the companion as the server computed it after the steps were sent", async () => {
+		const companion = { name: "Scubanion", species: "scuba", color: "ocean", accessories: [], level: 2, xp: 70, xp_for_next_level: 2000, mood: 80, health: 60 };
+		mocks.httpRequest.mockResolvedValue({ status: 200, data: { today: { date: "2026-10-13", steps: 120, goal: 5000 }, streak: { days: 0, active: false }, total_steps: 120, companion } });
+		const steps = useSteps();
+		await steps.start(true);
+
+		mocks.emit?.(5000);
+		await settle();
+		mocks.emit?.(5120);
+		await settle();
+
+		expect(usePlayer().companion.value).toEqual(companion);
+	});
+
 	it("keeps showing the steps while the server is unreachable and sends them when the app is left", async () => {
 		mocks.httpRequest.mockRejectedValue(new TypeError("Failed to fetch"));
 		const steps = useSteps();
@@ -152,6 +166,57 @@ describe("useSteps", () => {
 		await steps.start(true);
 
 		expect(mocks.httpRequest.mock.calls[0][3].days[0].steps).toBe(1800);
+	});
+
+	it("lets the quests wait until the steps walked while the app was closed are sent", async () => {
+		answerSyncWith(0);
+		const steps = useSteps();
+		await steps.start(true);
+		await steps.reset();
+		usePlayer().player.value = { ...lea };
+		mocks.recorded = [{ start: Date.now() + 60000, steps: 1800 }];
+		let answer: (value: unknown) => void = () => undefined;
+		mocks.httpRequest.mockReturnValueOnce(new Promise((resolve) => {
+			answer = resolve;
+		}));
+		let settled = false;
+
+		void steps.start(true);
+		await settle();
+		void steps.settled().then(() => {
+			settled = true;
+		});
+		await settle();
+
+		expect(settled).toBe(false);
+
+		answer({ status: 200, data: { today: { date: "2026-10-13", steps: 1800, goal: 5000 }, streak: { days: 0, active: false }, total_steps: 1800 } });
+		await settle();
+
+		expect(settled).toBe(true);
+	});
+
+	it("sends the steps counted during a sync right after it instead of dropping them", async () => {
+		const steps = useSteps();
+		await steps.start(true);
+		let answer: (value: unknown) => void = () => undefined;
+		mocks.httpRequest.mockReturnValueOnce(new Promise((resolve) => {
+			answer = resolve;
+		}));
+		answerSyncWith(250);
+
+		mocks.emit?.(5000);
+		await settle();
+		mocks.emit?.(5100);
+		await settle();
+		mocks.emit?.(5250);
+		await settle();
+		const waiting = steps.sync();
+		answer({ status: 200, data: { today: { date: "2026-10-13", steps: 100, goal: 5000 }, streak: { days: 0, active: false }, total_steps: 100 } });
+		await waiting;
+
+		expect(mocks.httpRequest).toHaveBeenCalledTimes(2);
+		expect(mocks.httpRequest.mock.calls[1][3].days[0].steps).toBe(250);
 	});
 
 	it("keeps one counter per player on a shared phone", async () => {
