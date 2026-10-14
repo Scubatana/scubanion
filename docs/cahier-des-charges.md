@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.7 du 14/10/2026
+- **Version** : 0.8 du 14/10/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -78,10 +78,14 @@ Cette section est notre engagement commun : ce que le projet doit atteindre (§ 
 | K3 | Qualité du code | Couverture de tests et nombre de bugs bloquants ou critiques dans SonarQube | ≥ 60 % de couverture, 0 bloquant | À chaque pipeline, relevé le vendredi |
 | K4 | Équilibre des contributions | Commits et revues de PR par membre sur 7 jours | Chacun : ≥ 5 commits et ≥ 2 revues | Hebdomadaire |
 | K5 | Fiabilité du passage en borne | Part de passages NFC réussis sur une série de 20 essais, du téléphone jusqu'à la récompense affichée | ≥ 95 % au 29/11 | Hebdomadaire, dès que le prototype existe |
+| K6 | **Rétention à 30 jours** | Part des joueurs encore actifs 30 jours après leur inscription, par cohorte | ≥ 25 % | Mensuelle, dès le pilote |
+| K7 | **Lieux partenaires et revenu récurrent** | Nombre de lieux sous contrat facturé, et revenu mensuel | 2 lieux payants au 30/06/2027, puis 40 lieux et 5 000 €/mois | Mensuelle |
+
+**K6 et K7 sont les indicateurs d'entreprise** : K1 à K5 disent si on livre, K6 et K7 disent si le produit trouve son marché. K6 est le plus important des sept — si la rétention ne tient pas, il n'y a plus d'audience à vendre aux lieux, et le modèle économique s'effondre. Le détail de ces deux indicateurs, et la décision que chacun déclenche, sont dans la charte de projet ([r501/charte-de-projet.pdf](r501/charte-de-projet.pdf), § 6).
 
 K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui ne committe pas est pénalisé même si l'équipe livre. Les indicateurs se relèvent en début de réunion hebdomadaire. Un indicateur hors cible **deux semaines de suite** déclenche un arbitrage : réduction du périmètre *Should* et *Could*, ou réaffectation d'un lot.
 
-**Relevé du 13/10/2026**
+**Relevé du 14/10/2026**
 
 | Indicateur | Valeur | État |
 | ---------- | ------ | ---- |
@@ -90,6 +94,8 @@ K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui 
 | K3 Qualité du code | - | Couverture pas encore mesurée. |
 | K4 Contributions | 47 / 13 / 1 / 0 commits | **Hors cible.** C'est notre premier sujet : voir le risque R1 de la charte. |
 | K5 Passage en borne | - | Prototype pas encore monté (échéance 14/11). |
+| K6 Rétention à 30 jours | - | Aucun joueur hors équipe à ce jour. Première mesure au pilote. |
+| K7 Lieux et revenu | 0 lieu, 0 € | Aucun rendez-vous partenaire tenu. C'est l'action A2 de la charte. |
 
 ### 2.3 Plan d'action du 13/10/2026 au 13/01/2027
 
@@ -439,17 +445,26 @@ Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par l
 
 ## 10. Risques
 
-| Risque                                                                                                                        | Parade                                                                                                          |
-| ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Les pas du téléphone sont faciles à tricher (secousses) ou coupés en arrière-plan par Android | Garde-fous serveur (plafond de pas par heure, cohérence avec la position) ; permission `ACTIVITY_RECOGNITION` demandée dès l'onboarding |
-| Rencontres BLE : le plugin`@capacitor-community/bluetooth-le` ne gère que le rôle central, pas l'émission d'annonces BLE | Autre plugin ou code Android natif pour émettre ; à valider tôt, sinon rencontres par géolocalisation seule |
-| Android limite le Bluetooth en arrière-plan pour économiser la batterie                                                     | Service au premier plan, ou détection seulement quand l'app est ouverte                                        |
-| Délais de livraison du matériel de la borne                                                                                 | Trancher D3 et commander avant le 11/10                                                                         |
-| GitLab IUT injoignable depuis GitHub Actions                                                                                  | Double push depuis les postes, ou runner auto-hébergé                                                         |
-| Trop de fonctionnalités pour 11 semaines                                                                                     | Priorités Must / Should / Could, gel le 05/12                                                                  |
-| Connaissances non partagées | Tout documenter dans `docs/`, relectures croisées |
-| Crédits d'hébergement épuisés                                                                                             | Surveiller la consommation, prévoir une VM de repli                                                            |
-| Données personnelles (position, rencontres)                                                                                  | Règles RGPD du § 6.5                                                                                          |
+Risques d'exécution du projet, classés avec la méthode du cours : **criticité = fréquence + gravité**,
+puis report dans la matrice pour obtenir une classe de I à IV. Les échelles, la matrice et les
+**risques d'entreprise** (financement, modèle économique, rétention, départ d'un associé, conformité)
+sont dans la charte de projet ([r501/charte-de-projet.pdf](r501/charte-de-projet.pdf), § 4).
+
+Gravité, transposée au projet : **Catastrophique** = non livrable · **Critique** = une exigence *Must*
+abandonnée · **Important** = retard de plus d'une semaine · **Marginal** = retard absorbé ·
+**Négligeable** = sans effet sur le planning.
+
+| Risque | Fréquence | Gravité | Classe | Plan préventif | Plan correctif |
+| ------ | ----------- | --------- | ------ | --------------- | --------------- |
+| Les pas du téléphone sont faciles à tricher (secousses), ou coupés en arrière-plan par Android | Probable | Important | **IV** | Garde-fous serveur : plafond de pas par heure, cohérence avec la position, lissage | Invalidation des gains aberrants, et repli sur les quêtes et passages en borne comme source d'XP |
+| Rencontres BLE : le plugin ne gère que le rôle central, pas l'émission d'annonces | Probable | Important | **IV** | Validation technique avant le 07/11 ; recherche d'un plugin ou de code natif | Rencontres validées par la géolocalisation seule, en zone approximative |
+| Trop de fonctionnalités pour le délai : 13 exigences *Must* restent à livrer | Probable | Marginal | **III** | Priorités *Must / Should / Could* ; gel au 05/12 ; indicateur K1 hebdomadaire | Abandon documenté des *Should* et *Could*, justifié à la soutenance |
+| Android limite le Bluetooth et la localisation en arrière-plan | Probable | Marginal | **III** | Service au premier plan ; tests sur plusieurs versions d'Android | Détection limitée aux moments où l'app est ouverte, annoncée à l'utilisateur |
+| Délais de livraison du matériel de la borne, ou composant défectueux | Occasionnel | Critique | **III** | Trancher `D3` et commander avant le **17/10** ; lecteur NFC de rechange | Emprunt de matériel à l'IUT ; repli sur un tag NFC passif |
+| Données personnelles : position, activité physique, rencontres | Rare | Catastrophique | **III** | Minimisation, aucun historique GPS brut, zone approximative ; secrets en variables masquées ; règles du § 6.5 | Purge, rotation des secrets, information des testeurs, notification si nécessaire |
+| GitLab IUT injoignable depuis GitHub Actions : le dépôt évalué n'est plus à jour | Occasionnel | Important | **III** | Test du miroir dès sa mise en place ; alerte en cas d'échec | Double push depuis les postes ; runner auto-hébergé en dernier recours |
+| Connaissances non partagées : un seul membre sait faire tourner une brique | Occasionnel | Important | **III** | Tout documenter dans `docs/` ; relectures croisées obligatoires ; un binôme par lot | Séance de transfert en binôme, et documentation rattrapée avant le jalon suivant |
+| Crédits d'hébergement épuisés avant la soutenance | Rare | Important | **II** | Surveillance de la consommation ; dimensionnement au minimum | Bascule sur une VM de l'IUT ; démonstration en local par `docker compose` |
 
 ## 11. État du dépôt au 24/09/2026
 
@@ -473,6 +488,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.8     | 14/10/2026 | Retours de l'enseignante appliqués : ajout des indicateurs d'entreprise K6 (rétention à 30 jours) et K7 (lieux partenaires et revenu récurrent), qui manquaient au tableau de bord ; § 10 Risques reclassé par fréquence et gravité selon la matrice du cours, avec plan préventif et plan correctif pour chaque ligne. La charte de projet passe en v3.0 avec une posture entrepreneuriale |
 | 0.7     | 14/10/2026 | Livrables R5.01 dans `docs/r501/` : charte complète au format du cours (avec analyse des risques), marketing mix, expérience utilisateur, et les deux films en MP4. Le § 2 est aligné dessus : objectif O3 revu à la baisse (2 partenaires, 20 testeurs), K5 recentré sur la fiabilité du passage en borne, relevé des indicateurs au 13/10, et nouveau plan d'action du 13/10 au 13/01, dont l'action A1 porte sur `D3` seule, `D2` étant tranchée |
 | 0.6     | 13/10/2026 | Bornes : décision D2 tranchée (le téléphone lit un jeton signé, horodaté et à usage unique généré par la borne) ; BOR-02, BOR-03, BOR-09 et BCK-04 réécrits en conséquence, topic `passages` retiré, architecture mise à jour |
 | 0.5     | 13/10/2026 | État des briques mis à jour au § 4 (app, API, base, CI/CD) ; au § 11, tests d'exemple remplacés et `.gitlab-ci.yml` créé |

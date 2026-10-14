@@ -1,22 +1,33 @@
 SCUBANION : R5.01, Initiation au management d'une équipe de projet informatique
 Équipe Scubatana : BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
-SAE BUT3-IoT, 14 octobre 2026
+SAE BUT3-IoT, 14 octobre 2026 - version 2, apres vos annotations
 
 -------------------------------------------------------------------------------
 CONTENU
 -------------------------------------------------------------------------------
 
-1-Charte-de-projet.pdf              14 pages
+1-Charte-de-projet.pdf              16 pages   *** REVUE ***
+    Reprise en posture entrepreneuriale, comme vous nous l'avez demandé.
+    Ce qui a changé est listé plus bas.
+
     Parties 1 à 3 : la charte de projet, reprise champ par champ de la structure
-                    du cours (Cadrage / Périmètre & Contraintes / Pilotage).
+                    du cours (Cadrage / Périmètre & Contraintes / Pilotage),
+                    avec une analyse SWOT.
     Partie 4      : l'analyse des risques : formule de criticité, matrice
-                    Fréquence x Gravité, échelles de probabilité et de gravité
-                    transposées au projet, dix Top Risks avec plan préventif et
-                    plan correctif, et un pré-mortem.
+                    Fréquence x Gravité, échelles transposées à l'entreprise,
+                    douze Top Risks dont six risques d'entreprise, chacun avec
+                    plan préventif et plan correctif, et un pré-mortem.
     Partie 5      : le plan d'action : dix actions avec responsable et échéance,
-                    planning et jalons.
-    Partie 6      : le tableau de bord : cinq indicateurs, chacun avec sa cible,
-                    sa fréquence de relevé et la décision qu'il déclenche.
+                    du 14/10/2026 au 30/06/2027, et les jalons.
+    Partie 6      : le tableau de bord : six indicateurs, dont trois d'entreprise,
+                    chacun avec sa cible, sa fréquence et la décision qu'il
+                    déclenche.
+
+4-Cahier-des-charges.pdf                       *** REVU ***
+    L'outil d'exécution de l'équipe, que vous aviez également annoté. Deux
+    corrections : ajout des indicateurs d'entreprise K6 (rétention à 30 jours)
+    et K7 (lieux partenaires et revenu récurrent), et reclassement du tableau
+    des risques par fréquence et gravité, avec plan préventif et correctif.
 
 2-Marketing-mix.pdf                 14 pages
     Les quatre P appliqués au projet, illustrés par les maquettes et les films :
@@ -33,6 +44,49 @@ videos/
     Deux animations de 15 secondes, format MP4, 1920x1080, sans son.
     Elles montrent le passage en borne, dans un musée et devant un restaurant
     partenaire. Elles se lisent dans n'importe quel lecteur vidéo.
+
+-------------------------------------------------------------------------------
+CE QUE VOS ANNOTATIONS ONT CHANGÉ
+-------------------------------------------------------------------------------
+
+« Prenez de la hauteur, sortez de votre posture d'étudiants. » La charte décrit
+désormais l'entreprise, et non le rendu scolaire :
+
+- La date de fin n'est plus la soutenance. L'horizon va jusqu'au 31/12/2028,
+  avec le lancement commercial fin 2027 et la fin de l'amorçage fin 2028.
+
+- Les trois objectifs sont ceux qu'on présente à un financeur : 5 000 joueurs
+  actifs et 40 lieux équipés, 60 000 € de revenu récurrent, et 150 000 €
+  d'amorçage avec la société créée. La preuve de concept du 12/12 devient le
+  jalon zéro, et ses critères techniques restent au cahier des charges.
+
+- Le périmètre couvre la vie de la société : industrialisation de la borne,
+  création de l'entreprise, financement, commercialisation, recrutement.
+
+- Les contraintes et dépendances sont celles d'une entreprise : trésorerie,
+  absence de compétence commerciale, fournisseurs, effet de réseau,
+  dépendance au magasin d'applications.
+
+- Les facteurs de succès et d'échec deviennent un SWOT, comme demandé. Le
+  croisement le plus dangereux y est nommé, et il commande une action.
+
+- Les parties prenantes passent de 5 à 8 catégories : clients payeurs,
+  utilisateurs, early adopters, fournisseurs, financeurs, institutions,
+  équipe, encadrement.
+
+- Les coûts sont ceux d'une entreprise sur trois ans, avec le besoin de
+  financement qui en découle, et non les 120 € de dépense de l'équipe.
+
+- Les risques sont repris à l'échelle de l'entreprise : financement non
+  obtenu, personne n'accepte de payer, rétention insuffisante, un acteur
+  installé copie, départ d'un associé, sanction RGPD. Les risques
+  d'exécution sont conservés en seconde partie du tableau.
+
+- Le tableau de bord gagne trois indicateurs d'entreprise : joueurs actifs
+  mensuels, rétention à 30 jours, revenu récurrent et lieux payants.
+
+- Les objectifs ne sont plus déclinés lettre par lettre, puisqu'un objectif
+  SMART bien écrit n'en a pas besoin.
 
 -------------------------------------------------------------------------------
 LE RÉSULTAT DE LA TOOLBOX PERSONA

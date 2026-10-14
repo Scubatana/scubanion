@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Scubanion — Cahier des charges</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  @page{size:A4 portrait;margin:14mm 15mm;}
+  @page cover{size:A4 portrait;margin:0;}
+  body{font-size:9.2pt;}
+  .page{box-shadow:none;}
+
+  .doc{max-width:180mm;margin:0 auto;padding:0;}
+  @media screen{.doc{background:#fff;padding:14mm 15mm;margin:8mm auto;box-shadow:var(--shadow-float);}}
+
+  .doc h1{display:none;}            /* le titre est sur la couverture */
+
+  .doc h2{
+    font-family:'Baloo 2',sans-serif;font-size:16pt;font-weight:700;
+    color:var(--ink);margin:7mm 0 3mm;padding-bottom:2mm;
+    border-bottom:2.5px solid var(--mist);break-after:avoid;
+  }
+  .doc h3{font-family:'Baloo 2',sans-serif;font-size:12.5pt;font-weight:700;color:var(--ocean-dark);margin:5mm 0 2mm;break-after:avoid;}
+  .doc h4{font-family:'Baloo 2',sans-serif;font-size:10.5pt;font-weight:700;color:var(--ocean-dark);margin:4mm 0 1.5mm;break-after:avoid;}
+
+  .doc p{margin:0 0 2.4mm;}
+  .doc ul,.doc ol{margin:0 0 2.4mm;padding-left:0;}
+  .doc li{margin-bottom:1.2mm;}
+  .doc ul > li::before{top:3.4px;}
+
+  .doc table{width:100%;border-collapse:collapse;font-size:8.3pt;margin:0 0 3mm;}
+  .doc th,.doc td{text-align:left;vertical-align:top;padding:1.8mm 2mm;border-bottom:1px solid var(--mist);}
+  .doc thead th{
+    font-size:7.4pt;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+    color:var(--ocean-dark);background:var(--mist);border-bottom:none;
+  }
+  .doc tbody tr{break-inside:avoid;}
+  .doc tbody tr:nth-child(even){background:var(--paper);}
+
+  .doc code{
+    font-family:'Consolas','SFMono-Regular',monospace;font-size:.88em;
+    background:var(--mist);color:var(--ocean-dark);padding:.5px 4px;border-radius:4px;
+  }
+  .doc pre{
+    background:var(--ink);color:#CFE3E8;padding:3mm 4mm;border-radius:var(--radius-sm);
+    font-size:8pt;overflow:hidden;break-inside:avoid;margin:0 0 3mm;
+  }
+  .doc pre code{background:none;color:inherit;padding:0;}
+
+  .doc blockquote{
+    margin:0 0 3mm;padding:2.5mm 4mm;background:#FFF8F4;
+    border-left:3px solid var(--coral);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  }
+  .doc blockquote p{margin:0;font-size:8.8pt;}
+
+  .doc hr{border:none;border-top:1px solid var(--mist);margin:5mm 0;}
+
+  .doc input[type=checkbox]{margin-right:4px;}
+
+  .mermaid{text-align:center;margin:0 0 3mm;break-inside:avoid;}
+  .mermaid svg{max-width:100%;height:auto;}
+</style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="cover-top">
+    <img src="assets/images/logo.png" alt="">
+    <span class="cover-brand">Scubanion</span>
+  </div>
+  <div>
+    <span class="cover-kicker">Document de travail de l'équipe</span>
+    <h1>Cahier<br>des charges</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-lead">
+      L'outil d'exécution : exigences numérotées et priorisées, architecture,
+      décisions, planning et risques. Il se coche au fil de l'avancement et se
+      met à jour à chaque contribution.
+    </p>
+  </div>
+  <dl class="cover-meta">
+    <div><dt>Équipe</dt><dd>Scubatana &middot; 4 associés</dd></div>
+    <div><dt>Version</dt><dd>0.8 du 14/10/2026</dd></div>
+    <div><dt>Charte de projet</dt><dd>document séparé, en posture entreprise</dd></div>
+    <div><dt>Jalon zéro</dt><dd>12 décembre 2026</dd></div>
+  </dl>
+  <p class="cover-slogan">« Il ne grandit que si <span>toi</span> tu sors. »</p>
+</section>
+
+<div class="doc">
+<h1 id="cahier-des-charges-scubanion">Cahier des charges - Scubanion</h1>
+<ul>
+<li><strong>Projet</strong> : Scubanion · <strong>Équipe</strong> : Scubatana · Projet BUT3-IoT (IUT)</li>
+<li><strong>Membres</strong> : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena</li>
+<li><strong>Version</strong> : 0.8 du 14/10/2026</li>
+<li><strong>Sources</strong> : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt</li>
+</ul>
+<p>Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués <em>proposition</em> sont à valider en équipe.</p>
+<p><strong>Légende</strong> : <strong>Must</strong> = indispensable au rendu · <strong>Should</strong> = prévu · <strong>Could</strong> = bonus si le temps le permet · <code>D1</code> à <code>D10</code> = décisions à prendre (§ 8).</p>
+<hr />
+<h2 id="1-le-projet-en-bref">1. Le projet en bref</h2>
+<ul>
+<li><strong>Sujet imposé</strong> : « Le projet BUT3-IoT porte sur l'exploration des adaptations possibles de l'être humain à son environnement grâce à l'IoT. »</li>
+<li><strong>Notre problématique</strong> : comment réadapter l'homme à son environnement ?</li>
+<li><strong>Problème ciblé</strong> : la sédentarité et l'isolement social.</li>
+<li><strong>Cible</strong> : étudiants et jeunes actifs connectés.</li>
+<li><strong>Notre réponse</strong> : un compagnon virtuel, façon Tamagotchi, qui ne grandit que si son propriétaire sort. <em>« Il ne grandit que si toi tu sors. »</em></li>
+</ul>
+<p>Comment ça marche :</p>
+<ol>
+<li>Le <strong>podomètre du téléphone</strong> compte les pas du joueur, sans matériel supplémentaire : ils font gagner de l'XP à son compagnon.</li>
+<li>Des <strong>quêtes géolocalisées</strong> l'envoient vers des lieux réels : parcs, points d'intérêt.</li>
+<li>Quand deux joueurs <strong>se croisent physiquement</strong> (détection BLE entre téléphones, recoupée par la géolocalisation côté serveur), leurs compagnons gagnent un bonus.</li>
+<li>Des <strong>bornes IoT</strong> (lecteur NFC + écran), installées dans des lieux publics ou chez des partenaires, débloquent skins, récompenses, événements, jeux et énigmes. Exemple de collab : une borne au Decathlon de Châtelet-les-Halles qui débloque un skin exclusif.</li>
+</ol>
+<h2 id="2-charte-de-projet">2. Charte de projet</h2>
+<blockquote>
+<p><strong>La charte complète est dans <a href="r501/">docs/r501/</a></strong>, au format attendu par le cours de R5.01 :
+cadrage, périmètre et contraintes, pilotage, puis l'analyse des risques.
+Cette section-ci en est la partie opérationnelle, celle qu'on tient à jour chaque semaine :
+les objectifs, les indicateurs et le plan d'action. Les deux doivent rester cohérentes.</p>
+</blockquote>
+<p>Cette section est notre engagement commun : ce que le projet doit atteindre (§ 2.1), comment on mesure si on y va (§ 2.2) et qui fait quoi jusqu'à la soutenance (§ 2.3). Elle se relit à chaque jalon du § 9 et se met à jour comme le reste du document, par PR.</p>
+<h3 id="21-objectifs-smart">2.1 Objectifs SMART</h3>
+<p><strong>O1 - Produit.</strong> Livrer au <strong>12/12/2026</strong> une application Android et une borne IoT fonctionnelles couvrant les <strong>18 exigences <em>Must</em></strong> du § 5, et en faire la démonstration en direct le 13/01/2027.</p>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Comment il est tenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spécifique</td>
+<td>Périmètre fermé : les 18 exigences <em>Must</em> (6 <code>APP-</code>, 2 <code>PAS-</code>, 6 <code>BOR-</code>, 4 <code>BCK-</code>). Les <em>Should</em> et <em>Could</em> sont hors objectif.</td>
+</tr>
+<tr>
+<td>Mesurable</td>
+<td>Cases <em>Must</em> cochées au § 5, sur 18. Démonstration réussie = les trois briques (téléphone → serveur → borne) enchaînées sans intervention manuelle.</td>
+</tr>
+<tr>
+<td>Atteignable</td>
+<td>11 semaines à 4 personnes. Les <em>Should</em> et <em>Could</em> servent de variable d'ajustement ; gel des fonctionnalités le 05/12.</td>
+</tr>
+<tr>
+<td>Réaliste</td>
+<td>C'est le livrable noté de la SAE et le support de la soutenance.</td>
+</tr>
+<tr>
+<td>Temporel</td>
+<td>Rendu le 12/12/2026, démonstration le 13/01/2027.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>O2 - Industrialisation.</strong> Mettre en service au <strong>08/11/2026</strong> un pipeline GitLab CI qui, à chaque fusion sur <code>master</code>, enchaîne tests → SonarQube → build → publication DockerHub → déploiement automatique, avec une couverture de tests d'au moins <strong>60 %</strong> et <strong>aucun bug bloquant</strong> SonarQube.</p>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Comment il est tenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spécifique</td>
+<td>Les cinq étapes nommées, sur le dépôt GitLab IUT, déclenchées par la fusion sur <code>master</code>.</td>
+</tr>
+<tr>
+<td>Mesurable</td>
+<td>Pipeline vert de bout en bout ; couverture ≥ 60 % ; 0 bug bloquant ; 0 adresse IP et 0 secret en dur.</td>
+</tr>
+<tr>
+<td>Atteignable</td>
+<td>Les commandes de test existent déjà (<code>composer test</code>) ; chaque membre porte une étape du pipeline (§ 7).</td>
+</tr>
+<tr>
+<td>Réaliste</td>
+<td>Exigence explicite de R5.07, et elle est notée (§ 6.2).</td>
+</tr>
+<tr>
+<td>Temporel</td>
+<td>08/11/2026, fin du jalon J2.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>O3 - Validation terrain.</strong> Valider le modèle économique avant le <strong>29/11/2026</strong> avec <strong>2 partenaires parisiens</strong> signataires d'une lettre d'intention et <strong>20 testeurs</strong> du campus ayant utilisé l'app pendant au moins 7 jours.</p>
+<p><em>Cible revue à la baisse le 13/10</em> : elle était de 3 partenaires et 30 testeurs. Le point d'avancement du 13/10 montre que la borne, qui est le chemin critique, n'est pas commencée ; tenir 3 signatures en six semaines tout en la construisant n'était pas réaliste.</p>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Comment il est tenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spécifique</td>
+<td>2 lettres d'intention couvrant 2 segments distincts parmi : une collectivité ou un office de tourisme, un lieu à billetterie, un commerce de proximité. Et 20 testeurs identifiés.</td>
+</tr>
+<tr>
+<td>Mesurable</td>
+<td>Nombre de lettres signées ; nombre de testeurs actifs au moins 7 jours ; grille tarifaire du Business Model Canvas confrontée en rendez-vous.</td>
+</tr>
+<tr>
+<td>Atteignable</td>
+<td>Le campus fournit le vivier de testeurs. 7 semaines pour 2 signatures, soit une dizaine de rendez-vous à provoquer.</td>
+</tr>
+<tr>
+<td>Réaliste</td>
+<td>Répond aux attentes de R5.01 et R5.13, et lève les hypothèses non validées du Business Model Canvas (<a href="bmc-reponses-relecture.md">docs/bmc-reponses-relecture.md</a>).</td>
+</tr>
+<tr>
+<td>Temporel</td>
+<td>29/11/2026, fin du jalon J3.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-indicateurs-de-suivi">2.2 Indicateurs de suivi</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Indicateur</th>
+<th>Mesure</th>
+<th>Cible</th>
+<th>Fréquence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>K1</td>
+<td>Avancement du périmètre <em>Must</em></td>
+<td>Cases <em>Must</em> cochées au § 5, divisées par 18</td>
+<td>100 % au 05/12 ; au moins 50 % au 08/11</td>
+<td>Hebdomadaire</td>
+</tr>
+<tr>
+<td>K2</td>
+<td>Santé du pipeline</td>
+<td>Part de pipelines verts sur <code>master</code> sur 7 jours, et durée médiane d'exécution</td>
+<td>≥ 90 % de verts, durée &lt; 10 min</td>
+<td>Hebdomadaire</td>
+</tr>
+<tr>
+<td>K3</td>
+<td>Qualité du code</td>
+<td>Couverture de tests et nombre de bugs bloquants ou critiques dans SonarQube</td>
+<td>≥ 60 % de couverture, 0 bloquant</td>
+<td>À chaque pipeline, relevé le vendredi</td>
+</tr>
+<tr>
+<td>K4</td>
+<td>Équilibre des contributions</td>
+<td>Commits et revues de PR par membre sur 7 jours</td>
+<td>Chacun : ≥ 5 commits et ≥ 2 revues</td>
+<td>Hebdomadaire</td>
+</tr>
+<tr>
+<td>K5</td>
+<td>Fiabilité du passage en borne</td>
+<td>Part de passages NFC réussis sur une série de 20 essais, du téléphone jusqu'à la récompense affichée</td>
+<td>≥ 95 % au 29/11</td>
+<td>Hebdomadaire, dès que le prototype existe</td>
+</tr>
+<tr>
+<td>K6</td>
+<td><strong>Rétention à 30 jours</strong></td>
+<td>Part des joueurs encore actifs 30 jours après leur inscription, par cohorte</td>
+<td>≥ 25 %</td>
+<td>Mensuelle, dès le pilote</td>
+</tr>
+<tr>
+<td>K7</td>
+<td><strong>Lieux partenaires et revenu récurrent</strong></td>
+<td>Nombre de lieux sous contrat facturé, et revenu mensuel</td>
+<td>2 lieux payants au 30/06/2027, puis 40 lieux et 5 000 €/mois</td>
+<td>Mensuelle</td>
+</tr>
+</tbody>
+</table>
+<p><strong>K6 et K7 sont les indicateurs d'entreprise</strong> : K1 à K5 disent si on livre, K6 et K7 disent si le produit trouve son marché. K6 est le plus important des sept — si la rétention ne tient pas, il n'y a plus d'audience à vendre aux lieux, et le modèle économique s'effondre. Le détail de ces deux indicateurs, et la décision que chacun déclenche, sont dans la charte de projet (<a href="r501/charte-de-projet.pdf">r501/charte-de-projet.pdf</a>, § 6).</p>
+<p>K4 existe parce que <strong>Git est noté individuellement</strong> (§ 6.5) : un membre qui ne committe pas est pénalisé même si l'équipe livre. Les indicateurs se relèvent en début de réunion hebdomadaire. Un indicateur hors cible <strong>deux semaines de suite</strong> déclenche un arbitrage : réduction du périmètre <em>Should</em> et <em>Could</em>, ou réaffectation d'un lot.</p>
+<p><strong>Relevé du 14/10/2026</strong></p>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Valeur</th>
+<th>État</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>K1 Avancement <em>Must</em></td>
+<td>5 / 18, soit 28 %</td>
+<td>En cours. 8 PR ouvertes couvriraient 9 exigences de plus.</td>
+</tr>
+<tr>
+<td>K2 Santé du pipeline</td>
+<td>-</td>
+<td>Pipeline pas encore en service (échéance 08/11).</td>
+</tr>
+<tr>
+<td>K3 Qualité du code</td>
+<td>-</td>
+<td>Couverture pas encore mesurée.</td>
+</tr>
+<tr>
+<td>K4 Contributions</td>
+<td>47 / 13 / 1 / 0 commits</td>
+<td><strong>Hors cible.</strong> C'est notre premier sujet : voir le risque R1 de la charte.</td>
+</tr>
+<tr>
+<td>K5 Passage en borne</td>
+<td>-</td>
+<td>Prototype pas encore monté (échéance 14/11).</td>
+</tr>
+<tr>
+<td>K6 Rétention à 30 jours</td>
+<td>-</td>
+<td>Aucun joueur hors équipe à ce jour. Première mesure au pilote.</td>
+</tr>
+<tr>
+<td>K7 Lieux et revenu</td>
+<td>0 lieu, 0 €</td>
+<td>Aucun rendez-vous partenaire tenu. C'est l'action A2 de la charte.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-plan-daction-du-13102026-au-13012027">2.3 Plan d'action du 13/10/2026 au 13/01/2027</h3>
+<p>Dix actions, chacune avec un responsable nommé et une échéance. Elles découlent du point
+d'avancement du 13/10 : le logiciel avance vite, <strong>la borne n'est pas commencée</strong> et porte
+6 exigences <em>Must</em> sur 18. C'est elle qui ordonne le plan.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Action</th>
+<th>Livrable vérifiable</th>
+<th>Responsable</th>
+<th>Échéance</th>
+<th>Obj.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>Trancher <code>D3</code> (microcontrôleur), dont dépend le moyen matériel de <code>D2</code> (tranchée le 13/10), et <strong>commander le matériel le jour même</strong></td>
+<td>Décision écrite au § 8, bon de commande, délai de livraison connu</td>
+<td>LESUEUR Shaleena</td>
+<td><strong>17/10</strong></td>
+<td>O1</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>Fusionner les 8 demandes de fusion ouvertes après revue croisée, et cocher les exigences correspondantes</td>
+<td><code>master</code> à 14 exigences <em>Must</em> sur 18, tag <code>v0.2.0</code></td>
+<td>KARROUCHI Hamza</td>
+<td>24/10</td>
+<td>O1</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>Pipeline GitLab complet : tests avec mocks, SonarQube, build, publication DockerHub, déploiement automatique</td>
+<td>Un pipeline vert de bout en bout sur une fusion dans<code>master</code></td>
+<td>BANDIERAS Thomas</td>
+<td><strong>08/11</strong></td>
+<td>O2</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>Prototype de borne sur table : lecture NFC, publication MQTT, passage enregistré par le serveur (<code>BOR-02</code>, <code>BOR-03</code>)</td>
+<td>Un passage de bout en bout filmé, visible dans la base</td>
+<td>LESUEUR Shaleena</td>
+<td>14/11</td>
+<td>O1</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>Consentements RGPD et suppression du compte dans l'application (<code>APP-06</code>)</td>
+<td>Parcours de consentement et suppression effective, testés</td>
+<td>DALMASSO Evan</td>
+<td>14/11</td>
+<td>O1</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>Démarcher les partenaires et recruter les testeurs : 10 rendez-vous visés pour 2 lettres d'intention, et 20 testeurs sur le campus</td>
+<td>2 lettres signées, 20 comptes actifs depuis 7 jours au moins</td>
+<td>DALMASSO Evan</td>
+<td><strong>29/11</strong></td>
+<td>O3</td>
+</tr>
+<tr>
+<td>A7</td>
+<td>Compagnon animé et quêtes côté application (<code>APP-03</code>, <code>APP-05</code>)</td>
+<td>Niveau, humeur et santé qui évoluent ; une quête menée de bout en bout</td>
+<td>DALMASSO Evan</td>
+<td>21/11</td>
+<td>O1</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>Récompense affichée en borne et monitoring : écran, inventaire, signal de vie remonté (<code>BOR-04</code>, <code>BOR-08</code>)</td>
+<td>Récompense visible à l'écran et dans l'inventaire ; bornes monitorées</td>
+<td>BANDIERAS Thomas</td>
+<td>29/11</td>
+<td>O1</td>
+</tr>
+<tr>
+<td>A9</td>
+<td>Mode hors ligne de la borne et campagne de tests : mocks MQTT et NFC, couverture portée à 60 % (<code>BOR-09</code>)</td>
+<td>Couverture ≥ 60 % et zéro bug bloquant dans SonarQube</td>
+<td>KARROUCHI Hamza</td>
+<td><strong>05/12</strong></td>
+<td>O1 O2</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>Gel, rendu et répétition : tag <code>v1.0.0</code>, documentation complète, trois répétitions chronométrées de la démonstration</td>
+<td>Dépôt GitLab rendu le 12/12 ; démonstration tenue en moins de 10 minutes</td>
+<td>Toute l'équipe</td>
+<td><strong>12/12</strong></td>
+<td>O1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jalons</strong></p>
+<table>
+<thead>
+<tr>
+<th>Période</th>
+<th>Jalon</th>
+<th>Contenu</th>
+<th><em>Must</em> visées</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13 → 31 octobre</td>
+<td><code>v0.2.0</code></td>
+<td>Matériel commandé (<strong>A1</strong>), demandes de fusion intégrées (<strong>A2</strong>), pipeline amorcé</td>
+<td>14 / 18</td>
+</tr>
+<tr>
+<td>1 → 30 novembre</td>
+<td><code>v0.3.0</code></td>
+<td>Pipeline complet (<strong>A3</strong>), borne qui lit et publie (<strong>A4</strong>), RGPD (<strong>A5</strong>), compagnon et quêtes (<strong>A7</strong>), récompense et monitoring (<strong>A8</strong>), terrain (<strong>A6</strong>)</td>
+<td>17 / 18</td>
+</tr>
+<tr>
+<td>1 → 12 décembre</td>
+<td><code>v1.0.0</code></td>
+<td>Hors ligne et tests (<strong>A9</strong>),<strong>gel le 05/12</strong>, documentation,<strong>rendu le 12/12</strong> (<strong>A10</strong>)</td>
+<td>18 / 18</td>
+</tr>
+<tr>
+<td>13 déc. → 13 janv.</td>
+<td>Soutenance</td>
+<td>Répétitions chronométrées, support de présentation, démonstration en direct le 13/01</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Règles de suivi.</strong> Point d'équipe chaque vendredi : chaque responsable dit <em>fait / en cours / bloqué</em>.
+Une action non terminée est reportée <strong>avec sa cause écrite</strong>, jamais effacée. Toute action nouvelle
+entre dans ce tableau avec un responsable et une échéance, sinon elle n'existe pas.</p>
+<p><strong>Les actions du 09 au 23/10 sont closes.</strong> Elles portaient sur le cadrage et les fondations
+(décisions <code>D1</code>, identité Git, modèle de données, authentification, socle de l'app). Ce qui n'a pas
+abouti est repris ci-dessus : <code>D3</code> dans <strong>A1</strong> (<code>D2</code> a été tranchée le 13/10), le pipeline dans <strong>A3</strong>.</p>
+<h2 id="3-calendrier-et-livrables">3. Calendrier et livrables</h2>
+<table>
+<thead>
+<tr>
+<th>Échéance</th>
+<th>Date</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rendu</td>
+<td><strong>samedi 12/12/2026</strong></td>
+<td>Dépôt GitLab IUT + documentation</td>
+</tr>
+<tr>
+<td>Soutenance</td>
+<td><strong>mercredi 13/01/2027</strong>, après-midi</td>
+<td>Présentation et démo</td>
+</tr>
+<tr>
+<td>Contrôle R5.07</td>
+<td>à confirmer</td>
+<td>Écrit individuel de 60 min sur le cours, avec un peu de code</td>
+</tr>
+</tbody>
+</table>
+<p>Jalons intermédiaires : § 9.</p>
+<h2 id="4-architecture">4. Architecture</h2>
+<div class="mermaid">flowchart LR
+  subgraph terrain["Sur le terrain"]
+    APP["App Android<br/>Nuxt + Capacitor<br/>podomètre du téléphone"]
+    APP2["Téléphone d'un autre joueur"]
+    BORNE["Borne IoT<br/>microcontrôleur + NFC + écran"]
+  end
+  subgraph serveur["Serveur (conteneurs Docker)"]
+    NGINX["nginx"]
+    API["API Laravel"]
+    DB[("MariaDB")]
+    BROKER["Broker MQTT"]
+    MON["Prometheus + Grafana"]
+  end
+  APP <-->|rencontre, BLE| APP2
+  BORNE -.->|jeton signé par NFC, D2| APP
+  APP -->|HTTPS, API REST : passages| NGINX --> API --> DB
+  BORNE -->|MQTT via Wi-Fi : signal de vie| BROKER --> API
+  API -->|MQTT : affichage| BROKER
+  MON -.->|collecte des métriques| API
+</div>
+<table>
+<thead>
+<tr>
+<th>Brique</th>
+<th>Techno</th>
+<th>Pourquoi</th>
+<th>État</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App mobile</td>
+<td>Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)</td>
+<td>Une seule base web, accès natif au BLE et au podomètre par plugin</td>
+<td>Connexion, profil, compagnon, pas</td>
+</tr>
+<tr>
+<td>Borne</td>
+<td>ESP32, Arduino ou Raspberry Pi + lecteur NFC + écran</td>
+<td>Vrai système cyber-physique, programmé par l'équipe</td>
+<td>À choisir (D3)</td>
+</tr>
+<tr>
+<td>API</td>
+<td>PHP 8.4, Laravel 13</td>
+<td>ORM, migrations, authentification et tests intégrés</td>
+<td>Connexion, profil, compagnon, pas</td>
+</tr>
+<tr>
+<td>Base de données</td>
+<td>MariaDB 11.4</td>
+<td>Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON</td>
+<td>Joueurs, compagnons, pas</td>
+</tr>
+<tr>
+<td>Messagerie IoT</td>
+<td>MQTT (broker type Mosquitto)</td>
+<td>Pub/sub léger, fait pour les objets contraints (vu en R5.04)</td>
+<td>À faire</td>
+</tr>
+<tr>
+<td>Flux d'événements</td>
+<td>Kafka</td>
+<td>Découpler la réception des événements des règles de jeu, pouvoir les rejouer (vu en R5.04)</td>
+<td>À évaluer (D5)</td>
+</tr>
+<tr>
+<td>Standard IoT</td>
+<td>oneM2M</td>
+<td>Décrire les bornes selon un standard (vu en R5.04)</td>
+<td>À évaluer (D5)</td>
+</tr>
+<tr>
+<td>Reverse proxy</td>
+<td>nginx</td>
+<td>Point d'entrée HTTP unique</td>
+<td>Conteneur prêt</td>
+</tr>
+<tr>
+<td>Admin BDD</td>
+<td>phpMyAdmin</td>
+<td>En développement uniquement</td>
+<td>Conteneur prêt</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitLab CI (runner Docker du VPS), GitHub Actions</td>
+<td>Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)</td>
+<td>GitLab CI en place sur <code>master</code>, GitHub Actions à faire</td>
+</tr>
+<tr>
+<td>Qualité</td>
+<td>SonarQube</td>
+<td>Exigé par R5.07</td>
+<td>À faire (D7)</td>
+</tr>
+<tr>
+<td>Registre d'images</td>
+<td>DockerHub</td>
+<td>Exigé par R5.07</td>
+<td>Job prêt, attend les accès</td>
+</tr>
+<tr>
+<td>Hébergement</td>
+<td>Azure ou autre, hôte configuré par Ansible (optionnel)</td>
+<td>Exigé par R5.07</td>
+<td>À choisir (D6)</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Prometheus + Grafana (+ Alertmanager)</td>
+<td>Pile vue en R5.07</td>
+<td>À faire</td>
+</tr>
+<tr>
+<td>Passage à l'échelle</td>
+<td>Docker Swarm (réplicas de l'API)</td>
+<td>Bonus R5.07</td>
+<td>Bonus</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-exigences-fonctionnelles">5. Exigences fonctionnelles</h2>
+<h3 id="51-app-mobile-android">5.1 App mobile (Android)</h3>
+<ul>
+<li>[x] <strong>APP-01</strong> · Must : Inscription et connexion par email et code à usage unique (D1).</li>
+<li>[x] <strong>APP-02</strong> · Must : Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.</li>
+<li>[ ] <strong>APP-03</strong> · Must : Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.</li>
+<li>[x] <strong>APP-04</strong> · Must : Objectif de pas du jour (5 000 par défaut) et compteur en direct.</li>
+<li>[ ] <strong>APP-05</strong> · Must : Quêtes : quiz, photos de sortie, nouveaux lieux, rencontres, défi de la semaine.</li>
+<li>[ ] <strong>APP-06</strong> · Must : Consentements explicites (localisation, Bluetooth, activité) et suppression du compte (RGPD, § 6.5).</li>
+<li>[ ] <strong>APP-07</strong> · Should : Amis : liste, invitation par code, activité des amis.</li>
+<li>[ ] <strong>APP-08</strong> · Should : Rencontres : deux joueurs qui se croisent gagnent un bonus (BLE entre téléphones, recoupé par la géolocalisation côté serveur).</li>
+<li>[ ] <strong>APP-09</strong> · Should : Carte : lieux, bornes et quêtes à proximité, recherche.</li>
+<li>[ ] <strong>APP-10</strong> · Could : Équipes : marcher ensemble fait grandir les deux compagnons plus vite.</li>
+<li>[ ] <strong>APP-11</strong> · Could : Chat entre amis et en équipe.</li>
+<li>[ ] <strong>APP-12</strong> · Could : Notifications (« passe au parc avant 20 h pour une quête bonus »).</li>
+</ul>
+<h3 id="52-pas-podometre-du-telephone">5.2 Pas (podomètre du téléphone)</h3>
+<ul>
+<li>[x] <strong>PAS-01</strong> · Must : Lecture des pas par le capteur de pas Android (<code>STEP_COUNTER</code>), avec permission explicite et rattrapage après un redémarrage ou une app fermée.</li>
+<li>[x] <strong>PAS-02</strong> · Must : Envoi des pas au serveur, avec une file d'attente locale quand le réseau coupe.</li>
+<li>[ ] <strong>PAS-03</strong> · Could : Lecture via Health Connect, pour les joueurs qui ont déjà une montre ou un bracelet branché à leur téléphone.</li>
+</ul>
+<h3 id="53-borne-iot">5.3 Borne IoT</h3>
+<ul>
+<li>[ ] <strong>BOR-01</strong> · Must : Matériel choisi et justifié : microcontrôleur, lecteur NFC, écran (D3).</li>
+<li>[ ] <strong>BOR-02</strong> · Must : Passage prouvé par NFC (D2) : la borne transmet au téléphone un jeton signé avec son propre secret, horodaté et à usage unique. Le joueur est identifié par sa session dans l'app : aucun identifiant de joueur ne passe par la borne.</li>
+<li>[ ] <strong>BOR-03</strong> · Must : Communication avec le serveur en MQTT, via Wi-Fi : signal de vie de la borne, et réponse du serveur à afficher après chaque passage.</li>
+<li>[ ] <strong>BOR-04</strong> · Must : Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur.</li>
+<li>[ ] <strong>BOR-05</strong> · Should : Événements limités dans le temps (bonus d'un week-end, skin de saison).</li>
+<li>[ ] <strong>BOR-06</strong> · Should : Jeux et énigmes à résoudre sur la borne.</li>
+<li>[ ] <strong>BOR-07</strong> · Should : Collabs : une borne chez un partenaire débloque un contenu exclusif (ex. Decathlon Châtelet-les-Halles).</li>
+<li>[ ] <strong>BOR-08</strong> · Must : Signal de vie envoyé au serveur, visible dans le monitoring.</li>
+<li>[ ] <strong>BOR-09</strong> · Must : Mode hors ligne : la borne fonctionne sans réseau (le jeton ne demande que son horloge, tenue à l'heure par NTP), et le téléphone garde le jeton puis l'envoie au serveur dans les 24 h.</li>
+</ul>
+<p>Passage à une borne : la borne donne un jeton signé au téléphone par NFC, le téléphone l'envoie à l'API (<code>POST /api/me/passages</code>), l'API le vérifie et répond à la borne par MQTT. Le protocole complet (format du jeton, messages) est dans <a href="mqtt.md">mqtt.md</a>.</p>
+<p>Topics MQTT :</p>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Sens</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scubanion/bornes/{id}/affichage</code></td>
+<td>serveur → borne</td>
+<td>Ce que l'écran doit montrer après un passage (récompense, déjà passé)</td>
+</tr>
+<tr>
+<td><code>scubanion/bornes/{id}/etat</code></td>
+<td>borne → serveur</td>
+<td>Signal de vie ; un <em>Last Will</em> MQTT signale une borne hors ligne</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-back-end-donnees-et-web">5.4 Back-end, données et web</h3>
+<ul>
+<li>[ ] <strong>BCK-01</strong> · Must : API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.</li>
+<li>[ ] <strong>BCK-02</strong> · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.</li>
+<li>[ ] <strong>BCK-03</strong> · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).</li>
+<li>[x] <strong>BCK-04</strong> · Must : Abonné MQTT qui suit le signal de vie des bornes ; le serveur vérifie chaque passage (jeton signé, à usage unique) et répond à la borne par MQTT.</li>
+<li>[ ] <strong>BCK-05</strong> · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).</li>
+<li>[ ] <strong>BCK-06</strong> · Could : Ressources oneM2M pour décrire les bornes (D5).</li>
+<li>[ ] <strong>BCK-07</strong> · Could : Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de <code>scubatana.demo</code>.</li>
+<li>[ ] <strong>BCK-08</strong> · Could : Back-office pour créer quêtes, événements, skins et partenaires.</li>
+</ul>
+<p>Modèle de données (v0, à affiner). Les tables déjà créées sont décrites dans <a href="modele-de-donnees.md">modele-de-donnees.md</a> :</p>
+<table>
+<thead>
+<tr>
+<th>Entité</th>
+<th>Contenu principal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Joueur</td>
+<td>Pseudo, contact (email, D1), date de naissance, genre (facultatif), ambition, consentements</td>
+</tr>
+<tr>
+<td>Compagnon</td>
+<td>Joueur, nom, espèce, niveau, XP, humeur et santé, skin porté. Le volet « relation, login » reste à définir (D4)</td>
+</tr>
+<tr>
+<td>Amitié</td>
+<td>Deux joueurs, statut (en attente, acceptée), date</td>
+</tr>
+<tr>
+<td>Activité</td>
+<td>Joueur, jour, nombre de pas, source (téléphone, Health Connect)</td>
+</tr>
+<tr>
+<td>Quête, progression</td>
+<td>Type, objectif, récompense ; avancement de chaque joueur</td>
+</tr>
+<tr>
+<td>Lieu</td>
+<td>Nom, coordonnées, type (parc, point d'intérêt, partenaire)</td>
+</tr>
+<tr>
+<td>Borne, passage</td>
+<td>Lieu, partenaire éventuel, état, dernier signal ; passages (joueur, borne, date, récompense)</td>
+</tr>
+<tr>
+<td>Récompense, inventaire</td>
+<td>Type (skin, objet, XP), origine (quête, borne, événement, collab) ; objets possédés par chaque joueur</td>
+</tr>
+<tr>
+<td>Événement</td>
+<td>Période, bornes concernées, récompense</td>
+</tr>
+<tr>
+<td>Partenaire</td>
+<td>Nom, bornes, contenus exclusifs</td>
+</tr>
+<tr>
+<td>Rencontre</td>
+<td>Deux joueurs, date, zone approximative, validée ou non</td>
+</tr>
+<tr>
+<td>Équipe, message</td>
+<td>Seulement si APP-10 et APP-11 sont faits</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-regles-a-respecter">6. Règles à respecter</h2>
+<h3 id="61-consignes-communes">6.1 Consignes communes</h3>
+<ul>
+<li>[ ] Le projet est commun à <strong>R5.01</strong> (management d'une équipe de projet), <strong>R5.13</strong> (économie durable et numérique), <strong>R5.04</strong> (programmation avancée) et <strong>R5.07</strong> (automatisation de la chaîne de production).</li>
+<li>[ ] Les technologies sont libres, mais <strong>chaque choix est motivé</strong> et l'architecture est adaptée (exemple du cours : base de données ou fichier JSON). L'équipe se débrouille seule sur les technos qu'elle a choisies.</li>
+<li>[ ] Rendu : dépôt GitLab IUT + documentation, le 12/12. Soutenance le 13/01 après-midi.</li>
+</ul>
+<p>La lettre de commande et les consignes détaillées de R5.01, R5.13 et R5.04 n'ont pas été communiquées : <strong>à compléter dès réception</strong>.</p>
+<h3 id="62-r507-automatisation-de-la-chaine-de-production">6.2 R5.07 - Automatisation de la chaîne de production</h3>
+<p>Évaluation : dépôt (coeff. 1) + soutenance (coeff. 1) + contrôle écrit individuel de 60 min (coeff. 1). La documentation fait partie du rendu. <strong>Tous les membres doivent contribuer au pipeline.</strong></p>
+<p>Pipeline de déploiement continu exigé :</p>
+<ul>
+<li>[ ] 1. Lancer automatiquement les tests unitaires.</li>
+<li>[ ] 2. Construire l'application.</li>
+<li>[ ] 3. Publier les résultats sur un SonarQube.</li>
+<li>[ ] 4. Publier les images Docker sur DockerHub.</li>
+<li>[x] 5. Pouvoir lancer l'application avec un fichier docker-compose.</li>
+<li>[ ] 6. Déployer automatiquement sur Azure ou ailleurs (Ansible possible pour configurer l'hôte).</li>
+<li>[ ] 7. <em>Bonus</em> : faire passer à l'échelle les services qui en ont besoin.</li>
+<li>[ ] 8. Mettre en place une pile de monitoring.</li>
+<li>[ ] Stratégie Git définie et documentée.</li>
+<li>[ ] Déclencheurs du pipeline définis et documentés.</li>
+<li>[ ] Documentation qui accompagne le pipeline.</li>
+</ul>
+<p>Grille d'évaluation, à relire avant le rendu :</p>
+<ul>
+<li><strong>Fonctionnement et documentation</strong></li>
+<li>[ ] Le pipeline fonctionne de bout en bout.</li>
+<li>[ ] La documentation est claire et explique les choix de conception.</li>
+<li><strong>Git</strong> (sur GitLab IUT, noté pour chaque étudiant)</li>
+<li>[ ] La stratégie d'utilisation du dépôt est respectée.</li>
+<li>[ ] Chacun des 4 membres fait des commits réguliers et bien documentés.</li>
+<li><strong>Tests</strong></li>
+<li>[ ] Les tests sont de qualité.</li>
+<li>[ ] Mocks et autres types de tests (fonctionnels, intégration).</li>
+<li><strong>Construction</strong></li>
+<li>[ ] Dépendances bien gérées, conception modulaire.</li>
+<li>[ ] Images Docker de qualité : taille réduite, pas d'IP en dur.</li>
+<li>[ ] Rapports SonarQube au vert.</li>
+<li><strong>Déploiement</strong></li>
+<li>[ ] docker-compose de qualité (pas d'IP en dur, réseaux) et fichiers Ansible.</li>
+<li>[ ] Mécanisme de passage à l'échelle expliqué, s'il est mis en place.</li>
+<li>[ ] Mécanisme de monitoring expliqué.</li>
+</ul>
+<h3 id="63-r504-programmation-avancee-iot">6.3 R5.04 - Programmation avancée (IoT)</h3>
+<p>Consigne : « Vous utiliserez ce que nous avons vu en cours. Votre code sera évalué. »</p>
+<p>Programme : systèmes IoT et cyber-physiques (CPS) · supports de communication et échange de données · standards pour l'IoT · frameworks de développement et de déploiement IoT. Vus à ce jour : MQTT, Kafka, oneM2M (liste à compléter au fil du cours).</p>
+<table>
+<thead>
+<tr>
+<th>Thème du cours</th>
+<th>Dans Scubanion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Systèmes cyber-physiques</td>
+<td>La borne : un geste physique (approcher son téléphone de la borne, en NFC) déclenche un effet dans le jeu. Le podomètre du téléphone mesure l'activité réelle.</td>
+</tr>
+<tr>
+<td>Supports de communication</td>
+<td>BLE (téléphone ↔ téléphone), NFC (joueur ↔ borne), Wi-Fi (borne ↔ serveur), HTTPS (app ↔ API)</td>
+</tr>
+<tr>
+<td>Standards et protocoles</td>
+<td>MQTT (borne ↔ serveur) ; Kafka et oneM2M à évaluer (D5)</td>
+</tr>
+<tr>
+<td>Frameworks de développement et de déploiement</td>
+<td>À compléter avec le cours (côté borne : framework Arduino ou ESP-IDF)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] Chaque protocole ou standard utilisé est justifié dans la documentation.</li>
+<li>[ ] Si un outil vu en cours n'est pas retenu, la raison est écrite.</li>
+</ul>
+<h3 id="64-r501-et-r513">6.4 R5.01 et R5.13</h3>
+<p>Connu à ce jour : constituer les groupes, organiser le travail au sein du groupe, prendre en compte le côté « business ». Un flyer de pitch (3 minutes) existe déjà : <code>scubatana.demo/flyer.html</code>.</p>
+<p>Livrables produits à ce jour :</p>
+<table>
+<thead>
+<tr>
+<th>Livrable</th>
+<th>Fichier</th>
+<th>État</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flyer de pitch (3 min)</td>
+<td><code>scubatana.demo/flyer.html</code></td>
+<td>Fait</td>
+</tr>
+<tr>
+<td>Business Model Canvas</td>
+<td><a href="business-model-canvas.html">business-model-canvas.html</a> (source) et <a href="business-model-canvas.pdf">business-model-canvas.pdf</a> (à rendre)</td>
+<td>Version 2 du 08/10/2026, revue après relecture. Page 1 le canvas, page 2 et 3 les annexes</td>
+</tr>
+<tr>
+<td>Réponses à la relecture du BMC</td>
+<td><a href="bmc-reponses-relecture.md">bmc-reponses-relecture.md</a></td>
+<td>Un commentaire = une correction ; sert d'appui pour la présentation</td>
+</tr>
+<tr>
+<td>BMC v1 annoté par la relecture</td>
+<td><a href="business-model-canvas-v1-annote.pdf">business-model-canvas-v1-annote.pdf</a></td>
+<td>Archive du 30/09/2026 : la trace des neuf commentaires</td>
+</tr>
+<tr>
+<td>Charte de projet (complète)</td>
+<td><a href="r501/charte-de-projet.pdf">r501/charte-de-projet.pdf</a></td>
+<td>Structure du cours : cadrage, périmètre, pilotage, analyse des risques, plan d'action, tableau de bord</td>
+</tr>
+<tr>
+<td>Charte de projet (opérationnelle)</td>
+<td>§ 2</td>
+<td>Objectifs SMART, indicateurs relevés chaque vendredi, plan d'action daté</td>
+</tr>
+<tr>
+<td>Marketing mix</td>
+<td><a href="r501/marketing-mix.pdf">r501/marketing-mix.pdf</a></td>
+<td>Les 4 P, les 7 P et les 4 C, illustrés par les maquettes et les films</td>
+</tr>
+<tr>
+<td>Expérience utilisateur</td>
+<td><a href="r501/experience-utilisateur.pdf">r501/experience-utilisateur.pdf</a></td>
+<td>Récit en pictogrammes, storyboard des films, Toolbox Persona pour le prix</td>
+</tr>
+<tr>
+<td>Films de démonstration</td>
+<td><a href="r501/videos/">r501/videos/</a></td>
+<td>Deux animations de 15 s : passage en borne au musée et à la Trattoria</td>
+</tr>
+</tbody>
+</table>
+<p>Le Business Model Canvas laisse cinq hypothèses ouvertes (grille tarifaire B2B, taille du marché, coût unitaire de la borne, pertinence de l'indice de besoin de contact sans mesure cardiaque, validité des personas). Elles sont listées en fin de <code>bmc-reponses-relecture.md</code> et l'objectif <strong>O3</strong> du § 2.1 est ce qui doit les lever.</p>
+<p>Pistes, à confirmer quand les consignes arriveront :</p>
+<ul>
+<li>Modèle économique : abonnement par borne chez les partenaires, quêtes sponsorisées facturées au passage, parcours vendus aux collectivités, programme bien-être pour les employeurs et mutuelles. Le détail et le chiffrage sont dans le Business Model Canvas.</li>
+<li>Numérique responsable : échanges et consommation d'énergie sobres (téléphone, bornes), matériel réutilisable. Aucune publicité dans l'app, par cohérence avec cet axe.</li>
+<li>Organisation : rôles (§ 7), décisions (§ 8), planning (§ 9), suivi par ce document.</li>
+</ul>
+<h3 id="65-nos-regles-dequipe-proposition">6.5 Nos règles d'équipe (<em>proposition</em>)</h3>
+<p><strong>Dépôts</strong></p>
+<ul>
+<li><strong>GitHub</strong> (<code>Picsou06/scubanion</code>) est le dépôt de travail : branches, PR, revues.</li>
+<li>Une GitHub Action le <strong>copie automatiquement sur GitLab IUT</strong> (toutes les branches et tous les tags). C'est ce miroir que les enseignants évaluent, et son runner exécute le pipeline officiel.</li>
+<li>Les PR ne sont pas copiées sur GitLab. On fusionne donc avec un commit de merge (pas de squash) : les commits de chacun et les numéros de PR restent visibles dans l'historique.</li>
+</ul>
+<p><strong>Branches</strong> (GitHub Flow : simple, adapté au déploiement continu)</p>
+<ul>
+<li><code>master</code> : protégée, toujours déployable, déployée automatiquement. Pas de push direct.</li>
+<li><code>feature/&lt;sujet&gt;</code> et <code>fix/&lt;sujet&gt;</code> : une branche par tâche, fusionnée par PR quand la CI est verte et qu'un autre membre a relu.</li>
+<li>Tags <code>vX.Y.Z</code> : une release par jalon (§ 9).</li>
+</ul>
+<p><strong>Commits</strong></p>
+<ul>
+<li>Format Conventional Commits, message en français : <code>feat: jauge de pas sur l'accueil</code>, <code>fix: …</code>, <code>test: …</code>, <code>docs: …</code>, <code>ci: …</code>.</li>
+<li>Des commits petits et réguliers : Git est noté pour chaque membre.</li>
+<li>Chacun configure son vrai nom (<code>git config --global user.name "Prénom Nom"</code>) et l'email de son compte GitLab IUT. Sinon, ses commits ne sont pas rattachés au bon étudiant.</li>
+</ul>
+<p><strong>Déclencheurs du pipeline</strong></p>
+<div class="mermaid">flowchart LR
+  DEV["Poste d'un membre"] -->|push, PR| GH["GitHub<br/>dépôt de travail"]
+  GH --> GHA["GitHub Actions<br/>tests rapides + miroir"]
+  GHA -->|miroir| GL["GitLab IUT<br/>dépôt évalué"]
+  GL --> T["Tests + mocks"] --> S["SonarQube"] --> B["Build APK + images"] --> H["DockerHub"] --> D["Déploiement auto"]
+  D -.-> M["Monitoring<br/>Prometheus + Grafana"]
+</div>
+<table>
+<thead>
+<tr>
+<th>Événement</th>
+<th>GitHub Actions</th>
+<th>GitLab CI (runner IUT)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Push sur une branche, PR</td>
+<td>Tests rapides, miroir</td>
+<td>Tests, analyse SonarQube</td>
+</tr>
+<tr>
+<td>Merge sur<code>master</code></td>
+<td>Miroir</td>
+<td>Tests → SonarQube → build (APK + images) → DockerHub → déploiement</td>
+</tr>
+<tr>
+<td>Tag<code>vX.Y.Z</code></td>
+<td>Miroir</td>
+<td>Idem + release : APK signé et images taguées<code>vX.Y.Z</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Seul GitLab CI déploie.</strong> GitHub Actions se limite aux tests rapides et au miroir.</li>
+<li>Les commandes de test et de build sont des scripts du projet (<code>composer test</code>, scripts npm, Dockerfiles), appelés par les deux CI : aucune logique n'est écrite deux fois.</li>
+</ul>
+<p><strong>Qualité et sécurité</strong></p>
+<ul>
+<li>[ ] Aucune IP ni aucun secret en dur : noms de services Docker et variables d'environnement. Les secrets (tokens DockerHub et SonarQube, clé SSH, mots de passe du keystore) vont dans les variables masquées des CI.</li>
+<li>[x] Images Docker : multi-stage, base alpine, application construite avant et seul le résultat copié, sans dépendances de dev, avec <code>.dockerignore</code> et <code>HEALTHCHECK</code> (MariaDB garde l'image officielle, qui n'existe pas en alpine).</li>
+<li>[x] docker-compose : réseaux explicites, healthchecks, <code>depends_on</code> conditionnels, volumes réservés aux données.</li>
+<li>[ ] Tests unitaires et fonctionnels, mocks pour le BLE, le MQTT et les services externes, couverture suivie dans SonarQube.</li>
+</ul>
+<p><strong>Données personnelles (RGPD)</strong></p>
+<p>L'app traite des données personnelles : position, activité physique, rencontres entre joueurs, date de naissance.</p>
+<ul>
+<li>[ ] Consentement explicite et retirable pour la localisation, le Bluetooth et l'activité.</li>
+<li>[ ] Minimisation : pas d'historique GPS brut conservé, rencontres enregistrées avec une zone approximative.</li>
+<li>[ ] Durée de conservation définie ; suppression du compte et des données sur demande.</li>
+<li>[ ] Âge minimum fixé : en France, un mineur consent seul à partir de 15 ans.</li>
+</ul>
+<h2 id="7-organisation-de-lequipe">7. Organisation de l'équipe</h2>
+<p>Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par lot, et chaque membre porte une étape du pipeline, ce qui garantit que tout le monde y contribue (exigence R5.07). Thomas et Evan se partagent l'app mobile et l'infra.</p>
+<table>
+<thead>
+<tr>
+<th>Membre</th>
+<th>Référent du lot</th>
+<th>Étape du pipeline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BANDIERAS Thomas</td>
+<td>CI/CD et infra (principal)</td>
+<td>Tests et SonarQube</td>
+</tr>
+<tr>
+<td>DALMASSO Evan</td>
+<td>App mobile (et appui infra)</td>
+<td>Déploiement (compose, Ansible)</td>
+</tr>
+<tr>
+<td>KARROUCHI Hamza</td>
+<td>Back-end et données</td>
+<td>Build et images DockerHub</td>
+</tr>
+<tr>
+<td>LESUEUR Shaleena</td>
+<td>Borne IoT</td>
+<td>Monitoring et passage à l'échelle</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Lots</strong> : app mobile · borne IoT · back-end et données · CI/CD et infra.</li>
+<li><strong>Étapes du pipeline</strong> : tests et SonarQube · build et images DockerHub · déploiement (compose, Ansible) · monitoring et passage à l'échelle.</li>
+</ul>
+<h2 id="8-decisions-a-prendre">8. Décisions à prendre</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Décision</th>
+<th>Options</th>
+<th>À savoir</th>
+<th>Avant le</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D1</td>
+<td>Mode de connexion</td>
+<td><strong>Tranchée : email + code à usage unique.</strong> Écartés : SMS + code (maquettes), email + mot de passe</td>
+<td>Code à 6 chiffres envoyé par Brevo, session ouverte par un jeton Sanctum. Les SMS sont payants (Twilio…), un code par email est gratuit</td>
+<td>11/10</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>Identification à la borne</td>
+<td><strong>Tranchée (13/10) : le téléphone lit la borne.</strong> La borne génère à chaque scan un jeton signé avec son secret, que le téléphone lit en NFC et envoie à l'API. Écartés : émulation de carte par le téléphone (HCE), tag NFC personnel</td>
+<td>Le moyen matériel côté borne (émulation de tag par le lecteur, ou tag NFC dynamique) dépend de D3</td>
+<td>11/10</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>Microcontrôleur de la borne</td>
+<td>ESP32, Arduino, Raspberry Pi</td>
+<td>ESP32 : Wi-Fi et BLE intégrés, peu cher, sobre. Arduino Uno : pas de réseau sans module. Raspberry Pi : Linux et écran riche, plus cher et plus gourmand</td>
+<td>11/10, pour avoir le temps de commander</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Compagnon : « relation » et « login »</td>
+<td>À définir</td>
+<td>Conditionne le modèle de données</td>
+<td>11/10</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>Kafka et oneM2M</td>
+<td>Utilisés, ou écartés avec une justification écrite</td>
+<td>R5.04 demande d'utiliser ce qui est vu en cours</td>
+<td>31/10</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>Hébergement</td>
+<td>Azure for Students, VM de l'IUT, autre</td>
+<td>Les crédits Azure sont limités</td>
+<td>18/10</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>SonarQube</td>
+<td>Instance de l'IUT, auto-hébergé</td>
+<td></td>
+<td>18/10</td>
+</tr>
+<tr>
+<td>D8</td>
+<td>Miroir GitHub → GitLab</td>
+<td>GitHub Action, double push depuis les postes</td>
+<td>Vérifier que le GitLab IUT est joignable depuis GitHub</td>
+<td>04/10</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>Rôles</td>
+<td>Voir § 7</td>
+<td></td>
+<td>04/10</td>
+</tr>
+<tr>
+<td>D10</td>
+<td>Stratégie Git</td>
+<td>Proposition du § 6.5</td>
+<td></td>
+<td>04/10</td>
+</tr>
+</tbody>
+</table>
+<h2 id="9-planning-proposition">9. Planning (<em>proposition</em>)</h2>
+<table>
+<thead>
+<tr>
+<th>Période</th>
+<th>Jalon</th>
+<th>Contenu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>24/09 → 04/10</td>
+<td><strong>J0 Cadrage</strong></td>
+<td>Cahier des charges validé, rôles, stratégie Git, miroir GitLab (D8 à D10)</td>
+</tr>
+<tr>
+<td>05/10 → 18/10</td>
+<td><strong>J1 Fondations</strong> · <code>v0.1.0</code></td>
+<td>Pipeline minimal (tests + SonarQube), modèle de données, API d'authentification, lecture des pas du téléphone (preuve de concept), matériel de la borne commandé (D1 à D4, D6, D7)</td>
+</tr>
+<tr>
+<td>19/10 → 08/11</td>
+<td><strong>J2 Cœur du jeu</strong> · <code>v0.2.0</code></td>
+<td>Compagnon, XP, quêtes, synchro des pas, broker MQTT, prototype de borne (NFC → MQTT → serveur)</td>
+</tr>
+<tr>
+<td>09/11 → 29/11</td>
+<td><strong>J3 Social et borne</strong> · <code>v0.3.0</code></td>
+<td>Amis, rencontres, récompenses et événements en borne ; images DockerHub, déploiement auto, monitoring</td>
+</tr>
+<tr>
+<td>30/11 → 12/12</td>
+<td><strong>J4 Stabilisation</strong> · <code>v1.0.0</code></td>
+<td>Gel des fonctionnalités le 05/12, tests, qualité SonarQube, documentation,<strong>rendu le 12/12</strong></td>
+</tr>
+<tr>
+<td>13/12 → 13/01</td>
+<td><strong>J5 Soutenance</strong></td>
+<td>Démo (app + serveur + borne), support, répétitions</td>
+</tr>
+</tbody>
+</table>
+<h2 id="10-risques">10. Risques</h2>
+<p>Risques d'exécution du projet, classés avec la méthode du cours : <strong>criticité = fréquence + gravité</strong>,
+puis report dans la matrice pour obtenir une classe de I à IV. Les échelles, la matrice et les
+<strong>risques d'entreprise</strong> (financement, modèle économique, rétention, départ d'un associé, conformité)
+sont dans la charte de projet (<a href="r501/charte-de-projet.pdf">r501/charte-de-projet.pdf</a>, § 4).</p>
+<p>Gravité, transposée au projet : <strong>Catastrophique</strong> = non livrable · <strong>Critique</strong> = une exigence <em>Must</em>
+abandonnée · <strong>Important</strong> = retard de plus d'une semaine · <strong>Marginal</strong> = retard absorbé ·
+<strong>Négligeable</strong> = sans effet sur le planning.</p>
+<table>
+<thead>
+<tr>
+<th>Risque</th>
+<th>Fréquence</th>
+<th>Gravité</th>
+<th>Classe</th>
+<th>Plan préventif</th>
+<th>Plan correctif</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les pas du téléphone sont faciles à tricher (secousses), ou coupés en arrière-plan par Android</td>
+<td>Probable</td>
+<td>Important</td>
+<td><strong>IV</strong></td>
+<td>Garde-fous serveur : plafond de pas par heure, cohérence avec la position, lissage</td>
+<td>Invalidation des gains aberrants, et repli sur les quêtes et passages en borne comme source d'XP</td>
+</tr>
+<tr>
+<td>Rencontres BLE : le plugin ne gère que le rôle central, pas l'émission d'annonces</td>
+<td>Probable</td>
+<td>Important</td>
+<td><strong>IV</strong></td>
+<td>Validation technique avant le 07/11 ; recherche d'un plugin ou de code natif</td>
+<td>Rencontres validées par la géolocalisation seule, en zone approximative</td>
+</tr>
+<tr>
+<td>Trop de fonctionnalités pour le délai : 13 exigences <em>Must</em> restent à livrer</td>
+<td>Probable</td>
+<td>Marginal</td>
+<td><strong>III</strong></td>
+<td>Priorités <em>Must / Should / Could</em> ; gel au 05/12 ; indicateur K1 hebdomadaire</td>
+<td>Abandon documenté des <em>Should</em> et <em>Could</em>, justifié à la soutenance</td>
+</tr>
+<tr>
+<td>Android limite le Bluetooth et la localisation en arrière-plan</td>
+<td>Probable</td>
+<td>Marginal</td>
+<td><strong>III</strong></td>
+<td>Service au premier plan ; tests sur plusieurs versions d'Android</td>
+<td>Détection limitée aux moments où l'app est ouverte, annoncée à l'utilisateur</td>
+</tr>
+<tr>
+<td>Délais de livraison du matériel de la borne, ou composant défectueux</td>
+<td>Occasionnel</td>
+<td>Critique</td>
+<td><strong>III</strong></td>
+<td>Trancher <code>D3</code> et commander avant le <strong>17/10</strong> ; lecteur NFC de rechange</td>
+<td>Emprunt de matériel à l'IUT ; repli sur un tag NFC passif</td>
+</tr>
+<tr>
+<td>Données personnelles : position, activité physique, rencontres</td>
+<td>Rare</td>
+<td>Catastrophique</td>
+<td><strong>III</strong></td>
+<td>Minimisation, aucun historique GPS brut, zone approximative ; secrets en variables masquées ; règles du § 6.5</td>
+<td>Purge, rotation des secrets, information des testeurs, notification si nécessaire</td>
+</tr>
+<tr>
+<td>GitLab IUT injoignable depuis GitHub Actions : le dépôt évalué n'est plus à jour</td>
+<td>Occasionnel</td>
+<td>Important</td>
+<td><strong>III</strong></td>
+<td>Test du miroir dès sa mise en place ; alerte en cas d'échec</td>
+<td>Double push depuis les postes ; runner auto-hébergé en dernier recours</td>
+</tr>
+<tr>
+<td>Connaissances non partagées : un seul membre sait faire tourner une brique</td>
+<td>Occasionnel</td>
+<td>Important</td>
+<td><strong>III</strong></td>
+<td>Tout documenter dans <code>docs/</code> ; relectures croisées obligatoires ; un binôme par lot</td>
+<td>Séance de transfert en binôme, et documentation rattrapée avant le jalon suivant</td>
+</tr>
+<tr>
+<td>Crédits d'hébergement épuisés avant la soutenance</td>
+<td>Rare</td>
+<td>Important</td>
+<td><strong>II</strong></td>
+<td>Surveillance de la consommation ; dimensionnement au minimum</td>
+<td>Bascule sur une VM de l'IUT ; démonstration en local par <code>docker compose</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="11-etat-du-depot-au-24092026">11. État du dépôt au 24/09/2026</h2>
+<p>En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, nginx, phpMyAdmin, maquettes HTML des écrans. Pas encore de code métier : écran d'accueil provisoire, squelette Laravel, tests d'exemple.</p>
+<p>Écarts à corriger :</p>
+<ul>
+<li>[ ] Mettre en place le miroir GitHub → GitLab IUT (D8).</li>
+<li>[ ] Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT.</li>
+<li>[X] Retirer <code>docs/</code> du <code>.gitignore</code> pour versionner la documentation.</li>
+<li>[ ] Renommer Scoubanion en Scubanion : README, <code>capacitor.config.json</code>, <code>nuxt.config.ts</code>, <code>app.vue</code>, <code>strings.xml</code>, <code>APP_NAME</code> du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.</li>
+<li>[x] Image du back : build multi-stage avec <code>composer install --no-dev</code> pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.</li>
+<li>[x] Compose de prod : supprimer le volume partagé <code>laravel_code</code>. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.</li>
+<li>[x] Compose : réseaux explicites, healthchecks, <code>depends_on</code> avec <code>condition: service_healthy</code>.</li>
+<li>[ ] Image du front : elle lance le serveur de développement (<code>npm run dev</code>) ; prévoir une image de prod si une app web est servie (BCK-07).</li>
+<li>[x] Remplacer les tests d'exemple par de vrais tests.</li>
+<li>[ ] Créer <code>.gitlab-ci.yml</code> (fait) et <code>.github/workflows/</code> (à faire).</li>
+</ul>
+<h2 id="12-historique-du-document">12. Historique du document</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.1</td>
+<td>24/09/2026</td>
+<td>Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt</td>
+</tr>
+<tr>
+<td>0.8</td>
+<td>14/10/2026</td>
+<td>Retours de l'enseignante appliqués : ajout des indicateurs d'entreprise K6 (rétention à 30 jours) et K7 (lieux partenaires et revenu récurrent), qui manquaient au tableau de bord ; § 10 Risques reclassé par fréquence et gravité selon la matrice du cours, avec plan préventif et plan correctif pour chaque ligne. La charte de projet passe en v3.0 avec une posture entrepreneuriale</td>
+</tr>
+<tr>
+<td>0.7</td>
+<td>14/10/2026</td>
+<td>Livrables R5.01 dans <code>docs/r501/</code> : charte complète au format du cours (avec analyse des risques), marketing mix, expérience utilisateur, et les deux films en MP4. Le § 2 est aligné dessus : objectif O3 revu à la baisse (2 partenaires, 20 testeurs), K5 recentré sur la fiabilité du passage en borne, relevé des indicateurs au 13/10, et nouveau plan d'action du 13/10 au 13/01, dont l'action A1 porte sur <code>D3</code> seule, <code>D2</code> étant tranchée</td>
+</tr>
+<tr>
+<td>0.6</td>
+<td>13/10/2026</td>
+<td>Bornes : décision D2 tranchée (le téléphone lit un jeton signé, horodaté et à usage unique généré par la borne) ; BOR-02, BOR-03, BOR-09 et BCK-04 réécrits en conséquence, topic <code>passages</code> retiré, architecture mise à jour</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>13/10/2026</td>
+<td>État des briques mis à jour au § 4 (app, API, base, CI/CD) ; au § 11, tests d'exemple remplacés et <code>.gitlab-ci.yml</code> créé</td>
+</tr>
+<tr>
+<td>0.4</td>
+<td>13/10/2026</td>
+<td>Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01, APP-02, APP-04, PAS-01 et PAS-02 cochés</td>
+</tr>
+<tr>
+<td>0.3</td>
+<td>09/10/2026</td>
+<td>Abandon du bracelet Mi Band 3 : les pas viennent du podomètre du téléphone (section 5.2 remplacée par <code>PAS-</code>), la borne IoT devient le seul objet connecté (BOR-08 et BOR-09 passent en <em>Must</em>, toujours 18 <em>Must</em>). Responsables du plan d'action et rôles de la section 7 renseignés</td>
+</tr>
+<tr>
+<td>0.2</td>
+<td>08/10/2026</td>
+<td>Ajout de la charte de projet (§ 2) : 3 objectifs SMART, 5 indicateurs de suivi, plan d'action du 09 au 23/10. Sections 2 à 11 renumérotées en 3 à 12. Business Model Canvas v2 référencé au § 6.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      primaryColor: '#DCEBEE', primaryTextColor: '#1E3A42', primaryBorderColor: '#2F6B7A',
+      lineColor: '#4C6B73', secondaryColor: '#FDE7DC', tertiaryColor: '#F5FAFB',
+      fontFamily: 'Inter, sans-serif', fontSize: '13px'
+    }
+  });
+</script>
+</body>
+</html>
