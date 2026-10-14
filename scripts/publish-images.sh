@@ -1,11 +1,11 @@
 #!/bin/sh
-# Construit les images de prod décrites dans docker-compose.yml et les publie sur DockerHub,
-# sous l'étiquette donnée et sous « latest ». Appelé par le job release:images de la CI.
-# Usage : DOCKERHUB_NAMESPACE=<compte> scripts/publish-images.sh <étiquette>
 set -eu
 
 tag="${1:?Usage : scripts/publish-images.sh <étiquette>}"
-: "${DOCKERHUB_NAMESPACE:?DOCKERHUB_NAMESPACE manquant : le compte ou l'organisation DockerHub}"
+if [ -z "${DOCKERHUB_NAMESPACE:-}" ]; then
+	echo "DOCKERHUB_NAMESPACE manquant : le compte ou l'organisation DockerHub" >&2
+	exit 1
+fi
 
 export IMAGE_TAG="$tag"
 
