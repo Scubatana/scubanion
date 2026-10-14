@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.6 du 13/10/2026
+- **Version** : 0.7 du 14/10/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -28,7 +28,12 @@ Comment ça marche :
 
 ## 2. Charte de projet
 
-Cette section est notre engagement commun : ce que le projet doit atteindre (§ 2.1), comment on mesure si on y va (§ 2.2) et qui fait quoi dans les deux prochaines semaines (§ 2.3). Elle se relit à chaque jalon du § 9 et se met à jour comme le reste du document, par PR.
+> **La charte complète est dans [docs/r501/](r501/)**, au format attendu par le cours de R5.01 :
+> cadrage, périmètre et contraintes, pilotage, puis l'analyse des risques.
+> Cette section-ci en est la partie opérationnelle, celle qu'on tient à jour chaque semaine :
+> les objectifs, les indicateurs et le plan d'action. Les deux doivent rester cohérentes.
+
+Cette section est notre engagement commun : ce que le projet doit atteindre (§ 2.1), comment on mesure si on y va (§ 2.2) et qui fait quoi jusqu'à la soutenance (§ 2.3). Elle se relit à chaque jalon du § 9 et se met à jour comme le reste du document, par PR.
 
 ### 2.1 Objectifs SMART
 
@@ -52,13 +57,15 @@ Cette section est notre engagement commun : ce que le projet doit atteindre (§ 
 | Réaliste | Exigence explicite de R5.07, et elle est notée (§ 6.2). |
 | Temporel | 08/11/2026, fin du jalon J2. |
 
-**O3 - Validation terrain.** Valider le modèle économique avant le **29/11/2026** avec **3 partenaires parisiens** signataires d'une lettre d'intention et **30 testeurs** du campus ayant utilisé l'app pendant au moins 7 jours.
+**O3 - Validation terrain.** Valider le modèle économique avant le **29/11/2026** avec **2 partenaires parisiens** signataires d'une lettre d'intention et **20 testeurs** du campus ayant utilisé l'app pendant au moins 7 jours.
+
+*Cible revue à la baisse le 13/10* : elle était de 3 partenaires et 30 testeurs. Le point d'avancement du 13/10 montre que la borne, qui est le chemin critique, n'est pas commencée ; tenir 3 signatures en six semaines tout en la construisant n'était pas réaliste.
 
 | Critère | Comment il est tenu |
 | --------- | ------------------- |
-| Spécifique | 3 lettres d'intention couvrant 3 segments distincts : une collectivité ou un office de tourisme, un lieu à billetterie, un commerce de proximité. Et 30 testeurs identifiés. |
+| Spécifique | 2 lettres d'intention couvrant 2 segments distincts parmi : une collectivité ou un office de tourisme, un lieu à billetterie, un commerce de proximité. Et 20 testeurs identifiés. |
 | Mesurable | Nombre de lettres signées ; nombre de testeurs actifs au moins 7 jours ; grille tarifaire du Business Model Canvas confrontée en rendez-vous. |
-| Atteignable | Le campus fournit le vivier de testeurs. 8 semaines pour 3 signatures, soit une quinzaine de rendez-vous à provoquer. |
+| Atteignable | Le campus fournit le vivier de testeurs. 7 semaines pour 2 signatures, soit une dizaine de rendez-vous à provoquer. |
 | Réaliste | Répond aux attentes de R5.01 et R5.13, et lève les hypothèses non validées du Business Model Canvas ([docs/bmc-reponses-relecture.md](bmc-reponses-relecture.md)). |
 | Temporel | 29/11/2026, fin du jalon J3. |
 
@@ -70,30 +77,55 @@ Cette section est notre engagement commun : ce que le projet doit atteindre (§ 
 | K2 | Santé du pipeline | Part de pipelines verts sur `master` sur 7 jours, et durée médiane d'exécution | ≥ 90 % de verts, durée < 10 min | Hebdomadaire |
 | K3 | Qualité du code | Couverture de tests et nombre de bugs bloquants ou critiques dans SonarQube | ≥ 60 % de couverture, 0 bloquant | À chaque pipeline, relevé le vendredi |
 | K4 | Équilibre des contributions | Commits et revues de PR par membre sur 7 jours | Chacun : ≥ 5 commits et ≥ 2 revues | Hebdomadaire |
-| K5 | Tenue du planning | Écart en jours entre la date prévue d'un jalon (§ 9) et la date du tag `vX.Y.Z` | ≤ 3 jours | À chaque jalon |
+| K5 | Fiabilité du passage en borne | Part de passages NFC réussis sur une série de 20 essais, du téléphone jusqu'à la récompense affichée | ≥ 95 % au 29/11 | Hebdomadaire, dès que le prototype existe |
 
 K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui ne committe pas est pénalisé même si l'équipe livre. Les indicateurs se relèvent en début de réunion hebdomadaire. Un indicateur hors cible **deux semaines de suite** déclenche un arbitrage : réduction du périmètre *Should* et *Could*, ou réaffectation d'un lot.
 
-### 2.3 Plan d'action du 09 au 23/10/2026
+**Relevé du 13/10/2026**
 
-Ces dix actions couvrent la fin du jalon J0 et le jalon J1 (§ 9). Le responsable est une personne nommée, pas un lot. Les noms ci-dessous sont la répartition proposée par l'équipe ; ils sont confirmés à la réunion de cadrage du 09/10, en même temps que la décision `D9`.
+| Indicateur | Valeur | État |
+| ---------- | ------ | ---- |
+| K1 Avancement *Must* | 5 / 18, soit 28 % | En cours. 8 PR ouvertes couvriraient 9 exigences de plus. |
+| K2 Santé du pipeline | - | Pipeline pas encore en service (échéance 08/11). |
+| K3 Qualité du code | - | Couverture pas encore mesurée. |
+| K4 Contributions | 47 / 13 / 1 / 0 commits | **Hors cible.** C'est notre premier sujet : voir le risque R1 de la charte. |
+| K5 Passage en borne | - | Prototype pas encore monté (échéance 14/11). |
 
-| #   | Action                                                                                                                            | Livrable attendu                                                      | Lot                   | Responsable | Échéance        |
-| --- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------- | ----------- | ---------------- |
-| A1  | Réunion de cadrage : trancher `D1` (connexion), `D2` (identification borne), `D3` (microcontrôleur), `D4` (compagnon), `D9` (rôles), `D10` (stratégie Git) | Compte rendu et § 8 mis à jour                                        | Toute l'équipe        | Tous        | **ven 09/10** |
-| A2  | Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT                                                 | 4 commits de test signés du bon nom                                   | Toute l'équipe        | Tous        | lun 12/10        |
-| A3  | Mettre en place le miroir GitHub → GitLab IUT et vérifier que le runner démarre (`D8`)                                           | Un push sur GitHub déclenche un pipeline sur GitLab                   | CI/CD et infra        | Thomas      | mar 13/10        |
-| A4  | Commander le matériel de la borne une fois `D3` tranchée : microcontrôleur, lecteur NFC, écran, boîtier                         | Commande passée, délai de livraison connu                            | Borne IoT             | Shaleena    | mar 13/10        |
-| A5  | Trancher `D6` (hébergement) et `D7` (SonarQube), ouvrir les accès et les stocker en variables masquées                           | Serveur joignable, projet SonarQube créé                              | CI/CD et infra        | Thomas      | jeu 15/10        |
-| A6  | Écrire le modèle de données v1 en migrations Laravel : joueur, compagnon, activité, quête, lieu, rencontre                      | `php artisan migrate` passe sur MariaDB et sur SQLite                 | Back-end et données   | Hamza       | ven 16/10        |
-| A7  | Créer un `.gitlab-ci.yml` minimal : tests back et front, puis publication SonarQube                                               | Pipeline vert sur une branche, premier rapport Sonar                  | CI/CD et infra        | Thomas      | lun 19/10        |
-| A8  | Preuve de concept : lire les pas du podomètre du téléphone dans l'app (permission `ACTIVITY_RECOGNITION`)                           | Nombre de pas affiché à l'écran, y compris app fermée              | App mobile | Evan        | mar 20/10        |
-| A9  | API d'authentification selon `D1`, couverte par des tests                                                                         | Inscription et connexion par jeton, tests verts (`APP-01`, `BCK-01`)  | Back-end et données   | Hamza       | mer 21/10        |
-| A10 | Assainir l'image du back (multi-stage) et le compose de prod (retirer `laravel_code`, réseaux explicites, healthchecks), puis taguer `v0.1.0` et reporter les décisions prises dans ce document | Tag `v0.1.0` déployé, § 11 mis à jour                             | CI/CD et infra        | Hamza       | **ven 23/10** |
+### 2.3 Plan d'action du 13/10/2026 au 13/01/2027
 
-**Règles de suivi.** Point d'équipe chaque vendredi : chaque responsable dit *fait / en cours / bloqué*. Une action non terminée est reportée **avec sa cause écrite**, jamais effacée. Toute action nouvelle entre dans ce tableau avec un responsable et une échéance, sinon elle n'existe pas.
+Dix actions, chacune avec un responsable nommé et une échéance. Elles découlent du point
+d'avancement du 13/10 : le logiciel avance vite, **la borne n'est pas commencée** et porte
+6 exigences *Must* sur 18. C'est elle qui ordonne le plan.
 
-**Déséquilibre assumé.** Quatre des dix actions relèvent du lot CI/CD et infra : c'est la nature du jalon « Fondations », où le pipeline conditionne tout le reste. Elles sont réparties entre **Thomas (A3, A5, A7) et Hamza (A10)**, pour éviter le point unique de défaillance et parce que R5.07 demande que chaque membre contribue au pipeline.
+| #   | Action                                                                                                                                              | Livrable vérifiable                                                     | Responsable      | Échéance       | Obj.   |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------- | --------------- | ------ |
+| A1  | Trancher `D3` (microcontrôleur), dont dépend le moyen matériel de `D2` (tranchée le 13/10), et **commander le matériel le jour même**                | Décision écrite au § 8, bon de commande, délai de livraison connu       | LESUEUR Shaleena | **17/10**       | O1     |
+| A2  | Fusionner les 8 demandes de fusion ouvertes après revue croisée, et cocher les exigences correspondantes                                             | `master` à 14 exigences *Must* sur 18, tag `v0.2.0`                     | KARROUCHI Hamza  | 24/10           | O1     |
+| A3  | Pipeline GitLab complet : tests avec mocks, SonarQube, build, publication DockerHub, déploiement automatique                                         | Un pipeline vert de bout en bout sur une fusion dans`master`            | BANDIERAS Thomas | **08/11**     | O2     |
+| A4  | Prototype de borne sur table : lecture NFC, publication MQTT, passage enregistré par le serveur (`BOR-02`, `BOR-03`)                                | Un passage de bout en bout filmé, visible dans la base                   | LESUEUR Shaleena | 14/11           | O1     |
+| A5  | Consentements RGPD et suppression du compte dans l'application (`APP-06`)                                                                            | Parcours de consentement et suppression effective, testés                | DALMASSO Evan    | 14/11           | O1     |
+| A6  | Démarcher les partenaires et recruter les testeurs : 10 rendez-vous visés pour 2 lettres d'intention, et 20 testeurs sur le campus                   | 2 lettres signées, 20 comptes actifs depuis 7 jours au moins             | DALMASSO Evan    | **29/11**     | O3     |
+| A7  | Compagnon animé et quêtes côté application (`APP-03`, `APP-05`)                                                                                     | Niveau, humeur et santé qui évoluent ; une quête menée de bout en bout | DALMASSO Evan    | 21/11           | O1     |
+| A8  | Récompense affichée en borne et monitoring : écran, inventaire, signal de vie remonté (`BOR-04`, `BOR-08`)                                         | Récompense visible à l'écran et dans l'inventaire ; bornes monitorées  | BANDIERAS Thomas | 29/11           | O1     |
+| A9  | Mode hors ligne de la borne et campagne de tests : mocks MQTT et NFC, couverture portée à 60 % (`BOR-09`)                                           | Couverture ≥ 60 % et zéro bug bloquant dans SonarQube                   | KARROUCHI Hamza  | **05/12**     | O1 O2  |
+| A10 | Gel, rendu et répétition : tag `v1.0.0`, documentation complète, trois répétitions chronométrées de la démonstration                                | Dépôt GitLab rendu le 12/12 ; démonstration tenue en moins de 10 minutes | Toute l'équipe   | **12/12**     | O1     |
+
+**Jalons**
+
+| Période            | Jalon            | Contenu                                                                                                              | *Must* visées |
+| ------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------- | --------------- |
+| 13 → 31 octobre    | `v0.2.0`       | Matériel commandé (**A1**), demandes de fusion intégrées (**A2**), pipeline amorcé                              | 14 / 18         |
+| 1 → 30 novembre    | `v0.3.0`       | Pipeline complet (**A3**), borne qui lit et publie (**A4**), RGPD (**A5**), compagnon et quêtes (**A7**), récompense et monitoring (**A8**), terrain (**A6**) | 17 / 18         |
+| 1 → 12 décembre    | `v1.0.0`       | Hors ligne et tests (**A9**),**gel le 05/12**, documentation,**rendu le 12/12** (**A10**)                 | 18 / 18         |
+| 13 déc. → 13 janv. | Soutenance       | Répétitions chronométrées, support de présentation, démonstration en direct le 13/01                            | -              |
+
+**Règles de suivi.** Point d'équipe chaque vendredi : chaque responsable dit *fait / en cours / bloqué*.
+Une action non terminée est reportée **avec sa cause écrite**, jamais effacée. Toute action nouvelle
+entre dans ce tableau avec un responsable et une échéance, sinon elle n'existe pas.
+
+**Les actions du 09 au 23/10 sont closes.** Elles portaient sur le cadrage et les fondations
+(décisions `D1`, identité Git, modèle de données, authentification, socle de l'app). Ce qui n'a pas
+abouti est repris ci-dessus : `D3` dans **A1** (`D2` a été tranchée le 13/10), le pipeline dans **A3**.
 
 ## 3. Calendrier et livrables
 
@@ -295,7 +327,11 @@ Livrables produits à ce jour :
 | Business Model Canvas          | [business-model-canvas.html](business-model-canvas.html) (source) et [business-model-canvas.pdf](business-model-canvas.pdf) (à rendre) | Version 2 du 08/10/2026, revue après relecture. Page 1 le canvas, page 2 et 3 les annexes |
 | Réponses à la relecture du BMC | [bmc-reponses-relecture.md](bmc-reponses-relecture.md)                           | Un commentaire = une correction ; sert d'appui pour la présentation |
 | BMC v1 annoté par la relecture | [business-model-canvas-v1-annote.pdf](business-model-canvas-v1-annote.pdf)       | Archive du 30/09/2026 : la trace des neuf commentaires                |
-| Charte de projet               | § 2                                                                              | Objectifs SMART, indicateurs, plan d'action                            |
+| Charte de projet (complète)    | [r501/charte-de-projet.pdf](r501/charte-de-projet.pdf)                           | Structure du cours : cadrage, périmètre, pilotage, analyse des risques, plan d'action, tableau de bord |
+| Charte de projet (opérationnelle) | § 2                                                                           | Objectifs SMART, indicateurs relevés chaque vendredi, plan d'action daté |
+| Marketing mix                  | [r501/marketing-mix.pdf](r501/marketing-mix.pdf)                                 | Les 4 P, les 7 P et les 4 C, illustrés par les maquettes et les films  |
+| Expérience utilisateur         | [r501/experience-utilisateur.pdf](r501/experience-utilisateur.pdf)               | Récit en pictogrammes, storyboard des films, Toolbox Persona pour le prix |
+| Films de démonstration         | [r501/videos/](r501/videos/)                                                     | Deux animations de 15 s : passage en borne au musée et à la Trattoria  |
 
 Le Business Model Canvas laisse cinq hypothèses ouvertes (grille tarifaire B2B, taille du marché, coût unitaire de la borne, pertinence de l'indice de besoin de contact sans mesure cardiaque, validité des personas). Elles sont listées en fin de `bmc-reponses-relecture.md` et l'objectif **O3** du § 2.1 est ce qui doit les lever.
 
@@ -437,6 +473,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.7     | 14/10/2026 | Livrables R5.01 dans `docs/r501/` : charte complète au format du cours (avec analyse des risques), marketing mix, expérience utilisateur, et les deux films en MP4. Le § 2 est aligné dessus : objectif O3 revu à la baisse (2 partenaires, 20 testeurs), K5 recentré sur la fiabilité du passage en borne, relevé des indicateurs au 13/10, et nouveau plan d'action du 13/10 au 13/01, dont l'action A1 porte sur `D3` seule, `D2` étant tranchée |
 | 0.6     | 13/10/2026 | Bornes : décision D2 tranchée (le téléphone lit un jeton signé, horodaté et à usage unique généré par la borne) ; BOR-02, BOR-03, BOR-09 et BCK-04 réécrits en conséquence, topic `passages` retiré, architecture mise à jour |
 | 0.5     | 13/10/2026 | État des briques mis à jour au § 4 (app, API, base, CI/CD) ; au § 11, tests d'exemple remplacés et `.gitlab-ci.yml` créé |
 | 0.4     | 13/10/2026 | Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01, APP-02, APP-04, PAS-01 et PAS-02 cochés |
