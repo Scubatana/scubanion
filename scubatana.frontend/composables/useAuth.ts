@@ -54,11 +54,21 @@ export function useAuth() {
 
 	async function logout(): Promise<void> {
 		await api.post<void>("/auth/logout").catch(() => undefined);
+		usePosition().stop();
 		await useSteps().reset();
+		await session.clear();
+		await forgetPendingEmail();
+		player.reset();
+		useQuests().reset();
+	}
+
+	async function deleteAccount(): Promise<void> {
+		await api.del<void>("/me?confirm=1");
+		await useSteps().discard();
 		await session.clear();
 		await forgetPendingEmail();
 		player.reset();
 	}
 
-	return { pendingEmail, restorePendingEmail, requestCode, verifyCode, logout };
+	return { pendingEmail, restorePendingEmail, requestCode, verifyCode, logout, deleteAccount };
 }

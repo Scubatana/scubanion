@@ -7,6 +7,7 @@ use App\Http\Requests\StoreStepsRequest;
 use App\Http\Requests\UpdateGoalRequest;
 use App\Http\Resources\CompanionResource;
 use App\Services\CompanionProgressService;
+use App\Services\QuestEngine;
 use App\Services\StepService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -36,7 +37,7 @@ class StepController extends Controller
 		]);
 	}
 
-	public function store(StoreStepsRequest $request, StepService $steps, CompanionProgressService $progress): JsonResponse
+	public function store(StoreStepsRequest $request, StepService $steps, QuestEngine $quests, CompanionProgressService $progress): JsonResponse
 	{
 		$user = $request->user();
 
@@ -44,6 +45,7 @@ class StepController extends Controller
 			$steps->record($user, $request->validated('device_id'), $entry['day'], $entry['steps']);
 		}
 
+		$quests->refreshPlayer($user);
 		$companion = $progress->refresh($user);
 
 		return response()->json([

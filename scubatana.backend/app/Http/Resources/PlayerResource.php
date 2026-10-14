@@ -19,7 +19,7 @@ class PlayerResource extends JsonResource
 			'profile_completed' => $this->hasCompletedProfile(),
 			'stats' => [
 				'total_steps' => (int) $this->activities()->sum('steps'),
-				'quests_done' => 0,
+				'quests_done' => $this->userQuests()->whereNotNull('completed_at')->count(),
 				'friends_count' => 0,
 			],
 		];

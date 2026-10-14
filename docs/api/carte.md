@@ -4,7 +4,7 @@ L'app ne récupère que ce qui la concerne : ses quêtes (`GET /me/quests`, voir
 
 ## `POST /me/position`
 
-La dernière position connue du joueur. L'app l'envoie chaque minute quand elle a l'accès à la localisation. Elle sert à donner les quêtes ciblées sur une zone, et à l'anti-triche.
+La dernière position connue du joueur. L'app l'envoie chaque minute quand elle a l'accès à la localisation. Elle sert à donner les quêtes ciblées sur une zone, et à l'anti-triche. Si cette position tombe dans le lieu d'une tâche de l'étape en cours d'une quête, la tâche est validée comme avec « Je suis sur place » (mêmes règles : anti téléportation, lieux distincts, position de moins de 24 h).
 
 | Champ | Règle |
 | ----- | ----- |
@@ -15,7 +15,7 @@ La dernière position connue du joueur. L'app l'envoie chaque minute quand elle 
 
 Réponse **204**, toujours, quoi que le serveur en conclue. Une seule position est gardée par joueur : chaque envoi remplace le précédent. Une position plus ancienne que celle gardée ne la remplace pas, mais passe quand même le contrôle anti téléportation. Limite : 10 envois par minute.
 
-**Anti-téléportation.** Chaque nouvelle position est comparée à la précédente. Plus de 1 000 km/h sur plus de 5 km, ou une position simulée, et le joueur est bloqué 24 h sur les tâches de localisation uniquement. Un nouveau signalement pendant le blocage le prolonge au lieu d'en créer un autre. Le blocage est silencieux : rien n'est affiché, ses validations de lieu échouent simplement. Les preuves (positions, distance, vitesse) sont gardées dans `quest_bans.evidence`.
+**Anti-téléportation.** Chaque nouvelle position est comparée à la précédente, y compris celle envoyée pour valider une tâche de lieu (`POST /me/quests/{id}/tasks/{taskId}`). Plus de 1 000 km/h sur plus de 5 km, ou une position simulée, et le joueur est bloqué 24 h sur les tâches de localisation uniquement. Un nouveau signalement pendant le blocage le prolonge au lieu d'en créer un autre. Le blocage est silencieux : rien n'est affiché, ses validations de lieu échouent simplement. Les preuves (positions, distance, vitesse) sont gardées dans `quest_bans.evidence`.
 
 ## `GET /map?bbox=ouest,sud,est,nord`
 

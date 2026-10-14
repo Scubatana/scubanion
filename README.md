@@ -42,7 +42,7 @@ php artisan migrate
 php artisan serve
 ```
 
-L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`, `PUT /me/goal`.
+L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `DELETE /me?confirm=1` (suppression du compte), `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`, `PUT /me/goal`.
 
 Les pas sont lus sur le téléphone par un module Android natif (`StepCounterPlugin`, capteur `STEP_COUNTER`) et envoyés au serveur, qui les plafonne (`STEPS_MAX_PER_HOUR`, `STEPS_MAX_PER_DAY`). L'apparence du compagnon suit la norme décrite dans `docs/skins-compagnon.md`.
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\PositionService;
+use App\Services\QuestEngine;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -11,7 +12,9 @@ class PositionController extends Controller
 {
 	private const CLOCK_TOLERANCE_MINUTES = 5;
 
-	public function store(Request $request, PositionService $positions): Response
+	private const OFFLINE_MAX_HOURS = 24;
+
+	public function store(Request $request, PositionService $positions, QuestEngine $quests): Response
 	{
 		$data = $request->validate([
 			'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -21,14 +24,16 @@ class PositionController extends Controller
 			'recorded_at' => ['nullable', 'date', 'before_or_equal:'.now()->addMinutes(self::CLOCK_TOLERANCE_MINUTES)->toIso8601String()],
 		]);
 
-		$positions->record(
-			$request->user(),
-			(float) $data['latitude'],
-			(float) $data['longitude'],
-			isset($data['accuracy_m']) ? (int) $data['accuracy_m'] : null,
-			$request->boolean('mocked'),
-			isset($data['recorded_at']) ? CarbonImmutable::parse($data['recorded_at'])->setTimezone(config('app.timezone')) : CarbonImmutable::now(),
-		);
+		$latitude = (float) $data['latitude'];
+		$longitude = (float) $data['longitude'];
+		$accuracy = isset($data['accuracy_m']) ? (int) $data['accuracy_m'] : null;
+		$recordedAt = isset($data['recorded_at']) ? CarbonImmutable::parse($data['recorded_at'])->setTimezone(config('app.timezone')) : CarbonImmutable::now();
+
+		$positions->record($request->user(), $latitude, $longitude, $accuracy, $request->boolean('mocked'), $recordedAt);
+
+		if ($recordedAt->gte(now()->subHours(self::OFFLINE_MAX_HOURS))) {
+			$quests->checkInAround($request->user(), $latitude, $longitude, $accuracy, $recordedAt);
+		}
 
 		return response()->noContent();
 	}

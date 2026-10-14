@@ -26,3 +26,39 @@ Pour un objectif de 5 000 pas tenu chaque jour, le joueur gagne 550 XP par jour 
 Dans l'app, la bulle du compagnon change selon son état : une santé sous 40 passe en premier, puis l'humeur (70 et plus, de 30 à 69, moins de 30).
 
 Le code est dans `scubatana.backend/app/Services/CompanionProgressService.php`, les tests dans `tests/Feature/Me/CompanionProgressTest.php` et `tests/Unit/Services/CompanionProgressServiceTest.php`.
+
+## Quêtes
+
+La conception suit la proposition d'Evan sur la PR #10.
+
+**Attribution.** Au lancement de l'app (`GET /api/me/quests`), le serveur donne au joueur chaque quête publiée et en cours, attribuée automatiquement, dont il remplit les conditions : l'ambition visée (ou aucune), et la zone visée (ou aucune) qui contient sa dernière position connue. Un admin peut aussi donner une quête à un joueur précis (`php artisan quetes:donner {quête} {joueur}`). Il n'y a pas de prérequis : un joueur qui n'a pas droit à une quête ne la reçoit pas.
+
+**Périodes.** Une quête `once` est donnée une fois. Une quête `daily` est redonnée chaque jour à minuit, une quête `weekly` chaque lundi (heure de Paris). Chaque période a sa propre ligne `user_quests`, qui expire à la fin de la période ou de la quête, la plus proche des deux.
+
+**Étapes.** Une quête reçue est active tout de suite, et un joueur peut en avoir plusieurs à la fois. Il faut finir toutes les tâches de l'étape en cours pour débloquer la suivante ; le joueur ne voit jamais les étapes suivantes. Une quête expirée ou ratée disparaît de l'app, sauf s'il lui reste des récompenses à récupérer.
+
+| Action | Comment la tâche avance |
+| ------ | ----------------------- |
+| `auto` (pas) | les pas comptent seulement depuis le déblocage de l'étape : le total du joueur à ce moment est gardé dans `baseline`. La tâche avance à chaque envoi de pas, sans attendre que le joueur ouvre ses quêtes |
+| `checkin` | le joueur est dans le rayon du lieu (100 m par défaut) ou à l'intérieur de son contour, avec une marge égale à la précision du GPS, plafonnée à 50 m. Un lieu précis se valide en une visite. Pour un type de lieu, n'importe quel lieu actif de ce type convient, mais chaque lieu ne compte qu'une fois (« passe par 3 arrêts de bus » demande 3 arrêts différents). La tâche se valide toute seule dès qu'une position envoyée par l'app (chaque minute, app ouverte) tombe dans le lieu ; le bouton « Je suis sur place » reste là pour valider tout de suite |
+| `scan` | le code envoyé correspond, sans tenir compte de la casse ni des espaces ; il n'est jamais envoyé à l'app |
+| `answer` | quiz : une question à la fois, dans l'ordre, un seul essai. Une erreur fait rater la quête. Les réponses ne sortent jamais du serveur |
+| `meet` | chaque rencontre validée depuis le déblocage de l'étape compte |
+
+**Hors ligne.** Une validation faite hors ligne est acceptée jusqu'à 24 h après, si la quête était encore en cours à ce moment-là. Une validation de lieu plus ancienne que la dernière position connue passe quand même le contrôle de vitesse, comparée à cette position.
+
+**Récompenses.** Une récompense (`quest_rewards`) donne de l'XP, un accessoire, ou les deux. Elle se gagne à l'un de ces trois moments :
+
+- en finissant une tâche (récompense rattachée à la tâche) ;
+- en finissant toute une étape (récompense rattachée au numéro d'étape) ;
+- en finissant la quête (récompense sans tâche ni étape).
+
+Une récompense gagnée attend dans `user_rewards` jusqu'à ce que le joueur la récupère avec le bouton « Récupérer » : l'XP s'ajoute alors au compagnon et l'accessoire est débloqué. Une récompense déjà gagnée reste récupérable même si la quête est ensuite ratée ou expire. Les accessoires marqués `earnable` dans la table `accessories` sont verrouillés tant que le joueur ne les a pas débloqués.
+
+**Anti-triche.** La position envoyée pour valider un lieu passe par le même contrôle que la position envoyée chaque minute : une vitesse impossible ou une position simulée bloque le joueur 24 h. Un joueur bloqué (`quest_bans`) échoue silencieusement aux tâches de localisation : rien ne lui est affiché, ses validations de lieu échouent simplement.
+
+Une tâche de pas compte les pas reçus par le serveur après le déblocage de son étape. Pour que les pas faits app fermée ne comptent pas dans une quête attribuée à l'ouverture, l'app envoie d'abord ces pas, puis demande ses quêtes (au lancement comme au retour dans l'app).
+
+**Limite connue (négligeable).** Des pas faits app ouverte juste avant un déblocage, mais pas encore envoyés à ce moment (synchro toutes les 20 secondes, ou téléphone sans réseau), comptent pour l'étape débloquée. Le corriger demanderait de dater les pas plus finement qu'au jour.
+
+Le code est dans `app/Services/QuestEngine.php` (avancement), `QuestAssigner.php` (attribution) et `QuestPresenter.php` (ce qui est envoyé à l'app), les tests dans `tests/Feature/Quests/QuestEngineTest.php`.
