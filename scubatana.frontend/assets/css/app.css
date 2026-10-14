@@ -186,6 +186,17 @@ button.link-under:disabled {
 	color: var(--ocean-dark);
 }
 
+.option-tile.locked {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.option-lock {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--coral-dark);
+}
+
 .swatch-row {
 	display: flex;
 	flex-wrap: wrap;
@@ -463,4 +474,23 @@ button.link-under:disabled {
 	font-size: 26px;
 	font-weight: 700;
 	color: var(--ocean-dark);
+}
+
+.quest-task {
+	padding-top: 10px;
+	border-top: 1px solid var(--mist);
+}
+
+.quest-task .row-between {
+	align-items: flex-start;
+	gap: 12px;
+}
+
+.quest-task .eyebrow {
+	white-space: nowrap;
+}
+
+.quest-notice {
+	color: var(--ocean-dark);
+	font-weight: 600;
 }

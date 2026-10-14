@@ -40,6 +40,12 @@ export function toggleAccessory(selected: string[], accessoryId: string, accesso
 	return [...selected.filter((id) => !sameCategory.includes(id)), accessoryId];
 }
 
+export function lockedAccessories(accessories: CatalogAccessory[], unlocked: string[], worn: string[]): string[] {
+	return accessories
+		.filter((accessory) => accessory.earnable === true && !unlocked.includes(accessory.id) && !worn.includes(accessory.id))
+		.map((accessory) => accessory.id);
+}
+
 export function resolveLook(catalog: CompanionCatalog, speciesId: string, colorId: string, accessoryIds: string[]): ResolvedLook | null {
 	const species = catalog.species.find((entry) => entry.id === speciesId);
 

@@ -28,6 +28,7 @@ const shownToday = computed(() => (today.value ? { ...today.value, steps: steps.
 onMounted(async () => {
 	await refresh();
 	await steps.start(true).catch(() => undefined);
+	await usePosition().start().catch(() => undefined);
 });
 </script>
 

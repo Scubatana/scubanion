@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ApiError, readableMessage } from "~/utils/apiError";
-import { paletteStyle, toggleAccessory } from "~/utils/companionLook";
+import { lockedAccessories, paletteStyle, toggleAccessory } from "~/utils/companionLook";
 
 const { companion, load, saveCompanion } = usePlayer();
 const { catalog, ensureLoaded } = useCatalog();
@@ -8,6 +8,7 @@ const name = ref("");
 const species = ref("");
 const color = ref("");
 const accessories = ref<string[]>([]);
+const wornAtStart = ref<string[]>([]);
 const loading = ref(false);
 const saving = ref(false);
 const loadError = ref("");
@@ -15,6 +16,8 @@ const formError = ref("");
 const fieldErrors = ref<Record<string, string>>({});
 
 const currentPalette = computed(() => paletteStyle(catalog.value?.colors.find((entry) => entry.id === color.value)));
+
+const locked = computed(() => lockedAccessories(catalog.value?.accessories ?? [], companion.value?.unlocked_accessories ?? [], wornAtStart.value));
 
 const accessoriesByCategory = computed(() =>
 	(catalog.value?.categories ?? []).map((category) => ({
@@ -32,6 +35,7 @@ function fillFromCompanion(): void {
 	species.value = companion.value.species;
 	color.value = companion.value.color;
 	accessories.value = [...companion.value.accessories];
+	wornAtStart.value = [...companion.value.accessories];
 }
 
 async function prepare(): Promise<void> {
@@ -58,6 +62,10 @@ async function prepare(): Promise<void> {
 }
 
 function toggle(accessoryId: string): void {
+	if (locked.value.includes(accessoryId)) {
+		return;
+	}
+
 	accessories.value = toggleAccessory(accessories.value, accessoryId, catalog.value?.accessories ?? []);
 }
 
@@ -123,9 +131,10 @@ onMounted(prepare);
 				<div v-for="category in accessoriesByCategory" :key="category.id" class="card stack-tight">
 					<span class="section-title">{{ category.label }}</span>
 					<div class="option-grid">
-						<button v-for="accessory in category.accessories" :key="accessory.id" class="option-tile" :class="{ active: accessories.includes(accessory.id) }" type="button" :aria-pressed="accessories.includes(accessory.id)" @click="toggle(accessory.id)">
+						<button v-for="accessory in category.accessories" :key="accessory.id" class="option-tile" :class="{ active: accessories.includes(accessory.id), locked: locked.includes(accessory.id) }" type="button" :aria-pressed="accessories.includes(accessory.id)" :disabled="locked.includes(accessory.id)" @click="toggle(accessory.id)">
 							<img :src="accessory.image" alt="">
 							<span>{{ accessory.label }}</span>
+							<span v-if="locked.includes(accessory.id)" class="option-lock">À gagner</span>
 						</button>
 					</div>
 				</div>
