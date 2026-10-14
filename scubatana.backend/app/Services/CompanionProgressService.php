@@ -51,7 +51,7 @@ class CompanionProgressService
 
 	public function rewardXp(User $user): int
 	{
-		return (int) $user->userQuests()->whereNotNull('completed_at')->sum('reward_xp')
+		return (int) $user->rewards()->whereNotNull('claimed_at')->sum('xp')
 			+ (int) Passage::where('user_id', $user->id)->sum('reward_xp');
 	}
 

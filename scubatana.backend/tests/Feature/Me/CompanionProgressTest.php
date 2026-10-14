@@ -5,7 +5,10 @@ namespace Tests\Feature\Me;
 use App\Models\Activity;
 use App\Models\Companion;
 use App\Models\User;
+use App\Models\Quest;
+use App\Models\QuestReward;
 use App\Models\UserQuest;
+use App\Models\UserReward;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -63,13 +66,16 @@ class CompanionProgressTest extends TestCase
 			->assertJsonPath('companion.xp_for_next_level', 2000);
 	}
 
-	public function test_completed_quests_add_their_reward_to_the_xp(): void
+	public function test_only_the_quest_rewards_already_claimed_add_to_the_xp(): void
 	{
 		$user = $this->playerSince('2026-10-01 09:00:00');
 		$this->walked($user, '2026-10-12', 3000);
-		UserQuest::factory()->for($user)->create(['completed_at' => now(), 'reward_xp' => 800]);
-		UserQuest::factory()->for($user)->create(['period' => '2026-10-13', 'reward_xp' => 0]);
-		UserQuest::factory()->for($user)->create(['failed_at' => now(), 'reward_xp' => 0]);
+		$quest = Quest::factory()->create();
+		$claimed = QuestReward::create(['quest_id' => $quest->id, 'xp' => 800]);
+		$waiting = QuestReward::create(['quest_id' => $quest->id, 'xp' => 500]);
+		$userQuest = UserQuest::factory()->for($user)->for($quest)->create(['completed_at' => now()]);
+		UserReward::create(['user_id' => $user->id, 'user_quest_id' => $userQuest->id, 'quest_reward_id' => $claimed->id, 'xp' => 800, 'earned_at' => now(), 'claimed_at' => now()]);
+		UserReward::create(['user_id' => $user->id, 'user_quest_id' => $userQuest->id, 'quest_reward_id' => $waiting->id, 'xp' => 500, 'earned_at' => now()]);
 
 		$this->getJson('/api/me')->assertJsonPath('companion.level', 2)->assertJsonPath('companion.xp', 300 + 800 - 1000);
 	}

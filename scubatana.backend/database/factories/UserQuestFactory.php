@@ -21,7 +21,6 @@ class UserQuestFactory extends Factory
 			'expires_at' => null,
 			'completed_at' => null,
 			'failed_at' => null,
-			'reward_xp' => 0,
 		];
 	}
 }

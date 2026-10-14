@@ -2,14 +2,18 @@
 
 namespace Tests\Unit\Models;
 
+use App\Models\Accessory;
+use App\Models\Place;
 use App\Models\Quest;
 use App\Models\QuestBan;
+use App\Models\QuestReward;
 use App\Models\QuestTask;
 use App\Models\User;
 use App\Models\UserAccessory;
 use App\Models\UserPosition;
 use App\Models\UserQuest;
 use App\Models\UserQuestTask;
+use App\Models\UserReward;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,13 +64,14 @@ class UserQuestTest extends TestCase
 		$quest = Quest::factory()->create();
 		$userQuest = UserQuest::factory()->for($player)->for($quest)->create();
 		UserQuestTask::factory()->for($userQuest)->create(['quest_task_id' => QuestTask::factory()->for(Quest::factory()->draft())]);
-		UserAccessory::create(['user_id' => $player->id, 'accessory' => 'crown', 'quest_id' => $quest->id, 'unlocked_at' => now()]);
+		UserAccessory::create(['user_id' => $player->id, 'accessory_id' => Accessory::where('code', 'crown')->value('id'), 'quest_id' => $quest->id, 'unlocked_at' => now()]);
+		UserReward::create(['user_id' => $player->id, 'user_quest_id' => $userQuest->id, 'quest_reward_id' => QuestReward::create(['quest_id' => Quest::factory()->create()->id, 'xp' => 10])->id, 'xp' => 10, 'earned_at' => now()]);
 		UserPosition::factory()->for($player)->create();
 		QuestBan::factory()->for($player)->create();
 
 		$player->delete();
 
-		$this->assertSame(0, UserQuest::count() + UserQuestTask::count() + UserAccessory::count() + UserPosition::count() + QuestBan::count());
+		$this->assertSame(0, UserQuest::count() + UserQuestTask::count() + UserAccessory::count() + UserReward::count() + UserPosition::count() + QuestBan::count());
 		$this->assertModelExists($quest);
 	}
 
@@ -84,6 +89,16 @@ class UserQuestTest extends TestCase
 		UserQuestTask::factory()->create(['quest_task_id' => $task->id]);
 
 		$this->expectException(QueryException::class);
-		$task->quest->delete();
+		$task->delete();
+	}
+
+	public function test_a_place_counts_once_per_task_and_cannot_be_deleted_once_visited(): void
+	{
+		$userTask = UserQuestTask::factory()->create();
+		$place = Place::factory()->create();
+		$userTask->visitedPlaces()->attach($place);
+
+		$this->assertThrows(fn () => $userTask->visitedPlaces()->attach($place), UniqueConstraintViolationException::class);
+		$this->assertThrows(fn () => $place->delete(), QueryException::class);
 	}
 }
