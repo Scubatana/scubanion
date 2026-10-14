@@ -85,6 +85,17 @@ Le job `deploy` n'existe que si la variable `DEPLOY_SSH_KEY` est définie. Il at
 
 Le job `release:images` n'existe que si la variable `DOCKERHUB_TOKEN` est définie. Il attend `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` (jeton d'accès DockerHub, masqué), et `DOCKERHUB_NAMESPACE` si les images vont dans une organisation plutôt que sur le compte. Il construit les images avec Docker-in-Docker : le runner doit l'autoriser (`privileged = true`).
 
+### Pull requests (GitHub)
+
+Sur GitHub, `master` et `main` ne reçoivent du code que par pull request, avec ces règles :
+
+- une PR ne peut viser que `master` ou `main` : une PR qui vise une autre branche est fermée automatiquement. Pour enchaîner deux PR, fusionner la première avant d'ouvrir la seconde ;
+- une PR doit être approuvée par une autre personne que son auteur et que la dernière personne à y avoir poussé du code. Personne n'est exempté, administrateur compris ;
+- les tests (`.github/workflows/tests.yml`) tournent à chaque PR : `Tests API` et `Tests app` doivent passer pour fusionner, `Tests API MariaDB` lance en plus les tests de concurrence ;
+- à chaque PR et à chaque fusion dans `master`, l'automatisation `.github/workflows/garde-des-pull-requests.yml` fusionne `master` dans la branche des PR ouvertes puis relance leurs tests. Si c'est impossible (conflit), elle l'écrit en commentaire et la fusion reste bloquée jusqu'à ce que l'auteur mette sa branche à jour. Penser à faire `git pull` sur sa branche avant de pousser.
+
+Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de `.github/workflows` : quand `master` en modifie un, chaque PR ouverte doit être mise à jour à la main une fois.
+
 ### Production (docker-compose)
 
 `docker-compose.yml` (racine) lance l'application complète à partir de trois images :
