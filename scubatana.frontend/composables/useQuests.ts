@@ -97,6 +97,7 @@ export function useQuests() {
 	}
 
 	async function load(): Promise<void> {
+		await useSteps().settled();
 		await flush();
 		quests.value = (await useApi().get<QuestsResponse>("/me/quests")).quests;
 	}

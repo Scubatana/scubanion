@@ -25,7 +25,8 @@ let ledgerKey: string | null = null;
 let stopWatching: (() => Promise<void>) | null = null;
 let appListenersReady = false;
 let lastSyncAt = 0;
-let syncing = false;
+let syncInFlight: Promise<void> | null = null;
+let catchingUp: Promise<void> | null = null;
 
 export function useSteps() {
 	const status = useState<StepStatus>("steps-status", () => "idle");
@@ -70,14 +71,7 @@ export function useSteps() {
 		unsyncedToday.value = 0;
 	}
 
-	async function sync(): Promise<void> {
-		const entries = pendingEntries(ledger, localDay(new Date()));
-
-		if (syncing || ledgerKey === null || entries.length === 0) {
-			return;
-		}
-
-		syncing = true;
+	async function send(entries: ReturnType<typeof pendingEntries>): Promise<void> {
 		lastSyncAt = Date.now();
 
 		try {
@@ -98,9 +92,24 @@ export function useSteps() {
 			if (error instanceof ApiError && error.status === 401) {
 				await halt();
 			}
-		} finally {
-			syncing = false;
 		}
+	}
+
+	async function sync(): Promise<void> {
+		while (syncInFlight !== null) {
+			await syncInFlight;
+		}
+
+		const entries = pendingEntries(ledger, localDay(new Date()));
+
+		if (ledgerKey === null || entries.length === 0) {
+			return;
+		}
+
+		syncInFlight = send(entries).finally(() => {
+			syncInFlight = null;
+		});
+		await syncInFlight;
 	}
 
 	async function onCount(count: number): Promise<void> {
@@ -112,7 +121,7 @@ export function useSteps() {
 		}
 	}
 
-	async function catchUp(): Promise<void> {
+	async function readAndSync(): Promise<void> {
 		try {
 			ledger = applyRecorded(ledger, await readRecordedSteps(recordedFrom(ledger, new Date())));
 			await persist();
@@ -121,6 +130,18 @@ export function useSteps() {
 		}
 
 		await sync();
+	}
+
+	function catchUp(): Promise<void> {
+		catchingUp ??= readAndSync().finally(() => {
+			catchingUp = null;
+		});
+
+		return catchingUp;
+	}
+
+	async function settled(): Promise<void> {
+		await catchingUp;
 	}
 
 	async function onResume(): Promise<void> {
@@ -166,12 +187,11 @@ export function useSteps() {
 		}
 
 		await halt();
-		syncing = false;
 	}
 
 	async function openSettings(): Promise<void> {
 		await openStepSettings();
 	}
 
-	return { status, displayedSteps, start, sync, reset, openSettings };
+	return { status, displayedSteps, start, sync, settled, reset, openSettings };
 }

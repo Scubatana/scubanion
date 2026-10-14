@@ -1,8 +1,11 @@
 package com.scubatana.app;
 
 import android.Manifest;
+import android.content.Intent;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
+import android.provider.Settings;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
@@ -39,6 +42,14 @@ public class PositionPlugin extends Plugin {
 				call.resolve(toResult(location));
 			})
 			.addOnFailureListener(error -> call.reject("Location unavailable", "UNAVAILABLE", error));
+	}
+
+	@PluginMethod
+	public void openSettings(PluginCall call) {
+		Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", getContext().getPackageName(), null));
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		getContext().startActivity(intent);
+		call.resolve();
 	}
 
 	private JSObject toResult(Location location) {

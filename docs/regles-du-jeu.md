@@ -57,6 +57,8 @@ Une récompense gagnée attend dans `user_rewards` jusqu'à ce que le joueur la 
 
 **Anti-triche.** La position envoyée pour valider un lieu passe par le même contrôle que la position envoyée chaque minute : une vitesse impossible ou une position simulée bloque le joueur 24 h. Un joueur bloqué (`quest_bans`) échoue silencieusement aux tâches de localisation : rien ne lui est affiché, ses validations de lieu échouent simplement.
 
-**Limite connue (négligeable).** Une tâche de pas compte les pas reçus par le serveur après le déblocage de son étape. Des pas faits juste avant le déblocage, mais envoyés après (téléphone resté sans réseau), sont donc comptés. Avec une synchro toutes les 20 secondes, l'écart est minime ; le corriger demanderait de dater les pas plus finement qu'au jour.
+Une tâche de pas compte les pas reçus par le serveur après le déblocage de son étape. Pour que les pas faits app fermée ne comptent pas dans une quête attribuée à l'ouverture, l'app envoie d'abord ces pas, puis demande ses quêtes (au lancement comme au retour dans l'app).
+
+**Limite connue (négligeable).** Des pas faits app ouverte juste avant un déblocage, mais pas encore envoyés à ce moment (synchro toutes les 20 secondes, ou téléphone sans réseau), comptent pour l'étape débloquée. Le corriger demanderait de dater les pas plus finement qu'au jour.
 
 Le code est dans `app/Services/QuestEngine.php` (avancement), `QuestAssigner.php` (attribution) et `QuestPresenter.php` (ce qui est envoyé à l'app), les tests dans `tests/Feature/Quests/QuestEngineTest.php`.

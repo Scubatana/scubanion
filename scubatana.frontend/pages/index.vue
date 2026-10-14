@@ -3,6 +3,7 @@ import { readableMessage } from "~/utils/apiError";
 
 const { companion, today, streak, load } = usePlayer();
 const steps = useSteps();
+const position = usePosition();
 const loading = ref(false);
 const loadError = ref("");
 
@@ -28,7 +29,7 @@ const shownToday = computed(() => (today.value ? { ...today.value, steps: steps.
 onMounted(async () => {
 	await refresh();
 	await steps.start(true).catch(() => undefined);
-	await usePosition().start().catch(() => undefined);
+	await position.start(true).catch(() => undefined);
 });
 </script>
 
@@ -61,5 +62,6 @@ onMounted(async () => {
 			</div>
 		</div>
 		<BottomNav />
+		<LocationPrompt v-if="position.showPrompt.value" @settings="position.openSettings()" @later="position.dismissPrompt()" />
 	</div>
 </template>

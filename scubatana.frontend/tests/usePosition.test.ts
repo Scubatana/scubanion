@@ -4,15 +4,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
 	httpRequest: vi.fn(),
 	navigateTo: vi.fn(),
-	allowed: vi.fn(),
+	access: vi.fn(),
 	current: vi.fn(),
+	openSettings: vi.fn(),
 	listeners: new Map<string, () => void>(),
 	storage: new Map<string, string>()
 }));
 
 vi.mock("~/utils/http", () => ({ httpRequest: mocks.httpRequest }));
 
-vi.mock("~/utils/geolocation", () => ({ positionAllowed: mocks.allowed, currentPosition: mocks.current }));
+vi.mock("~/utils/geolocation", () => ({ positionAccess: mocks.access, currentPosition: mocks.current, openLocationSettings: mocks.openSettings }));
 
 vi.mock("@capacitor/app", () => ({
 	App: {
@@ -43,7 +44,8 @@ describe("usePosition", () => {
 	beforeEach(async () => {
 		vi.useFakeTimers();
 		mocks.httpRequest.mockReset();
-		mocks.allowed.mockReset();
+		mocks.access.mockReset();
+		mocks.openSettings.mockReset();
 		mocks.current.mockReset();
 		mocks.storage.clear();
 		clearNuxtState();
@@ -58,9 +60,9 @@ describe("usePosition", () => {
 	});
 
 	it("sends the position with its accuracy and mocked flag, then every minute", async () => {
-		mocks.allowed.mockResolvedValue(true);
+		mocks.access.mockResolvedValue("granted");
 
-		await usePosition().start();
+		await usePosition().start(false);
 
 		expect(mocks.httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/position$/);
 		expect(mocks.httpRequest.mock.calls[0][3]).toEqual(fix);
@@ -72,18 +74,69 @@ describe("usePosition", () => {
 	});
 
 	it("sends nothing and never asks for the permission when it was not granted", async () => {
-		mocks.allowed.mockResolvedValue(false);
+		mocks.access.mockResolvedValue("denied");
 
-		await usePosition().start();
+		await usePosition().start(false);
 		await vi.advanceTimersByTimeAsync(120000);
 
-		expect(mocks.allowed).toHaveBeenCalledWith(false);
+		expect(mocks.access).toHaveBeenCalledWith(false);
 		expect(mocks.httpRequest).not.toHaveBeenCalled();
 	});
 
+	it("asks for the permission once per launch and offers the settings when it is refused", async () => {
+		mocks.access.mockResolvedValue("denied");
+		const position = usePosition();
+
+		await position.start(true);
+		await position.start(true);
+
+		expect(mocks.access.mock.calls).toEqual([[true], [false]]);
+		expect(position.status.value).toBe("denied");
+		expect(position.showPrompt.value).toBe(true);
+
+		await position.openSettings();
+
+		expect(mocks.openSettings).toHaveBeenCalledOnce();
+	});
+
+	it("hides the settings prompt for the rest of the launch once put off", async () => {
+		mocks.access.mockResolvedValue("denied");
+		const position = usePosition();
+
+		await position.start(true);
+		position.dismissPrompt();
+		await position.start(true);
+
+		expect(position.showPrompt.value).toBe(false);
+	});
+
+	it("starts sending as soon as the player comes back from the settings with the permission granted", async () => {
+		mocks.access.mockResolvedValue("denied");
+		const position = usePosition();
+		await position.start(true);
+
+		mocks.access.mockResolvedValue("granted");
+		mocks.listeners.get("resume")?.();
+		await vi.advanceTimersByTimeAsync(0);
+
+		expect(position.status.value).toBe("tracking");
+		expect(position.showPrompt.value).toBe(false);
+		expect(mocks.httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/position$/);
+	});
+
+	it("never shows the prompt where the position cannot be read, like in a browser", async () => {
+		mocks.access.mockResolvedValue("unsupported");
+		const position = usePosition();
+
+		await position.start(true);
+
+		expect(position.status.value).toBe("unsupported");
+		expect(position.showPrompt.value).toBe(false);
+	});
+
 	it("stops while the app is in the background and starts again when it comes back", async () => {
-		mocks.allowed.mockResolvedValue(true);
-		await usePosition().start();
+		mocks.access.mockResolvedValue("granted");
+		await usePosition().start(false);
 
 		mocks.listeners.get("pause")?.();
 		await vi.advanceTimersByTimeAsync(180000);
@@ -97,12 +150,12 @@ describe("usePosition", () => {
 	});
 
 	it("refreshes the quests already shown, so a place reached is seen as validated", async () => {
-		mocks.allowed.mockResolvedValue(true);
+		mocks.access.mockResolvedValue("granted");
 		useQuests().quests.value = [{ id: 1, quest_id: 1, name: "Juste ici", description: null, icon: null, period: "once", expires_at: null, status: "active", step: 1, steps: 1, tasks: [], step_rewards: [], quest_rewards: [], rewards_to_claim: [] }];
 		mocks.httpRequest.mockResolvedValueOnce({ status: 204, data: null });
 		mocks.httpRequest.mockResolvedValueOnce({ status: 200, data: { quests: [] } });
 
-		await usePosition().start();
+		await usePosition().start(false);
 
 		expect(mocks.httpRequest.mock.calls[1][0]).toBe("GET");
 		expect(mocks.httpRequest.mock.calls[1][1]).toMatch(/\/api\/me\/quests$/);
