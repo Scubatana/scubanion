@@ -74,7 +74,7 @@ Le joueur, son compagnon et ses pas du jour : c'est l'appel de l'écran d'accuei
 - `gender` vaut `female`, `male`, `other` ou `null` ; `ambition` vaut `fitness`, `go_out`, `meet_people` ou `explore` (ou `null` avant le profil).
 - `profile_completed` est faux tant que le joueur n'a pas de pseudo : l'app l'envoie alors sur l'écran de profil. `companion` vaut `null` jusque-là.
 - `streak.days` compte les jours consécutifs où l'objectif est atteint ; `streak.active` dit si aujourd'hui en fait déjà partie.
-- `stats.friends_count` compte les amitiés acceptées ([amis.md](amis.md)). `stats.quests_done` vaut encore 0 : il sera branché sur les quêtes terminées.
+- `stats.friends_count` compte les amitiés acceptées ([amis.md](amis.md)). `stats.quests_done` compte les quêtes terminées par le joueur (`user_quests.completed_at` renseigné).
 
 ### `PUT /me/profile`
 
