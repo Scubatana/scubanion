@@ -4,10 +4,14 @@ import { formatCount } from "~/utils/labels";
 import { GOAL_MAX, GOAL_MIN, GOAL_STEP, shiftedGoal } from "~/utils/stepGoal";
 
 const { today, load, saveGoal } = usePlayer();
+const auth = useAuth();
 const loading = ref(false);
 const saving = ref(false);
 const loadError = ref("");
 const saveError = ref("");
+const confirmingDeletion = ref(false);
+const deleting = ref(false);
+const deleteError = ref("");
 
 async function refresh(): Promise<void> {
 	if (loading.value) {
@@ -45,6 +49,24 @@ async function changeGoal(offset: number): Promise<void> {
 	}
 }
 
+async function deleteAccount(): Promise<void> {
+	if (deleting.value) {
+		return;
+	}
+
+	deleting.value = true;
+	deleteError.value = "";
+
+	try {
+		await auth.deleteAccount();
+		await navigateTo("/login", { replace: true });
+	} catch (error) {
+		deleteError.value = readableMessage(error);
+	} finally {
+		deleting.value = false;
+	}
+}
+
 onMounted(refresh);
 </script>
 
@@ -78,6 +100,16 @@ onMounted(refresh);
 			<div v-if="loadError" class="card stack-tight">
 				<p class="form-error">{{ loadError }}</p>
 				<button class="btn btn-ghost" type="button" :disabled="loading" @click="refresh">Réessayer</button>
+			</div>
+			<div class="card stack-tight">
+				<span class="section-title">Supprimer mon compte</span>
+				<p class="gallery-note">Ton compagnon, tes pas et toutes tes données sont effacés du serveur et de ce téléphone. C'est définitif.</p>
+				<template v-if="confirmingDeletion">
+					<button class="btn btn-danger" type="button" :disabled="deleting" @click="deleteAccount">{{ deleting ? "Suppression…" : "Supprimer définitivement" }}</button>
+					<button class="btn btn-ghost" type="button" :disabled="deleting" @click="confirmingDeletion = false">Annuler</button>
+				</template>
+				<button v-else class="btn btn-ghost" type="button" @click="confirmingDeletion = true">Supprimer mon compte</button>
+				<p v-if="deleteError" class="form-error">{{ deleteError }}</p>
 			</div>
 		</div>
 		<BottomNav />

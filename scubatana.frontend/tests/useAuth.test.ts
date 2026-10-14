@@ -139,4 +139,35 @@ describe("useAuth", () => {
 		expect(useSession().token.value).toBeNull();
 		expect(storage.size).toBe(0);
 	});
+
+	it("deletes the account on the server, then forgets everything kept on the phone", async () => {
+		await useSession().open("jeton-1", true);
+		usePlayer().player.value = { ...newPlayer, profile_completed: true };
+		storage.set("steps.ledger.1", JSON.stringify({ days: { "2026-10-13": 300 } }));
+		storage.set("steps.device", "telephone-de-lea");
+		httpRequest.mockResolvedValue({ status: 204, data: null });
+
+		await useAuth().deleteAccount();
+
+		const [method, url, headers, body] = httpRequest.mock.calls[0];
+		expect(method).toBe("DELETE");
+		expect(url).toMatch(/\/api\/me\?confirm=1$/);
+		expect(headers.Authorization).toBe("Bearer jeton-1");
+		expect(body).toBeUndefined();
+		expect(useSession().token.value).toBeNull();
+		expect(usePlayer().player.value).toBeNull();
+		expect([...storage.keys()]).toEqual(["steps.device"]);
+	});
+
+	it("keeps the session and the local steps when the account could not be deleted", async () => {
+		await useSession().open("jeton-1", true);
+		usePlayer().player.value = { ...newPlayer, profile_completed: true };
+		storage.set("steps.ledger.1", JSON.stringify({ days: { "2026-10-13": 300 } }));
+		httpRequest.mockRejectedValue(new TypeError("Failed to fetch"));
+
+		await expect(useAuth().deleteAccount()).rejects.toThrow();
+
+		expect(useSession().token.value).toBe("jeton-1");
+		expect(storage.has("steps.ledger.1")).toBe(true);
+	});
 });

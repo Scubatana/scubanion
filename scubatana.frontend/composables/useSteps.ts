@@ -167,9 +167,20 @@ export function useSteps() {
 		syncing = false;
 	}
 
+	async function discard(): Promise<void> {
+		const playerId = player.value?.id;
+
+		await halt();
+		syncing = false;
+
+		if (playerId !== undefined) {
+			await Preferences.remove({ key: `${LEDGER_KEY_PREFIX}${playerId}` });
+		}
+	}
+
 	async function openSettings(): Promise<void> {
 		await openStepSettings();
 	}
 
-	return { status, displayedSteps, start, sync, reset, openSettings };
+	return { status, displayedSteps, start, sync, reset, discard, openSettings };
 }
