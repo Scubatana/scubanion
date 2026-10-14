@@ -54,10 +54,12 @@ export function useAuth() {
 
 	async function logout(): Promise<void> {
 		await api.post<void>("/auth/logout").catch(() => undefined);
+		usePosition().stop();
 		await useSteps().reset();
 		await session.clear();
 		await forgetPendingEmail();
 		player.reset();
+		useQuests().reset();
 	}
 
 	async function deleteAccount(): Promise<void> {

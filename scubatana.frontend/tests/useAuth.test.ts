@@ -118,6 +118,7 @@ describe("useAuth", () => {
 
 	it("revokes the token on the server and clears the session on logout", async () => {
 		await useSession().open("jeton-1", true);
+		useQuests().quests.value = [{ id: 1, quest_id: 1, name: "Quête", description: null, icon: null, period: "once", expires_at: null, status: "active", step: 1, steps: 1, tasks: [], step_rewards: [], quest_rewards: [], rewards_to_claim: [] }];
 		usePlayer().player.value = { ...newPlayer, profile_completed: true };
 		httpRequest.mockResolvedValue({ status: 204, data: null });
 
@@ -127,6 +128,7 @@ describe("useAuth", () => {
 		expect(httpRequest.mock.calls[0][2].Authorization).toBe("Bearer jeton-1");
 		expect(useSession().token.value).toBeNull();
 		expect(usePlayer().player.value).toBeNull();
+		expect(useQuests().quests.value).toEqual([]);
 		expect(storage.size).toBe(0);
 	});
 
