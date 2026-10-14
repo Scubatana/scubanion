@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanionController;
 use App\Http\Controllers\MapController;
@@ -17,6 +18,7 @@ Route::post('/auth/verify', [AuthController::class, 'verify'])->middleware('thro
 Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/auth/logout', [AuthController::class, 'logout']);
 	Route::get('/me', [MeController::class, 'show']);
+	Route::delete('/me', [AccountController::class, 'destroy']);
 	Route::put('/me/profile', [MeController::class, 'updateProfile']);
 	Route::put('/me/companion', [CompanionController::class, 'update']);
 	Route::post('/me/position', [PositionController::class, 'store'])->middleware('throttle:10,1');

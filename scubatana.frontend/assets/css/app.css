@@ -85,6 +85,11 @@ body {
 	cursor: default;
 }
 
+.btn-danger {
+	background: var(--coral-dark);
+	color: var(--white);
+}
+
 button.link-under {
 	background: none;
 	border: none;
