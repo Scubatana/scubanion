@@ -2,7 +2,7 @@
 
 Ce document explique comment ajouter une base, une couleur ou un accessoire au compagnon. Rien de tout cela ne demande de modifier le code ni de recompiler l'app : le catalogue et les images sont envoyés par le serveur.
 
-Tout se décrit dans un seul fichier, `scubatana.backend/config/companion.php`. Les images vivent dans `scubatana.backend/resources/companion/`.
+Les bases, les couleurs et les catégories se décrivent dans `scubatana.backend/config/companion.php`, avec leurs images dans `scubatana.backend/resources/companion/`. Les accessoires, eux, sont des lignes de la table `accessories` : en ajouter un ne demande aucune modification du code.
 
 ## Le principe
 
@@ -33,16 +33,21 @@ Conseils pour qu'un dessin tombe juste :
 
 ## Ajouter un accessoire
 
-1. Dessiner le SVG à partir du gabarit de sa catégorie et le déposer dans `resources/companion/accessories/`.
-2. Ajouter une entrée dans la section `accessories` de `config/companion.php` :
+1. Dessiner le SVG à partir du gabarit de sa catégorie (`resources/companion/templates/`).
+2. Ajouter une ligne dans la table `accessories` :
 
-```php
-'beret' => ['label' => 'Béret', 'category' => 'hat', 'image' => 'accessories/beret.svg'],
-```
+| Colonne | Exemple |
+| ------- | ------- |
+| `code` | `beret` |
+| `label` | `Béret` |
+| `category` | `hat` (une des catégories de `config/companion.php`) |
+| `image` | le contenu du fichier SVG, qui commence par `<svg` et garde `viewBox="0 0 100 100"` |
+| `earnable` | `true` s'il se gagne par une récompense de quête, `false` s'il est libre |
+| `active` | `true` ; `false` le retire du catalogue sans le supprimer |
 
-3. Lancer `php artisan test` : un test vérifie que le fichier existe, que sa catégorie est connue et qu'il respecte le carré de 100 × 100.
+L'accessoire apparaît dans l'app au prochain lancement. Un accessoire `earnable` que le joueur n'a pas encore débloqué y est grisé, avec la mention « À gagner ». Un accessoire que le compagnon porte déjà reste toujours portable, même s'il devient `earnable` ou inactif. Pour le faire gagner, il suffit de l'indiquer dans une récompense de quête (`quest_rewards.accessory_id`).
 
-L'accessoire apparaît dans l'app au prochain lancement.
+Les 16 accessoires d'origine sont recopiés dans la table par la migration `create_accessories_table`, à partir des fichiers de `resources/companion/accessories/`. Le test du catalogue vérifie que chaque accessoire a une catégorie connue et respecte le carré de 100 × 100.
 
 ## Ajouter une catégorie
 
@@ -105,4 +110,4 @@ Les accessoires ne changent jamais de couleur. La couleur `ocean` doit toujours 
 
 ## Ce qui n'existe pas encore
 
-Tous les accessoires sont disponibles pour tous les joueurs. Le déblocage par les quêtes, les bornes ou l'ambition (cahier des charges, BOR-04 et BOR-07) reste à faire : il s'ajoutera par une clé supplémentaire sur chaque accessoire et un inventaire par joueur, sans changer la norme de dessin.
+Les accessoires se débloquent pour l'instant seulement par les récompenses de quête. Le déblocage par les bornes ou l'ambition (cahier des charges, BOR-04 et BOR-07) reste à faire : il passera par la même table `user_accessories`, sans changer la norme de dessin.

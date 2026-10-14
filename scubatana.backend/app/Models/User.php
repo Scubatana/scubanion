@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Ambition;
 use App\Enums\Gender;
+use App\Support\FriendCode;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,13 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
 	use HasApiTokens, HasFactory;
+
+	protected static function booted(): void
+	{
+		static::creating(function (User $user): void {
+			$user->friend_code ??= FriendCode::generate();
+		});
+	}
 
 	protected function casts(): array
 	{
@@ -36,6 +44,41 @@ class User extends Authenticatable
 	public function activities(): HasMany
 	{
 		return $this->hasMany(Activity::class);
+	}
+
+	public function userQuests(): HasMany
+	{
+		return $this->hasMany(UserQuest::class);
+	}
+
+	public function accessories(): HasMany
+	{
+		return $this->hasMany(UserAccessory::class);
+	}
+
+	public function ownedAccessoryCodes(): array
+	{
+		return Accessory::whereIn('id', $this->accessories()->select('accessory_id'))->pluck('code')->all();
+	}
+
+	public function rewards(): HasMany
+	{
+		return $this->hasMany(UserReward::class);
+	}
+
+	public function position(): HasOne
+	{
+		return $this->hasOne(UserPosition::class);
+	}
+
+	public function questBans(): HasMany
+	{
+		return $this->hasMany(QuestBan::class);
+	}
+
+	public function isBannedFromLocationTasks(): bool
+	{
+		return $this->questBans()->activeAt(now())->exists();
 	}
 
 	public function hasCompletedProfile(): bool

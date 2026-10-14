@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { paletteStyle, resolveLook, toggleAccessory } from "~/utils/companionLook";
+import { lockedAccessories, paletteStyle, resolveLook, toggleAccessory } from "~/utils/companionLook";
 import type { CompanionCatalog } from "~/utils/types";
 
 const catalog: CompanionCatalog = {
@@ -113,5 +113,22 @@ describe("resolveLook", () => {
 
 	it("returns nothing for a base missing from the catalog", () => {
 		expect(resolveLook(catalog, "dragon", "ocean", [])).toBeNull();
+	});
+});
+
+describe("lockedAccessories", () => {
+	const shop = [
+		{ id: "tophat", label: "Haut-de-forme", category: "hat", image: "a" },
+		{ id: "crown", label: "Couronne", category: "hat", image: "b", earnable: true },
+		{ id: "medal", label: "Médaille", category: "neck", image: "c", earnable: true }
+	];
+
+	it("locks the accessories to win that the player has not unlocked", () => {
+		expect(lockedAccessories(shop, [], [])).toEqual(["crown", "medal"]);
+		expect(lockedAccessories(shop, ["crown"], [])).toEqual(["medal"]);
+	});
+
+	it("never locks an accessory the companion already wears", () => {
+		expect(lockedAccessories(shop, [], ["medal"])).toEqual(["crown"]);
 	});
 });

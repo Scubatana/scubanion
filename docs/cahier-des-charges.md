@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.4 du 13/10/2026
+- **Version** : 0.6 du 13/10/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -122,26 +122,27 @@ flowchart LR
     MON["Prometheus + Grafana"]
   end
   APP <-->|rencontre, BLE| APP2
-  APP -.->|identification NFC, D2| BORNE
-  APP -->|HTTPS, API REST| NGINX --> API --> DB
-  BORNE -->|MQTT via Wi-Fi| BROKER --> API
+  BORNE -.->|jeton signé par NFC, D2| APP
+  APP -->|HTTPS, API REST : passages| NGINX --> API --> DB
+  BORNE -->|MQTT via Wi-Fi : signal de vie| BROKER --> API
+  API -->|MQTT : affichage| BROKER
   MON -.->|collecte des métriques| API
 ```
 
 | Brique                | Techno                                                   | Pourquoi                                                                                                | État            |
 | --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
-| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Socle posé      |
+| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas |
 | Borne                 | ESP32, Arduino ou Raspberry Pi + lecteur NFC + écran    | Vrai système cyber-physique, programmé par l'équipe                                                  | À choisir (D3)  |
-| API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Squelette        |
-| Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Conteneur prêt  |
+| API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Connexion, profil, compagnon, pas |
+| Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Joueurs, compagnons, pas |
 | Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | À faire         |
 | Flux d'événements   | Kafka                                                    | Découpler la réception des événements des règles de jeu, pouvoir les rejouer (vu en R5.04)         | À évaluer (D5) |
 | Standard IoT          | oneM2M                                                   | Décrire les bornes selon un standard (vu en R5.04)                                                     | À évaluer (D5) |
 | Reverse proxy         | nginx                                                    | Point d'entrée HTTP unique                                                                             | Conteneur prêt  |
 | Admin BDD             | phpMyAdmin                                               | En développement uniquement                                                                            | Conteneur prêt  |
-| CI/CD                 | GitHub Actions + GitLab CI (runner IUT)                  | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | À faire         |
+| CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI en place sur `master`, GitHub Actions à faire |
 | Qualité              | SonarQube                                                | Exigé par R5.07                                                                                        | À faire (D7)    |
-| Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | À faire         |
+| Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | Job prêt, attend les accès |
 | Hébergement          | Azure ou autre, hôte configuré par Ansible (optionnel) | Exigé par R5.07                                                                                        | À choisir (D6)  |
 | Monitoring            | Prometheus + Grafana (+ Alertmanager)                    | Pile vue en R5.07                                                                                       | À faire         |
 | Passage à l'échelle | Docker Swarm (réplicas de l'API)                        | Bonus R5.07                                                                                             | Bonus            |
@@ -172,35 +173,36 @@ flowchart LR
 ### 5.3 Borne IoT
 
 - [ ] **BOR-01** · Must : Matériel choisi et justifié : microcontrôleur, lecteur NFC, écran (D3).
-- [ ] **BOR-02** · Must : Identification du joueur par NFC (D2), sans exposer son identifiant brut (jeton temporaire ou signé).
-- [ ] **BOR-03** · Must : Communication avec le serveur en MQTT, via Wi-Fi.
+- [ ] **BOR-02** · Must : Passage prouvé par NFC (D2) : la borne transmet au téléphone un jeton signé avec son propre secret, horodaté et à usage unique. Le joueur est identifié par sa session dans l'app : aucun identifiant de joueur ne passe par la borne.
+- [ ] **BOR-03** · Must : Communication avec le serveur en MQTT, via Wi-Fi : signal de vie de la borne, et réponse du serveur à afficher après chaque passage.
 - [ ] **BOR-04** · Must : Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur.
 - [ ] **BOR-05** · Should : Événements limités dans le temps (bonus d'un week-end, skin de saison).
 - [ ] **BOR-06** · Should : Jeux et énigmes à résoudre sur la borne.
 - [ ] **BOR-07** · Should : Collabs : une borne chez un partenaire débloque un contenu exclusif (ex. Decathlon Châtelet-les-Halles).
 - [ ] **BOR-08** · Must : Signal de vie envoyé au serveur, visible dans le monitoring.
-- [ ] **BOR-09** · Must : Mode hors ligne : les passages sont stockés puis renvoyés au retour du réseau.
+- [ ] **BOR-09** · Must : Mode hors ligne : la borne fonctionne sans réseau (le jeton ne demande que son horloge, tenue à l'heure par NTP), et le téléphone garde le jeton puis l'envoie au serveur dans les 24 h.
 
-Topics MQTT (*proposition*) :
+Passage à une borne : la borne donne un jeton signé au téléphone par NFC, le téléphone l'envoie à l'API (`POST /api/me/passages`), l'API le vérifie et répond à la borne par MQTT. Le protocole complet (format du jeton, messages) est dans [mqtt.md](mqtt.md).
+
+Topics MQTT :
 
 | Topic                               | Sens             | Contenu                                                           |
 | ----------------------------------- | ---------------- | ----------------------------------------------------------------- |
-| `scubanion/bornes/{id}/passages`  | borne → serveur | Un joueur s'est identifié                                        |
-| `scubanion/bornes/{id}/affichage` | serveur → borne | Ce que l'écran doit montrer (récompense, énigme, erreur)       |
-| `scubanion/bornes/{id}/etat`      | borne → serveur | Signal de vie ; un*Last Will* MQTT signale une borne hors ligne |
+| `scubanion/bornes/{id}/affichage` | serveur → borne | Ce que l'écran doit montrer après un passage (récompense, déjà passé) |
+| `scubanion/bornes/{id}/etat`      | borne → serveur | Signal de vie ; un *Last Will* MQTT signale une borne hors ligne |
 
 ### 5.4 Back-end, données et web
 
 - [ ] **BCK-01** · Must : API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.
 - [ ] **BCK-02** · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
 - [ ] **BCK-03** · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
-- [ ] **BCK-04** · Must : Abonné MQTT qui traite les passages en borne et répond à la borne.
+- [x] **BCK-04** · Must : Abonné MQTT qui suit le signal de vie des bornes ; le serveur vérifie chaque passage (jeton signé, à usage unique) et répond à la borne par MQTT.
 - [ ] **BCK-05** · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).
 - [ ] **BCK-06** · Could : Ressources oneM2M pour décrire les bornes (D5).
 - [ ] **BCK-07** · Could : Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de `scubatana.demo`.
 - [ ] **BCK-08** · Could : Back-office pour créer quêtes, événements, skins et partenaires.
 
-Modèle de données (v0, à affiner) :
+Modèle de données (v0, à affiner). Les tables déjà créées sont décrites dans [modele-de-donnees.md](modele-de-donnees.md) :
 
 | Entité                 | Contenu principal                                                                                                      |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -237,7 +239,7 @@ Pipeline de déploiement continu exigé :
 - [ ] 2. Construire l'application.
 - [ ] 3. Publier les résultats sur un SonarQube.
 - [ ] 4. Publier les images Docker sur DockerHub.
-- [ ] 5. Pouvoir lancer l'application avec un fichier docker-compose.
+- [x] 5. Pouvoir lancer l'application avec un fichier docker-compose.
 - [ ] 6. Déployer automatiquement sur Azure ou ailleurs (Ansible possible pour configurer l'hôte).
 - [ ] 7. *Bonus* : faire passer à l'échelle les services qui en ont besoin.
 - [ ] 8. Mettre en place une pile de monitoring.
@@ -273,7 +275,7 @@ Programme : systèmes IoT et cyber-physiques (CPS) · supports de communication 
 
 | Thème du cours                                 | Dans Scubanion                                                                                                                 |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Systèmes cyber-physiques                       | La borne : un geste physique (badge NFC) déclenche un effet dans le jeu. Le podomètre du téléphone mesure l'activité réelle.              |
+| Systèmes cyber-physiques                       | La borne : un geste physique (approcher son téléphone de la borne, en NFC) déclenche un effet dans le jeu. Le podomètre du téléphone mesure l'activité réelle.              |
 | Supports de communication                       | BLE (téléphone ↔ téléphone), NFC (joueur ↔ borne), Wi-Fi (borne ↔ serveur), HTTPS (app ↔ API) |
 | Standards et protocoles                         | MQTT (borne ↔ serveur) ; Kafka et oneM2M à évaluer (D5)                                                                     |
 | Frameworks de développement et de déploiement | À compléter avec le cours (côté borne : framework Arduino ou ESP-IDF)                                                      |
@@ -346,8 +348,8 @@ flowchart LR
 **Qualité et sécurité**
 
 - [ ] Aucune IP ni aucun secret en dur : noms de services Docker et variables d'environnement. Les secrets (tokens DockerHub et SonarQube, clé SSH, mots de passe du keystore) vont dans les variables masquées des CI.
-- [ ] Images Docker : multi-stage, base alpine, application construite avant et seul le résultat copié, sans dépendances de dev, avec `.dockerignore` et `HEALTHCHECK`.
-- [ ] docker-compose : réseaux explicites, healthchecks, `depends_on` conditionnels, volumes réservés aux données.
+- [x] Images Docker : multi-stage, base alpine, application construite avant et seul le résultat copié, sans dépendances de dev, avec `.dockerignore` et `HEALTHCHECK` (MariaDB garde l'image officielle, qui n'existe pas en alpine).
+- [x] docker-compose : réseaux explicites, healthchecks, `depends_on` conditionnels, volumes réservés aux données.
 - [ ] Tests unitaires et fonctionnels, mocks pour le BLE, le MQTT et les services externes, couverture suivie dans SonarQube.
 
 **Données personnelles (RGPD)**
@@ -378,7 +380,7 @@ Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par l
 |     | Décision                                 | Options                                                                                                                                         | À savoir                                                                                                                                                    | Avant le                                |
 | --- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------- |
 | D1  | Mode de connexion                         | **Tranchée : email + code à usage unique.** Écartés : SMS + code (maquettes), email + mot de passe | Code à 6 chiffres envoyé par Brevo, session ouverte par un jeton Sanctum. Les SMS sont payants (Twilio…), un code par email est gratuit | 11/10                                   |
-| D2  | Identification à la borne                | Téléphone en émulation de carte (HCE) ; tag NFC personnel (autocollant, carte) ; ou l'inverse : le téléphone lit un tag posé sur la borne | Le téléphone est le seul porteur d'identité à la borne. La HCE demande du code Android natif et un lecteur qui gère l'ISO-DEP (le PN532 oui, le RC522 mal)         | 11/10                                   |
+| D2  | Identification à la borne                | **Tranchée (13/10) : le téléphone lit la borne.** La borne génère à chaque scan un jeton signé avec son secret, que le téléphone lit en NFC et envoie à l'API. Écartés : émulation de carte par le téléphone (HCE), tag NFC personnel | Le moyen matériel côté borne (émulation de tag par le lecteur, ou tag NFC dynamique) dépend de D3 | 11/10                                   |
 | D3  | Microcontrôleur de la borne              | ESP32, Arduino, Raspberry Pi                                                                                                                    | ESP32 : Wi-Fi et BLE intégrés, peu cher, sobre. Arduino Uno : pas de réseau sans module. Raspberry Pi : Linux et écran riche, plus cher et plus gourmand | 11/10, pour avoir le temps de commander |
 | D4  | Compagnon : « relation » et « login » | À définir                                                                                                                                     | Conditionne le modèle de données                                                                                                                           | 11/10                                   |
 | D5  | Kafka et oneM2M                           | Utilisés, ou écartés avec une justification écrite                                                                                          | R5.04 demande d'utiliser ce qui est vu en cours                                                                                                              | 31/10                                   |
@@ -423,18 +425,20 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 - [ ] Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT.
 - [X] Retirer `docs/` du `.gitignore` pour versionner la documentation.
 - [ ] Renommer Scoubanion en Scubanion : README, `capacitor.config.json`, `nuxt.config.ts`, `app.vue`, `strings.xml`, `APP_NAME` du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.
-- [ ] Image du back : build multi-stage avec `composer install --no-dev` pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.
-- [ ] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
-- [ ] Compose : réseaux explicites, healthchecks, `depends_on` avec `condition: service_healthy`.
+- [x] Image du back : build multi-stage avec `composer install --no-dev` pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.
+- [x] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
+- [x] Compose : réseaux explicites, healthchecks, `depends_on` avec `condition: service_healthy`.
 - [ ] Image du front : elle lance le serveur de développement (`npm run dev`) ; prévoir une image de prod si une app web est servie (BCK-07).
-- [ ] Remplacer les tests d'exemple par de vrais tests.
-- [ ] Créer `.gitlab-ci.yml` et `.github/workflows/`.
+- [x] Remplacer les tests d'exemple par de vrais tests.
+- [ ] Créer `.gitlab-ci.yml` (fait) et `.github/workflows/` (à faire).
 
 ## 12. Historique du document
 
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.6     | 13/10/2026 | Bornes : décision D2 tranchée (le téléphone lit un jeton signé, horodaté et à usage unique généré par la borne) ; BOR-02, BOR-03, BOR-09 et BCK-04 réécrits en conséquence, topic `passages` retiré, architecture mise à jour |
+| 0.5     | 13/10/2026 | État des briques mis à jour au § 4 (app, API, base, CI/CD) ; au § 11, tests d'exemple remplacés et `.gitlab-ci.yml` créé |
 | 0.4     | 13/10/2026 | Décision D1 tranchée : connexion par email et code à usage unique, envoyé par Brevo, session par jeton Sanctum. APP-01, APP-02, APP-04, PAS-01 et PAS-02 cochés |
 | 0.3     | 09/10/2026 | Abandon du bracelet Mi Band 3 : les pas viennent du podomètre du téléphone (section 5.2 remplacée par `PAS-`), la borne IoT devient le seul objet connecté (BOR-08 et BOR-09 passent en *Must*, toujours 18 *Must*). Responsables du plan d'action et rôles de la section 7 renseignés |
 | 0.2     | 08/10/2026 | Ajout de la charte de projet (§ 2) : 3 objectifs SMART, 5 indicateurs de suivi, plan d'action du 09 au 23/10. Sections 2 à 11 renumérotées en 3 à 12. Business Model Canvas v2 référencé au § 6.4 |

@@ -42,7 +42,7 @@ php artisan migrate
 php artisan serve
 ```
 
-L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`, `PUT /me/goal`.
+L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `DELETE /me?confirm=1` (suppression du compte), `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`, `PUT /me/goal`.
 
 Les pas sont lus sur le téléphone par un module Android natif (`StepCounterPlugin`, capteur `STEP_COUNTER`) et envoyés au serveur, qui les plafonne (`STEPS_MAX_PER_HOUR`, `STEPS_MAX_PER_DAY`). L'apparence du compagnon suit la norme décrite dans `docs/skins-compagnon.md`.
 
@@ -58,6 +58,8 @@ MAIL_FROM_NAME="Scubanion"
 ```
 
 Sans clé, laisser `MAIL_MAILER=log` : le code est alors écrit dans `storage/logs/laravel.log`. Si Brevo répond que l'adresse IP n'est pas reconnue, l'autoriser dans les réglages de sécurité du compte Brevo.
+
+Les codes expirés depuis plus d'un jour sont supprimés chaque nuit par `php artisan model:prune`, planifié dans `routes/console.php` : on ne garde pas l'adresse d'une personne qui a demandé un code sans créer de compte. Le planificateur de Laravel doit donc tourner sur le serveur : `php artisan schedule:work` en continu, ou une tâche cron qui lance `php artisan schedule:run` chaque minute.
 
 ### Tests
 
@@ -76,11 +78,48 @@ Le pipeline est décrit dans `.gitlab-ci.yml` et ne tourne que sur la branche pa
 | `build` | `build:backend`, `build:frontend` | dépendances de production de l'API, `nuxt generate` avec l'adresse de l'API en ligne |
 | `verify` | `verify:backend`, `verify:frontend` | migrations sur une vraie MariaDB puis appel de `/up` et de `/api/me`, service du site généré |
 | `release` | `release` | étiquette `v0.<numéro du pipeline>` et release GitLab avec l'archive du site généré |
+| `release` | `release:images` | construit les images de prod et les publie sur DockerHub (`scripts/publish-images.sh`), sous l'étiquette de la release et sous `latest` |
 | `deploy` | `deploy` | lance `deploy.sh` du projet `scubatana` sur le VPS |
 
 Le job `deploy` n'existe que si la variable `DEPLOY_SSH_KEY` est définie. Il attend trois variables CI/CD protégées, de type « Variable » : `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` et `DEPLOY_HOST`.
 
-En production, `docker-compose.yml` (racine) conteneurise aussi `backend` et `nginx`.
+Le job `release:images` n'existe que si la variable `DOCKERHUB_TOKEN` est définie. Il attend `DOCKERHUB_USERNAME` et `DOCKERHUB_TOKEN` (jeton d'accès DockerHub, masqué), et `DOCKERHUB_NAMESPACE` si les images vont dans une organisation plutôt que sur le compte. Il construit les images avec Docker-in-Docker : le runner doit l'autoriser (`privileged = true`).
+
+### Pull requests (GitHub)
+
+Sur GitHub, `master` et `main` ne reçoivent du code que par pull request, avec ces règles :
+
+- une PR ne peut viser que `master` ou `main` : une PR qui vise une autre branche est fermée automatiquement. Pour enchaîner deux PR, fusionner la première avant d'ouvrir la seconde ;
+- une PR doit être approuvée par une autre personne que son auteur et que la dernière personne à y avoir poussé du code. Personne n'est exempté, administrateur compris ;
+- les tests (`.github/workflows/tests.yml`) tournent à chaque PR : `Tests API` et `Tests app` doivent passer pour fusionner, `Tests API MariaDB` lance en plus les tests de concurrence ;
+- à chaque PR et à chaque fusion dans `master`, l'automatisation `.github/workflows/garde-des-pull-requests.yml` fusionne `master` dans la branche des PR ouvertes puis relance leurs tests. Si c'est impossible (conflit), elle l'écrit en commentaire et la fusion reste bloquée jusqu'à ce que l'auteur mette sa branche à jour. Penser à faire `git pull` sur sa branche avant de pousser.
+
+Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de `.github/workflows` : quand `master` en modifie un, chaque PR ouverte doit être mise à jour à la main une fois.
+
+### Production (docker-compose)
+
+`docker-compose.yml` (racine) lance l'application complète à partir de trois images :
+
+| Service | Image | Rôle |
+| ------- | ----- | ---- |
+| `mariadb` | `scubanion-mariadb` | base de données, données dans le volume `mariadb_data` |
+| `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
+| `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
+| `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
+
+```bash
+cp .env.exemple .env      # puis renseigner les mots de passe et APP_KEY
+docker compose up -d --build
+```
+
+- `APP_KEY` se génère avec `php artisan key:generate --show` (depuis `scubatana.backend`). Sans elle, le conteneur `backend` refuse de démarrer.
+- Au démarrage, `backend` met en cache la configuration, les routes et les vues, puis lance les migrations.
+- Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend (`mariadb`, puis `backend`, puis `nginx` et `scheduler`). `scheduler` remplace le healthcheck de l'image par la présence du processus `schedule:work`.
+- Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb`, `backend` et `scheduler` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
+- `backend` et `scheduler` partagent la même configuration (bloc `x-laravel-environment` du compose) ; seul `backend` lance les migrations.
+- Le code est dans les images, pas dans un volume : un redéploiement sert toujours la nouvelle version.
+- L'image nginx se construit par `docker compose build` : elle récupère `public/` dans `scubatana.backend` grâce au contexte de build supplémentaire `backend` (`additional_contexts`). Un `docker build` seul demande `--build-context backend=scubatana.backend`.
+- Les images portent le nom `${DOCKERHUB_NAMESPACE}/scubanion-<service>:${IMAGE_TAG}`. Pour déployer une version publiée sans rebuild : `docker compose pull && docker compose up -d`.
 
 ### App mobile Android (build + installation)
 

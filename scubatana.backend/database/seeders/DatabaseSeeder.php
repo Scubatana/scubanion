@@ -4,13 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Services\CompanionService;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-	use WithoutModelEvents;
-
 	public function run(): void
 	{
 		$user = User::factory()->create([
@@ -19,5 +16,7 @@ class DatabaseSeeder extends Seeder
 		]);
 
 		app(CompanionService::class)->createFor($user);
+
+		$this->call(QuestSeeder::class);
 	}
 }

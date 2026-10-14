@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Me;
 
+use App\Models\Accessory;
 use App\Models\Companion;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,6 +82,18 @@ class UpdateCompanionTest extends TestCase
 		$this->putJson('/api/me/companion', $this->look(['accessories' => ['tophat', 'crown']]))
 			->assertUnprocessable()
 			->assertJsonValidationErrors('accessories');
+	}
+
+	public function test_an_accessory_already_worn_stays_wearable_once_locked_or_retired(): void
+	{
+		$companion = $this->actingAsOwner();
+		$companion->update(['accessories' => ['crown', 'scarf']]);
+		Accessory::where('code', 'scarf')->update(['active' => false]);
+
+		$this->putJson('/api/me/companion', $this->look(['accessories' => ['crown', 'scarf']]))->assertOk();
+		$this->putJson('/api/me/companion', $this->look(['accessories' => ['crown']]))->assertOk();
+		$this->putJson('/api/me/companion', $this->look(['accessories' => ['crown', 'scarf']]))->assertUnprocessable();
+		$this->putJson('/api/me/companion', $this->look(['accessories' => ['medal']]))->assertUnprocessable()->assertJsonValidationErrors('accessories');
 	}
 
 	public function test_it_rejects_invalid_values(): void
