@@ -87,7 +87,7 @@ build:frontend:
   extends: .frontend
   stage: build
   variables:
-    NUXT_PUBLIC_API_URL: https://scubatana.picsou06.fr
+    NUXT_PUBLIC_API_URL: https://scuba.picsou06.fr
   script:
     - npm ci --no-audit --no-fund
     - npm run generate
@@ -183,7 +183,7 @@ deploy:
     - if: $DEPLOY_SSH_KEY
   environment:
     name: production
-    url: https://scubatana.picsou06.fr
+    url: https://scuba.picsou06.fr
   script:
     - apk add --no-cache openssh-client
     - install -m 700 -d ~/.ssh
