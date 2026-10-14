@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Scubanion — Charte de projet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- ===================== COUVERTURE ===================== -->
+<section class="page cover">
+  <div class="cover-top">
+    <img src="assets/images/logo.png" alt="">
+    <span class="cover-brand">Scubanion</span>
+  </div>
+
+  <div>
+    <span class="cover-kicker">R5.01 &middot; Livrable 1 sur 3</span>
+    <h1>Charte<br>de projet</h1>
+    <div class="cover-rule"></div>
+    <p class="cover-lead">
+      Le cadrage officiel du projet, l'analyse des risques, le plan d'action
+      et le tableau de bord. Structure reprise du cours &mdash; partie 4,
+      « La charte de projet », et partie 5, « Plan d'action ».
+    </p>
+  </div>
+
+  <dl class="cover-meta">
+    <div><dt>Projet</dt><dd>Scubanion &middot; SAE BUT3-IoT</dd></div>
+    <div><dt>Équipe</dt><dd>Scubatana &middot; 4 étudiants</dd></div>
+    <div><dt>Membres</dt><dd>BANDIERAS Thomas &middot; DALMASSO Evan<br>KARROUCHI Hamza &middot; LESUEUR Shaleena</dd></div>
+    <div><dt>Version</dt><dd>2.0 du 13/10/2026</dd></div>
+    <div><dt>Rendu</dt><dd>samedi 12 décembre 2026</dd></div>
+    <div><dt>Soutenance</dt><dd>mercredi 13 janvier 2027</dd></div>
+  </dl>
+
+  <p class="cover-slogan">« Il ne grandit que si <span>toi</span> tu sors. »</p>
+</section>
+
+<!-- ===================== 1. CADRAGE ===================== -->
+<section class="page">
+  <h2><span class="n">1</span>Cadrage</h2>
+
+  <p class="lead" style="margin-bottom:4mm;">
+    La gestion du projet nous est confiée par un ordre de mission : la SAE BUT3-IoT,
+    commune à R5.01, R5.13, R5.04 et R5.07. Cette charte en décrit les grandes lignes
+    et en fixe les limites. Elle est la fondation du projet et la référence en cas
+    d'arbitrage.
+  </p>
+
+  <div class="field">
+    <div class="label"><span class="en">Mission Statement</span><span class="fr">Énoncé de mission</span><span class="from">Cours p. 4</span></div>
+    <p style="font-size:11pt;color:var(--ink);font-family:'Baloo 2',sans-serif;font-weight:600;line-height:1.3;">
+      Remettre en mouvement et en lien les jeunes urbains sédentaires, en rendant la
+      santé d'un compagnon virtuel entièrement dépendante de leurs pas réels et de
+      leurs rencontres physiques.
+    </p>
+  </div>
+
+  <div class="field">
+    <div class="label"><span class="en">Purpose / Justification</span><span class="fr">Besoin à l'origine du projet</span><span class="from">Cours p. 4</span></div>
+    <p>
+      Le sujet imposé du BUT3-IoT porte sur « les adaptations possibles de l'être humain
+      à son environnement grâce à l'IoT ». Nous le traduisons en une question :
+      <strong>comment réadapter l'homme à son environnement ?</strong>
+    </p>
+    <p>
+      Deux problèmes sont ciblés, et ils se nourrissent l'un l'autre : <strong>la
+      sédentarité</strong> et <strong>l'isolement social</strong>. Les applications de
+      santé existantes affichent des courbes que personne ne regarde ; les réseaux
+      sociaux remplacent la rencontre au lieu de la provoquer. Notre pari est qu'un
+      <strong>attachement affectif</strong> — un compagnon qui dépérit si l'on ne sort pas —
+      agit là où un graphique de pas échoue, et que l'objet connecté doit <em>envoyer
+      dehors</em> plutôt que retenir devant l'écran.
+    </p>
+  </div>
+
+  <div class="field">
+    <div class="label"><span class="en">Start date / End date</span><span class="fr">Dates de début et de fin</span><span class="from">Cours p. 4</span></div>
+    <table class="tight" style="margin-bottom:0;">
+      <tbody>
+        <tr><td class="k" style="width:34mm;">24/09/2026</td><td>Début du projet : constitution de l'équipe et cadrage</td></tr>
+        <tr><td class="k">05/12/2026</td><td>Gel des fonctionnalités (<em>feature freeze</em>)</td></tr>
+        <tr><td class="k">12/12/2026</td><td><strong>Fin du projet</strong> : rendu sur le dépôt GitLab IUT et documentation</td></tr>
+        <tr><td class="k">13/01/2027</td><td>Soutenance et démonstration en direct</td></tr>
+      </tbody>
+    </table>
+    <p class="small muted" style="margin-top:2mm;">
+      Durée totale : 11 semaines de réalisation, puis 4 semaines de préparation de la
+      soutenance. Les dates de rendu et de soutenance sont imposées et non négociables.
+    </p>
+  </div>
+
+  <div class="field">
+    <div class="label"><span class="en">Objectives / Exit criteria's</span><span class="fr">Objectifs et critères de sortie</span><span class="from">Cours p. 5</span></div>
+    <p class="small muted" style="margin-bottom:3mm;">
+      Trois objectifs SMART. Pour chacun, le critère de sortie dit à quelle
+      condition exacte l'objectif est considéré comme atteint — pas « c'est à peu
+      près fait », mais une case cochée ou un chiffre relevé.
+    </p>
+
+    <h4 style="margin-top:0;">O1 &middot; Produit</h4>
+    <p>
+      Livrer au <strong>12/12/2026</strong> une application Android et une borne IoT
+      fonctionnelles couvrant les <strong>18 exigences <em>Must</em></strong> du cahier
+      des charges, et en faire la démonstration en direct le 13/01/2027.
+    </p>
+    <p class="small"><span class="tag tag-green">Critère de sortie</span>
+      Les 18 cases <em>Must</em> cochées au § 5 du cahier des charges ; la chaîne
+      <strong>téléphone → serveur → borne</strong> enchaînée devant le jury sans
+      aucune intervention manuelle ; tag <code>v1.0.0</code> posé au 12/12.
+    </p>
+
+    <h4>O2 &middot; Industrialisation</h4>
+    <p>
+      Mettre en service au <strong>08/11/2026</strong> un pipeline GitLab CI qui, à
+      chaque fusion sur <code>master</code>, enchaîne tests → SonarQube → build →
+      publication DockerHub → déploiement automatique.
+    </p>
+    <p class="small"><span class="tag tag-green">Critère de sortie</span>
+      Un pipeline vert de bout en bout ; couverture de tests <strong>≥ 60 %</strong> ;
+      <strong>zéro</strong> bug bloquant SonarQube ; zéro adresse IP et zéro secret en
+      dur ; l'application se lance par un simple <code>docker compose up</code>.
+    </p>
+
+    <h4>O3 &middot; Validation terrain</h4>
+    <p>
+      Valider le modèle économique avant le <strong>29/11/2026</strong> avec
+      <strong>2 lettres d'intention</strong> de partenaires et <strong>20 testeurs</strong>
+      du campus ayant utilisé l'application pendant au moins 7 jours.
+    </p>
+    <p class="small"><span class="tag tag-green">Critère de sortie</span>
+      2 lettres signées sur deux segments distincts (un lieu à billetterie, un commerce
+      de proximité ou une collectivité) ; 20 comptes actifs au moins 7 jours ; grille
+      tarifaire confrontée en rendez-vous et corrigée dans le Business Model Canvas.
+    </p>
+
+    <div class="card card-accent" style="margin-top:3mm;">
+      <p class="small" style="margin:0;">
+        <strong>Objectif O3 revu à la baisse le 13/10.</strong> La cible initiale était
+        de 3 partenaires et 30 testeurs. Le point d'avancement du 13/10 montre que la
+        borne, qui est le chemin critique, n'est pas commencée : tenir 3 signatures en
+        six semaines tout en construisant la borne n'était pas réaliste. Le réalisme
+        étant un critère d'évaluation du plan, nous préférons une cible tenue à une
+        cible affichée.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 2. PÉRIMÈTRE ET CONTRAINTES ===================== -->
+<section class="page">
+  <h2><span class="n">2</span>Périmètre &amp; contraintes</h2>
+
+  <div class="field">
+    <div class="label"><span class="en">Project Description / Overview</span><span class="fr">Description du projet</span><span class="from">Cours p. 5</span></div>
+    <p>
+      Scubanion est un <strong>compagnon virtuel</strong>, façon Tamagotchi, dont la
+      progression ne dépend que de l'activité réelle de son propriétaire. Le système
+      tient en trois briques :
+    </p>
+    <table class="tight">
+      <tbody>
+        <tr>
+          <td class="k" style="width:38mm;">Application Android</td>
+          <td>Nuxt 4 empaqueté par Capacitor. Compte le pas par le capteur
+            <code>STEP_COUNTER</code> du téléphone, affiche le compagnon, les quêtes
+            géolocalisées, la carte, les amis et les rencontres.</td>
+        </tr>
+        <tr>
+          <td class="k">Serveur</td>
+          <td>API REST Laravel 13 et base MariaDB. <strong>Toutes les règles du jeu sont
+            calculées côté serveur</strong> (XP, niveaux, validation des quêtes et des
+            passages) avec des garde-fous anti-triche. Abonné MQTT pour les bornes.</td>
+        </tr>
+        <tr>
+          <td class="k">Borne IoT</td>
+          <td>Microcontrôleur, lecteur NFC et écran, installée dans un lieu public ou
+            chez un partenaire. Le joueur approche son téléphone, la borne envoie le
+            passage au serveur en <strong>MQTT</strong> et affiche la récompense
+            débloquée.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="small muted" style="margin-bottom:0;">
+      Deux animations livrées avec ce dossier montrent le parcours complet, dans un
+      musée et dans un restaurant partenaire.
+    </p>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:2.6mm;">
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">In scope</span><span class="fr">Dans le périmètre</span></div>
+      <ul class="small">
+        <li>Application <strong>Android</strong> uniquement</li>
+        <li>Comptage des pas par le podomètre du téléphone</li>
+        <li>Compagnon : XP, niveaux, humeur, santé, skins</li>
+        <li>Quêtes géolocalisées et défi hebdomadaire</li>
+        <li>Amis, invitation par code, rencontres physiques</li>
+        <li>API REST, MariaDB, règles de jeu côté serveur</li>
+        <li><strong>Un</strong> prototype de borne, NFC + écran + MQTT</li>
+        <li>Pipeline GitLab CI complet et monitoring</li>
+        <li>Conformité RGPD : consentements, suppression du compte</li>
+      </ul>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">Out of scope</span><span class="fr">Hors périmètre</span></div>
+      <ul class="small">
+        <li>iOS, et toute version web de l'application</li>
+        <li>Bracelet Mi Band 3 en Bluetooth <em>(voir le pivot ci-dessous)</em></li>
+        <li>Back-office de création de quêtes et de skins</li>
+        <li>Paiement réel et boutique monétisée</li>
+        <li>Déploiement sur plusieurs villes</li>
+        <li>Production en série des bornes</li>
+        <li>Capteur biochimique d'ocytocine <em>(axe de recherche)</em></li>
+        <li>Kafka et oneM2M, sauf si l'intérêt est démontré (<code>D5</code>)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card card-accent">
+    <h4 style="margin-top:0;">Pivot documenté : du bracelet au podomètre, et l'IoT concentré sur la borne</h4>
+    <p class="small">
+      Le projet prévoyait de lire les pas sur un <strong>bracelet Mi Band 3</strong> en
+      Bluetooth, sans passer par l'application Xiaomi. L'authentification propriétaire
+      du bracelet s'est révélée être un risque de classe III sur le chemin critique,
+      pour un bénéfice nul côté utilisateur : <strong>un téléphone compte déjà les
+      pas</strong>. Nous avons donc pivoté vers le capteur <code>STEP_COUNTER</code>
+      d'Android. Gains : aucun matériel à acheter pour le joueur, un risque majeur
+      supprimé, et deux exigences livrées dès octobre. La lecture par montre connectée
+      revient en option basse priorité via Health Connect (<code>PAS-03</code>,
+      <em>Could</em>).
+    </p>
+    <p class="small" style="margin-bottom:0;">
+      Ce choix est aussi un choix de <strong>concentration</strong>, et c'est le point
+      important pour R5.04. Plutôt que de disperser l'effort IoT sur deux objets — un
+      bracelet du commerce qu'on se contenterait de lire, et une borne —
+      <strong>nous mettons tout l'IoT dans la borne</strong> : c'est le seul objet que
+      nous concevons nous-mêmes, du microcontrôleur au protocole. Le téléphone devient
+      un simple capteur de pas et une télécommande ; la borne porte le matériel, le
+      lecteur NFC, l'écran et les échanges MQTT avec le serveur. Un objet fait à fond
+      plutôt que deux à moitié. C'est un pivot au sens du cours : on change de moyen
+      sans changer de promesse.
+    </p>
+  </div>
+
+  <div class="field">
+    <div class="label"><span class="en">Assumptions</span><span class="fr">Hypothèses</span><span class="from">Cours p. 6</span></div>
+    <ul class="small">
+      <li>Chaque membre dispose d'un téléphone Android récent pour développer et tester.</li>
+      <li>Le runner GitLab de l'IUT reste disponible et joignable depuis GitHub.</li>
+      <li>Les crédits d'hébergement étudiants suffisent jusqu'au 13/01/2027.</li>
+      <li>Les quatre membres restent disponibles environ 10 h par semaine et par personne.</li>
+      <li>Un lieu partenaire acceptera d'accueillir la borne le temps d'un test.</li>
+      <li>Les compétences MQTT et NFC s'acquièrent dans le cadre de R5.04.</li>
+    </ul>
+  </div>
+
+  <div class="grid g2">
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">Constraints</span><span class="fr">Contraintes</span><span class="from">Cours p. 6</span></div>
+      <ul class="small">
+        <li><strong>Délai imposé</strong> : 12/12/2026, aucune marge.</li>
+        <li><strong>Budget matériel autofinancé</strong>, de l'ordre de 100 € pour la borne.</li>
+        <li>4 étudiants, en parallèle des autres matières du semestre.</li>
+        <li><strong>Git est noté individuellement</strong> : chacun doit committer sous son propre nom.</li>
+        <li>Outils imposés : MQTT (R5.04) ; GitLab CI, SonarQube, DockerHub (R5.07).</li>
+        <li>Aucune adresse IP ni aucun secret en dur, images Docker multi-stage.</li>
+        <li>RGPD : l'app traite de la géolocalisation et de l'activité physique.</li>
+      </ul>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">Dependencies</span><span class="fr">Dépendances</span><span class="from">Cours p. 6</span></div>
+      <ul class="small">
+        <li>Le prototype de borne dépend de la <strong>livraison du matériel</strong>, donc des décisions <code>D2</code> et <code>D3</code>.</li>
+        <li>Le déploiement automatique dépend de l'ouverture de l'hébergement (<code>D6</code>) et de SonarQube (<code>D7</code>).</li>
+        <li>La démonstration en borne dépend du broker MQTT en production.</li>
+        <li>Le miroir GitLab dépend de la joignabilité du GitLab IUT depuis GitHub Actions (<code>D8</code>).</li>
+        <li>L'objectif O3 dépend de la disponibilité d'interlocuteurs côté partenaires.</li>
+        <li>Les récompenses en borne dépendent du modèle d'inventaire côté serveur.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 3. PILOTAGE ===================== -->
+<section class="page">
+  <h2><span class="n">3</span>Pilotage</h2>
+
+  <div class="grid g2" style="margin-bottom:2.6mm;">
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">Success factors</span><span class="fr">Facteurs de succès</span><span class="from">Cours p. 7</span></div>
+      <ul class="small">
+        <li>Le <strong>pivot vers le podomètre</strong>, qui a supprimé le risque technique le plus lourd.</li>
+        <li>Le serveur et l'application avancent vite : 5 exigences <em>Must</em> déjà livrées, 8 autres en revue.</li>
+        <li>Un <strong>référent par lot</strong>, et chaque membre porte une étape du pipeline.</li>
+        <li>Priorités <em>Must / Should / Could</em> explicites, qui permettent de couper sans débat.</li>
+        <li>Le cahier des charges sert de liste de suivi : on y coche, on y reporte chaque décision.</li>
+        <li>Revue croisée obligatoire : aucune fusion sans relecture d'un autre membre.</li>
+      </ul>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">Failure factors</span><span class="fr">Facteurs d'échec</span><span class="from">Cours p. 7</span></div>
+      <ul class="small">
+        <li><strong>Déséquilibre des contributions</strong> : Git est noté par étudiant, un membre qui ne committe pas est pénalisé même si l'équipe livre.</li>
+        <li><strong>La borne n'est pas commencée</strong> et porte 6 exigences <em>Must</em> sur 18.</li>
+        <li>Matériel commandé trop tard, ou délai de livraison qui déborde.</li>
+        <li>Périmètre non gelé : les <em>Should</em> qui grignotent le temps des <em>Must</em>.</li>
+        <li>Pipeline repoussé en fin de projet, donc découverte tardive des problèmes d'intégration.</li>
+        <li>Décisions laissées ouvertes : <code>D2</code> à <code>D10</code> bloquent encore des travaux.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="label"><span class="en">Organization / Stakeholders</span><span class="fr">Organisation et parties prenantes</span><span class="from">Cours p. 7</span></div>
+
+    <h4 style="margin-top:0;">Équipe projet</h4>
+    <table class="tight">
+      <thead>
+        <tr><th>Membre</th><th>Référent du lot</th><th>Étape du pipeline</th><th>Exigences portées</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">BANDIERAS Thomas</td><td>CI/CD et infrastructure</td><td>Tests et SonarQube</td><td>Pipeline, monitoring</td></tr>
+        <tr><td class="k">DALMASSO Evan</td><td>Application mobile</td><td>Déploiement</td><td><code>APP-03</code>, <code>APP-05</code>, <code>APP-06</code></td></tr>
+        <tr><td class="k">KARROUCHI Hamza</td><td>Back-end et données</td><td>Build et images DockerHub</td><td><code>BCK-01</code> à <code>BCK-04</code></td></tr>
+        <tr><td class="k">LESUEUR Shaleena</td><td>Borne IoT</td><td>Monitoring</td><td><code>BOR-01</code> à <code>BOR-04</code>, <code>BOR-08</code>, <code>BOR-09</code></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Parties prenantes</h4>
+    <table class="tight" style="margin-bottom:0;">
+      <thead>
+        <tr><th>Partie prenante</th><th>Attente</th><th>Ce qu'elle nous apporte</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">Enseignante R5.01 et R5.13</td><td>Charte, marketing mix, expérience utilisateur, modèle économique</td><td>Cadrage et évaluation du volet management et business</td></tr>
+        <tr><td class="k">Enseignants R5.04 et R5.07</td><td>MQTT justifié, pipeline complet, monitoring, images légères</td><td>Cadrage technique et évaluation</td></tr>
+        <tr><td class="k">IUT</td><td>Usage raisonné des ressources</td><td>Runner GitLab, SonarQube, matériel, salles</td></tr>
+        <tr><td class="k">Lieu partenaire pilote</td><td>Du passage mesurable, aucune charge de travail</td><td>Un emplacement pour la borne, un terrain de test</td></tr>
+        <tr><td class="k">Testeurs du campus</td><td>Une app qui marche et qui amuse</td><td>Retours d'usage, validation de l'objectif O3</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g2">
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">High Level Cost / effort</span><span class="fr">Coûts et charge</span><span class="from">Cours p. 7</span></div>
+      <table class="tight" style="margin-bottom:2mm;">
+        <tbody>
+          <tr><td>Charge projet</td><td class="num k">≈ 480 h</td></tr>
+          <tr><td>soit en jours-homme</td><td class="num k">≈ 68 j</td></tr>
+          <tr><td>Matériel de la borne</td><td class="num k">70 à 90 €</td></tr>
+          <tr><td>Compte développeur Google Play</td><td class="num k">25 $</td></tr>
+          <tr><td>Hébergement et nom de domaine</td><td class="num k">crédits IUT</td></tr>
+          <tr><td>Dépense réelle de l'équipe</td><td class="num k">≈ 120 €</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin-bottom:0;">
+        4 personnes × 10 h par semaine × 12 semaines. Valorisée au coût d'un
+        développeur junior (350 € la journée), la même charge représenterait
+        <strong>près de 24 000 €</strong> : c'est l'ordre de grandeur à retenir si le
+        projet était mené en entreprise.
+      </p>
+    </div>
+
+    <div class="field" style="margin-bottom:0;">
+      <div class="label"><span class="en">High Level Timelines</span><span class="fr">Grandes étapes</span><span class="from">Cours p. 8</span></div>
+      <table class="tight" style="margin-bottom:0;">
+        <thead><tr><th>Phase</th><th>Période</th><th>Contenu</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="k">Initiating</td><td>24/09 → 04/10</td>
+            <td>Cahier des charges, rôles, stratégie Git</td>
+          </tr>
+          <tr>
+            <td class="k">Planning</td><td>05/10 → 18/10</td>
+            <td>Décisions <code>D1</code> à <code>D4</code>, modèle de données, commande du matériel</td>
+          </tr>
+          <tr>
+            <td class="k">Executing<br>&amp; Controlling</td><td>19/10 → 05/12</td>
+            <td>Cœur du jeu, borne, pipeline, monitoring, terrain. Jalons <code>v0.2.0</code> et <code>v0.3.0</code></td>
+          </tr>
+          <tr>
+            <td class="k">Closing</td><td>06/12 → 13/01</td>
+            <td>Gel le 05/12, tests, documentation, rendu le 12/12, <code>v1.0.0</code>, soutenance</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:2.6mm;">
+    <div class="t">Où en est le projet au 13/10/2026 ?</div>
+    <p style="margin-bottom:0;font-size:8.8pt;">
+      <strong>5 exigences <em>Must</em> sur 18</strong> sont livrées et fusionnées
+      (connexion, profil, objectif de pas, comptage et envoi des pas).
+      <strong>8 demandes de fusion</strong> sont ouvertes et couvriraient 9 exigences de
+      plus (compagnon, quêtes, amis, positions, bornes côté serveur, suppression du
+      compte). Le point dur est ailleurs : <strong>la borne physique n'est pas
+      commencée</strong>, les décisions <code>D2</code> et <code>D3</code> sont encore
+      ouvertes alors qu'elles conditionnent une commande de matériel. C'est ce constat
+      qui ordonne le plan d'action de la partie 5.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== 4. ANALYSE DES RISQUES ===================== -->
+<section class="page">
+  <h2><span class="n">4</span>Analyse des risques</h2>
+
+  <div class="grid g-1-2" style="margin-bottom:3mm;">
+    <div class="card card-ocean" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Définition</h4>
+      <p class="small">Un risque est la combinaison de :</p>
+      <ul class="small">
+        <li>la <strong>probabilité d'occurrence</strong> du dommage ;</li>
+        <li>la <strong>gravité des conséquences</strong> de ce dommage.</li>
+      </ul>
+      <p style="font-family:'Baloo 2',sans-serif;font-size:12pt;font-weight:700;color:#fff;margin:3mm 0 0;text-align:center;">
+        Criticité = Fréquence + Gravité
+      </p>
+    </div>
+
+    <div class="card on-white" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Classes de risque &mdash; matrice Fréquence × Gravité</h4>
+      <table class="matrix" style="margin-bottom:0;">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Fréquence \ Gravité</th>
+            <th>Catas&shy;trophique</th><th>Critique</th><th>Important</th><th>Marginal</th><th>Négli&shy;geable</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th>Fréquent</th><td class="c4">IV</td><td class="c4">IV</td><td class="c4 cell-here">IV</td><td class="c4">IV</td><td class="c3">III</td></tr>
+          <tr><th>Probable</th><td class="c4">IV</td><td class="c4 cell-here">IV</td><td class="c4 cell-here">IV</td><td class="c3 cell-here">III</td><td class="c2">II</td></tr>
+          <tr><th>Occasionnel</th><td class="c4">IV</td><td class="c3 cell-here">III</td><td class="c3 cell-here">III</td><td class="c2">II</td><td class="c2">II</td></tr>
+          <tr><th>Rare</th><td class="c3 cell-here">III</td><td class="c2">II</td><td class="c2 cell-here">II</td><td class="c1">I</td><td class="c1">I</td></tr>
+          <tr><th>Improbable</th><td class="c2">II</td><td class="c2">II</td><td class="c1">I</td><td class="c1">I</td><td class="c1">I</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin:2mm 0 0;">
+        Les cases <strong>encadrées</strong> sont celles où tombent nos dix risques.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:3mm;">
+    <div class="card on-white" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Probabilité d'occurrence</h4>
+      <table class="tight" style="margin-bottom:0;">
+        <tbody>
+          <tr><td class="k">Fréquent</td><td>se produit à chaque utilisation</td></tr>
+          <tr><td class="k">Probable</td><td>au moins une fois dans la vie du dispositif</td></tr>
+          <tr><td class="k">Occasionnel</td><td>dans des conditions particulières</td></tr>
+          <tr><td class="k">Rare</td><td>au plus une fois, dans des conditions particulières</td></tr>
+          <tr><td class="k">Improbable</td><td>peut se produire, mais aucun incident connu</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card on-white" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Degré de gravité, transposé au projet</h4>
+      <table class="tight" style="margin-bottom:0;">
+        <tbody>
+          <tr><td class="k">Catastrophique</td><td>le projet n'est pas livrable : pas de soutenance possible</td></tr>
+          <tr><td class="k">Critique</td><td>une exigence <em>Must</em> est abandonnée définitivement</td></tr>
+          <tr><td class="k">Important</td><td>retard d'un jalon de plus d'une semaine</td></tr>
+          <tr><td class="k">Marginal</td><td>retard de moins d'une semaine, absorbé par l'équipe</td></tr>
+          <tr><td class="k">Négligeable</td><td>gêne ponctuelle, sans effet sur le planning</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted" style="margin:2mm 0 0;">
+        L'échelle du cours est définie pour un dispositif médical (« potentiel de décès »,
+        « blessure grave »). Nous conservons ses cinq niveaux et sa matrice, en
+        transposant les définitions à un projet logiciel, où le dommage porte sur la
+        livraison et non sur les personnes.
+      </p>
+    </div>
+  </div>
+
+  <h3>Top Risks</h3>
+  <table class="tight">
+    <thead>
+      <tr>
+        <th style="width:7mm;">#</th>
+        <th>Risque et cause</th>
+        <th class="num" style="width:17mm;">Fréq.</th>
+        <th class="num" style="width:17mm;">Gravité</th>
+        <th class="num" style="width:11mm;">Classe</th>
+        <th>Plan préventif</th>
+        <th>Plan correctif</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="num k">R1</td>
+        <td><strong>Contributions Git très déséquilibrées.</strong> Au 13/10 : 47 commits pour un membre, 13 pour un autre, 1 et 0 pour les deux derniers. Git est noté par étudiant.</td>
+        <td class="num">Fréquent</td><td class="num">Important</td>
+        <td class="num"><span class="badge b4">IV</span></td>
+        <td>Indicateur <strong>K4</strong> relevé chaque vendredi ; un lot et une étape de pipeline par membre ; revue croisée obligatoire avant fusion.</td>
+        <td>Redistribution des tâches en réunion ; séances de travail en binôme sur le lot en retard.</td>
+      </tr>
+      <tr>
+        <td class="num k">R2</td>
+        <td><strong>La borne n'est pas commencée</strong> et porte 6 exigences <em>Must</em>. Les décisions <code>D2</code> et <code>D3</code> restent ouvertes.</td>
+        <td class="num">Probable</td><td class="num">Critique</td>
+        <td class="num"><span class="badge b4">IV</span></td>
+        <td>Trancher <code>D2</code> et <code>D3</code> au 17/10 et commander le jour même ; montage sur table avant le 07/11.</td>
+        <td>Démonstration avec un simulateur de borne publiant en MQTT, et la borne physique en appoint.</td>
+      </tr>
+      <tr>
+        <td class="num k">R3</td>
+        <td><strong>Périmètre trop large pour le délai.</strong> 13 exigences <em>Must</em> restent à livrer en 8 semaines.</td>
+        <td class="num">Probable</td><td class="num">Critique</td>
+        <td class="num"><span class="badge b4">IV</span></td>
+        <td>Priorités <em>Must / Should / Could</em> ; gel des fonctionnalités au 05/12 ; indicateur <strong>K1</strong> hebdomadaire.</td>
+        <td>Abandon documenté des <em>Should</em> et <em>Could</em>, justifié à la soutenance.</td>
+      </tr>
+      <tr>
+        <td class="num k">R4</td>
+        <td><strong>Matériel de la borne livré trop tard</strong> ou composant défectueux à réception.</td>
+        <td class="num">Occasionnel</td><td class="num">Critique</td>
+        <td class="num"><span class="badge b3">III</span></td>
+        <td>Commande au 17/10 chez un fournisseur à délai court ; commande d'un lecteur NFC de rechange.</td>
+        <td>Emprunt de matériel à l'IUT ; repli sur un tag NFC passif collé sur la borne.</td>
+      </tr>
+      <tr>
+        <td class="num k">R5</td>
+        <td><strong>Détection des rencontres entre téléphones impossible.</strong> Le plugin Capacitor ne gère que le rôle central, pas l'émission d'annonces BLE.</td>
+        <td class="num">Probable</td><td class="num">Important</td>
+        <td class="num"><span class="badge b4">IV</span></td>
+        <td>Validation technique avant le 07/11 ; recherche d'un plugin alternatif ou de code Android natif.</td>
+        <td>Rencontres validées par la géolocalisation seule côté serveur, avec une zone approximative.</td>
+      </tr>
+      <tr>
+        <td class="num k">R6</td>
+        <td><strong>GitLab IUT injoignable depuis GitHub Actions</strong>, le miroir ne se fait plus et le dépôt évalué n'est plus à jour.</td>
+        <td class="num">Occasionnel</td><td class="num">Important</td>
+        <td class="num"><span class="badge b3">III</span></td>
+        <td>Test du miroir dès la mise en place ; alerte si le miroir échoue.</td>
+        <td>Double push manuel depuis les postes ; runner auto-hébergé en dernier recours.</td>
+      </tr>
+      <tr>
+        <td class="num k">R7</td>
+        <td><strong>Fuite de données personnelles</strong> : géolocalisation, activité physique, rencontres entre joueurs.</td>
+        <td class="num">Rare</td><td class="num">Catastrophique</td>
+        <td class="num"><span class="badge b3">III</span></td>
+        <td>Minimisation : aucun historique GPS brut conservé, rencontres en zone approximative ; secrets en variables masquées ; aucune IP en dur.</td>
+        <td>Purge immédiate, rotation des secrets, information des testeurs, notification si nécessaire.</td>
+      </tr>
+      <tr>
+        <td class="num k">R8</td>
+        <td><strong>Android bride le Bluetooth et la localisation en arrière-plan</strong> pour économiser la batterie.</td>
+        <td class="num">Probable</td><td class="num">Marginal</td>
+        <td class="num"><span class="badge b3">III</span></td>
+        <td>Service au premier plan ; tests sur plusieurs versions d'Android.</td>
+        <td>Détection limitée aux moments où l'application est ouverte, annoncée clairement à l'utilisateur.</td>
+      </tr>
+      <tr>
+        <td class="num k">R9</td>
+        <td><strong>Indisponibilité d'un membre</strong> : maladie, charge d'une autre matière, examens.</td>
+        <td class="num">Probable</td><td class="num">Marginal</td>
+        <td class="num"><span class="badge b3">III</span></td>
+        <td>Un binôme de secours par lot ; documentation à jour dans <code>docs/</code> ; aucun savoir détenu par une seule personne.</td>
+        <td>Réaffectation de l'action au binôme, report explicité dans le plan d'action.</td>
+      </tr>
+      <tr>
+        <td class="num k">R10</td>
+        <td><strong>Crédits d'hébergement épuisés</strong>, le service déployé s'arrête avant la soutenance.</td>
+        <td class="num">Rare</td><td class="num">Important</td>
+        <td class="num"><span class="badge b2">II</span></td>
+        <td>Surveillance de la consommation dans le monitoring ; dimensionnement au minimum.</td>
+        <td>Basculement sur une VM de l'IUT ; démonstration en local par <code>docker compose</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card card-accent">
+    <h4 style="margin-top:0;">Pré-mortem : « nous sommes le 13 janvier, la soutenance s'est mal passée. Pourquoi ? »</h4>
+    <p class="small" style="margin-bottom:1.5mm;">
+      Exercice du cours appliqué à notre projet, en se projetant à l'échec pour en
+      faire remonter les causes. Les trois réponses de l'équipe :
+    </p>
+    <ol class="small" style="margin-bottom:1.5mm;">
+      <li>« La borne ne marchait pas le jour J, on a montré des captures d'écran. » → d'où <strong>R2</strong>, <strong>R4</strong> et l'action <strong>A1</strong> avant le 17/10.</li>
+      <li>« Deux d'entre nous n'avaient presque rien committé, et ça s'est vu dans l'historique. » → d'où <strong>R1</strong> et l'indicateur <strong>K4</strong>.</li>
+      <li>« On avait tout fini sauf l'assemblage : rien ne tenait ensemble. » → d'où le pipeline et le déploiement traités <strong>avant</strong> le cœur du jeu, et l'objectif <strong>O2</strong> fixé au 08/11.</li>
+    </ol>
+    <p class="small muted" style="margin-bottom:0;">
+      Qu'aurions-nous aimé avoir fait ? Commander le matériel plus tôt, et imposer le
+      relevé hebdomadaire des contributions dès la première semaine.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== 5. PLAN D'ACTION ===================== -->
+<section class="page">
+  <h2><span class="n">5</span>Plan d'action</h2>
+
+  <div class="grid g3" style="margin-bottom:3.5mm;">
+    <div class="card on-white" style="margin-bottom:0;">
+      <span class="tag tag-coral">Vision</span>
+      <p class="small" style="margin-top:2mm;margin-bottom:0;">
+        <strong>Long terme, inspiration.</strong> Faire de la sortie un réflexe
+        quotidien chez les jeunes urbains, en donnant à chacun une raison affective de
+        marcher et de rencontrer du monde.
+      </p>
+    </div>
+    <div class="card on-white" style="margin-bottom:0;">
+      <span class="tag tag-coral">Objectifs</span>
+      <p class="small" style="margin-top:2mm;margin-bottom:0;">
+        <strong>Mesurables, temporels.</strong> Les trois objectifs SMART
+        <strong>O1</strong>, <strong>O2</strong> et <strong>O3</strong> de la partie 1,
+        chacun avec son critère de sortie.
+      </p>
+    </div>
+    <div class="card on-white" style="margin-bottom:0;">
+      <span class="tag tag-coral">Actions</span>
+      <p class="small" style="margin-top:2mm;margin-bottom:0;">
+        <strong>Concrètes, assignables.</strong> Les dix actions ci-dessous : une
+        personne, une échéance, un livrable vérifiable. Sans responsable, une action
+        n'est jamais faite.
+      </p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:0;">Dix actions, du 13/10/2026 au 13/01/2027</h3>
+  <table class="tight">
+    <thead>
+      <tr>
+        <th style="width:7mm;">#</th>
+        <th>Action</th>
+        <th>Livrable vérifiable</th>
+        <th style="width:24mm;">Responsable</th>
+        <th class="num" style="width:17mm;">Échéance</th>
+        <th class="num" style="width:10mm;">Obj.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="num k">A1</td>
+        <td><strong>Trancher <code>D2</code> et <code>D3</code></strong> (identification à la borne, microcontrôleur) et <strong>commander le matériel</strong> le jour même.</td>
+        <td>Décisions écrites au § 8 du cahier des charges, bon de commande, délai de livraison connu</td>
+        <td>LESUEUR Shaleena</td>
+        <td class="num"><strong>17/10</strong></td>
+        <td class="num">O1</td>
+      </tr>
+      <tr>
+        <td class="num k">A2</td>
+        <td><strong>Fusionner les 8 demandes de fusion ouvertes</strong> après revue croisée, et cocher les exigences correspondantes.</td>
+        <td><code>master</code> à 14 exigences <em>Must</em> sur 18, tag <code>v0.2.0</code></td>
+        <td>KARROUCHI Hamza</td>
+        <td class="num">24/10</td>
+        <td class="num">O1</td>
+      </tr>
+      <tr>
+        <td class="num k">A3</td>
+        <td><strong>Pipeline GitLab complet</strong> : tests avec mocks, SonarQube, build, publication DockerHub, déploiement automatique.</td>
+        <td>Un pipeline vert de bout en bout sur une fusion dans <code>master</code></td>
+        <td>BANDIERAS Thomas</td>
+        <td class="num"><strong>08/11</strong></td>
+        <td class="num">O2</td>
+      </tr>
+      <tr>
+        <td class="num k">A4</td>
+        <td><strong>Prototype de borne sur table</strong> : lecture NFC, publication MQTT, passage enregistré par le serveur (<code>BOR-02</code>, <code>BOR-03</code>).</td>
+        <td>Un passage de bout en bout filmé, visible dans la base</td>
+        <td>LESUEUR Shaleena</td>
+        <td class="num">14/11</td>
+        <td class="num">O1</td>
+      </tr>
+      <tr>
+        <td class="num k">A5</td>
+        <td><strong>Consentements RGPD et suppression du compte</strong> dans l'application (<code>APP-06</code>).</td>
+        <td>Parcours de consentement et suppression effective, testés</td>
+        <td>DALMASSO Evan</td>
+        <td class="num">14/11</td>
+        <td class="num">O1</td>
+      </tr>
+      <tr>
+        <td class="num k">A6</td>
+        <td><strong>Démarcher les partenaires et recruter les testeurs</strong> : 10 rendez-vous visés pour 2 lettres d'intention, et 20 testeurs sur le campus.</td>
+        <td>2 lettres signées, 20 comptes actifs depuis 7 jours au moins</td>
+        <td>DALMASSO Evan</td>
+        <td class="num"><strong>29/11</strong></td>
+        <td class="num">O3</td>
+      </tr>
+      <tr>
+        <td class="num k">A7</td>
+        <td><strong>Compagnon animé et quêtes</strong> côté application (<code>APP-03</code>, <code>APP-05</code>).</td>
+        <td>Niveau, humeur et santé qui évoluent ; une quête menée de bout en bout</td>
+        <td>DALMASSO Evan</td>
+        <td class="num">21/11</td>
+        <td class="num">O1</td>
+      </tr>
+      <tr>
+        <td class="num k">A8</td>
+        <td><strong>Récompense affichée en borne et monitoring</strong> : écran, inventaire, signal de vie remonté (<code>BOR-04</code>, <code>BOR-08</code>).</td>
+        <td>Récompense visible à l'écran et dans l'inventaire ; bornes visibles dans le monitoring</td>
+        <td>BANDIERAS Thomas</td>
+        <td class="num">29/11</td>
+        <td class="num">O1</td>
+      </tr>
+      <tr>
+        <td class="num k">A9</td>
+        <td><strong>Mode hors ligne de la borne et campagne de tests</strong> : mocks MQTT et NFC, couverture portée à 60 % (<code>BOR-09</code>).</td>
+        <td>Couverture ≥ 60 % et zéro bug bloquant dans SonarQube</td>
+        <td>KARROUCHI Hamza</td>
+        <td class="num"><strong>05/12</strong></td>
+        <td class="num">O1 O2</td>
+      </tr>
+      <tr>
+        <td class="num k">A10</td>
+        <td><strong>Gel, rendu et répétition</strong> : tag <code>v1.0.0</code>, documentation complète, trois répétitions chronométrées de la démonstration.</td>
+        <td>Dépôt GitLab rendu le 12/12 ; démonstration tenue en moins de 10 minutes</td>
+        <td>Toute l'équipe</td>
+        <td class="num"><strong>12/12</strong></td>
+        <td class="num">O1</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Planning et jalons</h3>
+  <table class="tight" style="margin-bottom:0;">
+    <thead>
+      <tr><th style="width:26mm;">Période</th><th style="width:28mm;">Jalon</th><th>Contenu et actions</th><th class="num" style="width:20mm;">Must visées</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="k">13 → 31 octobre</td>
+        <td><span class="tag">v0.2.0</span></td>
+        <td>Matériel de la borne commandé (<strong>A1</strong>), demandes de fusion intégrées (<strong>A2</strong>), pipeline amorcé</td>
+        <td class="num">14 / 18</td>
+      </tr>
+      <tr>
+        <td class="k">1 → 30 novembre</td>
+        <td><span class="tag">v0.3.0</span></td>
+        <td>Pipeline complet (<strong>A3</strong>), borne qui lit et publie (<strong>A4</strong>), RGPD (<strong>A5</strong>), compagnon et quêtes (<strong>A7</strong>), récompense et monitoring (<strong>A8</strong>), terrain (<strong>A6</strong>)</td>
+        <td class="num">17 / 18</td>
+      </tr>
+      <tr>
+        <td class="k">1 → 12 décembre</td>
+        <td><span class="tag">v1.0.0</span></td>
+        <td>Hors ligne et tests (<strong>A9</strong>), <strong>gel le 05/12</strong>, documentation, <strong>rendu le 12/12</strong> (<strong>A10</strong>)</td>
+        <td class="num">18 / 18</td>
+      </tr>
+      <tr>
+        <td class="k">13 déc. → 13 janv.</td>
+        <td><span class="tag">Soutenance</span></td>
+        <td>Répétitions chronométrées, support de présentation, démonstration en direct le 13/01</td>
+        <td class="num">—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="small muted" style="margin-top:3mm;">
+    <strong>Rythme d'exécution.</strong> Un point d'équipe de 30 minutes chaque
+    vendredi : relevé des cinq indicateurs, tour de table « fait / en cours / bloqué »,
+    et une décision. Une action non terminée est reportée <strong>avec sa cause
+    écrite</strong>, jamais effacée. Toute action nouvelle entre dans ce tableau avec un
+    responsable et une échéance, sinon elle n'existe pas.
+  </p>
+</section>
+
+<!-- ===================== 6. TABLEAU DE BORD ===================== -->
+<section class="page">
+  <h2><span class="n">6</span>Tableau de bord</h2>
+
+  <p class="lead" style="margin-bottom:4mm;">
+    Cinq indicateurs, pas plus. Chacun est rattaché à un objectif, relevé à une
+    fréquence fixe, et doit passer le test du cours : <em>« si cet indicateur se
+    dégrade, qu'est-ce que je fais ? »</em> Un indicateur qui ne déclenche aucune
+    décision n'est pas un indicateur, c'est une statistique.
+  </p>
+
+  <div class="grid g2" style="margin-bottom:3mm;">
+    <div class="kpi">
+      <span class="code">K1</span> <span class="tag" style="float:right;">O1</span>
+      <p class="name">Avancement du périmètre <em>Must</em></p>
+      <p class="small"><strong>Mesure</strong> : exigences <em>Must</em> cochées au § 5, divisées par 18.</p>
+      <p class="target">100 % <span style="font-size:9pt;color:var(--ink-soft);font-family:Inter;">au 05/12</span></p>
+      <p class="small" style="margin-top:1.5mm;">Jalon intermédiaire : ≥ 14 / 18 au 31/10. Relevé <strong>chaque vendredi</strong>.</p>
+      <p class="small"><span class="tag tag-coral">Si ça décroche</span> on coupe des <em>Should</em> et des <em>Could</em>, et on le note au cahier des charges.</p>
+      <p class="small muted" style="margin-bottom:0;">Au 13/10 : <strong>5 / 18</strong>, soit 28 %.</p>
+    </div>
+
+    <div class="kpi">
+      <span class="code">K2</span> <span class="tag" style="float:right;">O2</span>
+      <p class="name">Santé du pipeline</p>
+      <p class="small"><strong>Mesure</strong> : part de pipelines verts sur <code>master</code> sur 7 jours, et durée médiane d'exécution.</p>
+      <p class="target">≥ 90 % <span style="font-size:9pt;color:var(--ink-soft);font-family:Inter;">et &lt; 10 min</span></p>
+      <p class="small" style="margin-top:1.5mm;">Relevé <strong>chaque vendredi</strong>, à partir de la mise en service du 08/11.</p>
+      <p class="small"><span class="tag tag-coral">Si ça décroche</span> gel des fusions : on réparle le pipeline avant d'ajouter une ligne de fonctionnalité.</p>
+      <p class="small muted" style="margin-bottom:0;">Au 13/10 : pipeline <strong>non encore en service</strong>.</p>
+    </div>
+
+    <div class="kpi">
+      <span class="code">K3</span> <span class="tag" style="float:right;">O2</span>
+      <p class="name">Qualité du code</p>
+      <p class="small"><strong>Mesure</strong> : couverture de tests et nombre de bugs bloquants ou critiques dans SonarQube.</p>
+      <p class="target">≥ 60 % <span style="font-size:9pt;color:var(--ink-soft);font-family:Inter;">· 0 bloquant</span></p>
+      <p class="small" style="margin-top:1.5mm;">Calculé <strong>à chaque pipeline</strong>, relevé le vendredi.</p>
+      <p class="small"><span class="tag tag-coral">Si ça décroche</span> séance de tests imposée à toute l'équipe avant le jalon suivant.</p>
+      <p class="small muted" style="margin-bottom:0;">Au 13/10 : les tests d'exemple ont été remplacés, couverture <strong>non encore mesurée</strong>.</p>
+    </div>
+
+    <div class="kpi" style="border-left-color:var(--coral);">
+      <span class="code">K4</span> <span class="tag" style="float:right;">O1 &middot; note</span>
+      <p class="name">Équilibre des contributions</p>
+      <p class="small"><strong>Mesure</strong> : commits et revues de demandes de fusion, par membre, sur 7 jours.</p>
+      <p class="target">≥ 5 <span style="font-size:9pt;color:var(--ink-soft);font-family:Inter;">commits et ≥ 2 revues, chacun</span></p>
+      <p class="small" style="margin-top:1.5mm;">Relevé <strong>chaque vendredi</strong>. Git est noté par étudiant.</p>
+      <p class="small"><span class="tag tag-coral">Si ça décroche</span> redistribution des tâches en réunion et travail en binôme sur le lot en retard.</p>
+      <p class="small" style="margin-bottom:0;color:var(--rust);"><strong>Au 13/10 : hors cible.</strong> 47, 13, 1 et 0 commits selon les membres. C'est le risque <strong>R1</strong>, et c'est aujourd'hui notre premier sujet.</p>
+    </div>
+  </div>
+
+  <div class="kpi" style="margin-bottom:3mm;">
+    <span class="code">K5</span> <span class="tag" style="float:right;">O1 &middot; O3</span>
+    <p class="name">Fiabilité du passage en borne</p>
+    <div class="grid g-2-1" style="gap:5mm;">
+      <div>
+        <p class="small"><strong>Mesure</strong> : part de passages NFC réussis sur une série de 20 essais, du téléphone jusqu'à la récompense affichée.</p>
+        <p class="small" style="margin-bottom:0;">Relevé <strong>chaque vendredi dès que le prototype existe</strong> (action A4, échéance 14/11).</p>
+        <p class="small" style="margin-bottom:0;"><span class="tag tag-coral">Si ça décroche</span> repli sur un tag NFC passif, ou simulateur MQTT pour la démonstration : on ne joue pas la soutenance sur un composant instable.</p>
+      </div>
+      <div style="text-align:center;">
+        <p class="target" style="font-size:20pt;">≥ 95 %</p>
+        <p class="small muted" style="margin:1mm 0 0;">au 29/11</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Les trois questions de la grille d'évaluation</h3>
+  <div class="grid g3">
+    <div class="card on-white" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Cohérence</h4>
+      <p class="small" style="margin-bottom:0;">
+        Chaque action porte un numéro d'objectif, et chaque indicateur aussi. Le fil
+        rouge est vérifiable de bout en bout : la vision donne les trois objectifs, les
+        objectifs donnent les dix actions, les actions sont mesurées par les cinq
+        indicateurs. Les actions <strong>A1</strong> et <strong>A4</strong> viennent
+        directement des risques <strong>R2</strong> et <strong>R4</strong>.
+      </p>
+    </div>
+    <div class="card on-white" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Réalisme</h4>
+      <p class="small" style="margin-bottom:0;">
+        480 heures disponibles pour 13 exigences restantes. L'objectif O3 a été
+        <strong>revu à la baisse</strong> au vu de l'avancement réel du 13/10 plutôt que
+        maintenu pour faire bonne figure. Les <em>Should</em> et <em>Could</em> servent
+        de variable d'ajustement, et le gel du 05/12 protège les deux dernières
+        semaines.
+      </p>
+    </div>
+    <div class="card on-white" style="margin-bottom:0;">
+      <h4 style="margin-top:0;">Pilotabilité</h4>
+      <p class="small" style="margin-bottom:0;">
+        Chaque indicateur porte sa ligne « si ça décroche ». Le test est passé : K1
+        déclenche une coupe de périmètre, K2 un gel des fusions, K3 une séance de tests,
+        K4 une redistribution, K5 un repli technique. Aucun d'eux n'est là pour
+        décorer.
+      </p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>Scubanion &middot; équipe Scubatana &middot; charte de projet v2.0</span>
+    <span>R5.01 &middot; 13 octobre 2026</span>
+  </div>
+</section>
+
+</body>
+</html>

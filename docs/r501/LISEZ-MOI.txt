@@ -1,0 +1,46 @@
+SCUBANION — R5.01, Initiation au management d'une équipe de projet informatique
+Équipe Scubatana : BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
+SAE BUT3-IoT — 13 octobre 2026
+
+-------------------------------------------------------------------------------
+CONTENU
+-------------------------------------------------------------------------------
+
+1-Charte-de-projet.pdf              14 pages
+    Partie 1 à 3 : la charte de projet, reprise champ par champ de la structure
+                   du cours (Cadrage / Périmètre & Contraintes / Pilotage).
+    Partie 4     : l'analyse des risques — formule de criticité, matrice
+                   Fréquence x Gravité, échelles de probabilité et de gravité
+                   transposées au projet, dix Top Risks avec plan préventif et
+                   plan correctif, et un pré-mortem.
+    Partie 5     : le plan d'action — dix actions avec responsable et échéance,
+                   planning et jalons.
+    Partie 6     : le tableau de bord — cinq indicateurs, chacun avec sa cible,
+                   sa fréquence de relevé et la décision qu'il déclenche.
+
+2-Marketing-mix.pdf                 14 pages
+    Les quatre P appliqués au projet, illustrés par les maquettes et les films :
+    Produit, Prix, Place, Promotion. Puis les 7 P, les 4 C, et la démonstration
+    de cohérence entre les quatre leviers.
+
+3-Experience-utilisateur.pdf         8 pages
+    L'histoire racontée en six pictogrammes, le storyboard des deux films, et
+    la méthode Toolbox Persona appliquée à la fixation du prix : protocole,
+    grille vierge à remplir, et lecture commentée d'une grille.
+
+videos/
+    Deux animations de 15 secondes, format MP4, 1920x1080, sans son.
+    Elles montrent le passage en borne, dans un musée et devant un restaurant
+    partenaire. Elles se lisent dans n'importe quel lecteur vidéo.
+
+-------------------------------------------------------------------------------
+DEUX PRÉCISIONS DE TRANSPARENCE
+-------------------------------------------------------------------------------
+
+- Dans le livrable 3, les cinq profils de la grille de prix sont une SIMULATION,
+  annoncée comme telle dans le document. Les interviews réelles restent à mener
+  et remplaceront ce tableau.
+
+- L'objectif O3 de la charte a été revu à la baisse le 13/10 (2 partenaires et
+  20 testeurs, au lieu de 3 et 30) au vu de l'avancement réel du projet. La
+  justification figure dans le document.
