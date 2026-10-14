@@ -5,6 +5,7 @@ namespace Tests\Feature\Me;
 use App\Models\Activity;
 use App\Models\Companion;
 use App\Models\User;
+use App\Models\UserQuest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -54,5 +55,18 @@ class ShowMeTest extends TestCase
 			->assertJsonPath('today.date', now()->toDateString())
 			->assertJsonPath('today.steps', 147)
 			->assertJsonPath('today.goal', 5000);
+	}
+
+	public function test_it_counts_the_quests_finished_by_the_player_only(): void
+	{
+		$user = User::factory()->create();
+		Companion::factory()->for($user)->create();
+		UserQuest::factory()->for($user)->count(2)->create(['completed_at' => now()]);
+		UserQuest::factory()->for($user)->create();
+		UserQuest::factory()->for($user)->create(['failed_at' => now()]);
+		UserQuest::factory()->create(['completed_at' => now()]);
+		Sanctum::actingAs($user);
+
+		$this->getJson('/api/me')->assertOk()->assertJsonPath('player.stats.quests_done', 2);
 	}
 }
