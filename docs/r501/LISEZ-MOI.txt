@@ -1,32 +1,33 @@
 SCUBANION — R5.01, Initiation au management d'une équipe de projet informatique
 Équipe Scubatana : BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
-SAE BUT3-IoT — 13 octobre 2026
+SAE BUT3-IoT — 14 octobre 2026
 
 -------------------------------------------------------------------------------
 CONTENU
 -------------------------------------------------------------------------------
 
 1-Charte-de-projet.pdf              14 pages
-    Partie 1 à 3 : la charte de projet, reprise champ par champ de la structure
-                   du cours (Cadrage / Périmètre & Contraintes / Pilotage).
-    Partie 4     : l'analyse des risques — formule de criticité, matrice
-                   Fréquence x Gravité, échelles de probabilité et de gravité
-                   transposées au projet, dix Top Risks avec plan préventif et
-                   plan correctif, et un pré-mortem.
-    Partie 5     : le plan d'action — dix actions avec responsable et échéance,
-                   planning et jalons.
-    Partie 6     : le tableau de bord — cinq indicateurs, chacun avec sa cible,
-                   sa fréquence de relevé et la décision qu'il déclenche.
+    Parties 1 à 3 : la charte de projet, reprise champ par champ de la structure
+                    du cours (Cadrage / Périmètre & Contraintes / Pilotage).
+    Partie 4      : l'analyse des risques — formule de criticité, matrice
+                    Fréquence x Gravité, échelles de probabilité et de gravité
+                    transposées au projet, dix Top Risks avec plan préventif et
+                    plan correctif, et un pré-mortem.
+    Partie 5      : le plan d'action — dix actions avec responsable et échéance,
+                    planning et jalons.
+    Partie 6      : le tableau de bord — cinq indicateurs, chacun avec sa cible,
+                    sa fréquence de relevé et la décision qu'il déclenche.
 
 2-Marketing-mix.pdf                 14 pages
     Les quatre P appliqués au projet, illustrés par les maquettes et les films :
     Produit, Prix, Place, Promotion. Puis les 7 P, les 4 C, et la démonstration
     de cohérence entre les quatre leviers.
 
-3-Experience-utilisateur.pdf         8 pages
+3-Experience-utilisateur.pdf         7 pages
     L'histoire racontée en six pictogrammes, le storyboard des deux films, et
     la méthode Toolbox Persona appliquée à la fixation du prix : protocole,
-    grille vierge à remplir, et lecture commentée d'une grille.
+    grille vierge, puis les résultats des sept entretiens menés le 14/10 et
+    la lecture qui en découle.
 
 videos/
     Deux animations de 15 secondes, format MP4, 1920x1080, sans son.
@@ -34,12 +35,29 @@ videos/
     partenaire. Elles se lisent dans n'importe quel lecteur vidéo.
 
 -------------------------------------------------------------------------------
+LE RÉSULTAT DE LA TOOLBOX PERSONA
+-------------------------------------------------------------------------------
+
+Sept personnes ont été interrogées individuellement, en message privé, le
+14/10/2026. Cinq réponses sont exploitables et dans la cible des 18-30 ans,
+ce qui correspond au minimum demandé par la méthode.
+
+    Zone de chevauchement : 0,99 € à 2,49 €   (4 niveaux à l'unanimité)
+    Prix retenu           : 1,99 € le skin
+
+Les décisions de lecture sont écrites dans le document : une réponse a été
+écartée pour cause de fourchette inversée, une autre est conservée mais hors
+tranche d'âge, et une troisième n'a pas de borne basse parce que la personne
+a contesté la question — son objection est reprise et discutée.
+
+-------------------------------------------------------------------------------
 DEUX PRÉCISIONS DE TRANSPARENCE
 -------------------------------------------------------------------------------
 
-- Dans le livrable 3, les cinq profils de la grille de prix sont une SIMULATION,
-  annoncée comme telle dans le document. Les interviews réelles restent à mener
-  et remplaceront ce tableau.
+- L'échantillon des entretiens vient des Alpes-Maritimes, du Cantal et de la
+  Sarthe, alors que le marché pilote visé est Paris intra-muros. Le pouvoir
+  d'achat parisien étant plus élevé, notre fourchette est probablement prudente.
+  Le point est signalé dans le document.
 
 - L'objectif O3 de la charte a été revu à la baisse le 13/10 (2 partenaires et
   20 testeurs, au lieu de 3 et 30) au vu de l'avancement réel du projet. La

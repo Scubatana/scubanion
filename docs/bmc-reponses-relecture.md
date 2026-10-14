@@ -160,4 +160,5 @@ Ce que la version 2 pose en hypothèse et qui n'est pas encore validé :
 - [ ] L'estimation de 200 000 personnes sur le cœur de cible est à sourcer (données INSEE et taux d'équipement en objets connectés).
 - [ ] Le coût unitaire de la borne (70 à 90 €) dépend du choix du microcontrôleur, décision `D3` du cahier des charges.
 - [ ] Sans bracelet, l'indice de besoin de contact repose sur le seul signal comportemental (rencontres, lieux, régularité). Sa pertinence est à vérifier auprès de testeurs ; la mesure cardiaque via Health Connect reste une piste hors version 1.
-- [ ] Les trois personas sont construits sur nos observations, pas sur des entretiens. Les valider auprès d'une dizaine d'étudiants du campus.
+- [x] Le prix du cosmétique est validé : sept entretiens menés le 14/10/2026 par la méthode Toolbox Persona donnent une zone de chevauchement de 0,99 € à 2,49 €. Prix retenu : **1,99 € le skin**. Détail dans [r501/experience-utilisateur.pdf](r501/experience-utilisateur.pdf).
+- [ ] Les personas restent partiellement validés. **Léa est confirmée** par les entretiens du 14/10 (19-20 ans, 30 à 60 € de budget loisirs, 4 000 à 8 000 pas). **Yanis et Camille ne le sont par personne** : tous les répondants avaient entre 16 et 20 ans.

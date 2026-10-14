@@ -11,55 +11,46 @@
 
 ## 1. Où on en est
 
-Les trois livrables R5.01 sont **écrits, rendus en PDF et prêts à envoyer**. Le ZIP
-complet a été généré (9,7 Mo) et déposé dans le Drive.
-
-Il reste **une seule chose** avant de pouvoir envoyer une version pleinement aboutie :
-les **interviews de prix** de la méthode Toolbox Persona. Le document contient
-aujourd'hui une grille simulée, **annoncée explicitement comme une simulation**. Elle est
-défendable telle quelle, mais la remplacer par de vraies réponses fait passer l'exercice
-de « on maîtrise l'outil » à « on l'a fait ».
+**Les trois livrables sont terminés**, entretiens compris. Le ZIP a été généré et
+déposé sur le OneDrive universitaire. Il n'y a plus de tâche bloquante avant l'envoi.
 
 | Livrable | Fichier | État |
 | -------- | ------- | ---- |
 | Charte de projet | `charte-de-projet.pdf` (14 p.) | Terminé |
-| Marketing mix | `marketing-mix.pdf` (14 p.) | Terminé, sauf le prix issu de la toolbox |
-| Expérience utilisateur | `experience-utilisateur.pdf` (8 p.) | Terminé, sauf la grille de prix |
+| Marketing mix | `marketing-mix.pdf` (14 p.) | Terminé, prix validé par les entretiens |
+| Expérience utilisateur | `experience-utilisateur.pdf` (7 p.) | Terminé, avec les résultats réels |
 | Films de borne | `videos/*.mp4` | Terminé |
 
----
+### Les entretiens Toolbox Persona sont faits
 
-## 2. La seule tâche qui reste
+Sept personnes interrogées en message privé le 14/10/2026, cinq réponses
+exploitables dans la cible. **Zone de chevauchement : 0,99 € à 2,49 €. Prix retenu :
+1,99 € le skin.**
 
-### Collecter les réponses
+Les réponses brutes et les règles de lecture sont dans
+`outils/toolbox-prix.py` — c'est ce fichier qui régénère la partie résultats du
+livrable 3. Pour ajouter des entretiens plus tard, compléter la liste `ENTRETIENS`
+puis relancer :
 
-Un message type a été rédigé pour être envoyé **en message privé individuel** à des
-étudiants. Il demande six informations :
+```bash
+python docs/r501/outils/toolbox-prix.py
+bash docs/r501/outils/rendre-pdf.sh experience-utilisateur
+```
 
-1. le prix à partir duquel c'est **trop cher** ;
-2. le prix en dessous duquel on **doute de la qualité** ;
-3. l'âge ; 4. la ville ; 5. le nombre de pas par jour ; 6. le budget loisirs mensuel.
+Tout se recalcule : la grille, les deux graphiques et les compteurs.
 
-**Viser 8 à 10 réponses** et non 5 : le cours demande 5 au minimum, mais il y a toujours
-du déchet, et une zone de chevauchement se lit beaucoup mieux avec 8 réponses.
+## 2. Ce qui reste, et qui n'est pas bloquant
 
-L'envoi individuel en message privé est important : en public, les premières réponses
-influencent les suivantes et faussent la zone de chevauchement.
-
-### Ce qu'il faudra modifier une fois les réponses obtenues
-
-| Fichier | Quoi |
-| ------- | ---- |
-| `experience-utilisateur.html` | Remplacer le bloc « Avertissement — ceci est une simulation » et le tableau des cinq profils par les vraies réponses. Recalculer la ligne « Personnes couvertes » et la zone verte. |
-| `marketing-mix.html` | Mettre à jour la section « Ce qui reste à valider » et le prix de référence du skin, aujourd'hui à 1,99 € d'après la simulation. |
-| `cahier-des-charges.md` | Rien, sauf si le résultat change la grille tarifaire. |
-
-Puis régénérer les PDF (voir § 4) et reconstruire le ZIP.
-
-**Échelle de prix utilisée** (ne pas la changer, les réponses s'y réfèrent) :
-`0,49 — 0,99 — 1,49 — 1,99 — 2,49 — 2,99 — 3,99 — 4,99 — 6,99 — 9,99 €`
-
----
+- **Reposer les deux questions aux 20 testeurs** après une semaine d'usage
+  (action **A6**, échéance 29/11). Un joueur attaché à son compagnon n'a pas la
+  même disposition à payer qu'un inconnu.
+- **Les personas Yanis (27 ans) et Camille (34 ans) ne sont validés par personne** :
+  tous les répondants ont entre 16 et 20 ans. Seule Léa est confirmée.
+- **L'échantillon n'est pas sur le marché pilote** : réponses des Alpes-Maritimes,
+  du Cantal et de la Sarthe, alors que le Business Model Canvas vise Paris. À
+  trancher : retester à Paris, ou rapprocher le territoire pilote du terrain réel.
+- **Diego, 17 ans, est à réinterroger** si on veut récupérer sa réponse : sa
+  fourchette était inversée (trop cher à 8 €, doute en dessous de 5 €).
 
 ## 3. Où sont les choses
 
