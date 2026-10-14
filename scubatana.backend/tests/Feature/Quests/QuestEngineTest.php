@@ -614,4 +614,13 @@ class QuestEngineTest extends TestCase
 		$this->assertSame(10, QuestTask::count());
 		$this->assertSame(['Premiers pas', 'Balade du jour', 'Défi de la semaine'], collect($this->myQuests()->json('quests'))->pluck('name')->all());
 	}
+
+	public function test_the_whole_demo_database_seeds_places_with_their_reach(): void
+	{
+		$this->seed();
+
+		$this->assertSame(6, Place::count());
+		$this->assertTrue(Place::whereNull('min_lat')->doesntExist());
+		$this->assertTrue(Place::where('name', 'Centre de Nice')->sole()->points()->exists());
+	}
 }
