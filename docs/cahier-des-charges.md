@@ -81,7 +81,7 @@ Cette section est notre engagement commun : ce que le projet doit atteindre (§ 
 | K6 | **Rétention à 30 jours** | Part des joueurs encore actifs 30 jours après leur inscription, par cohorte | ≥ 25 % | Mensuelle, dès le pilote |
 | K7 | **Lieux partenaires et revenu récurrent** | Nombre de lieux sous contrat facturé, et revenu mensuel | 2 lieux payants au 30/06/2027, puis 40 lieux et 5 000 €/mois | Mensuelle |
 
-**K6 et K7 sont les indicateurs d'entreprise** : K1 à K5 disent si on livre, K6 et K7 disent si le produit trouve son marché. K6 est le plus important des sept — si la rétention ne tient pas, il n'y a plus d'audience à vendre aux lieux, et le modèle économique s'effondre. Le détail de ces deux indicateurs, et la décision que chacun déclenche, sont dans la charte de projet ([r501/charte-de-projet.pdf](r501/charte-de-projet.pdf), § 6).
+**K6 et K7 sont les indicateurs d'entreprise** : K1 à K5 disent si on livre, K6 et K7 disent si le produit trouve son marché. K6 est le plus important des sept : si la rétention ne tient pas, il n'y a plus d'audience à vendre aux lieux, et le modèle économique s'effondre. Le détail de ces deux indicateurs, et la décision que chacun déclenche, sont dans la charte de projet ([r501/charte-de-projet.pdf](r501/charte-de-projet.pdf), § 6).
 
 K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui ne committe pas est pénalisé même si l'équipe livre. Les indicateurs se relèvent en début de réunion hebdomadaire. Un indicateur hors cible **deux semaines de suite** déclenche un arbitrage : réduction du périmètre *Should* et *Could*, ou réaffectation d'un lot.
 
