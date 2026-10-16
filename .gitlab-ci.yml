@@ -16,6 +16,7 @@ default:
 variables:
   RELEASE_TAG: v0.$CI_PIPELINE_IID
   WEB_ARCHIVE: scubanion-web-v0.$CI_PIPELINE_IID.tar.gz
+  APK_FILE: scubanion-android-v0.$CI_PIPELINE_IID.apk
   PACKAGE_URL: $CI_API_V4_URL/projects/$CI_PROJECT_ID/packages/generic/scubanion-web/v0.$CI_PIPELINE_IID
 
 .backend:
@@ -96,6 +97,27 @@ build:frontend:
     paths:
       - scubatana.frontend/.output/public
 
+build:android:
+  stage: build
+  image: ghcr.io/cirruslabs/android-sdk:36
+  variables:
+    NUXT_PUBLIC_API_URL: https://scuba.picsou06.fr
+  before_script:
+    - curl -fsSL https://deb.nodesource.com/setup_22.x | bash - > /dev/null
+    - apt-get install -y -qq nodejs > /dev/null
+    - cd scubatana.frontend
+  script:
+    - test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "Variables ANDROID_* manquantes (CI/CD > Variables)" >&2; exit 1; }
+    - npm ci --no-audit --no-fund
+    - npm run cap:sync
+    - cd android
+    - ./gradlew --no-daemon assembleRelease
+    - mv app/build/outputs/apk/release/app-release.apk "$CI_PROJECT_DIR/$APK_FILE"
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - $APK_FILE
+
 verify:backend:
   extends: .backend
   stage: verify
@@ -142,10 +164,12 @@ release:
     - verify:backend
     - verify:frontend
     - build:frontend
+    - build:android
   script:
     - apk add --no-cache curl
     - tar -czf "$WEB_ARCHIVE" -C scubatana.frontend/.output public
     - 'curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "$WEB_ARCHIVE" "$PACKAGE_URL/$WEB_ARCHIVE"'
+    - 'curl --fail --silent --show-error --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file "$APK_FILE" "$PACKAGE_URL/$APK_FILE"'
   release:
     tag_name: $RELEASE_TAG
     name: Scubanion $RELEASE_TAG
@@ -154,6 +178,9 @@ release:
       links:
         - name: $WEB_ARCHIVE
           url: $PACKAGE_URL/$WEB_ARCHIVE
+          link_type: package
+        - name: $APK_FILE
+          url: $PACKAGE_URL/$APK_FILE
           link_type: package
 
 release:images:

@@ -75,11 +75,13 @@ Le pipeline est décrit dans `.gitlab-ci.yml` et ne tourne que sur la branche pa
 | Étape | Jobs | Rôle |
 |---|---|---|
 | `test` | `test:backend`, `test:frontend` | `php artisan test` et `npm test` |
-| `build` | `build:backend`, `build:frontend` | dépendances de production de l'API, `nuxt generate` avec l'adresse de l'API en ligne |
+| `build` | `build:backend`, `build:frontend`, `build:android` | dépendances de production de l'API, `nuxt generate` avec l'adresse de l'API en ligne, APK Android signé (`assembleRelease`) |
 | `verify` | `verify:backend`, `verify:frontend` | migrations sur une vraie MariaDB puis appel de `/up` et de `/api/me`, service du site généré |
-| `release` | `release` | étiquette `v0.<numéro du pipeline>` et release GitLab avec l'archive du site généré |
+| `release` | `release` | étiquette `v0.<numéro du pipeline>` et release GitLab avec l'archive du site généré et l'APK Android |
 | `release` | `release:images` | construit les images de prod et les publie sur DockerHub (`scripts/publish-images.sh`), sous l'étiquette de la release et sous `latest` |
 | `deploy` | `deploy` | lance `deploy.sh` du projet `scubatana` sur le VPS |
+
+Le job `build:android` signe l'APK avec la clé de dev du dépôt : il attend les variables CI/CD protégées et masquées `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASSWORD` et `ANDROID_KEY_PASSWORD`.
 
 Le job `deploy` n'existe que si la variable `DEPLOY_SSH_KEY` est définie. Il attend trois variables CI/CD protégées, de type « Variable » : `DEPLOY_SSH_KEY`, `DEPLOY_KNOWN_HOSTS` et `DEPLOY_HOST`.
 
