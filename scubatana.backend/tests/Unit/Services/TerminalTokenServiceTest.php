@@ -4,6 +4,7 @@ namespace Tests\Unit\Services;
 
 use App\Models\Terminal;
 use App\Services\TerminalTokenService;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -24,6 +25,22 @@ class TerminalTokenServiceTest extends TestCase
 		$this->assertLessThanOrEqual(40, strlen($token));
 		$this->assertTrue($read['terminal']->is($terminal));
 		$this->assertSame('2026-10-13 15:00:00', $read['scanned_at']->toDateTimeString());
+	}
+
+	public function test_tokens_match_the_reference_tokens_of_the_firmware(): void
+	{
+		$tokens = app(TerminalTokenService::class);
+		$references = [
+			['chateau-01', 'secret-de-test-scubanion', 1791896400, 'chateau-01.tmuk40.uDW6vj4R1gI5gVbx'],
+			['musee-02', 'un-autre-secret', 1791896461, 'musee-02.tmuk5p.hZhp5q5RKaRZW-9C'],
+		];
+
+		foreach ($references as [$code, $secret, $scannedAt, $expected]) {
+			$terminal = Terminal::factory()->create(['code' => $code, 'secret' => $secret]);
+
+			$this->assertSame($expected, $tokens->generate($terminal, CarbonImmutable::createFromTimestamp($scannedAt)));
+			$this->assertSame($scannedAt, $tokens->read($expected)['scanned_at']->getTimestamp());
+		}
 	}
 
 	public function test_a_token_needs_the_secret_of_its_own_terminal(): void

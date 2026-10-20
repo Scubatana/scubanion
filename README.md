@@ -15,6 +15,7 @@ Projet scolaire (équipe de 4, IUT). Un animal virtuel connecté (type Tamagotch
 |---|---|---|
 | `scubatana.frontend` | App mobile Android (podomètre du téléphone, détection de proximité BLE) | Nuxt 4 / Vue 3 / TypeScript, empaqueté avec Capacitor |
 | `scubatana.backend` | API | PHP 8.4 / Laravel |
+| `scubatana.borne` | Firmware de la borne IoT (jeton NFC, MQTT, écran, LED) | ESP32 / C++, framework Arduino, PlatformIO |
 | `scubatana.mariadb` | Base de données | MariaDB |
 | `scubatana.nginx` | Reverse proxy (prod uniquement) | nginx |
 | `scubatana.phpmyadmin` | Admin base de données | phpMyAdmin |
@@ -66,7 +67,22 @@ Les codes expirés depuis plus d'un jour sont supprimés chaque nuit par `php ar
 ```bash
 cd scubatana.backend && php artisan test     # API, sur SQLite en mémoire, mails simulés
 cd scubatana.frontend && npm test            # app, avec Vitest
+cd scubatana.borne && pio test -e native     # firmware de la borne, sur le poste (compilateur C++ requis)
 ```
+
+### Borne (firmware)
+
+Le firmware se construit avec PlatformIO (extension « PlatformIO IDE » de VS Code, ou `pip install platformio`). Le matériel et le montage sont décrits dans `docs/borne-materiel.md`, le jeton et les messages MQTT dans `docs/mqtt.md`.
+
+```bash
+cd scubatana.borne
+cp include/borne_config.example.h include/borne_config.h   # code, secret, Wi-Fi : jamais commité
+pio run -e borne                  # compile pour l'ESP32
+pio run -e borne -t upload        # flashe la carte branchée en USB
+pio device monitor                # affiche la sortie série de la borne
+```
+
+Le code et le secret de la borne sont donnés par `php artisan bornes:creer`. Le calcul du jeton est dans `lib/token` : ses tests vérifient qu'il donne exactement les mêmes jetons que l'API (`tests/Unit/Services/TerminalTokenServiceTest.php`).
 
 ### CI/CD (GitLab)
 
@@ -91,7 +107,7 @@ Sur GitHub, `master` et `main` ne reçoivent du code que par pull request, avec 
 
 - une PR ne peut viser que `master` ou `main` : une PR qui vise une autre branche est fermée automatiquement. Pour enchaîner deux PR, fusionner la première avant d'ouvrir la seconde ;
 - une PR doit être approuvée par une autre personne que son auteur et que la dernière personne à y avoir poussé du code. Personne n'est exempté, administrateur compris ;
-- les tests (`.github/workflows/tests.yml`) tournent à chaque PR : `Tests API` et `Tests app` doivent passer pour fusionner, `Tests API MariaDB` lance en plus les tests de concurrence ;
+- les tests (`.github/workflows/tests.yml`) tournent à chaque PR : `Tests API` et `Tests app` doivent passer pour fusionner, `Tests API MariaDB` lance en plus les tests de concurrence, `Tests borne` teste et compile le firmware ;
 - à chaque PR et à chaque fusion dans `master`, l'automatisation `.github/workflows/garde-des-pull-requests.yml` fusionne `master` dans la branche des PR ouvertes puis relance leurs tests. Si c'est impossible (conflit), elle l'écrit en commentaire et la fusion reste bloquée jusqu'à ce que l'auteur mette sa branche à jour. Penser à faire `git pull` sur sa branche avant de pousser.
 
 Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de `.github/workflows` : quand `master` en modifie un, chaque PR ouverte doit être mise à jour à la main une fois.

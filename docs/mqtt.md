@@ -43,6 +43,17 @@ Règles appliquées par le serveur :
 
 `php artisan bornes:simuler {code}` affiche un jeton calculé exactement comme le ferait la borne, ce qui permet de tester l'app et l'API sans matériel.
 
+### Jetons de référence
+
+Le firmware (`scubatana.borne/lib/token`) et l'API (`TerminalTokenService`) sont testés avec les mêmes jetons. Une modification du calcul qui change l'un de ces jetons casse les deux suites de tests.
+
+| Code | Secret | Heure du scan | Jeton |
+| ---- | ------ | ------------- | ----- |
+| `chateau-01` | `secret-de-test-scubanion` | `1791896400` (2026-10-13 13:00:00 UTC) | `chateau-01.tmuk40.uDW6vj4R1gI5gVbx` |
+| `musee-02` | `un-autre-secret` | `1791896461` | `musee-02.tmuk5p.hZhp5q5RKaRZW-9C` |
+
+Le secret sert de clé HMAC tel quel, sous forme de texte : la borne ne le décode pas.
+
 ## Topics MQTT
 
 Préfixe : `scubanion/bornes/{code}/`. L'API ignore les bornes non déclarées.
