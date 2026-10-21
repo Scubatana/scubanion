@@ -25,6 +25,9 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 | Moment partagé (animation des compagnons)                    | 4  | APP-10            | Should              | À faire                                           |
 | Quêtes à plusieurs, défis du jour et de la semaine, collection | 5  | APP-05, APP-10    | Should              | À faire, sur le moteur de quêtes existant        |
 | Échanges d'objets entre joueurs                               | 5  | nouvelle exigence | Could               | À faire                                           |
+| Cadeaux entre amis                                            | 5  | nouvelle exigence | Could               | À faire                                           |
+| Succès sociaux                                                | 5  | nouvelle exigence | Should              | À faire                                           |
+| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | À faire                                           |
 | Raid de borne                                                 | 6  | BOR-05            | Should              | À faire                                           |
 | Notifications                                                 | 7  | APP-12            | Should              | À faire                                           |
 | Fil d'activité réduit, classement facultatif                | 3  | APP-07            | Could               | À faire                                           |
@@ -33,7 +36,7 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 
 ## 1. Sécurité
 
-Les joueurs ont plus de 12 ans et plus : une partie est mineure. Ces règles sont livrées **avant ou avec** la première fonctionnalité sociale, pas après.
+Ces règles sont livrées **avant ou avec** la première fonctionnalité sociale, pas après.
 
 - **Pseudos seulement.** Ni vrai nom, ni photo, ni contact libre entre joueurs.
 - **Bloquer** un joueur : l'amitié est supprimée, les invitations, coups de patte et messages de l'un vers l'autre sont refusés par le serveur (pas seulement masqués dans l'app), et ils ne peuvent plus se retrouver dans une même squad. Le joueur bloqué n'est pas prévenu.
@@ -55,6 +58,7 @@ Chaque joueur règle, dans son compte, ce que ses amis voient de lui. Les pas so
 | Pas du jour et objectif                | Amis                        | **Masqué** |
 | Série de jours                        | Amis                        | **Masqué** |
 | Apparition dans le fil d'activité     | Amis                        | Visible           |
+| Succès                                 | Amis                        | Visible           |
 | Apparition dans le classement          | Amis                        | **Non**     |
 
 - Un membre de sa squad qui n'est pas son ami ne voit que son pseudo et son compagnon.
@@ -78,6 +82,7 @@ Un bouton « Coup de patte » sur la fiche de chaque ami : le compagnon envoie u
 
 - Un coup de patte par jour et par ami, vérifié par le serveur.
 - L'ami reçoit une notification (§ 7), et son compagnon gagne un petit bonus d'humeur, plafonné.
+- Il peut répondre d'un coup de patte le même jour, ce qui fait avancer leur série (§ 3.6).
 - But : un lien de tous les jours, sans avoir besoin d'écrire.
 
 ### 3.3 Fiche du compagnon d'un ami
@@ -97,6 +102,25 @@ Ils sont calculés côté serveur au fil de l'eau, sans pagination ni filtres : 
 ### 3.5 Classement de la semaine (facultatif)
 
 Un classement entre amis, remis à zéro chaque lundi, au pourcentage moyen de l'objectif atteint. Il est **désactivé par défaut** : seuls les joueurs qui l'activent y apparaissent et le voient. Il passe après tout le reste, et peut être abandonné sans gêner le projet.
+
+### 3.6 Série de coups de patte
+
+Entre deux amis, une **série** compte les jours d'affilée où ils se sont **échangé un coup de patte** : l'un en envoie un, l'autre y répond le même jour (heure de Paris). Peu importe qui commence.
+
+- Elle démarre toute seule au premier jour d'échange, entre n'importe quels amis : pas besoin de l'activer, elle ne révèle rien d'autre que les coups de patte.
+- Le compteur s'affiche à côté de l'ami dans la liste, avec une petite flamme.
+- Elle n'a rien à voir avec la série personnelle déjà en place, qui compte les jours où le joueur atteint son objectif de pas (`streak` dans l'API des pas).
+
+**Paliers.** À 7, 30 et 100 jours, les deux compagnons gagnent un **accessoire assorti** (non échangeable) et l'app joue le moment partagé (§ 4.4).
+
+**Ne pas en faire une corvée.** Les séries de Snapchat sont connues pour la pression qu'elles mettent sur les adolescents ; celle de Scubanion suit ces règles :
+
+- **Un joker par semaine** : un jour sans échange par semaine ne casse pas la série. Il s'applique tout seul.
+- **Aucun rappel** du type « votre série va s'arrêter » : les seules notifications sont le coup de patte reçu et les paliers atteints.
+- Quand une série s'arrête, l'app ne dit pas qui l'a fait tomber, et ne montre aucun message triste. Le **record** reste affiché, et une nouvelle série repart dès le prochain échange.
+- La série ne sert jamais de condition à une quête, un défi ou un succès : elle reste un bonus.
+
+Limite à assumer : cette série récompense le fait d'ouvrir l'app chaque jour, pas de marcher. C'est pour cela que ses récompenses restent des accessoires, sans XP.
 
 ## 4. ScubaSquads : marcher ensemble
 
@@ -141,7 +165,7 @@ Les règles de validation des fenêtres et le calcul du bonus sont écrits comme
 
 Quand une première fenêtre est validée, quand un défi est réussi ou quand un raid est débloqué, l'app joue une courte **animation des compagnons ensemble** : ils se retrouvent, sautent, repartent côte à côte. C'est ce moment, plus que l'XP, qui donne envie de recommencer. Il demande de nouveaux dessins à partir des sprites de `scubatana.demo/assets/img/dog/`.
 
-## 5. Quêtes à plusieurs, défis, collection et échanges
+## 5. Quêtes à plusieurs, défis, collection, échanges et succès
 
 ### 5.1 Quêtes à plusieurs
 
@@ -203,7 +227,7 @@ Les échanges ne concernent que les accessoires : ni XP, ni niveau, ni monnaie. 
 
 S'échangent donc surtout les récompenses de quêtes et de défis du jour. Un joueur ne possède jamais deux fois le même accessoire : donner un accessoire, c'est s'en séparer.
 
-**Garde-fous.** Les échanges attirent les arnaques, la pression entre joueurs (dont des mineurs) et les comptes créés pour récupérer des objets :
+**Garde-fous.** Les échanges attirent les arnaques, la pression entre joueurs, qui peuvent être mineurs, et les comptes créés pour récupérer des objets :
 
 - échanger demande un compte d'au moins 7 jours et un compagnon de niveau 3 ;
 - 3 échanges par jour au plus ;
@@ -212,6 +236,40 @@ S'échangent donc surtout les récompenses de quêtes et de défis du jour. Un j
 - pas d'annulation après coup : l'écran le dit avant la confirmation.
 
 Technique : la fenêtre d'échange doit se mettre à jour en direct sur les deux téléphones. Le plus simple est que l'app interroge le serveur toutes les 1 à 2 secondes tant que la fenêtre est ouverte ; un WebSocket (Laravel Reverb) serait plus propre, mais ajoute un service au déploiement.
+
+### 5.6 Cadeaux entre amis
+
+Offrir un accessoire à un ami, sans rien demander en retour, même à distance.
+
+- Depuis la fiche d'un ami, on choisit un accessoire et on peut ajouter un message prédéfini (« Joyeux anniversaire ! », « Pour ta première balade ! »).
+- L'ami reçoit une notification et **accepte ou refuse** le cadeau. Tant qu'il n'a pas répondu, l'accessoire reste chez celui qui l'offre ; sans réponse au bout de 7 jours, le cadeau est annulé.
+- Les règles des échanges s'appliquent : seuls les accessoires échangeables (`tradable`) s'offrent, et l'ami ne doit pas déjà l'avoir.
+- Garde-fous : seulement entre amis, compte d'au moins 7 jours et compagnon de niveau 3, 3 cadeaux offerts par jour au plus. Sans ces limites, un joueur pourrait créer des comptes pour récupérer des objets et les envoyer à son compte principal.
+
+Plus simple qu'un échange : pas de fenêtre en direct, juste une offre et une réponse.
+
+### 5.7 Succès sociaux
+
+Des **succès** (badges) récompensent les moments sociaux. Ils s'affichent sur la fiche du joueur, visibles par ses amis selon ses réglages (§ 2).
+
+| Succès | Condition |
+| ------ | --------- |
+| Première sortie | Une fenêtre validée en squad |
+| Bande de potes | 10 sorties en squad |
+| Nouveaux visages | Marcher en squad avec 5 joueurs différents |
+| Entouré | 5 amis |
+| Patte tendue | 20 coups de patte envoyés |
+| Premier raid | Participer à un premier raid de borne |
+| Fidèle au poste | 4 défis de la semaine réussis |
+| Généreux | Un premier cadeau offert |
+| Bonne affaire | Un premier échange |
+
+Règles :
+
+- Les succès se cumulent dans le temps et ne se perdent jamais. Aucun ne demande une série de jours d'affilée, pour ne pas créer de pression.
+- Certains paliers donnent un accessoire (non échangeable), la plupart rien d'autre que le badge.
+- Les succès sont des **données** : un catalogue en base (code, nom, icône, type de condition, seuil), pour en ajouter sans livrer l'app, comme les quêtes.
+- Ils sont calculés par le serveur à chaque événement concerné (fenêtre validée, ami ajouté, raid…), et un succès débloqué apparaît dans le fil d'activité.
 
 ## 6. Raid de borne 
 
@@ -233,6 +291,9 @@ Les notifications doivent donner envie, pas culpabiliser. C'est le compagnon qui
 | Coup de patte reçu                      | « Bulle, le compagnon de Hamza, t'envoie un coup de patte ! »    |
 | Invitation d'ami reçue ou acceptée     | « Thomas a accepté ton invitation. »                           |
 | Invitation dans une squad                | « Yanis t'invite dans sa squad pour une balade. »                |
+| Cadeau reçu                              | « Lina t'offre la casquette rayée ! »                            |
+| Succès débloqué                          | « Nouveau succès : Bande de potes ! »                            |
+| Palier de série                          | « 30 jours d'affilée avec Lina ! Vos compagnons ont un nouveau foulard. » |
 | Défi presque réussi, puis réussi      | « Plus qu'une sortie pour le skin de la semaine ! »              |
 | Raid presque débloqué, puis débloqué | « Plus que 3 joueurs à la borne du parc pour le skin pirate ! » |
 | Compagnon (solo)                         | « Il fait beau, Bulle a envie d'aller au parc. »                 |
@@ -253,7 +314,7 @@ Pas de chat libre : seulement des **messages prédéfinis** et des **emotes**, e
 - Emotes : 6 à 10 animations du compagnon (saute de joie, applaudit, dort…).
 - Les textes sont des données en base, ajoutés sans livrer l'app.
 
-Un chat libre demanderait une modération qu'une équipe de quatre ne peut pas assurer, avec des joueurs mineurs. Priorité Could : le coup de patte et les invitations de squad couvrent déjà une partie du besoin.
+Un chat libre demanderait une modération qu'une équipe de quatre ne peut pas assurer, avec des joueurs qui peuvent être mineurs. Priorité Could : le coup de patte et les invitations de squad couvrent déjà une partie du besoin.
 
 ## 9. Parrainage
 
@@ -274,6 +335,9 @@ Proposition, à affiner au moment du développement. Chaque table est supprimée
 | `squad_windows`                   | Fenêtres de 10 minutes validées et membres ensemble                         |
 | `weekly_challenges`               | Défi de la semaine d'un joueur, avancement, date de réussite                |
 | `trades`, `trade_items`           | Échange : les deux joueurs, état, dates ; accessoires donnés par chacun    |
+| `friend_streaks`                  | Série de coups de patte entre deux amis : début, valeur, record, joker utilisé cette semaine |
+| `gifts`                           | Cadeau : qui, à qui, accessoire, message, état (en attente, accepté, refusé, annulé) |
+| `achievements`, `user_achievements` | Catalogue des succès (condition, seuil, accessoire éventuel) ; succès débloqués et date |
 | `raids`, `raid_participants`    | Borne, jour, palier, skin ; joueurs passés                                   |
 | `notifications`                   | Ce qui a été envoyé, pour respecter les plafonds                           |
 | `message_templates`, `messages` | Textes et emotes ; messages envoyés                                          |
@@ -298,8 +362,8 @@ Un échange déjà fait n'est pas annulé quand un compte est supprimé : les ac
 ## Ordre de réalisation proposé
 
 1. Sécurité et réglages de partage (§ 1 et § 2), écran Amis sur l'API existante, ajout par QR code, fiche du compagnon.
-2. Coups de patte et notifications (§ 7).
+2. Coups de patte, série de coups de patte et notifications (§ 7).
 3. Squads : invitation, QR, fenêtres de marche ensemble, bonus et moment partagé.
-4. Défis du jour, quêtes à plusieurs, défi de la semaine et collection.
+4. Défis du jour, quêtes à plusieurs, défi de la semaine, collection et succès.
 5. Raid de borne, une fois le passage en borne en place.
-6. Si le temps le permet : échanges d'objets, fil d'activité, messages prédéfinis et emotes, classement, parrainage.
+6. Si le temps le permet : cadeaux, échanges d'objets, fil d'activité, messages prédéfinis et emotes, classement, parrainage.
