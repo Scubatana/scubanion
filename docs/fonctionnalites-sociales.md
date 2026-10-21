@@ -1,194 +1,305 @@
 # Fonctionnalités sociales
 
-Ce document décrit tout ce que l'équipe veut faire pour l'aspect multijoueur de Scubanion : les amis, les groupes qui se retrouvent pour marcher ensemble, les messages et le parrainage. C'est une **proposition** : chaque fonctionnalité donne son but, ses règles, sa priorité et ce qu'il reste à trancher. Une fois validée, elle est reportée dans le [cahier des charges](cahier-des-charges.md) (APP-07, APP-08, APP-10, APP-11).
+Ce document décrit tout ce que l'équipe veut faire pour l'aspect multijoueur de Scubanion : la sécurité, ce que chacun partage, les amis, les squads qui se forment pour marcher ensemble, les raids de borne et les notifications. C'est une **proposition** : chaque fonctionnalité donne son but, ses règles, sa priorité et ce qu'il reste à trancher. Une fois validée, elle est reportée dans le [cahier des charges](cahier-des-charges.md) (APP-07, APP-08, APP-10, APP-11, APP-12).
 
-Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis dans [api/amis.md](api/amis.md), les tables `friendships` et `encounters` dans [modele-de-donnees.md](modele-de-donnees.md).
+Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis dans [api/amis.md](api/amis.md), les tables `friendships` et `encounters` dans [modele-de-donnees.md](modele-de-donnees.md), l'envoi des positions et l'anti-triche dans [regles-du-jeu.md](regles-du-jeu.md).
 
 ## Principes
 
-- **Se voir en vrai.** Le social répond à l'isolement, la moitié du problème ciblé. Les plus grosses récompenses vont à ce qui se fait ensemble, dehors, pas à ce qui se fait seul sur le téléphone.
-- **Coopérer plutôt que s'affronter.** On gagne en groupe. Quand il y a une comparaison, elle se fait au pourcentage de l'objectif atteint, pour qu'un joueur qui reprend le sport ne soit pas écrasé par un marathonien.
-- **Ne pas pouvoir pister quelqu'un.** Aucune position n'est jamais montrée à un autre joueur.
-- **Règles calculées côté serveur**, comme le reste du jeu (BCK-03) : un téléphone modifié ne doit pas pouvoir inventer un groupe ou une rencontre.
+- **Le multijoueur est conseillé, jamais obligatoire.** Un joueur seul fait progresser son compagnon, réussit ses quêtes et passe aux bornes sans aucune limite. Jouer à plusieurs donne des bonus plafonnés et des skins en plus, jamais un accès au reste du jeu. Notre cible est en partie isolée : si le jeu solo était bridé, elle partirait avant d'avoir trouvé quelqu'un avec qui jouer.
+- **Mais tout pousse à se voir en vrai.** Les plus belles récompenses (skins de squad, raids, moments partagés) vont à ce qui se fait ensemble, dehors. Les bornes chez les partenaires servent de point de rencontre naturel, y compris entre joueurs qui ne se connaissent pas.
+- **Coopérer, jamais punir.** On gagne ensemble. Un défi raté ne fait rien perdre.
+- **Chacun choisit ce qu'il partage** (§ 2), et rien de sensible n'est partagé par défaut.
+- **Personne ne peut pister personne.** Aucune position, aucune zone n'est jamais montrée à un autre joueur.
+- **Le serveur décide.** Squads, bonus et récompenses sont calculés par l'API (BCK-03), avec des contraintes d'unicité en base pour qu'une même récompense ne soit jamais donnée deux fois, même si deux téléphones envoient la même requête en même temps.
 
 ## Vue d'ensemble
 
-| Fonctionnalité | Exigence | Priorité proposée | État |
-| -------------- | -------- | ----------------- | ---- |
-| Liste d'amis, invitation par code | APP-07 | Should | API faite, écran à faire |
-| Ajout d'un ami par QR code | APP-07 | Should | À faire |
-| Encouragement | APP-07 | Should | À faire |
-| Fiche du compagnon d'un ami | APP-07 | Should | Données déjà dans l'API, écran à faire |
-| Fil d'activité des amis | APP-07 | Could | À faire |
-| Classement de la semaine entre amis | APP-07 | Could | À faire |
-| Groupes : se retrouver, marcher ensemble, tâches et défis | APP-08, APP-10 | Should | Table `encounters` faite, le reste à faire |
-| Messages prédéfinis et emotes | APP-11 | Could | À faire |
-| Parrainage | nouvelle exigence | Could | À faire |
+| Fonctionnalité                                               | § | Exigence          | Priorité proposée | État                                              |
+| ------------------------------------------------------------- | -- | ----------------- | ------------------- | -------------------------------------------------- |
+| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | À faire (suppression de compte déjà en cascade) |
+| Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | À faire                                           |
+| Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | API faite, écran à faire                         |
+| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | À faire                                           |
+| Squads : invitation, QR code, marche ensemble                 | 4  | APP-08, APP-10    | Should              | Table `encounters` faite, le reste à faire      |
+| Moment partagé (animation des compagnons)                    | 4  | APP-10            | Should              | À faire                                           |
+| Quêtes à plusieurs, défis du jour et de la semaine, collection | 5  | APP-05, APP-10    | Should              | À faire, sur le moteur de quêtes existant        |
+| Échanges d'objets entre joueurs                               | 5  | nouvelle exigence | Could               | À faire                                           |
+| Raid de borne                                                 | 6  | BOR-05            | Should              | À faire                                           |
+| Notifications                                                 | 7  | APP-12            | Should              | À faire                                           |
+| Fil d'activité réduit, classement facultatif                | 3  | APP-07            | Could               | À faire                                           |
+| Messages prédéfinis et emotes                               | 8  | APP-11            | Could               | À faire                                           |
+| Parrainage                                                    | 9  | nouvelle exigence | Could               | À faire après le reste                           |
 
-## 1. Amis
+## 1. Sécurité
 
-### 1.1 Ajouter un ami par code ou par QR code
+Les joueurs ont plus de 12 ans et plus : une partie est mineure. Ces règles sont livrées **avant ou avec** la première fonctionnalité sociale, pas après.
 
-Chaque joueur a déjà un code ami de 8 caractères ([api/amis.md](api/amis.md)). L'écran Amis l'affiche aussi sous forme de **QR code**.
+- **Pseudos seulement.** Ni vrai nom, ni photo, ni contact libre entre joueurs.
+- **Bloquer** un joueur : l'amitié est supprimée, les invitations, coups de patte et messages de l'un vers l'autre sont refusés par le serveur (pas seulement masqués dans l'app), et ils ne peuvent plus se retrouver dans une même squad. Le joueur bloqué n'est pas prévenu.
+- **Signaler** un joueur (pseudo déplacé, comportement gênant) : le signalement est enregistré avec son motif, et l'équipe l'examine. Pas de sanction automatique.
+- **Quitter une squad** à tout moment, sans confirmation des autres.
+- **Exclure d'une squad** : le chef de squad (celui qui l'a créée, puis le membre arrivé le plus tôt s'il part) peut exclure un membre, qui ne peut plus la rejoindre.
+- **Supprimer son compte** efface tout ce qui le concerne, données dérivées comprises : amitiés, invitations, squads, rencontres, coups de patte, messages, signalements qu'il a faits, participations aux raids. Les tables actuelles sont déjà supprimées en cascade ; chaque nouvelle table doit suivre la même règle.
+- **Durée de conservation.** Les rencontres et les squads gardent leur zone approximative 30 jours au plus, puis seulement des compteurs (« 12 sorties ensemble »). Une zone gardée longtemps finirait par révéler des habitudes : mêmes personnes, même endroit, chaque semaine.
+- **Limites de fréquence** sur toutes les actions sociales, comme les 20 invitations par minute déjà en place.
 
-- Pour ajouter quelqu'un qu'on a en face de soi, on scanne son QR code avec l'appareil photo de l'app. L'invitation part et l'autre l'accepte, comme avec le code tapé à la main.
-- Le QR code ne contient que le code ami : aucune donnée personnelle.
-- La saisie à la main reste possible, pour inviter quelqu'un à distance.
+## 2. Ce que chacun partage
 
-Côté serveur, rien ne change : l'app envoie le code lu à `POST /me/friends`. Il faut seulement un plugin Capacitor de lecture de QR code.
+Chaque joueur règle, dans son compte, ce que ses amis voient de lui. Les pas sont des données d'activité physique, proches des données de santé : ils ne sont pas partagés tant que le joueur ne l'a pas décidé.
 
-### 1.2 Encourager un ami
+| Donnée                                | Visible par                 | Par défaut       |
+| -------------------------------------- | --------------------------- | ----------------- |
+| Pseudo et compagnon (apparence, skins) | Amis et membres de sa squad | Toujours visible  |
+| Niveau du compagnon                    | Amis                        | Visible           |
+| Pas du jour et objectif                | Amis                        | **Masqué** |
+| Série de jours                        | Amis                        | **Masqué** |
+| Apparition dans le fil d'activité     | Amis                        | Visible           |
+| Apparition dans le classement          | Amis                        | **Non**     |
 
-Un bouton « Encourager » (un coup de patte du compagnon) sur la fiche de chaque ami.
+- Un membre de sa squad qui n'est pas son ami ne voit que son pseudo et son compagnon.
+- Une invitation reçue ne montre que le pseudo.
+- Changement à prévoir dans l'API : `GET /me/friends` renvoie aujourd'hui toujours les pas du jour et la série ; elle devra respecter ces réglages.
 
-- Un encouragement par jour et par ami.
-- L'ami le voit à sa prochaine ouverture de l'app, et son compagnon gagne un petit bonus d'humeur.
-- But : créer un lien de tous les jours, sans avoir besoin d'écrire.
+## 3. Amis
 
-### 1.3 Voir le compagnon d'un ami
+### 3.1 Ajouter un ami
 
-Toucher un ami ouvre sa fiche : son compagnon avec ses accessoires, son niveau, ses pas du jour par rapport à son objectif et sa série de jours. Ces données sont déjà renvoyées par `GET /me/friends`. La fiche sert aussi de vitrine pour les skins gagnés en borne, et donne envie d'aller les chercher.
+Deux façons, selon qu'on se voit ou non :
 
-### 1.4 Fil d'activité
+- **En vrai : par QR code.** Un joueur affiche son QR d'ami, l'autre le scanne avec l'app : ils sont **amis tout de suite**, sans invitation à accepter. Afficher son QR vaut accord.
+- **À distance : par code.** On saisit le code ami de 8 caractères ([api/amis.md](api/amis.md)) ; l'autre accepte ou refuse l'invitation, comme aujourd'hui.
 
-Une liste des moments forts des amis, sans détail sur leurs déplacements :
+Le QR d'ami **change toutes les minutes** tant qu'il est affiché. Comme le scan rend amis sans validation, une photo du QR postée sur un réseau (Discord, Snapchat…) permettrait sinon à n'importe qui de devenir ami avec ce joueur à son insu. Pour les joueurs, rien ne change : on affiche, l'autre scanne. Le QR ne contient qu'un jeton signé par le serveur, sans identifiant ni position.
+
+### 3.2 Coup de patte
+
+Un bouton « Coup de patte » sur la fiche de chaque ami : le compagnon envoie un petit signe d'encouragement.
+
+- Un coup de patte par jour et par ami, vérifié par le serveur.
+- L'ami reçoit une notification (§ 7), et son compagnon gagne un petit bonus d'humeur, plafonné.
+- But : un lien de tous les jours, sans avoir besoin d'écrire.
+
+### 3.3 Fiche du compagnon d'un ami
+
+Toucher un ami ouvre sa fiche : son compagnon avec ses skins, son niveau, et selon ses réglages (§ 2) ses pas du jour et sa série. La fiche sert aussi de vitrine aux skins gagnés en borne et en squad.
+
+### 3.4 Fil d'activité (réduit)
+
+Trois événements seulement, sans lieu ni heure précise :
 
 - « Lina a atteint son objectif du jour »
-- « Yanis est passé au niveau 4 »
-- « Tom a débloqué la casquette Decathlon »
-- « Lina, Yanis et Tom ont réussi leur défi de groupe »
+- « Tom a débloqué un nouveau skin »
+- « Yanis a réussi son défi de la semaine »
 
-Le lieu n'est jamais affiché, même pour un accessoire gagné en borne.
+Ils sont calculés côté serveur au fil de l'eau, sans pagination ni filtres : on affiche ceux des 7 derniers jours.
 
-### 1.5 Classement de la semaine
+### 3.5 Classement de la semaine (facultatif)
 
-Un classement entre amis, remis à zéro chaque lundi, au **pourcentage moyen de l'objectif atteint** dans la semaine et pas au nombre de pas. Un joueur peut choisir de ne pas y apparaître.
+Un classement entre amis, remis à zéro chaque lundi, au pourcentage moyen de l'objectif atteint. Il est **désactivé par défaut** : seuls les joueurs qui l'activent y apparaissent et le voient. Il passe après tout le reste, et peut être abandonné sans gêner le projet.
 
-## 2. Groupes : se retrouver et marcher ensemble
+## 4. ScubaSquads : marcher ensemble
 
-C'est le cœur du multijoueur. Deux joueurs qui se croisent ne gagnent pas seulement un bonus : ils peuvent **former un groupe**, à deux, à trois ou plus, pour marcher ensemble et réaliser des tâches communes. Les rencontres (APP-08) et les équipes (APP-10) deviennent une seule fonctionnalité.
+C'est le cœur du multijoueur. Comme dans un jeu en ligne, des joueurs forment une **squad** le temps d'une sortie, à deux, trois ou plus, pour marcher ensemble et réussir des quêtes à plusieurs. Une squad est **temporaire** : elle se dissout à la fin de la sortie.
 
-### 2.1 Former un groupe
+### 4.1 Former une squad
 
-- Un groupe compte de **2 à 6 joueurs** (taille maximale à confirmer).
-- Il se forme **sur place** : le créateur affiche le QR code du groupe, les autres le scannent. Il faut être ensemble physiquement pour rejoindre un groupe.
-- Le groupe a un nom et dure dans le temps : on peut se retrouver la semaine suivante avec le même groupe.
-- Un joueur peut appartenir à plusieurs groupes (nombre maximum à fixer), et quitter un groupe à tout moment.
-- Les membres d'un groupe qui ne sont pas encore amis se voient proposer de le devenir.
+Un joueur crée une squad (2 à 6 joueurs) ; il en est le chef. Les autres la rejoignent de deux façons :
 
-### 2.2 Prouver qu'on est ensemble
+- **Par invitation** : le chef invite un ou plusieurs **amis** depuis l'app. Ils reçoivent une notification (« Lina t'invite dans sa squad ») et acceptent ou refusent. Seuls les amis peuvent être invités à distance, pour qu'un inconnu ne puisse pas attirer un joueur dans sa squad.
+- **En vrai, par QR code** : le chef affiche le QR **de cette squad**, que les joueurs présents scannent. Pas besoin d'être amis ; à la fin de la sortie, l'app propose aux membres qui ne le sont pas de le devenir. Comme le QR d'ami, il change toutes les minutes, pour qu'une photo ne permette pas de rejoindre la squad de loin.
 
-Les bonus de groupe ne comptent que quand les membres sont **réellement au même endroit au même moment**. On appelle ce moment une **sortie**.
+Un joueur n'est que dans une squad à la fois. Il la quitte quand il veut ; le chef peut exclure un membre (§ 1).
 
-- Une sortie commence quand au moins deux membres d'un groupe sont détectés ensemble, et s'arrête quand ils se séparent.
-- La détection est la même que pour les rencontres : Bluetooth entre les téléphones, recoupé par la position côté serveur. Le plugin Bluetooth actuel ne sait pas émettre, d'où la décision **D11** à prendre (voir § 7).
-- Comme pour les rencontres, aucune coordonnée brute n'est gardée : seulement une zone approximative, et jamais montrée aux autres joueurs.
-- Les garde-fous anti-triche des quêtes s'appliquent : position simulée ou vitesse impossible annulent la sortie.
+### 4.2 Être ensemble pour de vrai
 
-### 2.3 Marcher ensemble
+On peut rejoindre une squad à distance, mais les bonus ne comptent que pour les membres **réellement ensemble**. Le Bluetooth est écarté (§ 11) : le serveur compare les positions, que l'app envoie déjà chaque minute.
 
-Pendant une sortie, chaque membre présent gagne plus d'XP pour ses pas. Proposition de bonus, à équilibrer :
+1. Le serveur découpe la sortie en **fenêtres de 10 minutes**.
+2. Une fenêtre est validée pour les membres qui étaient à moins de 100 m les uns des autres sur au moins 8 des 10 positions, et qui se sont déplacés d'au moins 150 m à une vitesse de marche (2 à 7 km/h). Deux téléphones posés sur une table, ou un trajet en bus, ne valident donc rien.
+3. Les positions ne sont gardées que le temps du calcul (voir § 1 pour la zone approximative).
+4. La squad se dissout quand le chef la termine, quand il ne reste qu'un membre, après 30 minutes sans fenêtre validée, ou au bout de 3 heures.
 
-| Membres présents | Bonus sur l'XP des pas |
-| ---------------- | ---------------------- |
-| 2 | +20 % |
-| 3 | +30 % |
-| 4 et plus | +50 % |
+Les garde-fous des quêtes s'appliquent : une position simulée ou une vitesse impossible annule les bonus du joueur concerné.
 
-Limite à lever : aujourd'hui les pas sont comptés par jour ([regles-du-jeu.md](regles-du-jeu.md)), pas par moment. Pour savoir quels pas ont été faits pendant la sortie, il faut dater les pas plus finement. Repli possible : un bonus fixe d'XP par sortie d'au moins 20 minutes et 1 000 pas.
+**Passage commun à une borne.** Deux membres d'une squad qui passent à la même borne à moins de 10 minutes d'écart sont aussi considérés comme ensemble : c'est la preuve la plus fiable, puisque chaque passage porte un jeton signé et à usage unique (D2).
 
-### 2.4 Tâches de groupe
+### 4.3 Bonus de marche ensemble
 
-Des quêtes qui ne se réussissent qu'à plusieurs. Elles réutilisent le moteur de quêtes existant, avec des tâches validées pour tout le groupe :
+Les pas sont comptés par jour : on ne sait pas lesquels ont été faits pendant la sortie. Le bonus est donc un **montant fixe d'XP par fenêtre validée**, en plus de l'XP normale des pas.
 
-- **Pas cumulés** : « faites 20 000 pas à vous trois cette semaine ».
-- **Lieu visité ensemble** : « passez au parc ensemble », validée quand au moins deux membres font leur check-in au même lieu à moins de 10 minutes d'écart.
-- **Sorties** : « faites 3 sorties ensemble cette semaine ».
-- **Borne** : « passez tous à la même borne le même jour ».
+| Membres ensemble dans la fenêtre | XP par fenêtre de 10 minutes |
+| --------------------------------- | ----------------------------- |
+| 2                                 | 20 XP                         |
+| 3 et plus                         | 30 XP                         |
 
-### 2.5 Défi de la semaine
+Plafond : 180 XP par jour, soit environ une heure de marche ensemble. À comparer aux 550 XP d'une journée où l'objectif de 5 000 pas est tenu seul : le bonus est sensible, mais un joueur seul n'est pas distancé. Valeurs à équilibrer.
 
-Chaque lundi, chaque groupe reçoit un défi commun dont l'objectif dépend du nombre de membres (par exemple 25 000 pas par membre). Tout le groupe gagne ou perd ensemble : le défi pousse ceux qui marchent le plus à entraîner les autres.
+Les règles de validation des fenêtres et le calcul du bonus sont écrits comme des fonctions pures, testées unitairement.
 
-### 2.6 Récompenses
+### 4.4 Moment partagé
 
-- XP pour chaque membre.
-- **Accessoires de groupe** : un skin que seuls les membres d'un groupe qui a réussi un défi peuvent porter, pour se reconnaître entre eux.
-- Une série de semaines réussies, affichée sur la fiche du groupe.
+Quand une première fenêtre est validée, quand un défi est réussi ou quand un raid est débloqué, l'app joue une courte **animation des compagnons ensemble** : ils se retrouvent, sautent, repartent côte à côte. C'est ce moment, plus que l'XP, qui donne envie de recommencer. Il demande de nouveaux dessins à partir des sprites de `scubatana.demo/assets/img/dog/`.
 
-## 3. Messages prédéfinis et emotes
+## 5. Quêtes à plusieurs, défis, collection et échanges
 
-Pas de chat libre : seulement des **messages prédéfinis** et des **emotes**, entre amis et dans un groupe.
+### 5.1 Quêtes à plusieurs
 
-- Messages : « On marche ce soir ? », « Je suis en route », « Bravo ! », « Plus que 1 000 pas ! », « Rendez-vous au parc ».
-- Emotes : le compagnon qui saute de joie, qui applaudit, qui dort, qui a faim, etc., dessinés à partir des sprites de `scubatana.demo/assets/img/dog/`.
-- Les textes sont des données, ajoutées sans livrer l'app, comme les accessoires.
+Le moteur de quêtes existant gagne deux paramètres par tâche : un **nombre minimum de participants** et une **fenêtre de temps**. La tâche est validée pour tous quand assez de membres d'une même squad l'ont validée dans la fenêtre.
 
-Pourquoi : l'app accepte des joueurs dès 15 ans. Un chat libre demanderait de la modération (insultes, harcèlement, partage de données personnelles) qu'une équipe de quatre ne peut pas assurer. Des messages prédéfinis suppriment ce risque tout en permettant de s'organiser.
+Exemples : « passez au parc à au moins deux, à moins de 15 minutes d'écart », « passez à trois à la borne de la médiathèque ». Les check-in et les passages en borne existent déjà : seule la règle de squad est nouvelle.
 
-## 4. Parrainage
+### 5.2 Défis du jour
 
-Un joueur invite quelqu'un qui n'a pas encore l'app.
+Chaque matin, chaque joueur reçoit **un petit défi**, faisable en une balade, seul ou à plusieurs :
 
-- Le parrain partage un lien ou son code. Le filleul le saisit à l'inscription.
-- La récompense n'est donnée qu'une fois le filleul **actif**, par exemple quand il a atteint son objectif 3 jours, pour éviter les faux comptes.
-- Les deux gagnent : un accessoire exclusif « parrain » et un accessoire de bienvenue pour le filleul.
-- Le parrain et le filleul deviennent amis automatiquement.
-- Limite : 5 parrainages récompensés par mois.
+- passer par un parc ;
+- marcher 20 minutes en squad ;
+- envoyer un coup de patte à un ami ;
+- passer à une borne.
 
-Le parrainage soutient l'indicateur de rétention K6 et le coût d'acquisition des joueurs (R5.01, R5.13).
+Pour que le multijoueur reste conseillé sans être obligatoire, le défi du jour est toujours faisable seul. Un défi social est proposé avec une alternative solo (« marcher 20 minutes en squad, ou 3 000 pas seul »), et la version à plusieurs rapporte un peu plus.
 
-## 5. Confidentialité et sécurité
+Pour qu'il ne devienne pas une corvée :
 
-- Seuls les amis acceptés voient l'activité d'un joueur ; une invitation ne montre que le pseudo.
-- Aucune position, aucune zone de rencontre ni de sortie n'est montrée à un autre joueur.
-- **Bloquer** un joueur supprime l'amitié, le retire des groupes communs et l'empêche de renvoyer une invitation.
-- **Signaler** un joueur (pseudo ou nom de groupe déplacé).
-- **Profil privé** : le joueur n'apparaît ni dans le classement ni dans le fil d'activité.
-- Supprimer un compte supprime ses amitiés, groupes, sorties, rencontres, encouragements et messages (règles RGPD du cahier des charges, § 6.5).
+- la récompense est modeste (de l'XP, parfois un accessoire) ;
+- rater un défi du jour ne fait rien perdre et ne casse aucune série ;
+- aucune notification de rappel : il est affiché à l'ouverture de l'app, c'est tout.
 
-## 6. Données à ajouter
+Les défis du jour sont des **quêtes** `daily` du moteur existant, déjà redonnées chaque jour à minuit ([regles-du-jeu.md](regles-du-jeu.md)) : seule l'alternative solo ou squad est nouvelle.
 
-Proposition, à affiner au moment du développement :
+### 5.3 Défi de la semaine
 
-| Table | Contenu |
-| ----- | ------- |
-| `groups` | Nom, créateur, date de création |
-| `group_members` | Groupe, joueur, date d'arrivée |
-| `outings` | Une sortie : groupe, début, fin, zone approximative |
-| `outing_members` | Les membres présents pendant une sortie |
-| `cheers` | Encouragements : qui, à qui, quel jour |
-| `message_templates` | Textes des messages prédéfinis et des emotes |
-| `messages` | Message envoyé : expéditeur, ami ou groupe destinataire, modèle utilisé |
-| `referrals` | Parrain, filleul, date de validation |
-| `blocks`, `reports` | Blocages et signalements |
+Les squads étant temporaires, le défi est **personnel** mais se réussit avec les autres. Chaque lundi, chaque joueur reçoit un défi choisi parmi quelques modèles :
 
-Les tables existantes `friendships` et `encounters` sont conservées.
+- faire 3 sorties en squad ;
+- marcher en squad avec 2 joueurs différents ;
+- passer à une borne avec un membre de sa squad ;
+- réussir une quête à plusieurs.
 
-## 7. Questions à trancher
+N'importe quelle squad compte, avec n'importe qui. Réussir donne de l'XP et un skin de squad ; échouer ne fait rien perdre. Les pas cumulés ne font pas partie des défis : ils ne demandent pas d'être ensemble.
 
-| Question | Options | Remarque |
-| -------- | ------- | -------- |
-| Détection des rencontres et des sorties (D11) | Bluetooth recoupé par la position, position seule, scan du QR code de l'autre | Le plugin Bluetooth actuel ne sait pas émettre d'annonces : autre plugin ou code Android natif. À trancher avant le 07/11 |
-| Taille d'un groupe | 4, 6, 8 | Plus le groupe est grand, plus la détection est difficile |
-| Faut-il être amis pour former un groupe ? | Oui, ou non avec proposition d'amitié | La proposition est « non » : le groupe se forme sur place |
-| Bonus de la marche ensemble | Pourcentage sur les pas de la sortie, ou bonus fixe | Le pourcentage demande de dater les pas plus finement |
-| Récompense du parrainage | Accessoire, XP, les deux | |
+### 5.4 Collection
 
-## 8. Pistes gardées pour plus tard
+Les skins gagnés à plusieurs (défis, quêtes à plusieurs, raids) forment une **collection** à part dans les accessoires du joueur (`user_accessories`), avec, pour chacun, le souvenir de ceux avec qui il l'a gagné (« gagné avec Lina et Tom »). Pas d'inventaire partagé à gérer.
 
-Proposées mais pas retenues pour le moment :
+### 5.5 Échanges d'objets
 
-- Chat libre (modération impossible à assurer).
-- Album des compagnons croisés en rencontre.
-- Passage en duo à une borne, mini-jeu à deux sur l'écran de la borne.
-- Objectif collectif de toute la ville pendant un événement.
+Deux joueurs qui se voient s'échangent des accessoires, à la manière des échanges de Rocket League.
+
+1. Un joueur affiche son **QR d'échange**, l'autre le scanne. Comme les autres QR, il change toutes les minutes : on n'échange qu'en vrai.
+2. Une **fenêtre d'échange** s'ouvre sur les deux téléphones, avec deux colonnes : « Je donne » et « Je reçois ». Chacun ajoute les accessoires qu'il veut donner, et voit en direct ce que l'autre propose.
+3. Chacun appuie sur **« Prêt »**. Si l'un des deux modifie son offre, les deux « Prêt » sont annulés : personne ne peut changer l'offre au dernier moment.
+4. Quand les deux sont prêts, chacun **confirme** après un décompte de 3 secondes.
+5. Le serveur fait l'échange **d'un seul coup** (transaction) : il vérifie que chacun possède encore ce qu'il donne et ne possède pas déjà ce qu'il reçoit, puis transfère tout, ou rien. Un accessoire donné que le compagnon portait lui est retiré.
+
+Les échanges ne concernent que les accessoires : ni XP, ni niveau, ni monnaie. Une fenêtre d'échange se ferme après 5 minutes sans action, ou dès que l'un des deux la quitte.
+
+**Ce qui ne s'échange pas.** Chaque accessoire du catalogue est marqué échangeable ou non (`tradable` dans `accessories`). Ne s'échangent pas :
+
+- les skins de partenaires et de collabs : un partenaire paie pour qu'on vienne chez lui, le skin doit se gagner sur place ;
+- les skins de raid et de défi de la semaine : ce sont des souvenirs de ce qu'on a fait ;
+- les accessoires de départ, que tout le monde a.
+
+S'échangent donc surtout les récompenses de quêtes et de défis du jour. Un joueur ne possède jamais deux fois le même accessoire : donner un accessoire, c'est s'en séparer.
+
+**Garde-fous.** Les échanges attirent les arnaques, la pression entre joueurs (dont des mineurs) et les comptes créés pour récupérer des objets :
+
+- échanger demande un compte d'au moins 7 jours et un compagnon de niveau 3 ;
+- 3 échanges par jour au plus ;
+- l'écran récapitule clairement ce que l'on perd avant la confirmation, et propose « Signaler » ;
+- l'historique des échanges est gardé, pour examiner un signalement ;
+- pas d'annulation après coup : l'écran le dit avant la confirmation.
+
+Technique : la fenêtre d'échange doit se mettre à jour en direct sur les deux téléphones. Le plus simple est que l'app interroge le serveur toutes les 1 à 2 secondes tant que la fenêtre est ouverte ; un WebSocket (Laravel Reverb) serait plus propre, mais ajoute un service au déploiement.
+
+## 6. Raid de borne 
+
+Un **raid** est un événement sur une borne : elle doit être scannée par un nombre de joueurs différents dans la journée (par exemple 15) pour débloquer un skin exclusif, donné à **tous ceux qui y sont passés** ce jour-là, même avant que le palier soit atteint.
+
+- L'écran de la borne affiche la jauge (« 11 / 15 »), mise à jour par MQTT après chaque passage.
+- L'app montre les raids en cours sur la carte, et envoie une notification aux joueurs qui y sont déjà passés quand il ne manque plus que quelques personnes, puis quand le skin est débloqué.
+- Pas besoin d'être amis ni en squad : le raid fait coopérer des inconnus, sans aucun contact entre eux. C'est la porte d'entrée du multijoueur pour un joueur seul.
+- Chaque passage reste un passage normal, vérifié par jeton signé (D2) : un joueur ne compte qu'une fois par raid.
+
+C'est aussi un argument pour les partenaires : un raid amène du monde au même endroit le même jour (BOR-05, BOR-07).
+
+## 7. Notifications
+
+Les notifications doivent donner envie, pas culpabiliser. C'est le compagnon qui parle.
+
+| Événement                              | Exemple                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------ |
+| Coup de patte reçu                      | « Bulle, le compagnon de Hamza, t'envoie un coup de patte ! »    |
+| Invitation d'ami reçue ou acceptée     | « Thomas a accepté ton invitation. »                           |
+| Invitation dans une squad                | « Yanis t'invite dans sa squad pour une balade. »                |
+| Défi presque réussi, puis réussi      | « Plus qu'une sortie pour le skin de la semaine ! »              |
+| Raid presque débloqué, puis débloqué | « Plus que 3 joueurs à la borne du parc pour le skin pirate ! » |
+| Compagnon (solo)                         | « Il fait beau, Bulle a envie d'aller au parc. »                 |
+
+Règles :
+
+- **3 notifications par jour au plus**, aucune entre 21 h et 8 h. Les invitations de squad ne comptent pas dans la limite : elles sont attendues.
+- Chaque type se désactive séparément dans le compte.
+- Jamais de reproche (« ton ami t'attend », « ton compagnon est triste à cause de toi »).
+
+Technique : les rappels du compagnon peuvent être des notifications locales, programmées par l'app sans serveur. Les notifications sociales demandent des notifications push (Firebase Cloud Messaging), donc un projet Firebase et un envoi depuis l'API : compter 1 à 2 jours.
+
+## 8. Messages prédéfinis et emotes
+
+Pas de chat libre : seulement des **messages prédéfinis** et des **emotes**, entre amis et dans une squad.
+
+- Messages : « On marche ce soir ? », « Je suis en route », « Rendez-vous à la borne », « Bravo ! ».
+- Emotes : 6 à 10 animations du compagnon (saute de joie, applaudit, dort…).
+- Les textes sont des données en base, ajoutés sans livrer l'app.
+
+Un chat libre demanderait une modération qu'une équipe de quatre ne peut pas assurer, avec des joueurs mineurs. Priorité Could : le coup de patte et les invitations de squad couvrent déjà une partie du besoin.
+
+## 9. Parrainage
+
+Un joueur invite quelqu'un qui n'a pas encore l'app. Le parrain et le filleul gagnent chacun un accessoire quand le filleul est **actif** (objectif atteint 3 jours), et ils deviennent amis. 5 parrainages récompensés par mois au plus.
+
+Priorité Could, à faire après tout le reste : c'est surtout un outil d'acquisition (indicateur K6), et il attire la triche par comptes multiples. Il reste utile au modèle économique (R5.01, R5.13).
+
+## 10. Données à ajouter
+
+Proposition, à affiner au moment du développement. Chaque table est supprimée en cascade avec le compte (§ 1).
+
+| Table                               | Contenu                                                                       |
+| ----------------------------------- | ----------------------------------------------------------------------------- |
+| `privacy_settings`                | Les réglages de partage du § 2                                              |
+| `blocks`, `reports`             | Blocages ; signalements avec motif et état d'examen                          |
+| `cheers`                          | Coups de patte : qui, à qui, quel jour (unique par paire et par jour)        |
+| `squads`, `squad_members`       | Chef, début, fin ; membres, invitation ou scan, arrivée, départ, exclusion |
+| `squad_windows`                   | Fenêtres de 10 minutes validées et membres ensemble                         |
+| `weekly_challenges`               | Défi de la semaine d'un joueur, avancement, date de réussite                |
+| `trades`, `trade_items`           | Échange : les deux joueurs, état, dates ; accessoires donnés par chacun    |
+| `raids`, `raid_participants`    | Borne, jour, palier, skin ; joueurs passés                                   |
+| `notifications`                   | Ce qui a été envoyé, pour respecter les plafonds                           |
+| `message_templates`, `messages` | Textes et emotes ; messages envoyés                                          |
+| `referrals`                       | Parrain, filleul, date de validation                                          |
+
+Les jetons des QR codes n'ont pas besoin de table : ils sont signés par le serveur et portent leur date d'expiration. Les défis du jour sont des quêtes `daily` : ils utilisent les tables des quêtes. La table `accessories` gagne une colonne `tradable`.
+
+Un échange déjà fait n'est pas annulé quand un compte est supprimé : les accessoires reçus appartiennent à l'autre joueur. Seul le nom du joueur supprimé disparaît de l'historique.
+
+## 11. Écarté ou reporté, et pourquoi
+
+| Idée                                             | Décision                                    | Raison                                                                                                                                                                                                                               |
+| ------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Détection de la marche ensemble par Bluetooth    | Reportée                                    | Le plugin actuel ne sait pas émettre : il faudrait du code Android natif, fragile en arrière-plan selon les marques de téléphones. Estimé à 2 ou 3 semaines pour un résultat incertain. Les positions et les bornes suffisent |
+| Bonus en pourcentage sur les pas de la sortie     | Remplacé par un bonus fixe                  | Les pas sont comptés par jour : on ne sait pas lesquels ont été faits ensemble                                                                                                                                                    |
+| QR code fixe                                      | Remplacé par un QR qui change chaque minute | Le scan rend amis ou fait entrer dans une squad sans validation : une photo du QR partagée en ligne le permettrait à n'importe qui                                                                                                 |
+| Groupes permanents                                | Remplacés par des squads temporaires        | Plus simple, comme dans un jeu en ligne ; le défi de la semaine devient personnel                                                                                                                                                   |
+| Défi sur les pas cumulés, défi qui fait perdre | Écartés                                    | Pas besoin d'être ensemble ; pression et culpabilité sur le moins actif                                                                                                                                                            |
+| Chat libre                                        | Écarté                                     | Modération impossible à assurer                                                                                                                                                                                                    |
+| Album des compagnons croisés                     | Reporté                                     | Demande de détecter les rencontres entre inconnus, donc le Bluetooth                                                                                                                                                                |
 
 ## Ordre de réalisation proposé
 
-1. Écran Amis sur l'API existante, ajout par QR code, fiche du compagnon d'un ami.
-2. Encouragements.
-3. Décision D11, puis groupes et sorties, avec le bonus de marche ensemble.
-4. Tâches de groupe et défi de la semaine.
-5. Messages prédéfinis et emotes.
-6. Parrainage, fil d'activité, classement.
+1. Sécurité et réglages de partage (§ 1 et § 2), écran Amis sur l'API existante, ajout par QR code, fiche du compagnon.
+2. Coups de patte et notifications (§ 7).
+3. Squads : invitation, QR, fenêtres de marche ensemble, bonus et moment partagé.
+4. Défis du jour, quêtes à plusieurs, défi de la semaine et collection.
+5. Raid de borne, une fois le passage en borne en place.
+6. Si le temps le permet : échanges d'objets, fil d'activité, messages prédéfinis et emotes, classement, parrainage.
