@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Scubanion — Présentation du projet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   Présentation du projet SAÉ — 16:9, exportée en PDF.
+   Charte reprise des maquettes et des films : teal, corail, Baloo 2 + Inter.
+   Contraintes des consignes : texte lisible au vidéoprojecteur, diapositives
+   numérotées, bords non chargés, peu de phrases, pas de jargon non expliqué.
+   ========================================================================== */
+
+:root{
+  color-scheme: light;
+  --ink:#1E3A42; --ink-soft:#4C6B73;
+  --ocean:#2F6B7A; --ocean-dark:#204E5A; --ocean-light:#8FB9C2;
+  --mist:#DCEBEE; --paper:#F5FAFB; --white:#fff;
+  --coral:#F0855A; --coral-dark:#D96A41;
+  --vert:#34C77B; --ambre:#C8902F;
+  --nuit:#16282E;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+
+body{
+  background:#6b7b80;
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color:var(--ink-soft);
+  -webkit-font-smoothing:antialiased;
+}
+
+@page{size:338.7mm 190.5mm;margin:0;}
+
+.slide{
+  position:relative;
+  width:338.7mm; height:190.5mm;
+  padding:16mm 20mm 15mm;
+  background:var(--paper);
+  overflow:hidden;
+  margin:0 auto 6mm;
+  display:flex; flex-direction:column;
+}
+
+@media print{
+  body{background:#fff;}
+  .slide{margin:0;break-after:page;}
+  .slide:last-child{break-after:auto;}
+}
+
+.slide::after{
+  content:attr(data-n);
+  position:absolute; right:12mm; bottom:7mm;
+  font-size:11pt; font-weight:600; color:var(--ocean-light);
+}
+.slide.sombre::after{color:rgba(255,255,255,.45);}
+
+/* --------------------------------------------------------------- titres --- */
+
+h1,h2,h3,h4{font-family:'Baloo 2',sans-serif;color:var(--ink);margin:0;letter-spacing:-.3px;}
+h2{font-size:29pt;font-weight:700;line-height:1.08;margin-bottom:2mm;}
+h3{font-size:16.5pt;font-weight:700;margin-bottom:2.5mm;}
+h4{font-size:13pt;font-weight:700;color:var(--ocean-dark);margin-bottom:1.5mm;}
+
+.chapo{font-size:13.5pt;color:var(--ink-soft);margin:0 0 6mm;max-width:255mm;line-height:1.35;}
+.regle{width:34mm;height:2.6mm;border-radius:2mm;background:var(--coral);margin:0 0 6mm;}
+.corps{flex:1;min-height:0;}
+
+/* ------------------------------------------------------------- couverture --- */
+
+.slide.sombre{
+  background:linear-gradient(150deg,var(--nuit) 0%,var(--ink) 55%,var(--ocean-dark) 100%);
+  color:#CFE3E8;
+}
+.slide.sombre h1,.slide.sombre h2,.slide.sombre h3,.slide.sombre h4{color:#fff;}
+.slide.sombre .chapo{color:#A9C6CE;}
+
+.couv-marque{display:flex;align-items:center;gap:5mm;}
+.couv-marque img{width:21mm;}
+.couv-marque span{font-family:'Baloo 2',sans-serif;font-size:21pt;font-weight:700;color:#fff;}
+
+.couv h1{font-size:50pt;font-weight:800;line-height:1.03;margin-bottom:4mm;}
+.couv .slogan{font-family:'Baloo 2',sans-serif;font-size:18pt;color:#fff;margin:0;}
+.couv .slogan em{color:var(--coral);font-style:normal;}
+
+.identite{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm 10mm;font-size:11.5pt;}
+.identite dt{
+  font-size:9pt;font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  color:var(--ocean-light);margin-bottom:1mm;
+}
+.identite dd{margin:0;color:#fff;font-weight:500;}
+
+/* ------------------------------------------------------------ séparateur --- */
+
+.sep{justify-content:center;}
+.sep .kicker{font-size:12pt;letter-spacing:3px;text-transform:uppercase;color:var(--coral);margin-bottom:4mm;font-weight:600;}
+.sep h2{font-size:44pt;color:#fff;margin-bottom:5mm;}
+.sep p{font-size:15.5pt;color:#A9C6CE;max-width:215mm;margin:0;line-height:1.35;}
+
+/* ----------------------------------------------------------------- blocs --- */
+
+.grille{display:grid;gap:5.5mm;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g-2-1{grid-template-columns:2fr 1fr;}
+.g-3-2{grid-template-columns:3fr 2fr;}
+
+.carte{background:var(--white);border:.4mm solid var(--mist);border-radius:5mm;padding:5.5mm 6.5mm;}
+.carte.pleine{background:var(--ink);border-color:var(--ink);color:#CFE3E8;}
+.carte.pleine h3,.carte.pleine h4,.carte.pleine strong{color:#fff;}
+.carte.accent{background:#FFF6F1;border-color:#F6D8C8;border-left:1.6mm solid var(--coral);}
+.carte.vert{background:#E8F7EF;border-color:#C6E9D5;border-left:1.6mm solid var(--vert);}
+
+ul{margin:0;padding:0;list-style:none;}
+li{position:relative;padding-left:5.5mm;margin-bottom:2.2mm;font-size:12.5pt;line-height:1.35;}
+li:last-child{margin-bottom:0;}
+li::before{content:"";position:absolute;left:0;top:2.1mm;width:2mm;height:2mm;border-radius:50%;background:var(--coral);}
+
+p{margin:0 0 3mm;font-size:12.5pt;line-height:1.4;}
+p:last-child{margin-bottom:0;}
+strong{color:var(--ink);font-weight:700;}
+.sombre strong{color:#fff;}
+.petit{font-size:11pt;}
+.gris{color:var(--ink-soft);}
+
+/* ------------------------------------------------- mot technique expliqué --- */
+
+.jargon{
+  display:inline-block;
+  background:var(--mist);color:var(--ocean-dark);
+  border-radius:2mm;padding:.4mm 2mm;font-weight:700;
+}
+.glose{
+  margin-top:4mm;padding-top:3mm;border-top:.3mm solid var(--mist);
+  font-size:10.5pt;color:var(--ink-soft);line-height:1.35;
+}
+.glose b{color:var(--ocean-dark);}
+
+/* ------------------------------------------------------------- chiffres --- */
+
+.kpi{text-align:center;}
+.kpi .v{font-family:'Baloo 2',sans-serif;font-size:38pt;font-weight:800;color:var(--ocean);line-height:1;}
+.kpi .v.coral{color:var(--coral);}
+.kpi .v.vert{color:var(--vert);}
+.kpi .l{font-size:11pt;font-weight:600;color:var(--ink);margin-top:1.5mm;}
+.kpi .s{font-size:9.5pt;color:var(--ink-soft);margin-top:.8mm;}
+
+/* -------------------------------------------------------------- tableau --- */
+
+table{width:100%;border-collapse:collapse;font-size:11.5pt;}
+th,td{text-align:left;vertical-align:top;padding:2.4mm 3mm;border-bottom:.3mm solid var(--mist);}
+thead th{
+  font-size:9pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--ocean-dark);background:var(--mist);border-bottom:none;
+}
+tbody tr:last-child td{border-bottom:none;}
+td.num,th.num{text-align:right;white-space:nowrap;}
+td.k{font-weight:600;color:var(--ink);}
+
+/* --------------------------------------------------------------- images --- */
+
+figure{margin:0;}
+figure img{display:block;width:100%;border-radius:4mm;border:.3mm solid var(--mist);}
+figcaption{margin-top:2mm;font-size:10pt;color:var(--ink-soft);line-height:1.3;}
+.tel img{border:none;border-radius:5mm;box-shadow:0 6mm 14mm -8mm rgba(30,58,66,.5);
+         max-height:112mm;width:auto;margin:0 auto;}
+
+/* ------------------------------------------------------------ étiquettes --- */
+
+.puce{display:inline-block;padding:1mm 4mm;border-radius:20mm;font-size:9.5pt;font-weight:700;}
+.p-mist{background:var(--mist);color:var(--ocean-dark);}
+.p-coral{background:#FBE2D5;color:var(--coral-dark);}
+.p-vert{background:#D9F2E4;color:#1C6B3F;}
+.p-gris{background:#E8ECEE;color:var(--ink-soft);}
+
+/* ----------------------------------------------------------------- frise --- */
+
+.frise{display:flex;gap:0;}
+.frise .etape{flex:1;padding:0 3mm;}
+.frise .barre{height:3mm;border-radius:2mm;background:var(--mist);margin-bottom:4mm;}
+.frise .etape.fait .barre{background:var(--coral);}
+.frise .etape.encours .barre{background:linear-gradient(90deg,var(--coral) 50%,var(--mist) 50%);}
+.frise .d{font-size:9.5pt;color:var(--ink-soft);margin-bottom:1mm;}
+.frise .t{font-family:'Baloo 2',sans-serif;font-size:13.5pt;font-weight:700;color:var(--ink);line-height:1.1;}
+.frise .c{font-size:10pt;color:var(--ink-soft);margin-top:1.5mm;line-height:1.3;}
+
+/* ------------------------------------------------------------ histogramme --- */
+
+.histo{display:flex;align-items:flex-end;gap:2.4mm;height:44mm;}
+.histo .b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;}
+.histo .barre{width:100%;border-radius:2mm 2mm 0 0;background:var(--ocean-light);}
+.histo .b.top .barre{background:var(--vert);}
+.histo .n{font-size:9.5pt;font-weight:700;color:var(--ink-soft);margin-bottom:1.5mm;}
+.histo .b.top .n{color:#1C6B3F;}
+.histo .x{font-size:9pt;color:var(--ink-soft);margin-top:2mm;}
+.histo .b.top .x{color:var(--ink);font-weight:700;}
+
+/* ------------------------------------------------------------------ flux --- */
+
+.flux{display:flex;align-items:center;gap:2.6mm;}
+.flux .boite{flex:1;background:var(--white);border:.4mm solid var(--mist);border-radius:4mm;padding:4.5mm;text-align:center;}
+.flux .boite .ic{font-size:21pt;line-height:1;margin-bottom:2mm;}
+.flux .boite .t{font-family:'Baloo 2',sans-serif;font-size:13pt;font-weight:700;color:var(--ink);}
+.flux .boite .s{font-size:10pt;color:var(--ink-soft);margin-top:1mm;line-height:1.25;}
+.flux .fleche{font-size:15pt;color:var(--coral);font-weight:700;}
+
+/* ------------------------------------------------------------------ ODD --- */
+
+.odd{display:flex;align-items:center;gap:4mm;}
+.odd .num{
+  flex:none;width:17mm;height:17mm;border-radius:3.5mm;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',sans-serif;font-size:20pt;font-weight:800;color:#fff;
+}
+.odd .t{font-family:'Baloo 2',sans-serif;font-size:13pt;font-weight:700;color:var(--ink);line-height:1.1;}
+.odd .s{font-size:10pt;color:var(--ink-soft);margin-top:1mm;line-height:1.3;}
+
+.pied{position:absolute;left:20mm;right:34mm;bottom:7mm;font-size:10pt;color:var(--ink-soft);}
+.sombre .pied{color:rgba(255,255,255,.5);}
+</style>
+</head>
+<body>
+
+<!-- ===================== 1. COUVERTURE ===================== -->
+<section class="slide sombre couv" data-n="1">
+  <div class="couv-marque">
+    <img src="assets/images/logo.png" alt="">
+    <span>Scubanion</span>
+  </div>
+
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+    <h1>Un compagnon virtuel<br>qui ne grandit que si l'on sort</h1>
+    <div class="regle"></div>
+    <p class="slogan">« Il ne grandit que si <em>toi</em> tu sors. »</p>
+  </div>
+
+  <dl class="identite">
+    <div><dt>Projet</dt><dd>SAÉ BUT3-IoT 2026-27</dd></div>
+    <div><dt>Équipe</dt><dd>Scubatana</dd></div>
+    <div><dt>Membres</dt><dd>BANDIERAS Thomas &middot; DALMASSO Evan<br>KARROUCHI Hamza &middot; LESUEUR Shaleena</dd></div>
+    <div><dt>Diplôme</dt><dd>BUT 3 Informatique</dd></div>
+    <div><dt>Comité directeur</dt><dd>E. Rochard &middot; M.-A. Peraldi<br>N. Ferry &middot; J. Courtoisier</dd></div>
+    <div><dt>Soutenance</dt><dd>⟨ date ⟩</dd></div>
+  </dl>
+</section>
+
+<!-- ===================== 2. PLAN ===================== -->
+<section class="slide" data-n="2">
+  <h2>Le fil de la présentation</h2>
+  <p class="chapo">Dix minutes, cinq temps. Chacun répond à une question qu'un client, un
+    partenaire ou un financeur se poserait.</p>
+
+  <div class="corps grille g-2-1" style="align-items:start;">
+    <div>
+      <table>
+        <thead>
+          <tr><th style="width:12mm;"></th><th>Ce qu'on raconte</th><th>La question à laquelle on répond</th><th class="num" style="width:20mm;">Durée</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">I</td><td class="k">Le problème et notre réponse</td><td>Pourquoi ce projet existe, et ce qu'il est</td><td class="num">2 min</td></tr>
+          <tr><td class="k">II</td><td class="k">Comment ça marche</td><td>Est-ce que c'est faisable, et bien conçu ?</td><td class="num">2 min</td></tr>
+          <tr><td class="k">III</td><td class="k">Le modèle économique</td><td>Qui paie, combien, et pourquoi il accepterait</td><td class="num">2 min 30</td></tr>
+          <tr><td class="k">IV</td><td class="k">Responsabilité et pilotage</td><td>Est-ce tenable, et est-ce maîtrisé ?</td><td class="num">2 min</td></tr>
+          <tr><td class="k">V</td><td class="k">Où on en est, et la suite</td><td>Qu'avez-vous livré, et que reste-t-il ?</td><td class="num">1 min 30</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="carte accent">
+      <h4>Le fil rouge</h4>
+      <p class="petit">Chaque affirmation de cette présentation est <strong>adossée à un
+        document</strong> : la charte de projet, le cahier des charges, le Business Model
+        Canvas ou les entretiens de terrain.</p>
+      <p class="petit" style="margin-top:3mm;">Rien n'est avancé sans sa source, et ce qui
+        reste une hypothèse est annoncé comme telle.</p>
+    </div>
+  </div>
+
+  <p class="pied">Les questions viennent après. Une annexe est prévue pour y répondre avec des chiffres.</p>
+</section>
+
+<!-- ===================== 3. LE PROBLÈME ===================== -->
+<section class="slide" data-n="3">
+  <h2>Deux maux qui se nourrissent</h2>
+  <p class="chapo">Le sujet imposé : <strong>comment réadapter l'homme à son environnement&nbsp;?</strong>
+    Nous l'avons resserré sur les 18-30 ans urbains.</p>
+
+  <div class="corps grille g2">
+    <div class="carte">
+      <h3>📉 La sédentarité</h3>
+      <p>Les applications de santé <strong>mesurent et affichent</strong>. Elles produisent des
+        courbes que personne ne regarde.</p>
+      <p class="petit gris">L'abandon arrive en quelques semaines : rien n'attache.</p>
+    </div>
+    <div class="carte">
+      <h3>📱 L'isolement</h3>
+      <p>Les réseaux sociaux <strong>remplacent la rencontre</strong> au lieu de la provoquer.</p>
+      <p class="petit gris">Mille contacts, et personne à qui proposer un café à dix minutes.</p>
+    </div>
+  </div>
+
+  <div class="carte pleine" style="margin-top:5.5mm;">
+    <p style="font-size:14.5pt;margin:0;">
+      <strong>Notre pari</strong> : un attachement affectif fait ce qu'un graphique de pas ne fera
+      jamais — et l'objet connecté doit <strong>envoyer dehors</strong>, pas retenir devant l'écran.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== 3. LA RÉPONSE ===================== -->
+<section class="slide" data-n="4">
+  <h2>Un compagnon, et des bornes</h2>
+  <div class="regle"></div>
+
+  <div class="corps grille g-3-2" style="align-items:center;">
+    <div>
+      <div class="flux" style="margin-bottom:5.5mm;">
+        <div class="boite"><div class="ic">🚶</div><div class="t">Tu marches</div><div class="s">le téléphone compte</div></div>
+        <div class="fleche">→</div>
+        <div class="boite"><div class="ic">🐋</div><div class="t">Il grandit</div><div class="s">chaque pas vaut des points</div></div>
+        <div class="fleche">→</div>
+        <div class="boite"><div class="ic">🗿</div><div class="t">Une borne</div><div class="s">chez un partenaire</div></div>
+        <div class="fleche">→</div>
+        <div class="boite"><div class="ic">🎩</div><div class="t">Un objet</div><div class="s">exclusif au lieu</div></div>
+      </div>
+      <p><strong>L'application est gratuite</strong> et le restera : elle construit l'audience.
+        Ce que nous vendons, c'est <strong>du passage vérifié</strong> — un visiteur réellement
+        présent sur place, pas une affiche que l'on espère regardée.</p>
+      <p class="petit gris">Et si l'on reste chez soi, le compagnon dépérit. C'est tout le ressort.</p>
+    </div>
+    <figure class="tel">
+      <img src="assets/images/maquette-accueil.png" alt="Écran d'accueil de l'application">
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== 4. LE MOMENT CLÉ ===================== -->
+<section class="slide" data-n="5">
+  <h2>Le moment clé : le passage en borne</h2>
+  <p class="chapo">Dix secondes, debout, dans un musée ou devant un restaurant.</p>
+
+  <div class="corps grille g4" style="gap:4.5mm;">
+    <figure>
+      <img src="assets/images/story-musee-2-pose-nfc.jpg" alt="On approche le téléphone de la borne">
+      <figcaption><strong>1.</strong> On approche le téléphone, comme pour un paiement sans contact.</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/images/story-musee-3-chargement.jpg" alt="La borne reconnaît le lieu">
+      <figcaption><strong>2.</strong> La borne reconnaît le lieu et prévient le serveur.</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/images/story-musee-4-bulle.jpg" alt="L'objet sort de l'œuvre">
+      <figcaption><strong>3.</strong> L'objet sort de l'œuvre et entre dans le téléphone.</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/images/story-musee-6-equiper.jpg" alt="On équipe l'objet débloqué">
+      <figcaption><strong>4.</strong> Exclusif au lieu : on ne l'obtient qu'en y étant allé.</figcaption>
+    </figure>
+  </div>
+
+  <p class="pied">Deux films de 15 secondes accompagnent le dossier : un musée, un restaurant partenaire.</p>
+</section>
+
+<!-- ===================== 5. ARCHITECTURE ===================== -->
+<section class="slide" data-n="6">
+  <h2>Trois briques, une chaîne</h2>
+  <div class="regle"></div>
+
+  <div class="corps">
+    <div class="flux" style="margin-bottom:5mm;">
+      <div class="boite" style="flex:1.1;">
+        <div class="ic">📱</div><div class="t">Application Android</div>
+        <div class="s">compte les pas, affiche le compagnon,<br>les quêtes et la carte</div>
+      </div>
+      <div class="fleche">⇄</div>
+      <div class="boite" style="flex:1.2;">
+        <div class="ic">🖥️</div><div class="t">Serveur</div>
+        <div class="s">règles du jeu, contrôles anti-triche,<br>mémoire de tout le système</div>
+      </div>
+      <div class="fleche">⇄</div>
+      <div class="boite" style="flex:1.1;">
+        <div class="ic">🗿</div><div class="t">Borne connectée</div>
+        <div class="s">lit le téléphone, affiche la récompense,<br>prévient le serveur</div>
+      </div>
+    </div>
+
+    <div class="grille g2">
+      <div class="carte accent">
+        <h4>Une règle qui structure tout</h4>
+        <p><strong>Rien n'est calculé sur le téléphone.</strong> Un téléphone peut être trafiqué :
+          les pas sont plafonnés par heure et recoupés avec la position, et c'est le serveur qui
+          valide les quêtes et les passages.</p>
+      </div>
+      <div class="carte">
+        <h4>Pourquoi la borne et pas un bracelet</h4>
+        <p>C'est <strong>le seul objet que nous concevons nous-mêmes</strong>, de l'électronique
+          au logiciel. Et c'est lui qui crée la valeur vendable : la preuve qu'une personne
+          s'est déplacée.</p>
+      </div>
+    </div>
+
+    <p class="glose">
+      <b>NFC</b> : la technologie du paiement sans contact. On approche, ça lit, rien à saisir. &nbsp;·&nbsp;
+      <b>MQTT</b> : une façon légère de faire dialoguer des petits objets avec un serveur — la
+      borne « publie » un passage, le serveur lui « répond » quoi afficher. &nbsp;·&nbsp;
+      <b>Podomètre</b> : le capteur de pas déjà présent dans tous les téléphones.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== 6. LE PIVOT ===================== -->
+<section class="slide" data-n="7">
+  <h2>Un pivot assumé, et justifié</h2>
+  <p class="chapo"><span class="jargon">Pivot</span> : changer de moyen sans changer de promesse.</p>
+
+  <div class="corps grille g2">
+    <div class="carte">
+      <span class="puce p-gris">Au départ</span>
+      <h3 style="margin-top:3.5mm;">Un bracelet connecté</h3>
+      <ul>
+        <li>Lire les pas sur un bracelet du commerce, sans l'application du constructeur</li>
+        <li>Une sécurité propriétaire à contourner, sans garantie d'y arriver</li>
+        <li><strong>Un risque lourd, placé au pire endroit</strong> : là où tout le reste attend</li>
+        <li>Et un bénéfice nul : un téléphone compte déjà les pas</li>
+      </ul>
+    </div>
+    <div class="carte vert">
+      <span class="puce p-vert">Après le pivot</span>
+      <h3 style="margin-top:3.5mm;">Le podomètre du téléphone</h3>
+      <ul>
+        <li><strong>Plus rien à acheter</strong> pour le joueur : aucun frein à l'adoption</li>
+        <li>Un risque majeur supprimé, et deux fonctions livrées dès octobre</li>
+        <li>Tout l'objet connecté <strong>concentré sur la borne</strong></li>
+        <li>Un objet fait à fond, plutôt que deux à moitié</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="pied">Le même raisonnement a servi pour chaque choix technique : quel risque, pour quel bénéfice réel ?</p>
+</section>
+
+<!-- ===================== 7. MODÈLE ÉCONOMIQUE ===================== -->
+<section class="slide" data-n="8">
+  <h2>Qui paie, et pourquoi</h2>
+  <p class="chapo">Le joueur ne paie rien d'obligatoire. <strong>85 % du revenu visé vient des
+    lieux, des collectivités et des employeurs.</strong></p>
+
+  <div class="corps">
+    <table>
+      <thead>
+        <tr><th style="width:50mm;">Offre</th><th class="num" style="width:38mm;">Prix</th><th>Ce que le client achète</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">Accessoires du compagnon</td><td class="num">1,99 €</td><td>Le joueur attaché à son compagnon. <strong>La progression ne s'achète jamais.</strong></td></tr>
+        <tr><td class="k">Abonnement par borne</td><td class="num">49 €/mois</td><td>Le lieu : du passage mesurable, et une animation qu'il n'a pas à produire</td></tr>
+        <tr><td class="k">Quête sponsorisée</td><td class="num">300 € + 0,50 €<br>par passage</td><td>Le commerce : il ne paie une partie <strong>qu'au visiteur effectivement venu</strong></td></tr>
+        <tr><td class="k">Parcours de découverte</td><td class="num">3 000 à 8 000 €</td><td>La collectivité : de la santé publique et du patrimoine fréquenté</td></tr>
+        <tr><td class="k">Programme bien-être</td><td class="num">3 €/mois<br>par bénéficiaire</td><td>L'employeur ou la mutuelle, sur un budget prévention déjà existant</td></tr>
+      </tbody>
+    </table>
+
+    <div class="carte accent" style="margin-top:4.5mm;">
+      <p style="margin:0;"><strong>Trois promesses tenables</strong> : aucune publicité, aucune revente
+        de données, aucune progression achetable. C'est précisément ce qui nous rend acceptables
+        pour une collectivité ou une mutuelle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 8. LE PRIX VALIDÉ ===================== -->
+<section class="slide" data-n="9">
+  <h2>Le prix n'a pas été décidé en réunion</h2>
+  <p class="chapo">Neuf personnes interrogées une par une, une échelle de dix prix, deux questions :
+    <em>à partir de quel prix est-ce trop cher&nbsp;?</em> et <em>en dessous de quel prix
+    doutez-vous de la qualité&nbsp;?</em></p>
+
+  <div class="corps grille g-2-1">
+    <div>
+      <div class="histo">
+        <div class="b"><div class="n">6</div><div class="barre" style="height:75%"></div><div class="x">0,49 €</div></div>
+        <div class="b top"><div class="n">8</div><div class="barre" style="height:100%"></div><div class="x">0,99 €</div></div>
+        <div class="b top"><div class="n">8</div><div class="barre" style="height:100%"></div><div class="x">1,49 €</div></div>
+        <div class="b"><div class="n">7</div><div class="barre" style="height:87%"></div><div class="x">1,99 €</div></div>
+        <div class="b"><div class="n">6</div><div class="barre" style="height:75%"></div><div class="x">2,49 €</div></div>
+        <div class="b"><div class="n">4</div><div class="barre" style="height:50%"></div><div class="x">2,99 €</div></div>
+        <div class="b"><div class="n">2</div><div class="barre" style="height:25%"></div><div class="x">3,99 €</div></div>
+        <div class="b"><div class="n">1</div><div class="barre" style="height:12%"></div><div class="x">4,99 €</div></div>
+        <div class="b"><div class="n">0</div><div class="barre" style="height:2%"></div><div class="x">6,99 €</div></div>
+        <div class="b"><div class="n">0</div><div class="barre" style="height:2%"></div><div class="x">9,99 €</div></div>
+      </div>
+      <p class="petit gris" style="margin-top:3mm;">Nombre de personnes, sur les huit de la cible,
+        pour qui le prix est acceptable. Au-delà de 4,99 €, le marché disparaît.</p>
+    </div>
+
+    <div>
+      <div class="carte vert" style="text-align:center;margin-bottom:4.5mm;">
+        <div class="kpi"><div class="v vert">1,99 €</div>
+          <div class="l">prix retenu</div>
+          <div class="s">zone d'unanimité : 0,99 – 1,49 €</div></div>
+      </div>
+      <div class="carte">
+        <h4>Deux surprises</h4>
+        <ul class="petit">
+          <li><strong>2 personnes sur 9</strong> ignoraient leur nombre de pas : le capteur n'était pas activé. Notre promesse repose dessus.</li>
+          <li>La question du prix plancher s'applique mal à un objet décoratif — un interrogé nous l'a fait remarquer, à raison.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 9. RSE ET ODD ===================== -->
+<section class="slide" data-n="10">
+  <h2>Un numérique qui envoie dehors</h2>
+  <p class="chapo">La démarche responsable n'est pas un ajout : elle découle du produit, et elle
+    le contraint.</p>
+
+  <div class="corps grille g3" style="margin-bottom:5mm;">
+    <div class="carte">
+      <div class="odd">
+        <div class="num" style="background:#4C9F38;">3</div>
+        <div><div class="t">Bonne santé<br>et bien-être</div></div>
+      </div>
+      <p class="petit" style="margin-top:3.5mm;">Remettre en mouvement une population sédentaire,
+        et mesurer l'effet plutôt que de l'affirmer.</p>
+    </div>
+    <div class="carte">
+      <div class="odd">
+        <div class="num" style="background:#FD9D24;">11</div>
+        <div><div class="t">Villes et communautés<br>durables</div></div>
+      </div>
+      <p class="petit" style="margin-top:3.5mm;">Déplacements à pied, patrimoine de proximité
+        fréquenté, lien social à l'échelle du quartier.</p>
+    </div>
+    <div class="carte">
+      <div class="odd">
+        <div class="num" style="background:#BF8B2E;">12</div>
+        <div><div class="t">Consommation et production<br>responsables</div></div>
+      </div>
+      <p class="petit" style="margin-top:3.5mm;">Aucun objet vendu à l'utilisateur, une borne
+        mutualisée par lieu, réparable et avec des pièces de rechange.</p>
+    </div>
+  </div>
+
+  <div class="grille g3">
+    <div class="carte"><h4>♻️ Sobriété matérielle</h4>
+      <p class="petit">Son téléphone suffit. Le seul matériel du système est partagé par tous
+        les joueurs d'un lieu.</p></div>
+    <div class="carte"><h4>🔒 Données minimisées</h4>
+      <p class="petit">Aucun historique de position conservé, rencontres en zone approximative,
+        suppression du compte en deux gestes.</p></div>
+    <div class="carte"><h4>🎯 Attention respectée</h4>
+      <p class="petit">Un produit qui prétend réduire le temps d'écran ne peut pas vivre de
+        l'attention qu'il capte.</p></div>
+  </div>
+</section>
+
+<!-- ===================== 10. PILOTAGE ===================== -->
+<section class="slide" data-n="11">
+  <h2>Piloter, et pas seulement coder</h2>
+  <div class="regle"></div>
+
+  <div class="corps grille g3">
+    <div class="carte">
+      <h4>Une charte de projet</h4>
+      <p class="petit">Cadrage, périmètre, pilotage. Trois objectifs présentables à un financeur,
+        et un <span class="jargon">SWOT</span> qui nomme le croisement dangereux : aucune
+        compétence commerciale face à un acteur installé qui copierait.</p>
+    </div>
+    <div class="carte">
+      <h4>Douze risques, classés</h4>
+      <p class="petit">Chaque risque est noté selon sa <strong>fréquence</strong> et sa
+        <strong>gravité</strong>, puis reçoit un <strong>plan préventif</strong> et un
+        <strong>plan correctif</strong>. Un <em>pré-mortem</em> complète l'exercice.</p>
+    </div>
+    <div class="carte">
+      <h4>Six indicateurs</h4>
+      <p class="petit">Trois d'exécution, trois d'entreprise. Chacun porte la question
+        <em>« si ça décroche, qu'est-ce que je fais ? »</em> — sinon ce n'est pas un indicateur,
+        c'est une statistique.</p>
+    </div>
+  </div>
+
+  <div class="carte pleine" style="margin-top:5.5mm;">
+    <p style="margin:0;"><strong>Le retour qui a le plus compté</strong> : notre première charte
+      décrivait un projet d'étudiants. Elle décrit maintenant l'entreprise — horizon 2028, budget
+      sur trois ans, risques de financement et de rétention. Le fond n'a pas changé ; la hauteur
+      de vue, si.</p>
+  </div>
+
+  <p class="glose"><b>SWOT</b> : forces et faiblesses internes, opportunités et menaces externes.
+    &nbsp;·&nbsp; <b>Pré-mortem</b> : se projeter à l'échec, et remonter aux causes avant qu'elles
+    n'arrivent.</p>
+</section>
+
+<!-- ===================== 11. PLANIFICATION ===================== -->
+<section class="slide" data-n="12">
+  <h2>Ce qui est fait, ce qui vient</h2>
+  <div class="regle"></div>
+
+  <div class="corps">
+    <div class="frise">
+      <div class="etape fait">
+        <div class="barre"></div>
+        <div class="d">sept. – oct. 2026</div>
+        <div class="t">Cadrage</div>
+        <div class="c">Cahier des charges, charte, modèle économique, maquettes</div>
+      </div>
+      <div class="etape encours">
+        <div class="barre"></div>
+        <div class="d">nov. – déc. 2026</div>
+        <div class="t">Cœur du jeu<br>et borne</div>
+        <div class="c">Compagnon, quêtes, amis, prototype de borne, déploiement</div>
+      </div>
+      <div class="etape">
+        <div class="barre"></div>
+        <div class="d">5 janvier 2027</div>
+        <div class="t">Rendu</div>
+        <div class="c">Dépôt, documentation et preuve de concept complète</div>
+      </div>
+      <div class="etape">
+        <div class="barre"></div>
+        <div class="d">19 janvier 2027</div>
+        <div class="t">Soutenance</div>
+        <div class="c">Démonstration en direct des trois briques</div>
+      </div>
+    </div>
+
+    <div class="grille g2" style="margin-top:6mm;">
+      <div class="carte vert">
+        <h4>Livré à ce jour</h4>
+        <p class="petit">Connexion et profil, comptage des pas et envoi au serveur, modèle de
+          données, moteur de quêtes, amis, positions et carte, volet serveur des bornes,
+          chaîne de tests.</p>
+      </div>
+      <div class="carte accent">
+        <h4>Le point dur, assumé</h4>
+        <p class="petit"><strong>La borne physique n'est pas encore montée</strong> et porte
+          6 exigences sur 18. Le choix du microcontrôleur conditionne la commande du matériel.
+          C'est notre risque n°1, et il est écrit comme tel.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 12. RÉSULTATS ===================== -->
+<section class="slide" data-n="13">
+  <h2>Résultats obtenus, résultats escomptés</h2>
+  <div class="regle"></div>
+
+  <div class="corps grille g4" style="margin-bottom:6mm;">
+    <div class="carte kpi"><div class="v">7<span style="font-size:19pt;color:var(--ink-soft);">/18</span></div>
+      <div class="l">exigences essentielles</div><div class="s">cible : 18 au rendu</div></div>
+    <div class="carte kpi"><div class="v">206</div>
+      <div class="l">tests automatisés</div><div class="s">règles du jeu et serveur</div></div>
+    <div class="carte kpi"><div class="v">31</div>
+      <div class="l">contributions fusionnées</div><div class="s">relecture croisée obligatoire</div></div>
+    <div class="carte kpi"><div class="v coral">9</div>
+      <div class="l">entretiens terrain</div><div class="s">prix validé à 1,99 €</div></div>
+  </div>
+
+  <div class="grille g2">
+    <div class="carte">
+      <h4>D'ici le rendu</h4>
+      <ul class="petit">
+        <li>Les 18 exigences essentielles livrées et démontrées sans intervention manuelle</li>
+        <li>La borne montée, lisant le téléphone et dialoguant avec le serveur</li>
+        <li>Chaîne de déploiement automatique complète et supervision en place</li>
+      </ul>
+    </div>
+    <div class="carte">
+      <h4>Au-delà du projet</h4>
+      <ul class="petit">
+        <li>2 lettres d'intention de partenaires, 20 testeurs actifs</li>
+        <li>Fidélité à 30 jours mesurée — l'hypothèse centrale du modèle</li>
+        <li>Société créée et financement recherché à l'été 2027</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 13. CONCLUSION ===================== -->
+<section class="slide sombre" data-n="14">
+  <h2 style="color:#fff;">Ce que nous retenons</h2>
+  <div class="regle"></div>
+
+  <div class="corps grille g3" style="align-content:start;">
+    <div class="carte pleine" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);">
+      <h4>Décider, puis l'écrire</h4>
+      <p class="petit">Le pivot du bracelet, le prix à 1,99 €, un objectif revu à la baisse :
+        chaque choix est tracé avec sa raison. Une décision non écrite se re-discute
+        indéfiniment.</p>
+    </div>
+    <div class="carte pleine" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);">
+      <h4>Mesurer avant d'affirmer</h4>
+      <p class="petit">Le prix vient de neuf entretiens, pas d'une intuition. Et ces entretiens
+        ont sorti deux enseignements que nous ne cherchions pas.</p>
+    </div>
+    <div class="carte pleine" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);">
+      <h4>Prendre de la hauteur</h4>
+      <p class="petit">Le retour le plus utile a été le plus exigeant : sortir de la posture
+        d'étudiants et raisonner en porteurs de projet.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:7mm;text-align:center;">
+    <p style="font-family:'Baloo 2',sans-serif;font-size:23pt;color:#fff;margin:0;">
+      « Il ne grandit que si <span style="color:var(--coral);">toi</span> tu sors. »
+    </p>
+    <p class="petit" style="color:#A9C6CE;margin-top:3mm;">Merci de votre attention.</p>
+  </div>
+</section>
+
+<!-- ===================== 14. QUESTIONS ===================== -->
+<section class="slide sombre sep" data-n="15">
+  <div class="kicker">À vous</div>
+  <h2>Questions</h2>
+  <p>Équipe Scubatana &middot; BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena</p>
+</section>
+
+<!-- ===================== 15. ANNEXE ===================== -->
+<section class="slide" data-n="16">
+  <h2>Annexe <span class="petit gris" style="font-family:Inter;font-weight:400;">— pour les questions</span></h2>
+  <div class="regle"></div>
+
+  <div class="corps grille g3">
+    <div class="carte">
+      <h4>Documents produits</h4>
+      <ul class="petit">
+        <li>Charte de projet, 16 pages</li>
+        <li>Cahier des charges, 32 exigences priorisées</li>
+        <li>Business Model Canvas et marketing mix</li>
+        <li>Expérience utilisateur et étude de prix</li>
+      </ul>
+    </div>
+    <div class="carte">
+      <h4>Organisation de l'équipe</h4>
+      <ul class="petit">
+        <li>Un référent par lot : application, serveur, borne, infrastructure</li>
+        <li>Une branche par tâche, relecture croisée avant fusion</li>
+        <li>Point hebdomadaire, indicateurs relevés chaque vendredi</li>
+      </ul>
+    </div>
+    <div class="carte">
+      <h4>Décisions encore ouvertes</h4>
+      <ul class="petit">
+        <li>Choix du microcontrôleur de la borne</li>
+        <li>Hébergement et outil d'analyse de qualité</li>
+        <li>Place de la norme oneM2M dans l'architecture</li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="pied">Dépôt et documentation complète : github.com/Scubatana</p>
+</section>
+
+</body>
+</html>
