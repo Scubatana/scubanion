@@ -1,119 +1,77 @@
-SCUBANION : R5.01, Initiation au management d'une équipe de projet informatique
-Équipe Scubatana : BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
-SAE BUT3-IoT, 14 octobre 2026 - version 2, apres vos annotations
+SCUBANION : SAÉ BUT3-IoT 2026-27, équipe Scubatana
+BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
+22 octobre 2026 - version 3 : ajout des diapositives de présentation
 
 -------------------------------------------------------------------------------
-CONTENU
+CE QUI EST NOUVEAU DANS CETTE VERSION
 -------------------------------------------------------------------------------
 
-1-Charte-de-projet.pdf              16 pages   *** REVUE ***
-    Reprise en posture entrepreneuriale, comme vous nous l'avez demandé.
-    Ce qui a changé est listé plus bas.
+1-Presentation-du-projet.pdf        16 diapositives   *** NOUVEAU ***
 
-    Parties 1 à 3 : la charte de projet, reprise champ par champ de la structure
-                    du cours (Cadrage / Périmètre & Contraintes / Pilotage),
-                    avec une analyse SWOT.
-    Partie 4      : l'analyse des risques : formule de criticité, matrice
-                    Fréquence x Gravité, échelles transposées à l'entreprise,
-                    douze Top Risks dont six risques d'entreprise, chacun avec
-                    plan préventif et plan correctif, et un pré-mortem.
-    Partie 5      : le plan d'action : dix actions avec responsable et échéance,
-                    du 14/10/2026 au 30/06/2027, et les jalons.
-    Partie 6      : le tableau de bord : six indicateurs, dont trois d'entreprise,
-                    chacun avec sa cible, sa fréquence et la décision qu'il
-                    déclenche.
+    La présentation de dix minutes demandée, au format 16:9 et exportée en
+    PDF. Elle est construite comme un pitch destiné à convaincre, et non
+    comme un compte rendu : chacun de ses cinq temps répond à une question
+    qu'un client, un partenaire ou un financeur se poserait.
 
-4-Cahier-des-charges.pdf                       *** REVU ***
-    L'outil d'exécution de l'équipe, que vous aviez également annoté. Deux
-    corrections : ajout des indicateurs d'entreprise K6 (rétention à 30 jours)
-    et K7 (lieux partenaires et revenu récurrent), et reclassement du tableau
-    des risques par fréquence et gravité, avec plan préventif et correctif.
+        I    Le problème et notre réponse        2 min
+        II   Comment ça marche                   2 min
+        III  Le modèle économique                2 min 30
+        IV   Responsabilité et pilotage          2 min
+        V    Où on en est, et la suite           1 min 30
 
-2-Marketing-mix.pdf                 14 pages
-    Les quatre P appliqués au projet, illustrés par les maquettes et les films :
-    Produit, Prix, Place, Promotion. Puis les 7 P, les 4 C, et la démonstration
-    de cohérence entre les quatre leviers.
+    Les termes techniques sont expliqués en une ligne là où ils
+    apparaissent : NFC, MQTT, podomètre, SWOT, pré-mortem. Les interfaces
+    sont montrées plutôt que décrites. Les diapositives sont numérotées.
 
-3-Experience-utilisateur.pdf         9 pages
-    L'histoire racontée en six pictogrammes, le storyboard des deux films, et
-    la méthode Toolbox Persona appliquée à la fixation du prix : protocole,
-    grille vierge, puis les résultats des neuf entretiens menés le 14/10 et
-    la lecture qui en découle.
+    La diapositive 10 traite les ODD 3, 11 et 12, demandés par la lettre
+    de commande pour le volet économie durable.
+
+-------------------------------------------------------------------------------
+LES DOCUMENTS DÉJÀ RENDUS, INCHANGÉS
+-------------------------------------------------------------------------------
+
+2-Charte-de-projet.pdf              16 pages
+    Cadrage, périmètre et contraintes, pilotage avec analyse SWOT, puis
+    l'analyse des risques, le plan d'action et le tableau de bord.
+    Version revue en posture entrepreneuriale après vos annotations.
+
+3-Marketing-mix.pdf                 14 pages
+    Les quatre P, les sept P et les quatre C, illustrés par les maquettes
+    et les films, avec la démonstration de cohérence entre les leviers.
+
+4-Experience-utilisateur.pdf         9 pages
+    L'histoire en six pictogrammes, le storyboard des films, et la méthode
+    Toolbox Persona appliquée au prix : protocole, grille et résultats des
+    neuf entretiens.
+
+5-Cahier-des-charges.pdf            16 pages
+    L'outil d'exécution de l'équipe : 32 exigences numérotées et
+    priorisées, architecture, décisions, planning et risques.
 
 videos/
-    Deux animations de 15 secondes, format MP4, 1920x1080, sans son.
-    Elles montrent le passage en borne, dans un musée et devant un restaurant
-    partenaire. Elles se lisent dans n'importe quel lecteur vidéo.
+    Deux animations de 15 secondes, 1920x1080, sans son. Le passage en
+    borne, dans un musée et devant un restaurant partenaire.
 
 -------------------------------------------------------------------------------
-CE QUE VOS ANNOTATIONS ONT CHANGÉ
+TROIS POINTS QUE NOUS SOUHAITONS VOUS SOUMETTRE
 -------------------------------------------------------------------------------
 
-« Prenez de la hauteur, sortez de votre posture d'étudiants. » La charte décrit
-désormais l'entreprise, et non le rendu scolaire :
+- Les dates. La lettre de commande indique un rendu le 05/01/2027 et une
+  soutenance des alternants le 19/01/2027. Notre cahier des charges, rédigé
+  plus tôt, annonce le 12/12/2026 et le 13/01/2027. Les diapositives
+  retiennent les dates de la lettre de commande ; nous alignerons le cahier
+  des charges une fois la date confirmée.
 
-- La date de fin n'est plus la soutenance. L'horizon va jusqu'au 31/12/2028,
-  avec le lancement commercial fin 2027 et la fin de l'amorçage fin 2028.
+- Trois livrables de la lettre de commande ne sont pas encore produits : la
+  user story de la solution, le plan de communication interne, et le pitch
+  elevator de trois minutes. Ils sont à notre planning.
 
-- Les trois objectifs sont ceux qu'on présente à un financeur : 5 000 joueurs
-  actifs et 40 lieux équipés, 60 000 € de revenu récurrent, et 150 000 €
-  d'amorçage avec la société créée. La preuve de concept du 12/12 devient le
-  jalon zéro, et ses critères techniques restent au cahier des charges.
-
-- Le périmètre couvre la vie de la société : industrialisation de la borne,
-  création de l'entreprise, financement, commercialisation, recrutement.
-
-- Les contraintes et dépendances sont celles d'une entreprise : trésorerie,
-  absence de compétence commerciale, fournisseurs, effet de réseau,
-  dépendance au magasin d'applications.
-
-- Les facteurs de succès et d'échec deviennent un SWOT, comme demandé. Le
-  croisement le plus dangereux y est nommé, et il commande une action.
-
-- Les parties prenantes passent de 5 à 8 catégories : clients payeurs,
-  utilisateurs, early adopters, fournisseurs, financeurs, institutions,
-  équipe, encadrement.
-
-- Les coûts sont ceux d'une entreprise sur trois ans, avec le besoin de
-  financement qui en découle, et non les 120 € de dépense de l'équipe.
-
-- Les risques sont repris à l'échelle de l'entreprise : financement non
-  obtenu, personne n'accepte de payer, rétention insuffisante, un acteur
-  installé copie, départ d'un associé, sanction RGPD. Les risques
-  d'exécution sont conservés en seconde partie du tableau.
-
-- Le tableau de bord gagne trois indicateurs d'entreprise : joueurs actifs
-  mensuels, rétention à 30 jours, revenu récurrent et lieux payants.
-
-- Les objectifs ne sont plus déclinés lettre par lettre, puisqu'un objectif
-  SMART bien écrit n'en a pas besoin.
+- La norme oneM2M figure dans les contraintes de programmation avancée,
+  alors que notre cahier des charges la classe encore comme une option à
+  évaluer. Nous devons trancher sa place dans l'architecture.
 
 -------------------------------------------------------------------------------
-LE RÉSULTAT DE LA TOOLBOX PERSONA
+CE QUI RESTE À COMPLÉTER DANS LES DIAPOSITIVES
 -------------------------------------------------------------------------------
 
-Neuf personnes ont été interrogées individuellement, en message privé, le
-14/10/2026. Huit réponses sont exploitables et dans la cible des 18-30 ans,
-au-delà des cinq demandées par la méthode.
-
-    Zone de chevauchement : 0,99 € à 1,49 €   (2 niveaux à l'unanimité)
-    Prix retenu           : 1,99 € le skin    (7 personnes sur 8)
-
-Le choix d'un prix un cran au-dessus de la zone est argumenté dans le
-document : la seule personne perdue a son plafond exactement à 1,99 €, et
-1,49 € reste le prix des remises. Les décisions de lecture y sont aussi
-écrites : une réponse est conservée mais hors tranche d'âge, deux personnes
-n'ont pas de borne basse utile (l'une a contesté la question, son objection
-est reprise et discutée), et une autre a donné deux plafonds selon l'objet.
-
--------------------------------------------------------------------------------
-DEUX PRÉCISIONS DE TRANSPARENCE
--------------------------------------------------------------------------------
-
-- L'échantillon des entretiens vient surtout des Alpes-Maritimes, avec une
-  seule réponse de Paris, alors que le marché pilote visé est Paris
-  intra-muros. Le point est signalé dans le document.
-
-- L'objectif O3 de la charte a été revu à la baisse le 13/10 (2 partenaires et
-  20 testeurs, au lieu de 3 et 30) au vu de l'avancement réel du projet. La
-  justification figure dans le document.
+La date exacte de la soutenance, sur la diapositive de couverture.
