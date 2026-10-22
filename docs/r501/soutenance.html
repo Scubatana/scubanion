@@ -2,50 +2,63 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Scubanion — Présentation du projet</title>
+<title>Scubanion — Soutenance</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ==========================================================================
-   Présentation du projet SAÉ — 16:9, exportée en PDF.
-   Charte reprise des maquettes et des films : teal, corail, Baloo 2 + Inter.
-   Contraintes des consignes : texte lisible au vidéoprojecteur, diapositives
-   numérotées, bords non chargés, peu de phrases, pas de jargon non expliqué.
+   Soutenance Scubanion — 16:9, exportée en PDF.
+   Structure et thèmes repris de la présentation AllRoads (problème, équipe,
+   fonctionnalités, concurrence, risques, personas, communication, offres,
+   finances, parties prenantes, roadmap), habillés avec NOTRE charte : celle
+   des maquettes (scubatana.demo/assets/css/style.css) : océan, encre, corail,
+   brume, Baloo 2 + Inter, halos océan et corail.
+   Toutes les données viennent de la charte, du BMC, du marketing mix, du
+   livrable UX et du cahier des charges. Les hypothèses sont signalées.
    ========================================================================== */
 
 :root{
   color-scheme: light;
+  /* charte des maquettes */
   --ink:#1E3A42; --ink-soft:#4C6B73;
   --ocean:#2F6B7A; --ocean-dark:#204E5A; --ocean-light:#8FB9C2;
-  --mist:#DCEBEE; --paper:#F5FAFB; --white:#fff;
-  --coral:#F0855A; --coral-dark:#D96A41;
-  --vert:#34C77B; --ambre:#C8902F;
-  --nuit:#16282E;
+  --mist:#DCEBEE; --paper:#F5FAFB; --coral:#F0855A; --coral-dark:#D96A41;
+  --vert:#34C77B; --rust:#C8452F;
+  /* alias utilisés par les composants du deck */
+  --navy:var(--ink); --navy-2:var(--ocean-dark); --soft:var(--ink-soft);
+  --blue:var(--ocean); --green:#5FA3AE; --teal:var(--ocean-light);
+  --lav:#EAF3F5; --lav-2:#C9E0E4; --mint:#E4F4EA; --red:var(--rust);
+  --grad:linear-gradient(100deg,#204E5A 0%,#2F6B7A 55%,#5FA3AE 100%);
+  --grad-v:linear-gradient(160deg,#204E5A 0%,#2F6B7A 45%,#8FB9C2 100%);
 }
 
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
-
-body{
-  background:#6b7b80;
-  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
-  color:var(--ink-soft);
-  -webkit-font-smoothing:antialiased;
-}
+body{background:#6b7b80;font-family:'Inter',system-ui,sans-serif;color:var(--soft);-webkit-font-smoothing:antialiased;}
 
 @page{size:338.7mm 190.5mm;margin:0;}
 
 .slide{
-  position:relative;
-  width:338.7mm; height:190.5mm;
-  padding:16mm 20mm 15mm;
-  background:var(--paper);
-  overflow:hidden;
-  margin:0 auto 6mm;
-  display:flex; flex-direction:column;
+  position:relative;width:338.7mm;height:190.5mm;padding:15mm 18mm 14mm;
+  overflow:hidden;margin:0 auto 6mm;display:flex;flex-direction:column;
+  background:
+    radial-gradient(ellipse 150mm 80mm at 10% -8%,rgba(143,185,194,.55),rgba(143,185,194,0) 70%),
+    radial-gradient(ellipse 130mm 75mm at 105% 8%,rgba(240,133,90,.16),rgba(240,133,90,0) 70%),
+    var(--paper);
 }
+/* arc fin dans le coin */
+.slide::before{
+  content:"";position:absolute;width:150mm;height:150mm;border-radius:50%;
+  border:.35mm solid rgba(47,107,122,.18);left:-95mm;top:-85mm;pointer-events:none;
+}
+.slide::after{
+  content:attr(data-n);position:absolute;right:10mm;bottom:6mm;
+  font:600 10.5pt 'Baloo 2',sans-serif;color:#8FB9C2;
+}
+.slide.fonce::after,.slide.degrade::after{color:rgba(255,255,255,.6);}
+.slide>*{position:relative;z-index:1;}
 
 @media print{
   body{background:#fff;}
@@ -53,440 +66,870 @@ body{
   .slide:last-child{break-after:auto;}
 }
 
-.slide::after{
-  content:attr(data-n);
-  position:absolute; right:12mm; bottom:7mm;
-  font-size:11pt; font-weight:600; color:var(--ocean-light);
-}
-.slide.sombre::after{color:rgba(255,255,255,.45);}
+/* ------------------------------------------------------------ typographie --- */
 
-/* --------------------------------------------------------------- titres --- */
-
-h1,h2,h3,h4{font-family:'Baloo 2',sans-serif;color:var(--ink);margin:0;letter-spacing:-.3px;}
-h2{font-size:29pt;font-weight:700;line-height:1.08;margin-bottom:2mm;}
-h3{font-size:16.5pt;font-weight:700;margin-bottom:2.5mm;}
-h4{font-size:13pt;font-weight:700;color:var(--ocean-dark);margin-bottom:1.5mm;}
-
-.chapo{font-size:13.5pt;color:var(--ink-soft);margin:0 0 6mm;max-width:255mm;line-height:1.35;}
-.regle{width:34mm;height:2.6mm;border-radius:2mm;background:var(--coral);margin:0 0 6mm;}
-.corps{flex:1;min-height:0;}
-
-/* ------------------------------------------------------------- couverture --- */
-
-.slide.sombre{
-  background:linear-gradient(150deg,var(--nuit) 0%,var(--ink) 55%,var(--ocean-dark) 100%);
-  color:#CFE3E8;
-}
-.slide.sombre h1,.slide.sombre h2,.slide.sombre h3,.slide.sombre h4{color:#fff;}
-.slide.sombre .chapo{color:#A9C6CE;}
-
-.couv-marque{display:flex;align-items:center;gap:5mm;}
-.couv-marque img{width:21mm;}
-.couv-marque span{font-family:'Baloo 2',sans-serif;font-size:21pt;font-weight:700;color:#fff;}
-
-.couv h1{font-size:50pt;font-weight:800;line-height:1.03;margin-bottom:4mm;}
-.couv .slogan{font-family:'Baloo 2',sans-serif;font-size:18pt;color:#fff;margin:0;}
-.couv .slogan em{color:var(--coral);font-style:normal;}
-
-.identite{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm 10mm;font-size:11.5pt;}
-.identite dt{
-  font-size:9pt;font-weight:600;letter-spacing:1px;text-transform:uppercase;
-  color:var(--ocean-light);margin-bottom:1mm;
-}
-.identite dd{margin:0;color:#fff;font-weight:500;}
-
-/* ------------------------------------------------------------ séparateur --- */
-
-.sep{justify-content:center;}
-.sep .kicker{font-size:12pt;letter-spacing:3px;text-transform:uppercase;color:var(--coral);margin-bottom:4mm;font-weight:600;}
-.sep h2{font-size:44pt;color:#fff;margin-bottom:5mm;}
-.sep p{font-size:15.5pt;color:#A9C6CE;max-width:215mm;margin:0;line-height:1.35;}
-
-/* ----------------------------------------------------------------- blocs --- */
-
-.grille{display:grid;gap:5.5mm;}
-.g2{grid-template-columns:1fr 1fr;}
-.g3{grid-template-columns:repeat(3,1fr);}
-.g4{grid-template-columns:repeat(4,1fr);}
-.g-2-1{grid-template-columns:2fr 1fr;}
-.g-3-2{grid-template-columns:3fr 2fr;}
-
-.carte{background:var(--white);border:.4mm solid var(--mist);border-radius:5mm;padding:5.5mm 6.5mm;}
-.carte.pleine{background:var(--ink);border-color:var(--ink);color:#CFE3E8;}
-.carte.pleine h3,.carte.pleine h4,.carte.pleine strong{color:#fff;}
-.carte.accent{background:#FFF6F1;border-color:#F6D8C8;border-left:1.6mm solid var(--coral);}
-.carte.vert{background:#E8F7EF;border-color:#C6E9D5;border-left:1.6mm solid var(--vert);}
+h1,h2,h3,h4{font-family:'Baloo 2',sans-serif;color:var(--navy);margin:0;letter-spacing:-.2px;}
+h2{font-size:30pt;font-weight:800;line-height:1.08;}
+h3{font-size:16pt;font-weight:700;line-height:1.15;}
+h4{font-size:12.5pt;font-weight:700;}
+.sous{font:400 15pt 'Baloo 2',sans-serif;color:var(--navy-2);margin:1.5mm 0 0;}
+.g{color:var(--ocean);}
+.fonce .g{color:var(--coral);}
+p{margin:0 0 2.5mm;font-size:12.5pt;line-height:1.4;}
+p:last-child{margin-bottom:0;}
+strong{color:var(--navy);font-weight:700;}
+.petit{font-size:10.5pt;}
+.tres-petit{font-size:9pt;}
+.centre{text-align:center;}
+.trait{height:.45mm;background:var(--grad);opacity:.55;margin:4mm 0;}
+.note{position:absolute;left:18mm;right:30mm;bottom:6mm;font-size:9pt;color:#4C6B73;}
 
 ul{margin:0;padding:0;list-style:none;}
-li{position:relative;padding-left:5.5mm;margin-bottom:2.2mm;font-size:12.5pt;line-height:1.35;}
-li:last-child{margin-bottom:0;}
-li::before{content:"";position:absolute;left:0;top:2.1mm;width:2mm;height:2mm;border-radius:50%;background:var(--coral);}
+li{position:relative;padding-left:5mm;margin-bottom:2mm;font-size:12pt;line-height:1.35;}
+li::before{content:"";position:absolute;left:0;top:1.9mm;width:2mm;height:2mm;border-radius:50%;background:var(--grad);}
+li.fl::before{content:"→";background:none;top:0;width:auto;height:auto;color:#fff;font-weight:700;}
 
-p{margin:0 0 3mm;font-size:12.5pt;line-height:1.4;}
-p:last-child{margin-bottom:0;}
-strong{color:var(--ink);font-weight:700;}
-.sombre strong{color:#fff;}
-.petit{font-size:11pt;}
-.gris{color:var(--ink-soft);}
+/* -------------------------------------------------------------- décors --- */
 
-/* ------------------------------------------------- mot technique expliqué --- */
+.points{position:absolute;width:26mm;height:16mm;z-index:0;
+  background-image:radial-gradient(circle,#8FB9C2 0.45mm,transparent 0.55mm);background-size:3.2mm 3.2mm;opacity:.7;}
+.nav{display:flex;align-items:center;gap:9mm;font:500 8pt 'Baloo 2',sans-serif;color:#4C6B73;margin:-6mm 0 5mm;}
+.nav .m{display:flex;align-items:center;gap:1.8mm;margin-right:auto;color:var(--navy);font-weight:600;}
+.nav .m img{height:5.5mm;}
+.nav .on{color:var(--navy);font-weight:700;}
+.nav .burger{width:6mm;height:2.6mm;border-top:.5mm solid var(--blue);border-bottom:.5mm solid var(--blue);}
+.slide.fonce .nav,.slide.degrade .nav{color:rgba(255,255,255,.75);}
+.slide.fonce .nav .m,.slide.degrade .nav .m{color:#fff;}
 
-.jargon{
-  display:inline-block;
-  background:var(--mist);color:var(--ocean-dark);
-  border-radius:2mm;padding:.4mm 2mm;font-weight:700;
-}
-.glose{
-  margin-top:4mm;padding-top:3mm;border-top:.3mm solid var(--mist);
-  font-size:10.5pt;color:var(--ink-soft);line-height:1.35;
-}
-.glose b{color:var(--ocean-dark);}
+/* -------------------------------------------------------- fonds pleins --- */
 
-/* ------------------------------------------------------------- chiffres --- */
+.slide.degrade{background:var(--grad);color:#fff;}
+.slide.degrade::before{border-color:rgba(255,255,255,.3);}
+.slide.fonce{background:linear-gradient(150deg,#16282E 0%,#1E3A42 55%,#204E5A 100%);color:#CFE3E8;}
+.slide.fonce::before{border-color:rgba(255,255,255,.12);}
+.slide.fonce h2,.slide.fonce h3,.slide.fonce h4,.slide.degrade h2,.slide.degrade h3{color:#fff;}
+.slide.fonce strong{color:#fff;}
 
-.kpi{text-align:center;}
-.kpi .v{font-family:'Baloo 2',sans-serif;font-size:38pt;font-weight:800;color:var(--ocean);line-height:1;}
-.kpi .v.coral{color:var(--coral);}
-.kpi .v.vert{color:var(--vert);}
-.kpi .l{font-size:11pt;font-weight:600;color:var(--ink);margin-top:1.5mm;}
-.kpi .s{font-size:9.5pt;color:var(--ink-soft);margin-top:.8mm;}
+/* ---------------------------------------------------------------- blocs --- */
 
-/* -------------------------------------------------------------- tableau --- */
+.grille{display:grid;gap:6mm;}
+.g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);} .g5{grid-template-columns:repeat(5,1fr);}
+.flex1{flex:1;min-height:0;}
 
-table{width:100%;border-collapse:collapse;font-size:11.5pt;}
-th,td{text-align:left;vertical-align:top;padding:2.4mm 3mm;border-bottom:.3mm solid var(--mist);}
-thead th{
-  font-size:9pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-  color:var(--ocean-dark);background:var(--mist);border-bottom:none;
-}
-tbody tr:last-child td{border-bottom:none;}
+.carte{background:#fff;border-radius:5mm;padding:5.5mm 6mm;box-shadow:0 3mm 9mm -5mm rgba(30,58,66,.25);border:.3mm solid #DCEBEE;}
+.carte.lav{background:var(--lav);border-color:var(--lav-2);box-shadow:none;}
+.carte.rouge{background:linear-gradient(160deg,#F0855A,#D96A41);color:#fff;border:none;}
+.carte.bleue{background:linear-gradient(160deg,#3F8291,#204E5A);color:#fff;border:none;}
+.carte.rouge h3,.carte.bleue h3,.carte.rouge strong,.carte.bleue strong{color:#fff;}
+.carte.rouge p,.carte.bleue p{font-size:14pt;}
+.carte.rouge h3,.carte.bleue h3{font-size:21pt;}
+.carte .ic{font-size:22pt;line-height:1;margin-bottom:2.5mm;}
+
+.chip{display:inline-flex;align-items:center;gap:2mm;padding:1.6mm 5mm;border-radius:20mm;font:700 9.5pt 'Baloo 2',sans-serif;}
+.chip.lav{background:var(--lav-2);color:var(--navy);}
+.chip.blanc{background:#fff;color:var(--navy);border:.3mm solid #DCEBEE;box-shadow:0 1mm 3mm rgba(30,58,66,.08);}
+.chip.rouge{background:var(--rust);color:#fff;letter-spacing:.6px;}
+.chip.vert{background:#E4F4EA;color:#1C6B3F;}
+.btn{display:inline-flex;align-items:center;gap:3mm;padding:3.2mm 7mm;border-radius:20mm;font:700 10.5pt 'Baloo 2',sans-serif;color:#fff;background:var(--grad);box-shadow:0 2mm 6mm -2mm rgba(47,107,122,.6);}
+.play{display:inline-flex;align-items:center;gap:3mm;font:600 10.5pt 'Baloo 2',sans-serif;color:var(--navy);}
+.play i{width:8mm;height:8mm;border-radius:50%;border:.5mm solid var(--blue);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:8pt;color:var(--blue);}
+
+/* liste numérotée façon AllRoads : 01 / 02 / 03 en serif */
+.nums{display:flex;flex-direction:column;gap:7mm;}
+.nums .l{display:flex;align-items:center;gap:7mm;}
+.nums .n{font:800 24pt 'Baloo 2',sans-serif;color:var(--coral);min-width:12mm;}
+.nums .t{font:500 13.5pt 'Baloo 2',sans-serif;color:var(--navy-2);line-height:1.25;}
+.nums .t small{display:block;font:400 10.5pt 'Inter',sans-serif;color:var(--soft);margin-top:.8mm;}
+
+/* téléphone et images */
+.tel{display:block;height:100%;max-height:150mm;width:auto;border-radius:9mm;filter:drop-shadow(0 6mm 9mm rgba(30,58,66,.35));}
+.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:6mm;}
+.ovale{border-radius:40mm;overflow:hidden;border:.6mm solid #F6D8C8;box-shadow:0 3mm 8mm -4mm rgba(30,58,66,.35);}
+
+/* panneau image coloré pour les pages fonctionnalités */
+.pan{position:absolute;top:0;bottom:0;width:118mm;background:var(--grad-v);display:flex;align-items:center;justify-content:center;gap:5mm;padding:12mm 8mm;z-index:0;}
+.pan.d{right:0;} .pan.gch{left:0;}
+.pan::before{content:"";position:absolute;inset:8mm;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.35),transparent 65%);}
+.pan img{position:relative;}
+
+/* -------------------------------------------------- tableau & graphiques --- */
+
+table{width:100%;border-collapse:collapse;font-size:10.5pt;}
+th,td{text-align:left;padding:2.1mm 3mm;border-bottom:.3mm solid #DCEBEE;vertical-align:top;}
+thead th{font:600 8.5pt 'Baloo 2',sans-serif;letter-spacing:.6px;text-transform:uppercase;color:#fff;background:var(--navy);}
+thead th:first-child{border-radius:2.5mm 0 0 0;} thead th:last-child{border-radius:0 2.5mm 0 0;}
 td.num,th.num{text-align:right;white-space:nowrap;}
-td.k{font-weight:600;color:var(--ink);}
+tr.tot td{font-weight:800;color:var(--navy);border-bottom:none;font-family:'Baloo 2',sans-serif;}
+.pt{display:inline-block;width:3mm;height:3mm;border-radius:50%;margin-right:2mm;vertical-align:middle;}
 
-/* --------------------------------------------------------------- images --- */
+.camembert{width:72mm;height:72mm;border-radius:50%;box-shadow:0 4mm 10mm -5mm rgba(30,58,66,.4);flex:none;}
+.leg{display:flex;flex-direction:column;gap:2.4mm;font-size:10.5pt;}
+.leg b{font-family:'Baloo 2',sans-serif;color:var(--navy);}
+.total{font:800 26pt 'Baloo 2',sans-serif;color:var(--navy);}
+.total span{color:var(--ocean);}
 
-figure{margin:0;}
-figure img{display:block;width:100%;border-radius:4mm;border:.3mm solid var(--mist);}
-figcaption{margin-top:2mm;font-size:10pt;color:var(--ink-soft);line-height:1.3;}
-.tel img{border:none;border-radius:5mm;box-shadow:0 6mm 14mm -8mm rgba(30,58,66,.5);
-         max-height:112mm;width:auto;margin:0 auto;}
+.bar{display:flex;align-items:center;gap:4mm;margin-bottom:4mm;}
+.bar .lab{width:62mm;font:600 11pt 'Baloo 2',sans-serif;color:var(--navy);}
+.bar .tr{flex:1;height:9mm;background:var(--lav);border-radius:5mm;overflow:hidden;}
+.bar .rem{height:100%;border-radius:5mm;background:var(--ocean-light);display:flex;align-items:center;justify-content:flex-end;padding-right:3mm;font:700 10pt 'Baloo 2',sans-serif;color:var(--navy);}
+.bar .rem.g{background:var(--grad);color:#fff;}
 
-/* ------------------------------------------------------------ étiquettes --- */
-
-.puce{display:inline-block;padding:1mm 4mm;border-radius:20mm;font-size:9.5pt;font-weight:700;}
-.p-mist{background:var(--mist);color:var(--ocean-dark);}
-.p-coral{background:#FBE2D5;color:var(--coral-dark);}
-.p-vert{background:#D9F2E4;color:#1C6B3F;}
-.p-gris{background:#E8ECEE;color:var(--ink-soft);}
-
-/* ----------------------------------------------------------------- frise --- */
-
-.frise{display:flex;gap:0;}
-.frise .etape{flex:1;padding:0 3mm;}
-.frise .barre{height:3mm;border-radius:2mm;background:var(--mist);margin-bottom:4mm;}
-.frise .etape.fait .barre{background:var(--coral);}
-.frise .etape.encours .barre{background:linear-gradient(90deg,var(--coral) 50%,var(--mist) 50%);}
-.frise .d{font-size:9.5pt;color:var(--ink-soft);margin-bottom:1mm;}
-.frise .t{font-family:'Baloo 2',sans-serif;font-size:13.5pt;font-weight:700;color:var(--ink);line-height:1.1;}
-.frise .c{font-size:10pt;color:var(--ink-soft);margin-top:1.5mm;line-height:1.3;}
-
-/* ------------------------------------------------------------ histogramme --- */
-
-.histo{display:flex;align-items:flex-end;gap:2.4mm;height:44mm;}
+/* histogramme du prix */
+.histo{display:flex;align-items:flex-end;gap:2.6mm;height:60mm;}
 .histo .b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;}
-.histo .barre{width:100%;border-radius:2mm 2mm 0 0;background:var(--ocean-light);}
-.histo .b.top .barre{background:var(--vert);}
-.histo .n{font-size:9.5pt;font-weight:700;color:var(--ink-soft);margin-bottom:1.5mm;}
-.histo .b.top .n{color:#1C6B3F;}
-.histo .x{font-size:9pt;color:var(--ink-soft);margin-top:2mm;}
-.histo .b.top .x{color:var(--ink);font-weight:700;}
+.histo .barre{width:100%;border-radius:2mm 2mm 0 0;background:#C9E0E4;}
+.histo .b.top .barre{background:var(--ocean);}
+.histo .b.choix .barre{background:var(--coral);}
+.histo .n{font:700 10pt 'Baloo 2',sans-serif;color:var(--soft);margin-bottom:1.5mm;}
+.histo .x{font-size:9pt;color:var(--soft);margin-top:2mm;}
+.histo .b.choix .x,.histo .b.choix .n{color:var(--coral);font-weight:700;}
 
-/* ------------------------------------------------------------------ flux --- */
+/* ------------------------------------------------------------- composants --- */
 
-.flux{display:flex;align-items:center;gap:2.6mm;}
-.flux .boite{flex:1;background:var(--white);border:.4mm solid var(--mist);border-radius:4mm;padding:4.5mm;text-align:center;}
-.flux .boite .ic{font-size:21pt;line-height:1;margin-bottom:2mm;}
-.flux .boite .t{font-family:'Baloo 2',sans-serif;font-size:13pt;font-weight:700;color:var(--ink);}
-.flux .boite .s{font-size:10pt;color:var(--ink-soft);margin-top:1mm;line-height:1.25;}
-.flux .fleche{font-size:15pt;color:var(--coral);font-weight:700;}
+/* chiffres clés numérotés */
+.cle{position:relative;border:.5mm solid #8FB9C2;border-radius:6mm;padding:9mm 6mm 6mm;text-align:center;background:#fff;}
+.cle .r{position:absolute;top:-6mm;left:50%;transform:translateX(-50%);width:12mm;height:12mm;border-radius:50%;background:#204E5A;color:#fff;font:700 12pt 'Baloo 2',sans-serif;display:flex;align-items:center;justify-content:center;border:1mm solid #fff;}
+.cle .t{font:600 10.5pt 'Baloo 2',sans-serif;color:var(--navy-2);text-transform:uppercase;letter-spacing:.2px;line-height:1.3;}
+.cle .v{font:800 22pt 'Baloo 2',sans-serif;margin-top:2mm;}
 
-/* ------------------------------------------------------------------ ODD --- */
+/* membres de l'équipe */
+.membre{display:flex;align-items:center;gap:5mm;}
+.avatar{flex:none;width:30mm;height:30mm;border-radius:50%;background:var(--grad-v);display:flex;align-items:center;justify-content:center;font:800 17pt 'Baloo 2',sans-serif;color:#fff;box-shadow:0 3mm 7mm -3mm rgba(30,58,66,.45);border:1.2mm solid #fff;outline:.4mm solid #C9E0E4;}
+.avatar.vide{background:#fff;color:#8FB9C2;border:.6mm dashed #8FB9C2;outline:none;box-shadow:none;font-size:22pt;}
+.membre .nm{font:800 16pt 'Baloo 2',sans-serif;line-height:1.05;}
+.membre .rl{font-size:9.5pt;color:var(--soft);border-top:.6mm solid #F0855A;margin-top:2mm;padding-top:1.5mm;line-height:1.3;}
 
+/* risque */
+.bande{position:relative;background:linear-gradient(100deg,#2F6B7A 0%,#204E5A 100%);border-radius:0 4mm 4mm 0;margin-left:-18mm;padding:8mm 10mm 8mm 22mm;width:200mm;color:#fff;}
+.bande li{font-size:13pt;margin-bottom:3.5mm;padding-left:7mm;}
+.bande .chip{position:absolute;right:-14mm;top:7mm;font-size:11pt;padding:2.6mm 6mm;box-shadow:0 2mm 6mm -2mm rgba(0,0,0,.4);}
+.coin{position:absolute;right:-30mm;top:-20mm;width:170mm;height:230mm;transform:rotate(35deg);background:linear-gradient(180deg,#DCEBEE 0%,#8FB9C2 40%,#5FA3AE 100%);z-index:0;}
+.coin-img{position:absolute;right:0;bottom:0;width:120mm;height:105mm;clip-path:polygon(100% 0,100% 100%,0 100%);background:#16282E;display:flex;align-items:flex-end;justify-content:flex-end;padding:9mm 12mm;font-size:46pt;z-index:0;}
+.coin-logo{position:absolute;right:16mm;top:12mm;width:38mm;z-index:1;filter:drop-shadow(0 2mm 4mm rgba(0,0,0,.2));}
+
+/* matrice des risques */
+.matrice{display:grid;grid-template-columns:30mm repeat(5,1fr);gap:1.3mm;font-size:9pt;}
+.matrice .h{font:600 8.5pt 'Baloo 2',sans-serif;color:var(--navy);display:flex;align-items:center;justify-content:center;text-align:center;padding:1mm;}
+.matrice .c{height:15mm;border-radius:2mm;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1mm;font:700 9pt 'Baloo 2',sans-serif;color:#fff;padding:1mm;}
+.c4{background:var(--rust);} .c3{background:var(--coral);} .c2{background:#C8902F;} .c1{background:var(--vert);}
+.matrice .c b{background:rgba(255,255,255,.95);color:var(--navy);border-radius:1.5mm;padding:.4mm 1.6mm;font-size:8.5pt;}
+
+/* SWOT */
+.swot{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+.swot .q{border-radius:5mm;padding:5mm 6mm;}
+.swot .q h4{margin-bottom:2.5mm;font-size:13pt;}
+.swot .q li{font-size:10.5pt;margin-bottom:1.4mm;}
+.q.s{background:#E4F4EA;} .q.w{background:#FBE2D5;} .q.o{background:#E4F1F3;} .q.t{background:#FFF6E6;}
+
+/* persona */
+.perso-photo{width:105mm;height:105mm;border-radius:50%;background:var(--grad-v);display:flex;align-items:center;justify-content:center;font-size:80pt;border:2mm solid #fff;box-shadow:0 0 0 .5mm #C9E0E4,0 6mm 14mm -6mm rgba(30,58,66,.45);flex:none;}
+.perso-bulle{position:absolute;width:14mm;height:14mm;border-radius:50%;background:var(--grad);border:1.2mm solid #fff;}
+.fiche{display:grid;grid-template-columns:28mm 1fr;gap:1.6mm 4mm;font-size:10.5pt;margin-top:5mm;}
+.fiche dt{font:600 9pt 'Baloo 2',sans-serif;color:#4C6B73;text-transform:uppercase;letter-spacing:.4px;}
+.fiche dd{margin:0;color:var(--ink);}
+
+/* formules */
+.offre{color:var(--ink-soft);background:#fff;border-radius:4mm;padding:4mm 4mm 5mm;text-align:center;display:flex;flex-direction:column;box-shadow:0 4mm 10mm -5mm rgba(0,0,0,.35);border:.6mm solid #fff;outline:.4mm solid rgba(255,255,255,.6);outline-offset:1.2mm;}
+.offre .hd{font:800 11pt 'Baloo 2',sans-serif;color:var(--navy);text-transform:uppercase;border-bottom:.4mm solid #DCEBEE;padding-bottom:2.5mm;margin-bottom:2.5mm;}
+.offre .who{font-size:8.5pt;color:var(--soft);margin-bottom:2mm;}
+.offre ul{text-align:left;flex:1;} .offre li{font-size:9.5pt;margin-bottom:1.3mm;}
+.offre .px{margin-top:3mm;align-self:center;padding:2mm 5mm;border-radius:20mm;background:var(--grad);color:#fff;font:800 11pt 'Baloo 2',sans-serif;}
+.offre.star{transform:scale(1.07);outline-color:#fff;}
+.offre.star .hd{font-size:13pt;}
+
+/* financement */
+.fin{display:flex;gap:4mm;align-items:flex-start;}
+.fin .ro{flex:none;width:17mm;height:17mm;border-radius:50%;background:var(--lav);border:.6mm solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:17pt;}
+.fin h4{font:800 12.5pt 'Baloo 2',sans-serif;color:var(--blue);text-transform:uppercase;line-height:1.15;}
+.fin h4 em{font-style:normal;color:var(--green);}
+
+/* matrice parties prenantes */
+.pp{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border-left:.6mm solid var(--navy);border-bottom:.6mm solid var(--navy);height:100%;}
+.pp>div{padding:6mm;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.pp>div:nth-child(1),.pp>div:nth-child(2){border-bottom:.3mm solid #C9E0E4;}
+.pp>div:nth-child(1),.pp>div:nth-child(3){border-right:.3mm solid #C9E0E4;}
+.pp .tag{padding:1.8mm 9mm;border-radius:20mm;background:var(--grad);color:#fff;font:700 9pt 'Baloo 2',sans-serif;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3mm;}
+.pp .acteurs{display:flex;flex-wrap:wrap;gap:2mm;justify-content:center;}
+.pp .acteurs span{background:#fff;border:.3mm solid #DCEBEE;border-radius:2mm;padding:2.2mm 4mm;font:600 12pt 'Baloo 2',sans-serif;color:var(--navy);}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(6,1fr);gap:4mm;flex:1;}
+.phase{background:linear-gradient(180deg,#EAF3F5,#F5FAFB);border-radius:5mm 5mm 14mm 14mm;padding:7mm 4mm 6mm;text-align:center;}
+.phase .ico{width:17mm;height:17mm;border-radius:50%;margin:0 auto 2.5mm;display:flex;align-items:center;justify-content:center;font-size:17pt;background:#fff;box-shadow:0 2mm 4mm -1mm rgba(30,58,66,.25);}
+.phase .k{font:700 7.5pt 'Baloo 2',sans-serif;color:#4C6B73;letter-spacing:.6px;}
+.phase .t{font:800 11pt 'Baloo 2',sans-serif;color:var(--navy);line-height:1.15;min-height:9mm;margin:.5mm 0 2mm;}
+.phase li{font-size:10pt;padding-left:3.5mm;margin-bottom:1mm;text-align:left;}
+.phase li::before{width:1.5mm;height:1.5mm;top:1.5mm;}
+.axe{position:relative;height:10mm;margin-top:3mm;}
+.axe::before{content:"";position:absolute;left:0;right:0;top:3mm;height:.6mm;background:var(--grad);}
+.axe::after{content:"";position:absolute;right:-1mm;top:1.4mm;border-left:3.5mm solid var(--green);border-top:1.9mm solid transparent;border-bottom:1.9mm solid transparent;}
+.axe .pts{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:4mm;}
+.axe .pts div{display:flex;flex-direction:column;align-items:center;font:700 8.5pt 'Baloo 2',sans-serif;color:var(--navy);}
+.axe .pts div::before{content:"";width:4.6mm;height:4.6mm;border-radius:50%;background:var(--navy);border:.8mm solid #fff;box-shadow:0 0 0 .3mm var(--navy);margin-bottom:1.5mm;}
+
+/* vision */
+.vis{position:relative;background:linear-gradient(180deg,#DCEBEE,#F5FAFB);border:.6mm solid var(--navy);border-radius:3mm;padding:6mm 5mm;text-align:center;}
+.vis .an{font:600 30pt 'Baloo 2',sans-serif;color:var(--navy);line-height:1;}
+.vis .rd{position:absolute;left:-7mm;top:30mm;width:14mm;height:14mm;border-radius:50%;background:var(--navy);color:#fff;font:700 13pt 'Baloo 2',sans-serif;display:flex;align-items:center;justify-content:center;border:1mm solid var(--blue);}
+.vis .petit{font-size:11.5pt;}
+.vis .tt{font:600 15pt 'Baloo 2',sans-serif;color:var(--navy);margin:8mm 0 3mm;line-height:1.2;}
+.vis.v2{background:linear-gradient(180deg,#C7E0C4,#EEF6EC);} .vis.v3{background:linear-gradient(180deg,#FBE2D5,#FFF6F1);}
+
+/* tableau de bord */
+.kpi{border-radius:5mm;padding:4.5mm 5mm;background:#fff;border:.3mm solid #DCEBEE;box-shadow:0 3mm 8mm -5mm rgba(30,58,66,.25);}
+.kpi .id{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5mm;}
+.kpi .id b{font:800 13pt 'Baloo 2',sans-serif;}
+.kpi .cible{font:800 16pt 'Baloo 2',sans-serif;color:var(--navy);margin:1mm 0;}
+.kpi .si{font-size:9pt;color:var(--soft);border-top:.3mm dashed #C9E0E4;padding-top:1.5mm;margin-top:1.5mm;}
+.kpi .si b{color:var(--red);}
+.big{text-align:center;}
+.big .v{font:800 34pt 'Baloo 2',sans-serif;line-height:1;}
+.big .l{font:600 11pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:2mm;}
+.big .s{font-size:9.5pt;color:var(--soft);margin-top:1mm;}
+
+/* flux technique */
+.flux{display:flex;align-items:stretch;gap:3mm;}
+.flux .boite{flex:1;background:#fff;border:.3mm solid #DCEBEE;border-radius:5mm;padding:5mm;text-align:center;box-shadow:0 3mm 8mm -5mm rgba(30,58,66,.25);}
+.flux .boite .ic{font-size:22pt;margin-bottom:2mm;}
+.flux .boite .t{font:700 13pt 'Baloo 2',sans-serif;color:var(--navy);}
+.flux .boite .s{font-size:10pt;margin-top:1mm;line-height:1.3;}
+.flux .fl{display:flex;align-items:center;font:700 18pt 'Baloo 2',sans-serif;color:var(--green);}
+.glose{font-size:9.5pt;color:var(--soft);line-height:1.35;border-top:.3mm solid #DCEBEE;padding-top:2.5mm;margin-top:4mm;}
+.glose b{color:var(--blue);}
+
+/* frise d'avancement */
+.frise{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;}
+.frise .barre{height:3mm;border-radius:2mm;background:var(--lav-2);margin-bottom:3.5mm;}
+.frise .fait .barre{background:var(--grad);}
+.frise .encours .barre{background:linear-gradient(90deg,#2F6B7A 0%,#5FA3AE 50%,var(--lav-2) 50%);}
+.frise .d{font-size:9.5pt;color:var(--soft);}
+.frise .t{font:800 13pt 'Baloo 2',sans-serif;color:var(--navy);line-height:1.15;margin:.5mm 0 1mm;}
+.frise .c{font-size:10pt;line-height:1.3;}
+
+/* ODD */
 .odd{display:flex;align-items:center;gap:4mm;}
-.odd .num{
-  flex:none;width:17mm;height:17mm;border-radius:3.5mm;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Baloo 2',sans-serif;font-size:20pt;font-weight:800;color:#fff;
-}
-.odd .t{font-family:'Baloo 2',sans-serif;font-size:13pt;font-weight:700;color:var(--ink);line-height:1.1;}
-.odd .s{font-size:10pt;color:var(--ink-soft);margin-top:1mm;line-height:1.3;}
+.odd .num{flex:none;width:17mm;height:17mm;border-radius:3.5mm;display:flex;align-items:center;justify-content:center;font:800 19pt 'Baloo 2',sans-serif;color:#fff;}
+.odd .t{font:700 12pt 'Baloo 2',sans-serif;color:var(--navy);line-height:1.15;}
 
-.pied{position:absolute;left:20mm;right:34mm;bottom:7mm;font-size:10pt;color:var(--ink-soft);}
-.sombre .pied{color:rgba(255,255,255,.5);}
+/* QR stylisé */
+.qr{width:40mm;height:40mm;padding:3mm;background:#fff;border-radius:3mm;box-shadow:0 3mm 8mm -4mm rgba(30,58,66,.4);
+  background-image:
+    linear-gradient(#1E3A42,#1E3A42),linear-gradient(#1E3A42,#1E3A42),linear-gradient(#1E3A42,#1E3A42),
+    repeating-conic-gradient(#1E3A42 0 25%,#fff 0 50%);
+  background-size:10mm 10mm,10mm 10mm,10mm 10mm,4.2mm 4.2mm;
+  background-position:3mm 3mm,27mm 3mm,3mm 27mm,0 0;background-repeat:no-repeat,no-repeat,no-repeat,repeat;background-origin:content-box;position:relative;}
+.qr img{position:absolute;left:50%;top:50%;width:12mm;transform:translate(-50%,-50%);background:#fff;border-radius:2mm;padding:1mm;}
 </style>
 </head>
 <body>
 
-<!-- ===================== 1. COUVERTURE ===================== -->
-<section class="slide sombre couv" data-n="1">
-  <div class="couv-marque">
-    <img src="assets/images/logo.png" alt="">
-    <span>Scubanion</span>
+<!-- ====================================================== 1. COUVERTURE -->
+<section class="slide" data-n="1">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span><span class="on">Accueil</span><span>Le jeu</span><span>Les bornes</span><span>Contact</span><i class="burger"></i></div>
+  <div class="flex1" style="display:grid;grid-template-columns:1.15fr 1fr;align-items:center;">
+    <div style="padding-left:12mm;">
+      <h1 style="font-size:66pt;font-weight:900;line-height:1;"><span class="g">Scubanion</span></h1>
+      <p style="font:500 12pt 'Baloo 2',sans-serif;color:var(--navy-2);margin:4mm 0 8mm;">Un compagnon virtuel · Tes vrais pas · Tes vraies rencontres</p>
+      <div style="display:flex;gap:9mm;align-items:center;">
+        <span class="btn">Découvrir</span>
+        <span class="play"><i>▶</i>Voir le film de la borne</span>
+      </div>
+      <p class="petit" style="margin-top:12mm;">SAÉ BUT3-IoT 2026-27 · BUT 3 Informatique · équipe Scubatana<br>
+        BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena<br>
+        Comité directeur : E. Rochard · M.-A. Peraldi · N. Ferry · J. Courtoisier<br>
+        Soutenance : ⟨ date ⟩</p>
+    </div>
+    <div style="height:100%;display:flex;justify-content:center;align-items:flex-end;margin-bottom:-14mm;">
+      <img class="tel" src="assets/images/maquette-accueil.png" alt="Écran d'accueil de l'application" style="max-height:165mm;">
+    </div>
   </div>
-
-  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
-    <h1>Un compagnon virtuel<br>qui ne grandit que si l'on sort</h1>
-    <div class="regle"></div>
-    <p class="slogan">« Il ne grandit que si <em>toi</em> tu sors. »</p>
-  </div>
-
-  <dl class="identite">
-    <div><dt>Projet</dt><dd>SAÉ BUT3-IoT 2026-27</dd></div>
-    <div><dt>Équipe</dt><dd>Scubatana</dd></div>
-    <div><dt>Membres</dt><dd>BANDIERAS Thomas &middot; DALMASSO Evan<br>KARROUCHI Hamza &middot; LESUEUR Shaleena</dd></div>
-    <div><dt>Diplôme</dt><dd>BUT 3 Informatique</dd></div>
-    <div><dt>Comité directeur</dt><dd>E. Rochard &middot; M.-A. Peraldi<br>N. Ferry &middot; J. Courtoisier</dd></div>
-    <div><dt>Soutenance</dt><dd>⟨ date ⟩</dd></div>
-  </dl>
+  <div class="points" style="right:6mm;bottom:20mm;"></div>
 </section>
 
-<!-- ===================== 2. PLAN ===================== -->
+<!-- ====================================================== 2. SITUATIONS -->
 <section class="slide" data-n="2">
-  <h2>Le fil de la présentation</h2>
-  <p class="chapo">Dix minutes, cinq temps. Chacun répond à une question qu'un client, un
-    partenaire ou un financeur se poserait.</p>
+  <h2 class="centre" style="font-weight:400;font-size:34pt;color:var(--navy-2);margin-top:4mm;">Vous vous reconnaissez dans ces situations ?</h2>
+  <div class="flex1 grille g3" style="align-items:center;gap:10mm;padding:0 4mm;">
+    <div class="centre">
+      <div class="ovale" style="height:62mm;background:linear-gradient(160deg,#1E3A42,#2F6B7A);display:flex;align-items:center;justify-content:center;font-size:60pt;">🛋️</div>
+      <p style="font:500 13pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:4mm;">Une journée entière sans sortir</p>
+    </div>
+    <div class="centre">
+      <div class="ovale" style="height:62mm;background:linear-gradient(160deg,#2F6B7A,#8FB9C2);display:flex;align-items:center;justify-content:center;font-size:60pt;">📱</div>
+      <p style="font:500 13pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:4mm;">Cinq heures d'écran par jour</p>
+    </div>
+    <div class="centre">
+      <div class="ovale" style="height:62mm;background:linear-gradient(160deg,#8FB9C2,#5FA3AE);display:flex;align-items:center;justify-content:center;font-size:60pt;">☕</div>
+      <p style="font:500 13pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:4mm;">Mille contacts, personne pour un café</p>
+    </div>
+  </div>
+</section>
 
-  <div class="corps grille g-2-1" style="align-items:start;">
+<!-- ====================================================== 3. CHIFFRES CLÉS -->
+<section class="slide" data-n="3">
+  <h2 class="centre" style="font-size:31pt;font-weight:900;">À Paris, une étudiante comme Léa fait<br><span class="g">3 500 pas par jour</span> seulement</h2>
+  <div class="flex1 grille g2" style="gap:12mm 26mm;padding:12mm 30mm 0;align-content:center;">
+    <div class="cle"><div class="r">1</div><div class="t">Pas par jour de Léa, 20 ans,<br>notre premier persona</div><div class="v g">3 500 pas</div></div>
+    <div class="cle"><div class="r">2</div><div class="t">Temps d'écran quotidien<br>de cette même étudiante</div><div class="v g">5 heures</div></div>
+    <div class="cle"><div class="r">3</div><div class="t">18-30 ans à Paris, sur Android,<br>équipés d'un podomètre</div><div class="v g">≈ 200 000</div></div>
+    <div class="cle"><div class="r">4</div><div class="t">Durée de vie d'une appli de santé<br>avant l'abandon</div><div class="v g">quelques semaines</div></div>
+  </div>
+  <p class="note">Les chiffres 1 et 2 sont ceux de nos personas (Business Model Canvas). Le chiffre 3 est une estimation de marché à sourcer.</p>
+</section>
+
+<!-- ====================================================== 4. PROBLÉMATIQUE -->
+<section class="slide degrade" data-n="4">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span><span>Accueil</span><span>Le jeu</span><span>Les bornes</span><span>Contact</span><i class="burger"></i></div>
+  <div class="flex1" style="display:grid;grid-template-columns:1.3fr 1fr;align-items:center;gap:10mm;">
+    <div>
+      <div style="height:.4mm;background:rgba(255,255,255,.7);width:80%;margin-bottom:9mm;"></div>
+      <h2 style="font-size:36pt;font-weight:800;line-height:1.3;">Comment réadapter l'homme à son environnement, et donner aux jeunes urbains une raison de sortir&nbsp;?</h2>
+      <div style="height:.4mm;background:rgba(255,255,255,.7);width:60%;margin-top:9mm;"></div>
+    </div>
+    <div style="position:relative;height:130mm;">
+      <img src="assets/images/story-musee-1-marche.jpg" alt="" style="position:absolute;right:0;top:0;width:78mm;height:62mm;object-fit:cover;border-radius:8mm;border:1mm solid rgba(255,255,255,.8);">
+      <img src="assets/images/story-tratt-1-marche.jpg" alt="" style="position:absolute;left:0;bottom:0;width:84mm;height:66mm;object-fit:cover;border-radius:8mm;border:1mm solid rgba(255,255,255,.8);">
+      <span style="position:absolute;left:12mm;top:14mm;font-size:22pt;color:#fff;">✦</span>
+      <span style="position:absolute;right:6mm;bottom:20mm;font-size:30pt;color:#DCEBEE;">✦</span>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 5. ÉQUIPE -->
+<section class="slide" data-n="5">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span><span>Accueil</span><span>Le jeu</span><span class="on">Équipe</span><span>Contact</span><i class="burger"></i></div>
+  <div style="display:flex;align-items:center;gap:5mm;"><div style="width:14mm;height:.5mm;background:var(--navy);"></div><h2>Présentation de l'équipe <span style="color:var(--blue);">✦</span></h2><div style="flex:1;height:.5mm;background:var(--navy);"></div></div>
+  <div class="flex1 grille g3" style="gap:10mm 8mm;align-content:center;padding:0 4mm;">
+    <div class="membre"><div class="avatar">TB</div><div><div class="nm g">Thomas<br>Bandieras</div><div class="rl">Infrastructure et exploitation<br>CI/CD, supervision, tests</div></div></div>
+    <div class="membre"><div class="avatar">ED</div><div><div class="nm g">Evan<br>Dalmasso</div><div class="rl">Produit et relation utilisateur<br>Application mobile</div></div></div>
+    <div class="membre"><div class="avatar">HK</div><div><div class="nm g">Hamza<br>Karrouchi</div><div class="rl">Plateforme et données<br>Serveur, API, modèle de données</div></div></div>
+    <div class="membre"><div class="avatar">SL</div><div><div class="nm g">Shaleena<br>Lesueur</div><div class="rl">Matériel et parc de bornes<br>Borne IoT, MQTT</div></div></div>
+    <div class="membre"><div class="avatar vide">+</div><div><div class="nm" style="color:#8FB9C2;">Commercial<br>B2B</div><div class="rl">Premier recrutement, au financement d'amorçage</div></div></div>
+    <div class="membre"><div class="avatar vide">+</div><div><div class="nm" style="color:#8FB9C2;">Développeur</div><div class="rl">Second recrutement, pour tenir le rythme produit</div></div></div>
+  </div>
+  <div class="points" style="left:4mm;bottom:6mm;"></div>
+</section>
+
+<!-- ====================================================== 6. LE COMPAGNON -->
+<section class="slide" data-n="6">
+  <div class="pan gch"><img class="tel" src="assets/images/maquette-accueil.png" alt="Le compagnon dans l'application" style="max-height:150mm;"></div>
+  <div style="margin-left:126mm;flex:1;display:flex;flex-direction:column;justify-content:center;">
+    <h2 style="font-size:36pt;" class="g">Un compagnon vivant</h2>
+    <p class="sous">Il ne grandit que si <strong>toi</strong> tu sors</p>
+    <div class="trait"></div>
+    <div class="nums">
+      <div class="l"><div class="n">01</div><div class="t">Il grandit avec tes vrais pas<small>Le podomètre du téléphone compte, sans rien acheter</small></div></div>
+      <div class="l"><div class="n">02</div><div class="t">Il s'étiole si tu restes chez toi<small>Humeur, santé, niveau : tout dépend de l'activité réelle</small></div></div>
+      <div class="l"><div class="n">03</div><div class="t">Il demande, il ne gronde jamais<small>« Hey, on sort ? » plutôt qu'une courbe culpabilisante</small></div></div>
+    </div>
+  </div>
+  <div class="points" style="right:6mm;top:8mm;"></div>
+</section>
+
+<!-- ====================================================== 7. LES QUÊTES -->
+<section class="slide" data-n="7">
+  <div class="pan d"><img class="tel" src="assets/images/maquette-quetes.png" alt="L'écran des quêtes" style="max-height:150mm;"></div>
+  <div style="margin-right:126mm;flex:1;display:flex;flex-direction:column;justify-content:center;">
+    <h2 style="font-size:36pt;" class="g">Des quêtes dans<br>ton quartier</h2>
+    <p class="sous">Le moteur qui envoie vers des lieux réels</p>
+    <div class="trait"></div>
+    <div class="nums">
+      <div class="l"><div class="n">01</div><div class="t">Une première quête à moins de 500 m<small>Le premier succès tombe le premier jour</small></div></div>
+      <div class="l"><div class="n">02</div><div class="t">Quiz, photos de sortie, nouveaux lieux<small>Et un défi de la semaine, orienté par ton ambition</small></div></div>
+    </div>
+  </div>
+  <div class="points" style="left:4mm;bottom:8mm;"></div>
+</section>
+
+<!-- ====================================================== 8. LES BORNES -->
+<section class="slide" data-n="8">
+  <div class="pan gch" style="width:130mm;padding:0;"><img src="assets/images/story-musee-5-debloque.jpg" alt="Objet débloqué à la borne" style="width:100%;height:100%;object-fit:cover;"></div>
+  <div style="margin-left:138mm;flex:1;display:flex;flex-direction:column;justify-content:center;">
+    <h2 style="font-size:36pt;" class="g">Des bornes chez<br>nos partenaires</h2>
+    <p class="sous">Musées, cafés, parcs : le jeu devient un lieu</p>
+    <div class="trait"></div>
+    <div class="nums">
+      <div class="l"><div class="n">01</div><div class="t">On approche le téléphone<small>Comme un paiement sans contact : rien à saisir</small></div></div>
+      <div class="l"><div class="n">02</div><div class="t">Un objet exclusif au lieu<small>On ne l'obtient qu'en y étant allé</small></div></div>
+      <div class="l"><div class="n">03</div><div class="t">Une preuve de passage pour le lieu<small>C'est ce que nous vendons : un visiteur vérifié</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 9. LES AMIS -->
+<section class="slide" data-n="9">
+  <div class="pan d" style="gap:0;"><img class="tel" src="assets/images/maquette-amis.png" alt="Les amis" style="max-height:118mm;margin-right:-14mm;margin-top:-20mm;"><img class="tel" src="assets/images/maquette-carte.png" alt="La carte" style="max-height:118mm;margin-top:24mm;"></div>
+  <div style="margin-right:126mm;flex:1;display:flex;flex-direction:column;justify-content:center;">
+    <h2 style="font-size:36pt;" class="g">Des amis qu'on<br>croise vraiment</h2>
+    <p class="sous">Un réseau social dont le fil est le monde réel</p>
+    <div class="trait"></div>
+    <div class="nums">
+      <div class="l"><div class="n">01</div><div class="t">On n'écrit qu'aux joueurs croisés<small>Ou à ceux de son quartier : se déplacer donne accès</small></div></div>
+      <div class="l"><div class="n">02</div><div class="t">Guildes et classement de quartier<small>On s'inscrit parce que ses voisins y sont</small></div></div>
+      <div class="l"><div class="n">03</div><div class="t">Un bonus quand deux compagnons se croisent<small>Le social se vit dehors, pas dans un fil</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 10. LE PARADOXE -->
+<section class="slide" data-n="10">
+  <h2>Le paradoxe du jeune urbain</h2>
+  <p class="sous" style="margin-bottom:9mm;">Connecté en permanence, mais assis et seul</p>
+  <div class="flex1" style="display:grid;grid-template-columns:1fr 26mm 1fr;align-items:center;gap:6mm;padding:0 6mm 8mm;">
+    <div class="carte rouge" style="height:100%;">
+      <div class="ic">🪑</div>
+      <h3>La sédentarité</h3>
+      <p style="margin-top:3mm;">Les applications de santé <strong>mesurent et affichent</strong>. Elles produisent des courbes que personne ne regarde.</p>
+      <p>Aucun attachement : <strong>l'abandon arrive en quelques semaines</strong>.</p>
+    </div>
+    <svg viewBox="0 0 100 60" style="width:100%;"><g fill="none" stroke="#C8452F" stroke-width="3"><path d="M5 28 q10-12 20 0 t20 0 t20 0 t20 0 t10 0"/><path d="M5 40 q10-12 20 0 t20 0 t20 0 t20 0 t10 0"/><path d="M28 20 a22 22 0 0 1 44 0"/></g></svg>
+    <div class="carte rouge" style="height:100%;">
+      <div class="ic">📵</div>
+      <h3>L'isolement</h3>
+      <p style="margin-top:3mm;">Les réseaux sociaux <strong>remplacent la rencontre</strong> au lieu de la provoquer.</p>
+      <p>Mille contacts, et <strong>personne à qui proposer un café</strong> à dix minutes à pied.</p>
+    </div>
+  </div>
+  <div class="points" style="right:6mm;bottom:6mm;"></div>
+</section>
+
+<!-- ====================================================== 11. NOTRE RÉPONSE -->
+<section class="slide" data-n="11">
+  <h2 class="g" style="font-size:34pt;">Scubanion</h2>
+  <p class="sous" style="margin-bottom:9mm;">Faire de la sortie un réflexe, pas une corvée</p>
+  <div class="flex1" style="display:grid;grid-template-columns:1fr 26mm 1fr;align-items:center;gap:6mm;padding:0 6mm 8mm;">
+    <div class="carte bleue" style="height:100%;">
+      <div class="ic">🐋</div>
+      <h3>Attacher plutôt que mesurer</h3>
+      <p style="margin-top:3mm;">Un être vivant à charge, dont l'état dépend de vous : <strong>l'affect remplace la statistique</strong>.</p>
+      <p>Le ressort du Tamagotchi, appliqué à la marche.</p>
+    </div>
+    <svg viewBox="0 0 100 60" style="width:100%;"><g fill="none" stroke="#2F6B7A" stroke-width="3"><path d="M5 28 q10-12 20 0 t20 0 t20 0 t20 0 t10 0"/><path d="M5 40 q10-12 20 0 t20 0 t20 0 t20 0 t10 0"/><path d="M28 20 a22 22 0 0 1 44 0"/></g></svg>
+    <div class="carte bleue" style="height:100%;">
+      <div class="ic">🗿</div>
+      <h3>Envoyer dehors, pas retenir</h3>
+      <p style="margin-top:3mm;">Les récompenses sont <strong>attachées à des lieux réels</strong> : il faut y aller pour les obtenir.</p>
+      <p>Et les rencontres ne se font qu'entre joueurs <strong>qui se sont croisés</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 12. NOS PROMESSES -->
+<section class="slide" data-n="12" style="padding:0;">
+  <img src="assets/images/story-musee-6-equiper.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;">
+  <div style="position:absolute;top:0;bottom:0;right:0;width:215mm;background:var(--grad);clip-path:polygon(22% 0,100% 0,100% 100%,0 100%);z-index:0;"></div>
+  <div style="position:absolute;top:13mm;right:12mm;width:136mm;color:#fff;">
+    <h2 style="color:#fff;font-size:24pt;line-height:1.25;">Nous créons l'application<br>dont NOUS aurions besoin</h2>
+    <div style="display:flex;flex-direction:column;gap:7mm;margin-top:9mm;">
+      <div style="display:flex;gap:5mm;align-items:center;"><div style="flex:none;width:20mm;height:20mm;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18pt;">🚫</div><div><h4 style="color:#fff;">Aucune publicité</h4><p class="petit" style="color:#fff;">Un produit qui prétend réduire le temps d'écran ne peut pas vivre de l'attention qu'il capte.</p></div></div>
+      <div style="display:flex;gap:5mm;align-items:center;margin-left:14mm;"><div style="flex:none;width:20mm;height:20mm;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18pt;">🔒</div><div><h4 style="color:#fff;">Aucune revente de données</h4><p class="petit" style="color:#fff;">Pas d'historique de position conservé, suppression du compte en deux gestes.</p></div></div>
+      <div style="display:flex;gap:5mm;align-items:center;margin-left:28mm;"><div style="flex:none;width:20mm;height:20mm;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18pt;">⚖️</div><div><h4 style="color:#fff;">L'XP ne s'achète jamais</h4><p class="petit" style="color:#fff;">Seule l'activité réelle fait progresser. On vend l'apparence, pas la performance.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 13. VS -->
+<section class="slide" data-n="13">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span><span>Accueil</span><span class="on">Le jeu</span><span>Les bornes</span><span>Contact</span><i class="burger"></i></div>
+  <div class="flex1" style="display:grid;grid-template-columns:1fr 34mm 1fr;align-items:center;gap:4mm;">
+    <div>
+      <h3 class="centre" style="font-size:22pt;margin-bottom:4mm;">📍 Jeux géolocalisés</h3>
+      <div class="carte rouge" style="background:#FBE2D5;color:var(--navy);text-align:center;border:.6mm solid #C8452F;">
+        <p><strong style="color:var(--navy);">Audience mondiale, marque installée</strong></p>
+        <p>On marche pour jouer, et c'est déjà beaucoup</p>
+        <p>Achats en jeu de 0,99 € à 99 €</p>
+        <div style="height:.4mm;background:#C8452F;margin:3mm 0;"></div>
+        <p style="font-weight:700;">Mais on marche les yeux sur l'écran : le lieu n'est qu'une coordonnée, et personne ne s'y rencontre.</p>
+      </div>
+      <div class="centre" style="margin-top:-4mm;"><span style="display:inline-flex;width:11mm;height:11mm;border-radius:50%;background:#C8452F;color:#fff;align-items:center;justify-content:center;font:800 13pt 'Baloo 2';border:1mm solid #fff;">✕</span></div>
+    </div>
+    <div class="centre" style="font:900 48pt 'Baloo 2',sans-serif;color:var(--navy);">VS</div>
+    <div>
+      <h3 class="centre" style="font-size:22pt;margin-bottom:4mm;"><span class="g">🐋 Scubanion</span></h3>
+      <div class="carte" style="background:#E4F1F3;text-align:center;border:.6mm solid #8FB9C2;">
+        <p><strong>Un compagnon à qui l'on tient</strong></p>
+        <p><strong>La borne oblige à lever les yeux</strong> : la récompense appartient à un lieu</p>
+        <p><strong>Rencontres physiques</strong> : on ne parle qu'à ceux qu'on a croisés</p>
+        <p><strong>Rien à acheter</strong>, aucune publicité, XP jamais vendue</p>
+        <p><strong>Un client qui paie</strong> : le lieu, pour du passage vérifié</p>
+      </div>
+      <div class="centre" style="margin-top:-4mm;"><span style="display:inline-flex;width:11mm;height:11mm;border-radius:50%;background:var(--green);color:#fff;align-items:center;justify-content:center;font:800 13pt 'Baloo 2';border:1mm solid #fff;">✓</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 14. CE QUI NOUS DIFFÉRENCIE -->
+<section class="slide" data-n="14">
+  <h2 class="centre">Ce qui nous différencie</h2>
+  <div class="centre" style="display:flex;gap:9mm;justify-content:center;margin:3mm 0 1mm;font:500 10pt 'Baloo 2',sans-serif;color:var(--navy);">
+    <span><span class="pt" style="background:#F0855A;"></span>Scubanion</span>
+    <span><span class="pt" style="background:#C8452F;"></span>Jeux géolocalisés</span>
+    <span><span class="pt" style="background:#8FB9C2;"></span>Applis de suivi d'activité</span>
+  </div>
+  <svg class="flex1" viewBox="0 0 1000 360" preserveAspectRatio="xMidYMid meet" style="width:100%;font-family:Inter,sans-serif;">
+    <g stroke="#DCEBEE" stroke-width="1.5">
+      <line x1="60" y1="40" x2="980" y2="40"/><line x1="60" y1="105" x2="980" y2="105"/><line x1="60" y1="170" x2="980" y2="170"/><line x1="60" y1="235" x2="980" y2="235"/><line x1="60" y1="300" x2="980" y2="300"/>
+    </g>
+    <g font-size="14" fill="#4C6B73" text-anchor="end"><text x="50" y="45">100</text><text x="50" y="110">75</text><text x="50" y="175">50</text><text x="50" y="240">25</text><text x="50" y="305">0</text></g>
+    <polyline fill="none" stroke="#8FB9C2" stroke-width="3.5" points="120,274 280,196 440,287 600,300 760,144 920,92"/>
+    <polyline fill="none" stroke="#C8452F" stroke-width="3.5" points="120,170 280,92 440,196 600,248 760,66 920,40"/>
+    <polyline fill="none" stroke="#F0855A" stroke-width="4.5" points="120,53 280,53 440,66 600,66 760,40 920,261"/>
+    <g fill="#F0855A"><circle cx="120" cy="53" r="6"/><circle cx="280" cy="53" r="6"/><circle cx="440" cy="66" r="6"/><circle cx="600" cy="66" r="6"/><circle cx="760" cy="40" r="6"/><circle cx="920" cy="261" r="6"/></g>
+    <g font-size="15" fill="#1E3A42" text-anchor="middle" font-weight="600">
+      <text x="120" y="335">Attachement</text><text x="280" y="335">Sortie réelle</text><text x="440" y="335">Rencontre physique</text>
+      <text x="600" y="335">Lieux partenaires</text><text x="760" y="335">Rien à acheter</text><text x="920" y="335">Taille d'audience</text>
+    </g>
+  </svg>
+  <p class="note">Notation de l'équipe, de 0 à 100, tirée de l'analyse concurrentielle du marketing mix. Notre seul point faible est assumé : l'audience reste à construire.</p>
+</section>
+
+<!-- ====================================================== 15. SWOT -->
+<section class="slide" data-n="15">
+  <h2>Analyse SWOT</h2>
+  <p class="sous" style="margin-bottom:5mm;">Lue à l'échelle de l'entreprise, pas du projet étudiant</p>
+  <div class="flex1 swot">
+    <div class="q s"><h4 style="color:#1C6B3F;">💪 Forces · interne</h4><ul>
+      <li>Équipe technique complète, preuve de concept qui avance</li>
+      <li>Coût d'acquisition quasi nul : la borne recrute là où l'on passe</li>
+      <li>Rien à acheter pour l'utilisateur</li>
+      <li>Savoir-faire rare : NFC, MQTT, Android bas niveau</li></ul></div>
+    <div class="q w"><h4 style="color:#C8452F;">⚠️ Faiblesses · interne</h4><ul>
+      <li><strong>Aucune compétence commerciale</strong>, alors que le B2B porte 85 % du revenu</li>
+      <li>Aucun financement, aucune trésorerie</li>
+      <li>Notoriété nulle, aucune référence client</li>
+      <li>Effet de réseau difficile à amorcer</li></ul></div>
+    <div class="q o"><h4 style="color:var(--blue);">🚀 Opportunités · externe</h4><ul>
+      <li>Sédentarité devenue politique publique : budgets sport-santé</li>
+      <li>Budgets qualité de vie au travail en hausse</li>
+      <li>Lassitude des réseaux sociaux chez les 18-25 ans</li>
+      <li>Commerces de proximité en quête de trafic mesurable</li></ul></div>
+    <div class="q t"><h4 style="color:#8A6410;">🌩️ Menaces · externe</h4><ul>
+      <li><strong>Un acteur installé copie la mécanique</strong></li>
+      <li>Durcissement du RGPD sur les données de santé</li>
+      <li>Churn brutal des jeux mobiles après trois mois</li>
+      <li>Saisonnalité : on marche peu de novembre à février</li></ul></div>
+  </div>
+  <p class="note">Croisement le plus dangereux : « aucune compétence commerciale » × « un acteur installé copie ». D'où le recrutement d'un commercial avant un second développeur.</p>
+</section>
+
+<!-- ====================================================== 16. MATRICE DES RISQUES -->
+<section class="slide" data-n="16">
+  <h2>Gestion des risques</h2>
+  <p class="sous" style="margin-bottom:5mm;">Douze risques, classés par fréquence et gravité</p>
+  <div class="flex1 grille" style="grid-template-columns:1.45fr 1fr;align-items:start;">
+    <div class="matrice">
+      <div></div><div class="h">Catastro&shy;phique</div><div class="h">Critique</div><div class="h">Important</div><div class="h">Marginal</div><div class="h">Négli&shy;geable</div>
+      <div class="h" style="justify-content:flex-end;">Fréquent</div><div class="c c4"></div><div class="c c4"></div><div class="c c4"><b>R9</b></div><div class="c c4"><b>R12</b></div><div class="c c3"></div>
+      <div class="h" style="justify-content:flex-end;">Probable</div><div class="c c4"><b>R1</b></div><div class="c c4"><b>R3</b><b>R5</b></div><div class="c c4"><b>R8</b></div><div class="c c3"><b>R10</b></div><div class="c c2"></div>
+      <div class="h" style="justify-content:flex-end;">Occasionnel</div><div class="c c4"><b>R2</b></div><div class="c c3"><b>R4</b></div><div class="c c3"><b>R7</b></div><div class="c c2"></div><div class="c c2"></div>
+      <div class="h" style="justify-content:flex-end;">Rare</div><div class="c c3"><b>R6</b></div><div class="c c2"></div><div class="c c2"><b>R11</b></div><div class="c c1"></div><div class="c c1"></div>
+      <div class="h" style="justify-content:flex-end;">Improbable</div><div class="c c2"></div><div class="c c2"></div><div class="c c1"></div><div class="c c1"></div><div class="c c1"></div>
+    </div>
     <div>
       <table>
-        <thead>
-          <tr><th style="width:12mm;"></th><th>Ce qu'on raconte</th><th>La question à laquelle on répond</th><th class="num" style="width:20mm;">Durée</th></tr>
-        </thead>
-        <tbody>
-          <tr><td class="k">I</td><td class="k">Le problème et notre réponse</td><td>Pourquoi ce projet existe, et ce qu'il est</td><td class="num">2 min</td></tr>
-          <tr><td class="k">II</td><td class="k">Comment ça marche</td><td>Est-ce que c'est faisable, et bien conçu ?</td><td class="num">2 min</td></tr>
-          <tr><td class="k">III</td><td class="k">Le modèle économique</td><td>Qui paie, combien, et pourquoi il accepterait</td><td class="num">2 min 30</td></tr>
-          <tr><td class="k">IV</td><td class="k">Responsabilité et pilotage</td><td>Est-ce tenable, et est-ce maîtrisé ?</td><td class="num">2 min</td></tr>
-          <tr><td class="k">V</td><td class="k">Où on en est, et la suite</td><td>Qu'avez-vous livré, et que reste-t-il ?</td><td class="num">1 min 30</td></tr>
+        <thead><tr><th>#</th><th>Risque</th></tr></thead>
+        <tbody class="tres-petit">
+          <tr><td><b>R1</b></td><td>Financement d'amorçage non obtenu</td></tr>
+          <tr><td><b>R2</b></td><td>Aucun lieu n'accepte de payer</td></tr>
+          <tr><td><b>R3</b></td><td>Rétention insuffisante des joueurs</td></tr>
+          <tr><td><b>R4</b></td><td>Un acteur installé copie la mécanique</td></tr>
+          <tr><td><b>R5</b></td><td>Départ d'un associé fondateur</td></tr>
+          <tr><td><b>R6</b></td><td>Sanction RGPD ou incident de données</td></tr>
+          <tr><td><b>R7 · R8</b></td><td>Tension composants · borne en retard</td></tr>
+          <tr><td><b>R9 · R10</b></td><td>Contributions déséquilibrées · périmètre</td></tr>
+          <tr><td><b>R11 · R12</b></td><td>Dépendance au Play Store · saisonnalité</td></tr>
         </tbody>
       </table>
     </div>
-
-    <div class="carte accent">
-      <h4>Le fil rouge</h4>
-      <p class="petit">Chaque affirmation de cette présentation est <strong>adossée à un
-        document</strong> : la charte de projet, le cahier des charges, le Business Model
-        Canvas ou les entretiens de terrain.</p>
-      <p class="petit" style="margin-top:3mm;">Rien n'est avancé sans sa source, et ce qui
-        reste une hypothèse est annoncé comme telle.</p>
-    </div>
   </div>
-
-  <p class="pied">Les questions viennent après. Une annexe est prévue pour y répondre avec des chiffres.</p>
+  <p class="note">Chaque risque a un plan préventif et un plan correctif dans la charte de projet. Les trois suivants décident si l'entreprise existe.</p>
 </section>
 
-<!-- ===================== 3. LE PROBLÈME ===================== -->
-<section class="slide" data-n="3">
-  <h2>Deux maux qui se nourrissent</h2>
-  <p class="chapo">Le sujet imposé : <strong>comment réadapter l'homme à son environnement&nbsp;?</strong>
-    Nous l'avons resserré sur les 18-30 ans urbains.</p>
-
-  <div class="corps grille g2">
-    <div class="carte">
-      <h3>📉 La sédentarité</h3>
-      <p>Les applications de santé <strong>mesurent et affichent</strong>. Elles produisent des
-        courbes que personne ne regarde.</p>
-      <p class="petit gris">L'abandon arrive en quelques semaines : rien n'attache.</p>
-    </div>
-    <div class="carte">
-      <h3>📱 L'isolement</h3>
-      <p>Les réseaux sociaux <strong>remplacent la rencontre</strong> au lieu de la provoquer.</p>
-      <p class="petit gris">Mille contacts, et personne à qui proposer un café à dix minutes.</p>
-    </div>
+<!-- ====================================================== 17. RISQUE R1 -->
+<section class="slide" data-n="17">
+  <div class="coin"></div><div class="coin-img">💸</div><img class="coin-logo" src="assets/images/logo.png" alt="">
+  <h2>Gestion des risques</h2>
+  <p class="sous" style="font-size:18pt;">R1 · Le financement d'amorçage n'est pas obtenu</p>
+  <div class="flex1" style="display:flex;align-items:center;">
+    <div class="bande"><span class="chip rouge">CRITIQUE · IV</span><ul>
+      <li class="fl">Candidater à plusieurs dispositifs en parallèle dès janvier</li>
+      <li class="fl">Entrer en incubateur pour gagner en crédibilité</li>
+      <li class="fl">Signer deux contrats avant de démarcher un financeur</li>
+      <li class="fl" style="opacity:.85;">Sinon : autofinancement à parc réduit</li></ul></div>
   </div>
+  <div class="points" style="left:20mm;bottom:8mm;"></div>
+</section>
 
-  <div class="carte pleine" style="margin-top:5.5mm;">
-    <p style="font-size:14.5pt;margin:0;">
-      <strong>Notre pari</strong> : un attachement affectif fait ce qu'un graphique de pas ne fera
-      jamais — et l'objet connecté doit <strong>envoyer dehors</strong>, pas retenir devant l'écran.
-    </p>
+<!-- ====================================================== 18. RISQUE R2 -->
+<section class="slide" data-n="18">
+  <div class="coin"></div><div class="coin-img">🏪</div><img class="coin-logo" src="assets/images/logo.png" alt="">
+  <h2>Gestion des risques</h2>
+  <p class="sous" style="font-size:18pt;">R2 · Aucun lieu n'accepte de payer</p>
+  <div class="flex1" style="display:flex;align-items:center;">
+    <div class="bande"><span class="chip rouge">CRITIQUE · IV</span><ul>
+      <li class="fl">Pilote gratuit d'un mois, puis facturation sur chiffres réels</li>
+      <li class="fl">Part variable au passage vérifié : le risque passe chez nous</li>
+      <li class="fl" style="opacity:.85;">Sinon : la collectivité achète le parcours et équipe les lieux</li></ul></div>
+  </div>
+  <div class="points" style="left:20mm;bottom:8mm;"></div>
+</section>
+
+<!-- ====================================================== 19. RISQUE R3 -->
+<section class="slide" data-n="19">
+  <div class="coin"></div><div class="coin-img">📉</div><img class="coin-logo" src="assets/images/logo.png" alt="">
+  <h2>Gestion des risques</h2>
+  <p class="sous" style="font-size:18pt;">R3 · Les joueurs ne restent pas</p>
+  <div class="flex1" style="display:flex;align-items:center;">
+    <div class="bande"><span class="chip rouge">CRITIQUE · IV</span><ul>
+      <li class="fl">Mesurer la rétention à 30 jours dès le pilote</li>
+      <li class="fl">Guildes de quartier, exclusivités qui obligent à revenir</li>
+      <li class="fl">Quêtes d'intérieur l'hiver contre la saisonnalité</li>
+      <li class="fl" style="opacity:.85;">Sinon : B2B pur, parcours vendus aux collectivités</li></ul></div>
+  </div>
+  <div class="points" style="left:20mm;bottom:8mm;"></div>
+</section>
+
+<!-- ====================================================== 20-22. PERSONAS -->
+<section class="slide" data-n="20">
+  <div style="position:absolute;left:-30mm;top:-30mm;width:90mm;height:90mm;border-radius:50%;background:var(--grad-v);z-index:0;"></div>
+  <div class="flex1" style="display:flex;align-items:center;gap:16mm;padding-left:8mm;">
+    <div style="position:relative;"><div class="perso-photo">👩‍🎓</div><div class="perso-bulle" style="right:6mm;bottom:10mm;"></div></div>
+    <div style="flex:1;">
+      <div class="nav" style="margin:0 0 3mm;"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+      <span class="chip blanc">Cible #1</span>
+      <h2 style="font-size:34pt;margin-top:3mm;">Léa, 20 ans</h2>
+      <h3 style="color:var(--blue);margin-top:1mm;">L'étudiante sédentarisée, Paris 13e</h3>
+      <dl class="fiche">
+        <dt>Situation</dt><dd>2e année de BUT, studio CROUS, 650 €/mois dont ≈ 40 € de loisirs</dd>
+        <dt>Activité</dt><dd>3 500 pas par jour, 5 h d'écran</dd>
+        <dt>Frein</dt><dd>« Je connais personne et j'ai pas le budget »</dd>
+        <dt>Déclencheur</dt><dd>Ses amies y jouent : elle rejoint la guilde du 13e</dd>
+      </dl>
+    </div>
   </div>
 </section>
 
-<!-- ===================== 3. LA RÉPONSE ===================== -->
-<section class="slide" data-n="4">
-  <h2>Un compagnon, et des bornes</h2>
-  <div class="regle"></div>
+<section class="slide" data-n="21">
+  <div style="position:absolute;right:-30mm;bottom:-30mm;width:90mm;height:90mm;border-radius:50%;background:var(--grad-v);z-index:0;"></div>
+  <div class="flex1" style="display:flex;align-items:center;gap:16mm;padding-right:8mm;">
+    <div style="flex:1;padding-left:8mm;">
+      <div class="nav" style="margin:0 0 3mm;"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+      <span class="chip blanc">Cible #2</span>
+      <h2 style="font-size:34pt;margin-top:3mm;">Yanis, 27 ans</h2>
+      <h3 style="color:var(--blue);margin-top:1mm;">Le jeune actif en télétravail, Montreuil</h3>
+      <dl class="fiche">
+        <dt>Situation</dt><dd>Développeur, trois jours de télétravail, 2 400 €/mois net</dd>
+        <dt>Activité</dt><dd>4 000 pas en télétravail, 11 000 les jours de bureau</dd>
+        <dt>Frein</dt><dd>Abonné à une salle qu'il ne fréquente plus : il décroche vite</dd>
+        <dt>Déclencheur</dt><dd>La série de jours consécutifs et le classement du quartier</dd>
+      </dl>
+    </div>
+    <div style="position:relative;"><div class="perso-photo">👨‍💻</div><div class="perso-bulle" style="left:4mm;top:14mm;"></div></div>
+  </div>
+</section>
 
-  <div class="corps grille g-3-2" style="align-items:center;">
+<section class="slide" data-n="22">
+  <div style="position:absolute;left:-30mm;bottom:-30mm;width:90mm;height:90mm;border-radius:50%;background:var(--grad-v);z-index:0;"></div>
+  <div class="flex1" style="display:flex;align-items:center;gap:16mm;padding-left:8mm;">
+    <div style="position:relative;"><div class="perso-photo">👨‍👩‍👧</div><div class="perso-bulle" style="right:6mm;bottom:10mm;"></div></div>
+    <div style="flex:1;">
+      <div class="nav" style="margin:0 0 3mm;"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+      <span class="chip blanc">Cible #3</span>
+      <h2 style="font-size:34pt;margin-top:3mm;">Camille, 34 ans</h2>
+      <h3 style="color:var(--blue);margin-top:1mm;">Le parent en quête de sorties, Vincennes</h3>
+      <dl class="fiche">
+        <dt>Situation</dt><dd>En couple, deux enfants de 6 et 9 ans, foyer à 4 200 €/mois</dd>
+        <dt>Activité</dt><dd>7 000 pas par jour, essentiellement contraints</dd>
+        <dt>Frein</dt><dd>« Le samedi, c'est moi qui dois trouver l'idée, chaque semaine »</dd>
+        <dt>Déclencheur</dt><dd>Les quêtes familiales et les bornes des parcs</dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 23. PUBLIC CIBLE -->
+<section class="slide" data-n="23">
+  <div class="flex1" style="display:grid;grid-template-columns:1fr 1.15fr;align-items:center;gap:10mm;">
     <div>
-      <div class="flux" style="margin-bottom:5.5mm;">
-        <div class="boite"><div class="ic">🚶</div><div class="t">Tu marches</div><div class="s">le téléphone compte</div></div>
-        <div class="fleche">→</div>
-        <div class="boite"><div class="ic">🐋</div><div class="t">Il grandit</div><div class="s">chaque pas vaut des points</div></div>
-        <div class="fleche">→</div>
-        <div class="boite"><div class="ic">🗿</div><div class="t">Une borne</div><div class="s">chez un partenaire</div></div>
-        <div class="fleche">→</div>
-        <div class="boite"><div class="ic">🎩</div><div class="t">Un objet</div><div class="s">exclusif au lieu</div></div>
+      <h2 style="font-size:38pt;font-weight:900;">Public cible</h2>
+      <p style="font:600 12pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:3mm;">Paris intra-muros, pilote dans le 11e et le 19e</p>
+      <p style="margin-top:5mm;">Attentes communes : <strong>une raison de sortir</strong>, gratuite, qui ne culpabilise pas.</p>
+      <div class="carte lav" style="margin-top:6mm;">
+        <p class="petit"><strong>Et côté payeurs, quatre segments B2B</strong> : lieux à billetterie, commerces de proximité, collectivités et offices de tourisme, employeurs et mutuelles.</p>
       </div>
-      <p><strong>L'application est gratuite</strong> et le restera : elle construit l'audience.
-        Ce que nous vendons, c'est <strong>du passage vérifié</strong> — un visiteur réellement
-        présent sur place, pas une affiche que l'on espère regardée.</p>
-      <p class="petit gris">Et si l'on reste chez soi, le compagnon dépérit. C'est tout le ressort.</p>
     </div>
-    <figure class="tel">
-      <img src="assets/images/maquette-accueil.png" alt="Écran d'accueil de l'application">
-    </figure>
+    <div style="display:flex;align-items:center;gap:9mm;">
+      <div class="camembert" style="width:84mm;height:84mm;background:conic-gradient(#2F6B7A 0 45%,#5FA3AE 45% 80%,#F0855A 80% 92%,#8FB9C2 92% 100%);"></div>
+      <div class="leg">
+        <div><span class="pt" style="background:#2F6B7A;"></span><b>Étudiants 18-24 ans</b> · 45 %</div>
+        <div><span class="pt" style="background:#5FA3AE;"></span><b>Jeunes actifs 25-30 ans</b> · 35 %</div>
+        <div><span class="pt" style="background:#F0855A;"></span><b>Parents et familles</b> · 12 %</div>
+        <div><span class="pt" style="background:#8FB9C2;"></span><b>Visiteurs et touristes</b> · 8 %</div>
+      </div>
+    </div>
+  </div>
+  <p class="note">Répartition visée des joueurs au lancement : hypothèse de travail, à vérifier sur les 100 premiers testeurs.</p>
+  <div class="points" style="right:6mm;bottom:14mm;"></div>
+</section>
+
+<!-- ====================================================== 24. PROMOUVOIR 1 -->
+<section class="slide" data-n="24">
+  <h2>Où promouvoir <span class="g">Scubanion</span> 📍</h2>
+  <div class="flex1 grille g2" style="margin-top:6mm;gap:12mm;">
+    <div style="display:flex;flex-direction:column;">
+      <h4>La borne, notre panneau d'affichage</h4>
+      <p class="petit">Allumée, visible depuis la rue, avec un QR code : du passant au joueur en trois secondes.</p>
+      <img class="photo flex1" src="assets/images/story-musee-2-pose-nfc.jpg" alt="" style="margin-top:2mm;">
+    </div>
+    <div style="display:flex;flex-direction:column;">
+      <h4>Presse locale et mairies</h4>
+      <p class="petit">→ L'angle « des étudiants contre la sédentarité » est un sujet local tout trouvé.</p>
+      <div class="flex1 grille" style="grid-template-rows:1fr 1fr;gap:4mm;margin-top:2mm;">
+        <div class="carte lav"><div class="ic">📰</div><p class="petit"><strong>Presse régionale et médias de quartier</strong>, relais de l'IUT sur les projets étudiants.</p></div>
+        <div class="carte lav"><div class="ic">🏛️</div><p class="petit"><strong>Mairies du 11e et du 19e</strong>, services des sports et de la santé : relais institutionnel et crédibilité.</p></div>
+      </div>
+    </div>
+  </div>
+  <p class="note">Budget publicitaire : 0 €. Toute la communication passe par les relations publiques, le marketing direct, le viral et les partenariats.</p>
+</section>
+
+<!-- ====================================================== 25. PROMOUVOIR 2 -->
+<section class="slide" data-n="25">
+  <h2>Où promouvoir <span class="g">Scubanion</span> 📲</h2>
+  <p style="font:700 11pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:3mm;">Réseaux sociaux : le compagnon est le média</p>
+  <p class="petit">Ce n'est pas la marque qui parle, c'est le personnage. Format court, gratuit, adapté aux 18-30 ans.</p>
+  <div class="flex1 grille" style="grid-template-columns:1.5fr 1fr;gap:8mm;margin-top:3mm;">
+    <div style="border-radius:6mm;overflow:hidden;border:1mm solid var(--green);"><img src="assets/images/story-musee-4-bulle.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+    <div style="display:flex;flex-direction:column;gap:4mm;justify-content:center;">
+      <div class="carte"><h4>🎬 Le moment partageable</h4><p class="petit">La récompense qui sort de l'œuvre : c'est le plan que le joueur filme et publie.</p></div>
+      <div class="carte"><h4>🎵 TikTok et Instagram</h4><p class="petit">Tenus par le compagnon. Nos deux films de 15 s en sont le premier contenu.</p></div>
+      <div class="carte"><h4>🤝 Invitation par code</h4><p class="petit">Bonus partagé à la première rencontre : chaque joueur recrute ses voisins.</p></div>
+    </div>
   </div>
 </section>
 
-<!-- ===================== 4. LE MOMENT CLÉ ===================== -->
-<section class="slide" data-n="5">
-  <h2>Le moment clé : le passage en borne</h2>
-  <p class="chapo">Dix secondes, debout, dans un musée ou devant un restaurant.</p>
-
-  <div class="corps grille g4" style="gap:4.5mm;">
-    <figure>
-      <img src="assets/images/story-musee-2-pose-nfc.jpg" alt="On approche le téléphone de la borne">
-      <figcaption><strong>1.</strong> On approche le téléphone, comme pour un paiement sans contact.</figcaption>
-    </figure>
-    <figure>
-      <img src="assets/images/story-musee-3-chargement.jpg" alt="La borne reconnaît le lieu">
-      <figcaption><strong>2.</strong> La borne reconnaît le lieu et prévient le serveur.</figcaption>
-    </figure>
-    <figure>
-      <img src="assets/images/story-musee-4-bulle.jpg" alt="L'objet sort de l'œuvre">
-      <figcaption><strong>3.</strong> L'objet sort de l'œuvre et entre dans le téléphone.</figcaption>
-    </figure>
-    <figure>
-      <img src="assets/images/story-musee-6-equiper.jpg" alt="On équipe l'objet débloqué">
-      <figcaption><strong>4.</strong> Exclusif au lieu : on ne l'obtient qu'en y étant allé.</figcaption>
-    </figure>
-  </div>
-
-  <p class="pied">Deux films de 15 secondes accompagnent le dossier : un musée, un restaurant partenaire.</p>
-</section>
-
-<!-- ===================== 5. ARCHITECTURE ===================== -->
-<section class="slide" data-n="6">
-  <h2>Trois briques, une chaîne</h2>
-  <div class="regle"></div>
-
-  <div class="corps">
-    <div class="flux" style="margin-bottom:5mm;">
-      <div class="boite" style="flex:1.1;">
-        <div class="ic">📱</div><div class="t">Application Android</div>
-        <div class="s">compte les pas, affiche le compagnon,<br>les quêtes et la carte</div>
-      </div>
-      <div class="fleche">⇄</div>
-      <div class="boite" style="flex:1.2;">
-        <div class="ic">🖥️</div><div class="t">Serveur</div>
-        <div class="s">règles du jeu, contrôles anti-triche,<br>mémoire de tout le système</div>
-      </div>
-      <div class="fleche">⇄</div>
-      <div class="boite" style="flex:1.1;">
-        <div class="ic">🗿</div><div class="t">Borne connectée</div>
-        <div class="s">lit le téléphone, affiche la récompense,<br>prévient le serveur</div>
-      </div>
+<!-- ====================================================== 26. PROMOUVOIR 3 -->
+<section class="slide" data-n="26">
+  <h2>Où promouvoir <span class="g">Scubanion</span> 🎉</h2>
+  <p style="font:700 11pt 'Baloo 2',sans-serif;color:var(--navy);margin-top:3mm;">Événements et partenariats, au rythme des saisons</p>
+  <div class="flex1 grille" style="grid-template-columns:1fr 1.2fr;gap:9mm;margin-top:4mm;">
+    <div class="grille g2" style="gap:4mm;">
+      <div class="carte lav centre"><div class="ic">🎓</div><h4>BDE</h4><p class="petit">Le campus, notre premier noyau</p></div>
+      <div class="carte lav centre"><div class="ic">🏃</div><h4>Clubs de running</h4><p class="petit">Un défi hebdo à leur nom</p></div>
+      <div class="carte lav centre"><div class="ic">🌙</div><h4>Nuit Blanche</h4><p class="petit">Une borne éphémère</p></div>
+      <div class="carte lav centre"><div class="ic">🎶</div><h4>Fêtes de quartier</h4><p class="petit">Brocantes, fête de la musique</p></div>
     </div>
-
-    <div class="grille g2">
-      <div class="carte accent">
-        <h4>Une règle qui structure tout</h4>
-        <p><strong>Rien n'est calculé sur le téléphone.</strong> Un téléphone peut être trafiqué :
-          les pas sont plafonnés par heure et recoupés avec la position, et c'est le serveur qui
-          valide les quêtes et les passages.</p>
-      </div>
-      <div class="carte">
-        <h4>Pourquoi la borne et pas un bracelet</h4>
-        <p>C'est <strong>le seul objet que nous concevons nous-mêmes</strong>, de l'électronique
-          au logiciel. Et c'est lui qui crée la valeur vendable : la preuve qu'une personne
-          s'est déplacée.</p>
-      </div>
+    <div>
+      <table>
+        <thead><tr><th>Période</th><th>Activité</th><th>Ce que nous faisons</th></tr></thead>
+        <tbody>
+          <tr><td><b>Septembre</b></td><td><span class="chip vert">Pic</span></td><td>Rentrée : fenêtre d'acquisition principale</td></tr>
+          <tr><td><b>Nov. → févr.</b></td><td><span class="chip" style="background:#FBE2D5;color:#C8452F;">Creux</span></td><td>Quêtes d'intérieur : musées, librairies, cafés</td></tr>
+          <tr><td><b>Janvier</b></td><td><span class="chip vert">Pic</span></td><td>Bonnes résolutions : reconquête des inactifs</td></tr>
+          <tr><td><b>Printemps, été</b></td><td><span class="chip vert">Pic</span></td><td>Événements, bornes éphémères, parcours</td></tr>
+        </tbody>
+      </table>
     </div>
-
-    <p class="glose">
-      <b>NFC</b> : la technologie du paiement sans contact. On approche, ça lit, rien à saisir. &nbsp;·&nbsp;
-      <b>MQTT</b> : une façon légère de faire dialoguer des petits objets avec un serveur — la
-      borne « publie » un passage, le serveur lui « répond » quoi afficher. &nbsp;·&nbsp;
-      <b>Podomètre</b> : le capteur de pas déjà présent dans tous les téléphones.
-    </p>
   </div>
 </section>
 
-<!-- ===================== 6. LE PIVOT ===================== -->
-<section class="slide" data-n="7">
-  <h2>Un pivot assumé, et justifié</h2>
-  <p class="chapo"><span class="jargon">Pivot</span> : changer de moyen sans changer de promesse.</p>
+<!-- ====================================================== 27. SATISFACTION 1 -->
+<section class="slide" data-n="27">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+  <h2>Objectif : des joueurs qui restent</h2>
+  <div style="display:flex;gap:4mm;margin-top:4mm;"><span class="chip lav">★ Rétention à 30 jours ≥ 25 %</span><span class="chip lav">5 000 joueurs actifs mensuels fin 2027</span></div>
+  <p style="font:800 13pt 'Baloo 2',sans-serif;color:var(--navy);margin:10mm 0 6mm;">Quels sont nos points de comparaison ?</p>
+  <div class="flex1">
+    <div class="bar"><div class="lab">Jeux mobiles</div><div class="tr"><div class="rem" style="width:20%;">≈ 5 %</div></div></div>
+    <div class="bar"><div class="lab">Applis de suivi d'activité</div><div class="tr"><div class="rem" style="width:32%;">≈ 8 %</div></div></div>
+    <div class="bar"><div class="lab"><span class="g">Scubanion, objectif</span></div><div class="tr"><div class="rem g" style="width:100%;">25 %</div></div></div>
+    <p class="petit" style="margin-top:5mm;">Part des joueurs encore actifs 30 jours après l'inscription. <strong>C'est l'hypothèse centrale du modèle</strong> : un compagnon retient mieux qu'une courbe.</p>
+  </div>
+  <p class="note">Ordres de grandeur couramment cités pour le secteur, à sourcer précisément. Notre cible vient du critère de sortie de l'objectif O1 de la charte.</p>
+</section>
 
-  <div class="corps grille g2">
-    <div class="carte">
-      <span class="puce p-gris">Au départ</span>
-      <h3 style="margin-top:3.5mm;">Un bracelet connecté</h3>
-      <ul>
-        <li>Lire les pas sur un bracelet du commerce, sans l'application du constructeur</li>
-        <li>Une sécurité propriétaire à contourner, sans garantie d'y arriver</li>
-        <li><strong>Un risque lourd, placé au pire endroit</strong> : là où tout le reste attend</li>
-        <li>Et un bénéfice nul : un téléphone compte déjà les pas</li>
+<!-- ====================================================== 28. SATISFACTION 2 -->
+<section class="slide" data-n="28">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+  <h2>Objectif : des joueurs qui restent</h2>
+  <div style="display:flex;gap:4mm;margin-top:4mm;"><span class="chip lav">★ Rétention à 30 jours ≥ 25 %</span><span class="chip lav">5 000 joueurs actifs mensuels fin 2027</span></div>
+  <div class="flex1" style="display:grid;grid-template-columns:52mm 1fr 52mm;gap:8mm;align-items:center;margin-top:4mm;">
+    <p style="font:italic 400 17pt 'Baloo 2',sans-serif;color:var(--navy);text-align:center;">Neuf entretiens<br>sur le terrain…</p>
+    <div style="display:flex;flex-direction:column;gap:4mm;">
+      <div class="carte"><p class="petit"><strong>2 personnes sur 9</strong> ignoraient leur nombre de pas : le podomètre n'était pas activé sur leur téléphone.</p><p class="tres-petit" style="color:var(--green);font-weight:700;">→ Activation guidée du podomètre dès l'inscription</p></div>
+      <div class="carte"><p class="petit">Un interrogé a <strong>contesté la question du prix plancher</strong> : un objet décoratif ne fait pas douter de la qualité.</p><p class="tres-petit" style="color:var(--green);font-weight:700;">→ Méthode adaptée, limite écrite dans le livrable</p></div>
+      <div class="carte"><p class="petit">Le seul prix cité <strong>spontanément</strong>, avant de voir l'échelle : <strong>1,99 €</strong>.</p><p class="tres-petit" style="color:var(--green);font-weight:700;">→ Prix retenu, confirmé par 7 personnes sur 8</p></div>
+    </div>
+    <p style="font:italic 400 17pt 'Baloo 2',sans-serif;color:var(--navy);text-align:center;">…qui ont changé<br>le produit !</p>
+  </div>
+</section>
+
+<!-- ====================================================== 29. SATISFACTION 3 -->
+<section class="slide" data-n="29">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+  <h2>Objectif : des joueurs qui restent</h2>
+  <div style="display:flex;gap:4mm;margin-top:4mm;"><span class="chip lav">★ Rétention à 30 jours ≥ 25 %</span><span class="chip lav">5 000 joueurs actifs mensuels fin 2027</span></div>
+  <p style="font:800 13pt 'Baloo 2',sans-serif;color:var(--navy);margin:10mm 0 0;">Mesure mensuelle, par cohorte d'inscription, dès les premiers testeurs</p>
+  <div class="flex1" style="position:relative;">
+    <div style="position:absolute;left:0;right:0;top:21.5mm;height:.6mm;background:var(--grad);"></div>
+    <div style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);text-align:center;">
+      <div><p style="font:600 11pt 'Baloo 2';color:var(--blue);margin-top:10mm;">Février 2027</p><div style="font-size:18pt;color:var(--blue);margin:1mm 0;">✦</div><p style="font:700 11.5pt 'Baloo 2';color:var(--navy);margin-top:4mm;">100 testeurs<br>sur le campus</p><p class="tres-petit">courbe J7 · J14 · J30</p></div>
+      <div><p style="font:600 11pt 'Baloo 2';color:var(--blue);margin-top:10mm;">Juin 2027</p><div style="font-size:18pt;color:var(--teal);margin:1mm 0;">✦</div><p style="font:700 11.5pt 'Baloo 2';color:var(--navy);margin-top:4mm;">Pilote sur<br>10 lieux parisiens</p><p class="tres-petit">premiers passages facturés</p></div>
+      <div><p style="font:600 11pt 'Baloo 2';color:var(--blue);margin-top:10mm;">Décembre 2027</p><div style="font-size:18pt;color:var(--green);margin:1mm 0;">✦</div><p style="font:700 11.5pt 'Baloo 2';color:var(--navy);margin-top:4mm;">Lancement<br>commercial à Paris</p><p class="tres-petit">5 000 joueurs actifs visés</p></div>
+      <div><p style="font:600 11pt 'Baloo 2';color:var(--blue);margin-top:10mm;">Chaque trimestre</p><div style="font-size:18pt;color:var(--green);margin:1mm 0;">✦</div><p style="font:700 11.5pt 'Baloo 2';color:var(--navy);margin-top:4mm;">Enquête de<br>satisfaction</p><p class="tres-petit">et bilan avec chaque partenaire</p></div>
+    </div>
+  </div>
+  <div class="points" style="right:6mm;bottom:8mm;"></div>
+</section>
+
+<!-- ====================================================== 30. COMMENT JOUER -->
+<section class="slide" data-n="30">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+  <h2>Comment rejoindre <span class="g">Scubanion</span> ?</h2>
+  <div style="display:flex;gap:70mm;margin-top:3mm;font:500 11pt 'Baloo 2';color:var(--navy);"><span>✦ Via Google Play</span><span>✦ Via une borne partenaire</span></div>
+  <div class="flex1" style="display:grid;grid-template-columns:auto auto 1fr;gap:10mm;align-items:center;margin-top:4mm;">
+    <img class="tel" src="assets/images/maquette-login.png" alt="Écran de connexion" style="max-height:118mm;">
+    <div class="qr"><img src="assets/images/logo.png" alt=""></div>
+    <div style="height:100%;display:flex;flex-direction:column;gap:4mm;justify-content:center;">
+      <img class="photo" src="assets/images/story-tratt-3-chargement.jpg" alt="" style="height:66mm;">
+      <ul class="petit">
+        <li>Téléchargement gratuit, <strong>aucune carte à saisir</strong></li>
+        <li>Compagnon et ambition choisis en moins de deux minutes</li>
+        <li>La borne s'essaie sans compte, juste pour voir</li>
       </ul>
     </div>
-    <div class="carte vert">
-      <span class="puce p-vert">Après le pivot</span>
-      <h3 style="margin-top:3.5mm;">Le podomètre du téléphone</h3>
-      <ul>
-        <li><strong>Plus rien à acheter</strong> pour le joueur : aucun frein à l'adoption</li>
-        <li>Un risque majeur supprimé, et deux fonctions livrées dès octobre</li>
-        <li>Tout l'objet connecté <strong>concentré sur la borne</strong></li>
-        <li>Un objet fait à fond, plutôt que deux à moitié</li>
-      </ul>
-    </div>
-  </div>
-
-  <p class="pied">Le même raisonnement a servi pour chaque choix technique : quel risque, pour quel bénéfice réel ?</p>
-</section>
-
-<!-- ===================== 7. MODÈLE ÉCONOMIQUE ===================== -->
-<section class="slide" data-n="8">
-  <h2>Qui paie, et pourquoi</h2>
-  <p class="chapo">Le joueur ne paie rien d'obligatoire. <strong>85 % du revenu visé vient des
-    lieux, des collectivités et des employeurs.</strong></p>
-
-  <div class="corps">
-    <table>
-      <thead>
-        <tr><th style="width:50mm;">Offre</th><th class="num" style="width:38mm;">Prix</th><th>Ce que le client achète</th></tr>
-      </thead>
-      <tbody>
-        <tr><td class="k">Accessoires du compagnon</td><td class="num">1,99 €</td><td>Le joueur attaché à son compagnon. <strong>La progression ne s'achète jamais.</strong></td></tr>
-        <tr><td class="k">Abonnement par borne</td><td class="num">49 €/mois</td><td>Le lieu : du passage mesurable, et une animation qu'il n'a pas à produire</td></tr>
-        <tr><td class="k">Quête sponsorisée</td><td class="num">300 € + 0,50 €<br>par passage</td><td>Le commerce : il ne paie une partie <strong>qu'au visiteur effectivement venu</strong></td></tr>
-        <tr><td class="k">Parcours de découverte</td><td class="num">3 000 à 8 000 €</td><td>La collectivité : de la santé publique et du patrimoine fréquenté</td></tr>
-        <tr><td class="k">Programme bien-être</td><td class="num">3 €/mois<br>par bénéficiaire</td><td>L'employeur ou la mutuelle, sur un budget prévention déjà existant</td></tr>
-      </tbody>
-    </table>
-
-    <div class="carte accent" style="margin-top:4.5mm;">
-      <p style="margin:0;"><strong>Trois promesses tenables</strong> : aucune publicité, aucune revente
-        de données, aucune progression achetable. C'est précisément ce qui nous rend acceptables
-        pour une collectivité ou une mutuelle.</p>
-    </div>
   </div>
 </section>
 
-<!-- ===================== 8. LE PRIX VALIDÉ ===================== -->
-<section class="slide" data-n="9">
+<!-- ====================================================== 31. NOS FORMULES -->
+<section class="slide degrade" data-n="31">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <p style="font:600 9.5pt 'Baloo 2';letter-spacing:1.5px;color:#fff;margin:0;">DES OFFRES ADAPTÉES À CHAQUE CLIENT</p>
+    <span style="font:600 9pt 'Baloo 2';color:#fff;display:flex;align-items:center;gap:2mm;"><img src="assets/images/logo.png" alt="" style="height:6mm;">Scubanion</span>
+  </div>
+  <h2 style="font-size:28pt;letter-spacing:2px;margin-top:3mm;">NOS FORMULES <span style="display:inline-flex;width:10mm;height:10mm;border:.6mm solid #fff;border-radius:50%;align-items:center;justify-content:center;font-size:12pt;vertical-align:middle;">↘</span></h2>
+  <div style="width:30mm;height:.6mm;background:#fff;margin-top:2mm;"></div>
+  <div class="flex1 grille g5" style="gap:5mm;align-items:center;margin-top:4mm;">
+    <div class="offre"><div class="hd">Bien-être</div><div class="who">Employeurs, mutuelles</div><ul><li>Défis entre services</li><li>Classement interne</li><li>Reporting agrégé, anonymisé</li><li>Dès 50 bénéficiaires</li></ul><div class="px">3 €/mois/pers.</div></div>
+    <div class="offre"><div class="hd">Borne</div><div class="who">Musées, salles, commerces</div><ul><li>Borne fournie et installée</li><li>Maintenue, dépannée sous 72 h</li><li>Tableau de bord des passages</li><li>Formation de 30 min</li></ul><div class="px">49 €/mois</div></div>
+    <div class="offre star"><div class="hd">Joueur</div><div class="who">Les 18-30 ans</div><ul><li>Compagnon, quêtes, carte</li><li>Amis, guildes, rencontres</li><li>Bornes et objets exclusifs</li><li>Skins en option à 1,99 €</li><li>Ni pub, ni XP payante</li></ul><div class="px">0 €</div></div>
+    <div class="offre"><div class="hd">Quête sponso</div><div class="who">Commerces de proximité</div><ul><li>Campagne de 2 semaines</li><li>Paiement au visiteur venu</li><li>Passage vérifié en borne</li></ul><div class="px">300 € + 0,50 €/passage</div></div>
+    <div class="offre"><div class="hd">Parcours</div><div class="who">Collectivités, tourisme</div><ul><li>Parcours de découverte</li><li>Lieux gratuits valorisés</li><li>Budgets sport, santé ou tourisme</li></ul><div class="px">3 000 à 8 000 €</div></div>
+  </div>
+</section>
+
+<!-- ====================================================== 32. PRIX VALIDÉ -->
+<section class="slide" data-n="32">
   <h2>Le prix n'a pas été décidé en réunion</h2>
-  <p class="chapo">Neuf personnes interrogées une par une, une échelle de dix prix, deux questions :
-    <em>à partir de quel prix est-ce trop cher&nbsp;?</em> et <em>en dessous de quel prix
-    doutez-vous de la qualité&nbsp;?</em></p>
-
-  <div class="corps grille g-2-1">
+  <p class="sous" style="font-size:12.5pt;">Méthode Toolbox Persona : neuf entretiens, dix niveaux de prix, deux questions (trop cher ? trop bas pour être sérieux ?)</p>
+  <div class="flex1 grille" style="grid-template-columns:1.8fr 1fr;gap:9mm;margin-top:6mm;align-items:center;">
     <div>
       <div class="histo">
         <div class="b"><div class="n">6</div><div class="barre" style="height:75%"></div><div class="x">0,49 €</div></div>
         <div class="b top"><div class="n">8</div><div class="barre" style="height:100%"></div><div class="x">0,99 €</div></div>
         <div class="b top"><div class="n">8</div><div class="barre" style="height:100%"></div><div class="x">1,49 €</div></div>
-        <div class="b"><div class="n">7</div><div class="barre" style="height:87%"></div><div class="x">1,99 €</div></div>
+        <div class="b choix"><div class="n">7</div><div class="barre" style="height:87%"></div><div class="x">1,99 €</div></div>
         <div class="b"><div class="n">6</div><div class="barre" style="height:75%"></div><div class="x">2,49 €</div></div>
         <div class="b"><div class="n">4</div><div class="barre" style="height:50%"></div><div class="x">2,99 €</div></div>
         <div class="b"><div class="n">2</div><div class="barre" style="height:25%"></div><div class="x">3,99 €</div></div>
@@ -494,270 +937,333 @@ figcaption{margin-top:2mm;font-size:10pt;color:var(--ink-soft);line-height:1.3;}
         <div class="b"><div class="n">0</div><div class="barre" style="height:2%"></div><div class="x">6,99 €</div></div>
         <div class="b"><div class="n">0</div><div class="barre" style="height:2%"></div><div class="x">9,99 €</div></div>
       </div>
-      <p class="petit gris" style="margin-top:3mm;">Nombre de personnes, sur les huit de la cible,
-        pour qui le prix est acceptable. Au-delà de 4,99 €, le marché disparaît.</p>
+      <p class="tres-petit" style="margin-top:3mm;">Personnes de la cible (sur 8) pour qui le prix d'un skin est acceptable. Au-delà de 4,99 €, le marché disparaît.</p>
     </div>
-
-    <div>
-      <div class="carte vert" style="text-align:center;margin-bottom:4.5mm;">
-        <div class="kpi"><div class="v vert">1,99 €</div>
-          <div class="l">prix retenu</div>
-          <div class="s">zone d'unanimité : 0,99 – 1,49 €</div></div>
-      </div>
-      <div class="carte">
-        <h4>Deux surprises</h4>
-        <ul class="petit">
-          <li><strong>2 personnes sur 9</strong> ignoraient leur nombre de pas : le capteur n'était pas activé. Notre promesse repose dessus.</li>
-          <li>La question du prix plancher s'applique mal à un objet décoratif — un interrogé nous l'a fait remarquer, à raison.</li>
-        </ul>
-      </div>
+    <div style="display:flex;flex-direction:column;gap:5mm;">
+      <div class="carte big"><div class="v" style="color:var(--coral);">1,99 €</div><div class="l">prix retenu pour un skin</div><div class="s">zone d'unanimité : 0,99 à 1,49 €</div></div>
+      <div class="carte lav"><p class="petit"><strong>7 acheteurs à 1,99 €</strong> rapportent 17 % de plus que 8 acheteurs à 1,49 €, qui devient le prix des remises.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== 9. RSE ET ODD ===================== -->
-<section class="slide" data-n="10">
+<!-- ====================================================== 33. FINANCEMENTS -->
+<section class="slide" data-n="33">
+  <div style="position:absolute;right:-20mm;top:0;bottom:0;width:120mm;background:var(--grad);clip-path:polygon(55% 0,100% 0,100% 100%,0 100%);opacity:.9;z-index:0;"></div>
+  <h2 style="font-size:32pt;letter-spacing:.5px;">FINANCEMENTS</h2>
+  <p class="sous" style="color:var(--blue);">Amorçage : 150 000 € avant le 30/09/2027</p>
+  <div class="flex1 grille g2" style="gap:9mm 14mm;align-content:center;padding-right:60mm;">
+    <div class="fin"><div class="ro">🏦</div><div><h4>Subvention <em>Bpifrance</em></h4><ul class="petit" style="margin-top:2mm;"><li>Bourse French Tech Émergence</li><li><strong>30 000 €</strong>, non remboursable</li></ul></div></div>
+    <div class="fin"><div class="ro">🤝</div><div><h4>Prêts <em>d'honneur</em></h4><ul class="petit" style="margin-top:2mm;"><li>Réseaux d'aide à la création, à taux zéro</li><li><strong>40 000 €</strong>, portés par les associés</li></ul></div></div>
+    <div class="fin"><div class="ro">💶</div><div><h4>Prêt <em>bancaire</em></h4><ul class="petit" style="margin-top:2mm;"><li>Adossé aux prêts d'honneur</li><li><strong>50 000 €</strong> sur cinq ans</li></ul></div></div>
+    <div class="fin"><div class="ro">🚀</div><div><h4>Business angels <em>et concours</em></h4><ul class="petit" style="margin-top:2mm;"><li>Via l'incubateur</li><li><strong>30 000 €</strong></li></ul></div></div>
+  </div>
+  <div class="carte" style="position:absolute;right:16mm;bottom:22mm;width:86mm;z-index:1;">
+    <h4 style="color:var(--blue);">À QUOI ILS SERVENT</h4>
+    <ul class="petit" style="margin-top:2mm;"><li>Les deux premiers salaires</li><li>Le parc de 40 bornes</li><li>Le budget d'acquisition</li><li><strong>Règle : deux contrats signés avant de lever</strong></li></ul>
+  </div>
+  <p class="note">Plan de financement visé, à valider avec un expert-comptable à la création de la société (action A8).</p>
+</section>
+
+<!-- ====================================================== 34. REVENUS -->
+<section class="slide" data-n="34">
+  <div style="position:absolute;right:0;bottom:0;width:80mm;height:80mm;background:linear-gradient(160deg,#5FA3AE,#2F6B7A);clip-path:polygon(100% 0,100% 100%,0 100%);opacity:.85;z-index:0;"></div>
+  <h2 style="font-size:32pt;letter-spacing:.5px;">REVENUS DU PROJET</h2>
+  <p class="sous" style="color:var(--blue);">En régime de croisière, à 40 lieux équipés</p>
+  <div class="flex1 grille" style="grid-template-columns:1.25fr 1fr;gap:10mm;align-items:center;">
+    <table>
+      <thead><tr><th>Source</th><th>Base de calcul</th><th class="num">€ / an</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pt" style="background:#1E3A42;"></span>Abonnements bornes</td><td>40 bornes × 49 € × 12</td><td class="num">23 520</td></tr>
+        <tr><td><span class="pt" style="background:#2F6B7A;"></span>Parcours de découverte</td><td>3 parcours × 5 000 €</td><td class="num">15 000</td></tr>
+        <tr><td><span class="pt" style="background:#5FA3AE;"></span>Quêtes sponsorisées</td><td>24 × 300 € + 10 320 passages × 0,50 €</td><td class="num">12 360</td></tr>
+        <tr><td><span class="pt" style="background:#B9D8DC;"></span>Programme bien-être</td><td>170 bénéficiaires × 3 € × 12</td><td class="num">6 120</td></tr>
+        <tr><td><span class="pt" style="background:#F0855A;"></span>Cosmétiques</td><td>25 000 comptes × 3 % × 4 €</td><td class="num">3 000</td></tr>
+        <tr class="tot"><td>Total</td><td>dont 85 % lieux et collectivités</td><td class="num">60 000</td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6mm;">
+      <div class="camembert" style="background:conic-gradient(#1E3A42 0 39.2%,#2F6B7A 39.2% 64.2%,#5FA3AE 64.2% 84.8%,#B9D8DC 84.8% 95%,#F0855A 95% 100%);border:1.5mm solid #fff;"></div>
+      <div class="total">TOTAL : <span>60 000 €/an</span></div>
+    </div>
+  </div>
+  <p class="note">Objectif O2 de la charte : 5 000 € de revenu mensuel récurrent, dont au moins 85 % issus du B2B. Grille B2B encore jamais confrontée à un acheteur.</p>
+</section>
+
+<!-- ====================================================== 35. COÛTS -->
+<section class="slide" data-n="35">
+  <div style="position:absolute;right:0;bottom:0;width:80mm;height:80mm;background:linear-gradient(160deg,#5FA3AE,#2F6B7A);clip-path:polygon(100% 0,100% 100%,0 100%);opacity:.85;z-index:0;"></div>
+  <h2 style="font-size:32pt;letter-spacing:.5px;">COÛTS DU PROJET</h2>
+  <p class="sous" style="color:var(--blue);">Année 2, lancement commercial</p>
+  <div class="flex1 grille" style="grid-template-columns:1.25fr 1fr;gap:10mm;align-items:center;">
+    <table>
+      <thead><tr><th>Poste</th><th>Détail</th><th class="num">€</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pt" style="background:#1E3A42;"></span>Masse salariale</td><td>4 associés + 2 salariés</td><td class="num">95 000</td></tr>
+        <tr><td><span class="pt" style="background:#2F6B7A;"></span>Acquisition, marketing</td><td>contenu, événements, salons</td><td class="num">15 000</td></tr>
+        <tr><td><span class="pt" style="background:#5FA3AE;"></span>Locaux, frais généraux</td><td>bureau partagé, stockage</td><td class="num">6 000</td></tr>
+        <tr><td><span class="pt" style="background:#B9D8DC;"></span>Juridique, conformité</td><td>marque, RGPD, assurances</td><td class="num">4 000</td></tr>
+        <tr><td><span class="pt" style="background:#F0855A;"></span>Parc de bornes</td><td>40 bornes à 90 €</td><td class="num">3 600</td></tr>
+        <tr><td><span class="pt" style="background:#C9E0E4;"></span>Infrastructure, outils</td><td>serveur, broker MQTT</td><td class="num">3 000</td></tr>
+        <tr class="tot"><td>Total</td><td></td><td class="num">126 600</td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6mm;">
+      <div class="camembert" style="background:conic-gradient(#1E3A42 0 75%,#2F6B7A 75% 86.8%,#5FA3AE 86.8% 91.5%,#B9D8DC 91.5% 94.7%,#F0855A 94.7% 97.5%,#C9E0E4 97.5% 100%);border:1.5mm solid #fff;"></div>
+      <div class="total">TOTAL : <span>≈ 127 000 €</span></div>
+    </div>
+  </div>
+  <p class="note">Chiffres de cadrage de la charte de projet, construits sur des coûts publics. La charge est à 75 % salariale : le matériel pèse moins de 3 %.</p>
+</section>
+
+<!-- ====================================================== 36. COÛTS SUR 3 ANS -->
+<section class="slide" data-n="36">
+  <div style="display:none;background:linear-gradient(160deg,#5FA3AE,#2F6B7A);clip-path:polygon(100% 0,100% 100%,0 100%);opacity:.85;z-index:0;"></div>
+  <h2 style="font-size:32pt;letter-spacing:.5px;">COÛTS SUR TROIS ANS</h2>
+  <div class="flex1 grille g2" style="gap:14mm;margin-top:8mm;">
+    <div class="centre">
+      <span class="chip" style="background:var(--grad);color:#fff;font-size:14pt;padding:2.5mm 12mm;">Humain</span>
+      <p style="margin-top:5mm;font:500 11.5pt 'Baloo 2';color:var(--navy);">An 1 : 140 000 € en apport en industrie<br>An 2 : 95 000 € · 4 associés + 2 salariés<br>An 3 : 230 000 € · 4 associés + 5 salariés</p>
+      <div class="carte lav" style="margin-top:5mm;"><p class="petit">Fondateurs <strong>non rémunérés</strong> jusqu'à l'amorçage : la première année ne coûte que du temps.</p></div>
+    </div>
+    <div class="centre">
+      <span class="chip" style="background:var(--grad);color:#fff;font-size:14pt;padding:2.5mm 12mm;">Matériel</span>
+      <p style="margin-top:5mm;font:500 11.5pt 'Baloo 2';color:var(--navy);">Borne prototype : ≈ 80 € de composants<br>Borne en petite série : moins de 90 €<br>Parc : 10, puis 40, puis 150 bornes</p>
+      <div class="carte lav" style="margin-top:5mm;"><p class="petit">Une borne à 90 €, louée 49 € par mois, est <strong>amortie en deux mois</strong>. Le parc n'est pas le problème, le temps commercial l'est.</p></div>
+    </div>
+  </div>
+  <div style="text-align:right;margin-top:3mm;"><div class="total" style="font-size:16pt;">Dépense de trésorerie sur 3 ans :</div><div class="total"><span>≈ 448 000 €</span></div></div>
+</section>
+
+<!-- ====================================================== 37. PARTIES PRENANTES -->
+<section class="slide" data-n="37">
+  <h2 class="centre" style="font-size:26pt;">Nos parties prenantes</h2>
+  <div class="flex1" style="display:grid;grid-template-columns:8mm 1fr;grid-template-rows:1fr 8mm;gap:1mm;margin-top:4mm;">
+    <div style="writing-mode:vertical-rl;transform:rotate(180deg);font:700 10pt 'Baloo 2';color:var(--navy);text-align:center;">Pouvoir →</div>
+    <div class="pp">
+      <div><span class="tag">Garder satisfait</span><div class="acteurs"><span>CNIL</span><span>Google Play</span><span>INPI</span><span>Fournisseurs de composants</span></div></div>
+      <div><span class="tag">Gérer de près</span><div class="acteurs"><span>Lieux partenaires</span><span>Ville de Paris</span><span>Mairies du 11e et du 19e</span><span>Financeurs, incubateur</span><span>Encadrement de l'IUT</span></div></div>
+      <div><span class="tag">Surveiller</span><div class="acteurs"><span>Hébergeur, broker MQTT</span><span>Jeux géolocalisés concurrents</span><span>Applis de suivi d'activité</span></div></div>
+      <div><span class="tag">Maintenir informé</span><div class="acteurs"><span>Joueurs 18-30 ans</span><span>Testeurs du campus</span><span>BDE</span><span>Clubs de running</span><span>Mutuelles étudiantes</span></div></div>
+    </div>
+    <div></div>
+    <div style="font:700 10pt 'Baloo 2';color:var(--navy);text-align:center;">Intérêt →</div>
+  </div>
+</section>
+
+<!-- ====================================================== 38. PLAN D'ACTION -->
+<section class="slide" data-n="38">
+  <h2>Dix actions, un responsable, une échéance</h2>
+  <p class="sous" style="margin-bottom:4mm;">Une action sans responsable n'est jamais faite</p>
+  <table style="font-size:9.6pt;">
+    <thead><tr><th>#</th><th>Action</th><th>Livrable vérifiable</th><th>Responsable</th><th class="num">Échéance</th></tr></thead>
+    <tbody>
+      <tr><td><b>A1</b></td><td>Choisir le microcontrôleur et commander</td><td>Décision écrite, bon de commande</td><td>Shaleena</td><td class="num">17/10/26</td></tr>
+      <tr><td><b>A2</b></td><td>Démarcher les dix premiers lieux</td><td>10 rendez-vous, 2 lettres d'intention</td><td>Evan</td><td class="num">29/11/26</td></tr>
+      <tr><td><b>A3</b></td><td>Prototype de borne NFC + MQTT</td><td>Un passage de bout en bout filmé</td><td>Shaleena</td><td class="num">14/11/26</td></tr>
+      <tr><td><b>A4</b></td><td>Chaîne de déploiement complète</td><td>Un déploiement vert, sans intervention</td><td>Thomas</td><td class="num">08/11/26</td></tr>
+      <tr><td><b>A5</b></td><td>Livrer le jalon zéro</td><td>18 exigences, version v1.0.0</td><td>Toute l'équipe</td><td class="num">12/12/26</td></tr>
+      <tr><td><b>A6</b></td><td>Recruter 100 testeurs sur le campus</td><td>Courbe de rétention J7, J14, J30</td><td>Evan</td><td class="num">28/02/27</td></tr>
+      <tr><td><b>A7</b></td><td>Marque INPI et pacte d'associés</td><td>Dépôt enregistré, pacte signé</td><td>Hamza</td><td class="num">31/01/27</td></tr>
+      <tr><td><b>A8</b></td><td>Dossier de financement</td><td>Trois dossiers déposés</td><td>Thomas</td><td class="num">31/03/27</td></tr>
+      <tr><td><b>A9</b></td><td>Installer les dix bornes du pilote</td><td>10 bornes en service et facturées</td><td>Shaleena</td><td class="num">31/05/27</td></tr>
+      <tr><td><b>A10</b></td><td>Immatriculer la société</td><td>Deux contrats annuels signés</td><td>Hamza</td><td class="num">30/06/27</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Point d'équipe de 30 minutes chaque vendredi : indicateurs, « fait / en cours / bloqué », et une décision.</p>
+</section>
+
+<!-- ====================================================== 39. ROADMAP -->
+<section class="slide" data-n="39">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span><span>Accueil</span><span>Le jeu</span><span>Les bornes</span><span>Contact</span><i class="burger"></i></div>
+  <div class="road">
+    <div class="phase"><div class="ico">🧭</div><div class="k">PHASE 1</div><div class="t">Cadrage</div><ul><li>Idéation, équipe</li><li>Business Model Canvas</li><li>Charte, cahier des charges</li></ul></div>
+    <div class="phase"><div class="ico">🛠️</div><div class="k">PHASE 2</div><div class="t">Preuve de concept</div><ul><li>App, serveur, borne</li><li>Chaîne CI/CD</li><li>Jalon zéro le 12/12</li></ul></div>
+    <div class="phase"><div class="ico">📑</div><div class="k">PHASE 3</div><div class="t">Structure</div><ul><li>Marque et pacte</li><li>Dossier de financement</li><li>100 testeurs</li></ul></div>
+    <div class="phase"><div class="ico">📍</div><div class="k">PHASE 4</div><div class="t">Pilote terrain</div><ul><li>10 bornes, 11e et 19e</li><li>Société immatriculée</li><li>2 contrats payants</li></ul></div>
+    <div class="phase"><div class="ico">🚀</div><div class="k">PHASE 5</div><div class="t">Lancement</div><ul><li>Amorçage bouclé</li><li>2 recrutements</li><li>40 lieux à Paris</li></ul></div>
+    <div class="phase"><div class="ico">📈</div><div class="k">PHASE 6</div><div class="t">Croissance</div><ul><li>150 bornes</li><li>Seuil de rentabilité</li><li>Poursuivre ou lever</li></ul></div>
+  </div>
+  <div class="axe"><div class="pts"><div>sept.-oct. 26</div><div>oct.-déc. 26</div><div>janv.-mars 27</div><div>avr.-juin 27</div><div>juil.-déc. 27</div><div>2028</div></div></div>
+  <h2 class="centre" style="margin-top:6mm;font-size:28pt;">Roadmap <span class="g">Scubanion</span></h2>
+</section>
+
+<!-- ====================================================== 40. TABLEAU DE BORD -->
+<section class="slide" data-n="40">
+  <h2>Six indicateurs pour piloter</h2>
+  <p class="sous" style="margin-bottom:5mm;">Chacun répond à « si ça décroche, qu'est-ce que je fais ? »</p>
+  <div class="flex1 grille g3" style="gap:5mm;">
+    <div class="kpi"><div class="id"><b class="g">K1</b><span class="chip lav">Entreprise</span></div><h4>Joueurs actifs mensuels</h4><div class="cible">5 000 fin 2027</div><div class="si"><b>Si ça décroche :</b> on arrête d'ajouter des fonctions et on va voir les joueurs perdus.</div></div>
+    <div class="kpi"><div class="id"><b class="g">K2</b><span class="chip lav">Entreprise</span></div><h4>Rétention à 30 jours</h4><div class="cible">≥ 25 %</div><div class="si"><b>Si ça décroche :</b> on révise l'attachement avant toute dépense d'acquisition.</div></div>
+    <div class="kpi"><div class="id"><b class="g">K3</b><span class="chip lav">Entreprise</span></div><h4>Revenu récurrent</h4><div class="cible">5 000 €/mois · 40 lieux</div><div class="si"><b>Si ça décroche :</b> on passe par la collectivité qui équipe les lieux.</div></div>
+    <div class="kpi"><div class="id"><b class="g">K4</b><span class="chip vert">Exécution</span></div><h4>Exigences essentielles</h4><div class="cible">18 / 18 au 05/12</div><div class="si"><b>Si ça décroche :</b> on coupe des Should et des Could, et on l'écrit.</div></div>
+    <div class="kpi"><div class="id"><b class="g">K5</b><span class="chip vert">Exécution</span></div><h4>Passages NFC réussis</h4><div class="cible">≥ 95 % sur 20 essais</div><div class="si"><b>Si ça décroche :</b> repli sur un simulateur de borne pour la démo.</div></div>
+    <div class="kpi"><div class="id"><b class="g">K6</b><span class="chip vert">Exécution</span></div><h4>Équilibre des contributions</h4><div class="cible">≥ 5 commits, 2 revues</div><div class="si"><b>Si ça décroche :</b> redistribution des tâches, binôme sur le lot en retard.</div></div>
+  </div>
+</section>
+
+<!-- ====================================================== 41. VISION -->
+<section class="slide" data-n="41">
+  <div style="position:absolute;left:0;right:0;top:9mm;height:20mm;background:linear-gradient(90deg,#2F6B7A 0 25%,#5FA3AE 30% 100%);z-index:0;"></div>
+  <h2 class="centre" style="color:#fff;font-size:24pt;letter-spacing:1px;margin-top:-4mm;">NOTRE VISION À LONG TERME</h2>
+  <p class="centre" style="margin-top:9mm;color:var(--navy);font-weight:500;">Faire de la sortie un réflexe quotidien chez les jeunes urbains,<br>et devenir le réseau qui prouve le déplacement réel aux lieux qui en vivent.</p>
+  <div class="flex1 grille g3" style="gap:22mm;padding:6mm 18mm 0;">
+    <div class="vis"><div class="an">2027</div><div class="rd">1</div><div class="tt">Pilote<br>11e et 19e</div><p class="petit">10 bornes, puis 40 lieux et le lancement à Paris</p></div>
+    <div class="vis v2"><div class="an">2028</div><div class="rd">2</div><div class="tt">Paris<br>intra-muros</div><p class="petit">150 bornes et le seuil de rentabilité visé</p></div>
+    <div class="vis v3"><div class="an">2029</div><div class="rd">3</div><div class="tt">D'autres<br>métropoles</div><p class="petit">Le modèle se répète d'une ville à l'autre, et l'app arrive sur iOS</p></div>
+  </div>
+</section>
+
+<!-- ====================================================== 42. CLÔTURE -->
+<section class="slide fonce" data-n="42">
+  <div class="nav"><span class="m"><img src="assets/images/logo.png" alt="">Scubanion</span></div>
+  <div class="flex1" style="display:grid;grid-template-columns:auto 1fr 1fr;gap:12mm;align-items:center;">
+    <div class="qr" style="margin-left:6mm;"><img src="assets/images/logo.png" alt=""></div>
+    <div style="height:100%;display:flex;justify-content:center;align-items:flex-end;margin-bottom:-14mm;"><img class="tel" src="assets/images/maquette-accueil.png" alt="" style="max-height:150mm;opacity:.95;"></div>
+    <div class="centre">
+      <h1 style="color:#fff;font-size:48pt;font-weight:800;">Scubanion</h1>
+      <p style="color:#fff;font-size:13pt;margin-top:4mm;line-height:2;">Un compagnon<br>Tes vrais pas<br>Tes vraies rencontres</p>
+      <div style="display:flex;gap:6mm;justify-content:center;margin-top:6mm;"><span class="btn">Télécharger</span><span class="play" style="color:#fff;"><i style="border-color:#fff;color:#fff;">▶</i>Voir le film</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== 43. PARTIE TECHNIQUE -->
+<section class="slide fonce" data-n="43" style="justify-content:center;">
+  <div style="position:absolute;inset:0;background:var(--grad-v);clip-path:polygon(0 0,72% 0,92% 50%,72% 100%,0 100%);z-index:0;"></div>
+  <div style="position:absolute;right:0;top:0;bottom:0;width:40%;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 2mm,transparent 2mm 6mm),#16282E;z-index:-1;"></div>
+  <h2 style="font-size:48pt;font-weight:800;letter-spacing:1px;padding-left:12mm;">PARTIE TECHNIQUE</h2>
+</section>
+
+<!-- ====================================================== 44. PASSAGE EN BORNE -->
+<section class="slide" data-n="44">
+  <h2>Le moment clé : le passage en borne</h2>
+  <p class="sous" style="margin-bottom:7mm;">Dix secondes, debout, dans un musée ou devant un restaurant</p>
+  <div class="flex1 grille g4" style="gap:5mm;">
+    <figure style="margin:0;"><img class="photo" src="assets/images/story-musee-2-pose-nfc.jpg" alt="" style="height:52mm;"><p class="petit" style="margin-top:3mm;"><strong class="g" style="font-size:16pt;font-family:'Baloo 2';">01</strong> On approche le téléphone, comme pour un paiement sans contact.</p></figure>
+    <figure style="margin:0;"><img class="photo" src="assets/images/story-musee-3-chargement.jpg" alt="" style="height:52mm;"><p class="petit" style="margin-top:3mm;"><strong class="g" style="font-size:16pt;font-family:'Baloo 2';">02</strong> La borne reconnaît le lieu et prévient le serveur.</p></figure>
+    <figure style="margin:0;"><img class="photo" src="assets/images/story-musee-4-bulle.jpg" alt="" style="height:52mm;"><p class="petit" style="margin-top:3mm;"><strong class="g" style="font-size:16pt;font-family:'Baloo 2';">03</strong> L'objet sort de l'œuvre et entre dans le téléphone.</p></figure>
+    <figure style="margin:0;"><img class="photo" src="assets/images/story-musee-6-equiper.jpg" alt="" style="height:52mm;"><p class="petit" style="margin-top:3mm;"><strong class="g" style="font-size:16pt;font-family:'Baloo 2';">04</strong> Exclusif au lieu : on ne l'obtient qu'en y étant allé.</p></figure>
+  </div>
+  <p class="note">Deux films de 15 secondes accompagnent le dossier : un musée, un restaurant partenaire.</p>
+</section>
+
+<!-- ====================================================== 45. ARCHITECTURE -->
+<section class="slide" data-n="45">
+  <h2>Trois briques, une chaîne</h2>
+  <div class="trait" style="width:40mm;opacity:1;"></div>
+  <div class="flux">
+    <div class="boite"><div class="ic">📱</div><div class="t">Application Android</div><div class="s">compte les pas, affiche le compagnon, les quêtes et la carte</div></div>
+    <div class="fl">⇄</div>
+    <div class="boite"><div class="ic">🖥️</div><div class="t">Serveur</div><div class="s">règles du jeu, anti-triche, mémoire de tout le système</div></div>
+    <div class="fl">⇄</div>
+    <div class="boite"><div class="ic">🗿</div><div class="t">Borne connectée</div><div class="s">lit le téléphone, affiche la récompense, prévient le serveur</div></div>
+  </div>
+  <div class="flex1 grille g2" style="margin-top:7mm;align-content:center;">
+    <div class="carte lav"><h4>Une règle qui structure tout</h4><p><strong>Rien n'est calculé sur le téléphone.</strong> Les pas sont plafonnés par heure et recoupés avec la position ; c'est le serveur qui valide quêtes et passages.</p></div>
+    <div class="carte lav"><h4>La borne, pièce par pièce</h4><p>Carte ESP32 à écran tactile, puce NFC ST25DV qui transmet un <strong>jeton signé à usage unique</strong>, horloge DS3231 pour fonctionner hors ligne, anneau de LED.</p></div>
+  </div>
+  <p class="glose"><b>NFC</b> : la technologie du paiement sans contact. · <b>MQTT</b> : une façon légère de faire dialoguer de petits objets avec un serveur. · <b>Podomètre</b> : le capteur de pas déjà présent dans tous les téléphones.</p>
+</section>
+
+<!-- ====================================================== 46. LE PIVOT -->
+<section class="slide" data-n="46">
+  <h2>Un pivot assumé, et justifié</h2>
+  <p class="sous" style="margin-bottom:7mm;"><strong>Pivot</strong> : changer de moyen sans changer de promesse</p>
+  <div class="flex1" style="display:grid;grid-template-columns:1fr 26mm 1fr;gap:5mm;align-items:stretch;">
+    <div class="carte rouge"><span class="chip" style="background:rgba(255,255,255,.25);color:#fff;">Au départ</span><h3 style="margin:3mm 0;">Un bracelet connecté</h3><ul>
+      <li>Lire les pas d'un bracelet du commerce, sans son application</li>
+      <li>Une sécurité propriétaire à contourner, sans garantie</li>
+      <li><strong>Un risque lourd sur le chemin critique</strong></li>
+      <li>Pour un bénéfice nul : le téléphone compte déjà</li></ul></div>
+    <div style="display:flex;align-items:center;justify-content:center;font:900 30pt 'Baloo 2';" class="g">→</div>
+    <div class="carte" style="background:linear-gradient(160deg,#34C77B,#1C9A5A);color:#fff;border:none;"><span class="chip" style="background:rgba(255,255,255,.25);color:#fff;">Après le pivot</span><h3 style="margin:3mm 0;color:#fff;">Le podomètre du téléphone</h3><ul>
+      <li><strong style="color:#fff;">Plus rien à acheter</strong> pour le joueur</li>
+      <li>Un risque majeur supprimé, deux fonctions livrées dès octobre</li>
+      <li>Tout l'objet connecté <strong style="color:#fff;">concentré sur la borne</strong></li>
+      <li>Un objet fait à fond, plutôt que deux à moitié</li></ul></div>
+  </div>
+</section>
+
+<!-- ====================================================== 47. ODD -->
+<section class="slide" data-n="47">
   <h2>Un numérique qui envoie dehors</h2>
-  <p class="chapo">La démarche responsable n'est pas un ajout : elle découle du produit, et elle
-    le contraint.</p>
-
-  <div class="corps grille g3" style="margin-bottom:5mm;">
-    <div class="carte">
-      <div class="odd">
-        <div class="num" style="background:#4C9F38;">3</div>
-        <div><div class="t">Bonne santé<br>et bien-être</div></div>
-      </div>
-      <p class="petit" style="margin-top:3.5mm;">Remettre en mouvement une population sédentaire,
-        et mesurer l'effet plutôt que de l'affirmer.</p>
-    </div>
-    <div class="carte">
-      <div class="odd">
-        <div class="num" style="background:#FD9D24;">11</div>
-        <div><div class="t">Villes et communautés<br>durables</div></div>
-      </div>
-      <p class="petit" style="margin-top:3.5mm;">Déplacements à pied, patrimoine de proximité
-        fréquenté, lien social à l'échelle du quartier.</p>
-    </div>
-    <div class="carte">
-      <div class="odd">
-        <div class="num" style="background:#BF8B2E;">12</div>
-        <div><div class="t">Consommation et production<br>responsables</div></div>
-      </div>
-      <p class="petit" style="margin-top:3.5mm;">Aucun objet vendu à l'utilisateur, une borne
-        mutualisée par lieu, réparable et avec des pièces de rechange.</p>
-    </div>
+  <p class="sous" style="margin-bottom:6mm;">La démarche responsable découle du produit, et elle le contraint</p>
+  <div class="grille g3" style="margin-bottom:5mm;">
+    <div class="carte"><div class="odd"><div class="num" style="background:#4C9F38;">3</div><div class="t">Bonne santé<br>et bien-être</div></div><p class="petit" style="margin-top:3mm;">Remettre en mouvement une population sédentaire, et mesurer l'effet.</p></div>
+    <div class="carte"><div class="odd"><div class="num" style="background:#FD9D24;">11</div><div class="t">Villes et communautés<br>durables</div></div><p class="petit" style="margin-top:3mm;">Déplacements à pied, patrimoine de proximité, lien de quartier.</p></div>
+    <div class="carte"><div class="odd"><div class="num" style="background:#BF8B2E;">12</div><div class="t">Consommation<br>responsable</div></div><p class="petit" style="margin-top:3mm;">Aucun objet vendu, une borne mutualisée, réparable.</p></div>
   </div>
-
   <div class="grille g3">
-    <div class="carte"><h4>♻️ Sobriété matérielle</h4>
-      <p class="petit">Son téléphone suffit. Le seul matériel du système est partagé par tous
-        les joueurs d'un lieu.</p></div>
-    <div class="carte"><h4>🔒 Données minimisées</h4>
-      <p class="petit">Aucun historique de position conservé, rencontres en zone approximative,
-        suppression du compte en deux gestes.</p></div>
-    <div class="carte"><h4>🎯 Attention respectée</h4>
-      <p class="petit">Un produit qui prétend réduire le temps d'écran ne peut pas vivre de
-        l'attention qu'il capte.</p></div>
+    <div class="carte lav"><h4>♻️ Sobriété matérielle</h4><p class="petit">Son téléphone suffit. Le seul matériel est partagé par tous les joueurs d'un lieu.</p></div>
+    <div class="carte lav"><h4>🔒 Données minimisées</h4><p class="petit">Aucun historique de position, rencontres en zone approximative.</p></div>
+    <div class="carte lav"><h4>🎯 Attention respectée</h4><p class="petit">Pas de publicité : on ne vit pas de l'attention qu'on capte.</p></div>
   </div>
 </section>
 
-<!-- ===================== 10. PILOTAGE ===================== -->
-<section class="slide" data-n="11">
-  <h2>Piloter, et pas seulement coder</h2>
-  <div class="regle"></div>
-
-  <div class="corps grille g3">
-    <div class="carte">
-      <h4>Une charte de projet</h4>
-      <p class="petit">Cadrage, périmètre, pilotage. Trois objectifs présentables à un financeur,
-        et un <span class="jargon">SWOT</span> qui nomme le croisement dangereux : aucune
-        compétence commerciale face à un acteur installé qui copierait.</p>
-    </div>
-    <div class="carte">
-      <h4>Douze risques, classés</h4>
-      <p class="petit">Chaque risque est noté selon sa <strong>fréquence</strong> et sa
-        <strong>gravité</strong>, puis reçoit un <strong>plan préventif</strong> et un
-        <strong>plan correctif</strong>. Un <em>pré-mortem</em> complète l'exercice.</p>
-    </div>
-    <div class="carte">
-      <h4>Six indicateurs</h4>
-      <p class="petit">Trois d'exécution, trois d'entreprise. Chacun porte la question
-        <em>« si ça décroche, qu'est-ce que je fais ? »</em> — sinon ce n'est pas un indicateur,
-        c'est une statistique.</p>
-    </div>
-  </div>
-
-  <div class="carte pleine" style="margin-top:5.5mm;">
-    <p style="margin:0;"><strong>Le retour qui a le plus compté</strong> : notre première charte
-      décrivait un projet d'étudiants. Elle décrit maintenant l'entreprise — horizon 2028, budget
-      sur trois ans, risques de financement et de rétention. Le fond n'a pas changé ; la hauteur
-      de vue, si.</p>
-  </div>
-
-  <p class="glose"><b>SWOT</b> : forces et faiblesses internes, opportunités et menaces externes.
-    &nbsp;·&nbsp; <b>Pré-mortem</b> : se projeter à l'échec, et remonter aux causes avant qu'elles
-    n'arrivent.</p>
-</section>
-
-<!-- ===================== 11. PLANIFICATION ===================== -->
-<section class="slide" data-n="12">
+<!-- ====================================================== 48. AVANCEMENT -->
+<section class="slide" data-n="48">
   <h2>Ce qui est fait, ce qui vient</h2>
-  <div class="regle"></div>
-
-  <div class="corps">
-    <div class="frise">
-      <div class="etape fait">
-        <div class="barre"></div>
-        <div class="d">sept. – oct. 2026</div>
-        <div class="t">Cadrage</div>
-        <div class="c">Cahier des charges, charte, modèle économique, maquettes</div>
-      </div>
-      <div class="etape encours">
-        <div class="barre"></div>
-        <div class="d">nov. – déc. 2026</div>
-        <div class="t">Cœur du jeu<br>et borne</div>
-        <div class="c">Compagnon, quêtes, amis, prototype de borne, déploiement</div>
-      </div>
-      <div class="etape">
-        <div class="barre"></div>
-        <div class="d">5 janvier 2027</div>
-        <div class="t">Rendu</div>
-        <div class="c">Dépôt, documentation et preuve de concept complète</div>
-      </div>
-      <div class="etape">
-        <div class="barre"></div>
-        <div class="d">19 janvier 2027</div>
-        <div class="t">Soutenance</div>
-        <div class="c">Démonstration en direct des trois briques</div>
-      </div>
-    </div>
-
-    <div class="grille g2" style="margin-top:6mm;">
-      <div class="carte vert">
-        <h4>Livré à ce jour</h4>
-        <p class="petit">Connexion et profil, comptage des pas et envoi au serveur, modèle de
-          données, moteur de quêtes, amis, positions et carte, volet serveur des bornes,
-          chaîne de tests.</p>
-      </div>
-      <div class="carte accent">
-        <h4>Le point dur, assumé</h4>
-        <p class="petit"><strong>La borne physique n'est pas encore montée</strong> et porte
-          6 exigences sur 18. Le choix du microcontrôleur conditionne la commande du matériel.
-          C'est notre risque n°1, et il est écrit comme tel.</p>
-      </div>
-    </div>
+  <div class="trait" style="width:40mm;opacity:1;"></div>
+  <div class="frise" style="margin-top:4mm;">
+    <div class="fait"><div class="barre"></div><div class="d">sept. – oct. 2026</div><div class="t">Cadrage</div><div class="c">Cahier des charges, charte, modèle économique, maquettes</div></div>
+    <div class="encours"><div class="barre"></div><div class="d">nov. – déc. 2026</div><div class="t">Cœur du jeu et borne</div><div class="c">Compagnon, quêtes, amis, prototype de borne, déploiement</div></div>
+    <div><div class="barre"></div><div class="d">5 janvier 2027</div><div class="t">Rendu</div><div class="c">Dépôt, documentation, preuve de concept complète</div></div>
+    <div><div class="barre"></div><div class="d">19 janvier 2027</div><div class="t">Soutenance</div><div class="c">Démonstration en direct des trois briques</div></div>
+  </div>
+  <div class="flex1 grille g2" style="margin-top:10mm;align-content:center;">
+    <div class="carte" style="border-left:1.6mm solid var(--green);"><h4>Livré à ce jour</h4><p>Connexion et profil, comptage des pas et envoi au serveur, modèle de données, moteur de quêtes, amis, positions et carte, volet serveur des bornes, chaîne de tests.</p></div>
+    <div class="carte" style="border-left:1.6mm solid var(--red);"><h4>Le point dur, assumé</h4><p><strong>La borne physique n'est pas encore montée</strong> et porte 6 exigences sur 18. C'est notre risque R8, et il est écrit comme tel.</p></div>
   </div>
 </section>
 
-<!-- ===================== 12. RÉSULTATS ===================== -->
-<section class="slide" data-n="13">
+<!-- ====================================================== 49. RÉSULTATS -->
+<section class="slide" data-n="49">
   <h2>Résultats obtenus, résultats escomptés</h2>
-  <div class="regle"></div>
-
-  <div class="corps grille g4" style="margin-bottom:6mm;">
-    <div class="carte kpi"><div class="v">7<span style="font-size:19pt;color:var(--ink-soft);">/18</span></div>
-      <div class="l">exigences essentielles</div><div class="s">cible : 18 au rendu</div></div>
-    <div class="carte kpi"><div class="v">206</div>
-      <div class="l">tests automatisés</div><div class="s">règles du jeu et serveur</div></div>
-    <div class="carte kpi"><div class="v">31</div>
-      <div class="l">contributions fusionnées</div><div class="s">relecture croisée obligatoire</div></div>
-    <div class="carte kpi"><div class="v coral">9</div>
-      <div class="l">entretiens terrain</div><div class="s">prix validé à 1,99 €</div></div>
+  <div class="trait" style="width:40mm;opacity:1;"></div>
+  <div class="grille g4" style="margin:8mm 0 9mm;">
+    <div class="carte big"><div class="v g">7<span style="font-size:18pt;">/18</span></div><div class="l">exigences essentielles</div><div class="s">cible : 18 au rendu</div></div>
+    <div class="carte big"><div class="v g">206</div><div class="l">tests automatisés</div><div class="s">règles du jeu et serveur</div></div>
+    <div class="carte big"><div class="v g">31</div><div class="l">contributions fusionnées</div><div class="s">relecture croisée obligatoire</div></div>
+    <div class="carte big"><div class="v" style="color:var(--coral);">9</div><div class="l">entretiens terrain</div><div class="s">prix validé à 1,99 €</div></div>
   </div>
-
-  <div class="grille g2">
-    <div class="carte">
-      <h4>D'ici le rendu</h4>
-      <ul class="petit">
-        <li>Les 18 exigences essentielles livrées et démontrées sans intervention manuelle</li>
-        <li>La borne montée, lisant le téléphone et dialoguant avec le serveur</li>
-        <li>Chaîne de déploiement automatique complète et supervision en place</li>
-      </ul>
-    </div>
-    <div class="carte">
-      <h4>Au-delà du projet</h4>
-      <ul class="petit">
-        <li>2 lettres d'intention de partenaires, 20 testeurs actifs</li>
-        <li>Fidélité à 30 jours mesurée — l'hypothèse centrale du modèle</li>
-        <li>Société créée et financement recherché à l'été 2027</li>
-      </ul>
-    </div>
+  <div class="flex1 grille g2" style="align-content:center;">
+    <div class="carte lav"><h4>D'ici le rendu</h4><ul style="margin-top:2mm;"><li>Les 18 exigences essentielles démontrées sans intervention</li><li>La borne montée, lisant le téléphone, dialoguant en MQTT</li><li>Déploiement automatique complet et supervision</li></ul></div>
+    <div class="carte lav"><h4>Au-delà du projet</h4><ul style="margin-top:2mm;"><li>2 lettres d'intention, 100 testeurs sur le campus</li><li>Rétention à 30 jours mesurée : l'hypothèse centrale</li><li>Société créée et amorçage bouclé en 2027</li></ul></div>
   </div>
 </section>
 
-<!-- ===================== 13. CONCLUSION ===================== -->
-<section class="slide sombre" data-n="14">
-  <h2 style="color:#fff;">Ce que nous retenons</h2>
-  <div class="regle"></div>
-
-  <div class="corps grille g3" style="align-content:start;">
-    <div class="carte pleine" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);">
-      <h4>Décider, puis l'écrire</h4>
-      <p class="petit">Le pivot du bracelet, le prix à 1,99 €, un objectif revu à la baisse :
-        chaque choix est tracé avec sa raison. Une décision non écrite se re-discute
-        indéfiniment.</p>
-    </div>
-    <div class="carte pleine" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);">
-      <h4>Mesurer avant d'affirmer</h4>
-      <p class="petit">Le prix vient de neuf entretiens, pas d'une intuition. Et ces entretiens
-        ont sorti deux enseignements que nous ne cherchions pas.</p>
-    </div>
-    <div class="carte pleine" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);">
-      <h4>Prendre de la hauteur</h4>
-      <p class="petit">Le retour le plus utile a été le plus exigeant : sortir de la posture
-        d'étudiants et raisonner en porteurs de projet.</p>
-    </div>
+<!-- ====================================================== 50. CE QUE NOUS RETENONS -->
+<section class="slide fonce" data-n="50">
+  <h2>Ce que nous retenons</h2>
+  <div class="trait" style="width:40mm;opacity:1;"></div>
+  <div class="grille g3" style="margin-top:4mm;">
+    <div class="carte" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);box-shadow:none;"><h4>Décider, puis l'écrire</h4><p class="petit">Le pivot du bracelet, le prix à 1,99 €, un objectif revu : chaque choix est tracé avec sa raison.</p></div>
+    <div class="carte" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);box-shadow:none;"><h4>Mesurer avant d'affirmer</h4><p class="petit">Le prix vient de neuf entretiens, pas d'une intuition. Et ils ont sorti deux enseignements inattendus.</p></div>
+    <div class="carte" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);box-shadow:none;"><h4>Prendre de la hauteur</h4><p class="petit">Le retour le plus utile a été le plus exigeant : raisonner en porteurs de projet, pas en étudiants.</p></div>
   </div>
-
-  <div style="margin-top:7mm;text-align:center;">
-    <p style="font-family:'Baloo 2',sans-serif;font-size:23pt;color:#fff;margin:0;">
-      « Il ne grandit que si <span style="color:var(--coral);">toi</span> tu sors. »
-    </p>
-    <p class="petit" style="color:#A9C6CE;margin-top:3mm;">Merci de votre attention.</p>
+  <div class="flex1" style="display:flex;flex-direction:column;justify-content:center;text-align:center;">
+    <p style="font:700 26pt 'Baloo 2';color:#fff;margin:0;">« Il ne grandit que si <span class="g">toi</span> tu sors. »</p>
+    <p class="petit" style="margin-top:3mm;">Merci de votre attention.</p>
   </div>
 </section>
 
-<!-- ===================== 14. QUESTIONS ===================== -->
-<section class="slide sombre sep" data-n="15">
-  <div class="kicker">À vous</div>
-  <h2>Questions</h2>
-  <p>Équipe Scubatana &middot; BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena</p>
+<!-- ====================================================== 51. QUESTIONS -->
+<section class="slide degrade" data-n="51" style="justify-content:center;align-items:center;text-align:center;">
+  <p style="font:600 12pt 'Baloo 2';letter-spacing:3px;color:#fff;">À VOUS</p>
+  <h2 style="font-size:60pt;font-weight:900;">Questions</h2>
+  <p style="color:#fff;margin-top:5mm;">Équipe Scubatana · BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena</p>
 </section>
 
-<!-- ===================== 15. ANNEXE ===================== -->
-<section class="slide" data-n="16">
-  <h2>Annexe <span class="petit gris" style="font-family:Inter;font-weight:400;">— pour les questions</span></h2>
-  <div class="regle"></div>
-
-  <div class="corps grille g3">
-    <div class="carte">
-      <h4>Documents produits</h4>
-      <ul class="petit">
-        <li>Charte de projet, 16 pages</li>
-        <li>Cahier des charges, 32 exigences priorisées</li>
-        <li>Business Model Canvas et marketing mix</li>
-        <li>Expérience utilisateur et étude de prix</li>
-      </ul>
-    </div>
-    <div class="carte">
-      <h4>Organisation de l'équipe</h4>
-      <ul class="petit">
-        <li>Un référent par lot : application, serveur, borne, infrastructure</li>
-        <li>Une branche par tâche, relecture croisée avant fusion</li>
-        <li>Point hebdomadaire, indicateurs relevés chaque vendredi</li>
-      </ul>
-    </div>
-    <div class="carte">
-      <h4>Décisions encore ouvertes</h4>
-      <ul class="petit">
-        <li>Choix du microcontrôleur de la borne</li>
-        <li>Hébergement et outil d'analyse de qualité</li>
-        <li>Place de la norme oneM2M dans l'architecture</li>
-      </ul>
-    </div>
+<!-- ====================================================== 52. ANNEXE -->
+<section class="slide" data-n="52">
+  <h2>Annexe <span style="font:400 13pt 'Inter';color:var(--soft);">pour les questions</span></h2>
+  <div class="trait" style="width:40mm;opacity:1;"></div>
+  <div class="flex1 grille g3" style="margin-top:6mm;align-content:center;">
+    <div class="carte"><h4>Documents produits</h4><ul style="margin-top:2mm;"><li>Charte de projet, 16 pages</li><li>Cahier des charges, 32 exigences priorisées</li><li>Business Model Canvas et marketing mix</li><li>Expérience utilisateur et étude de prix</li></ul></div>
+    <div class="carte"><h4>Organisation de l'équipe</h4><ul style="margin-top:2mm;"><li>Un référent par lot : application, serveur, borne, infrastructure</li><li>Une branche par tâche, relecture croisée avant fusion</li><li>Point hebdomadaire, indicateurs le vendredi</li></ul></div>
+    <div class="carte"><h4>Décisions encore ouvertes</h4><ul style="margin-top:2mm;"><li>Hébergement et outil d'analyse de qualité</li><li>Place de la norme oneM2M dans l'architecture</li><li>Territoire pilote : Paris, ou plus près du terrain réel</li></ul></div>
   </div>
-
-  <p class="pied">Dépôt et documentation complète : github.com/Scubatana</p>
+  <p class="note">Dépôt et documentation complète : github.com/Scubatana</p>
 </section>
 
 </body>

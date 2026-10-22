@@ -6,25 +6,28 @@ BANDIERAS Thomas, DALMASSO Evan, KARROUCHI Hamza, LESUEUR Shaleena
 CE QUI EST NOUVEAU DANS CETTE VERSION
 -------------------------------------------------------------------------------
 
-1-Presentation-du-projet.pdf        16 diapositives   *** NOUVEAU ***
+1-Presentation-du-projet.pdf        52 diapositives   *** NOUVEAU ***
 
-    La présentation de dix minutes demandée, au format 16:9 et exportée en
-    PDF. Elle est construite comme un pitch destiné à convaincre, et non
-    comme un compte rendu : chacun de ses cinq temps répond à une question
-    qu'un client, un partenaire ou un financeur se poserait.
+    La présentation de soutenance, au format 16:9 et exportée en PDF,
+    dans la charte graphique de l'application (océan, corail, Baloo 2).
+    Elle est construite comme un pitch, puis comme un dossier de gestion
+    de projet, avant une partie technique :
 
-        I    Le problème et notre réponse        2 min
-        II   Comment ça marche                   2 min
-        III  Le modèle économique                2 min 30
-        IV   Responsabilité et pilotage          2 min
-        V    Où on en est, et la suite           1 min 30
+        1-14   Le problème, l'équipe, le produit et la concurrence
+        15-19  SWOT, matrice des douze risques et les trois critiques
+        20-23  Les trois personas et le public cible
+        24-29  La communication et l'objectif de rétention
+        30-36  Les offres, le prix validé, le financement, les revenus
+               et les coûts
+        37-41  Parties prenantes, plan d'action, roadmap, indicateurs
+               et vision à long terme
+        43-49  Partie technique : passage en borne, architecture, pivot,
+               ODD 3, 11 et 12, avancement et résultats
 
     Les termes techniques sont expliqués en une ligne là où ils
-    apparaissent : NFC, MQTT, podomètre, SWOT, pré-mortem. Les interfaces
-    sont montrées plutôt que décrites. Les diapositives sont numérotées.
-
-    La diapositive 10 traite les ODD 3, 11 et 12, demandés par la lettre
-    de commande pour le volet économie durable.
+    apparaissent : NFC, MQTT, podomètre. Les chiffres viennent de la charte
+    de projet, du Business Model Canvas et du marketing mix ; les
+    hypothèses sont signalées comme telles sur la diapositive.
 
 -------------------------------------------------------------------------------
 LES DOCUMENTS DÉJÀ RENDUS, INCHANGÉS
