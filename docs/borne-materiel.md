@@ -93,8 +93,8 @@ Total : 33,48 €, plus les frais de port (à partir de 7,19 €).
 | # | Composant | Réf. | Qté | Prix | Lien |
 | - | --------- | ---- | --- | ---- | ---- |
 | 10 | Carte Freenove ESP32, écran tactile 2,8" (câble USB-C et câble 4 broches fournis) | B0GVXBDFXV | 1 | 17,95 € | [lien](https://www.amazon.fr/dp/B0GVXBDFXV) |
-| 11 | Anneau LED Tyenaza, 24 LED WS2812, 65 mm | B09V2T6WQ6 | 1 | voir la fiche | [lien](https://www.amazon.fr/dp/B09V2T6WQ6) |
-| 12 | Chargeur secteur USB 2 ports, 12 W (5 V, 2,4 A) | B0DQPPV3YQ | 1 | voir la fiche | [lien](https://www.amazon.fr/dp/B0DQPPV3YQ) |
+| 11 | Anneau LED Tyenaza, 24 LED WS2812, 65 mm | B09V2T6WQ6 | 1 | 7,99 € | [lien](https://www.amazon.fr/dp/B09V2T6WQ6) |
+| 12 | Chargeur secteur USB 2 ports, 12 W (5 V, 2,4 A) | B0DQPPV3YQ | 1 | 7,98 € | [lien](https://www.amazon.fr/dp/B0DQPPV3YQ) |
 | 13 | QWORK, adaptateur USB-A vers bornier à vis (lot mâle et femelle) | B09RDVKPFJ | 1 lot | 6,98 € | [lien](https://www.amazon.fr/dp/B09RDVKPFJ) |
 
 **Pour une deuxième borne**, reprendre une fois les lignes 1 à 6 et 10 à 12. Les lignes 7 à 9 et 13 sont des lots qui suffisent pour deux bornes (seul l'adaptateur QWORK mâle sert).
@@ -202,7 +202,7 @@ Pour une démonstration, le Wi-Fi de l'IUT (eduroam, WPA2-Entreprise) est mal g�
 
 ## Boîtier
 
-Découpe laser dans du bois de 3 mm, au FabLab ou par l'IUT.
+Découpe laser dans du bois de 3 mm par l'IUT ou potentiel accès au FabLab.
 
 - **Le NFC passe à travers 3 mm de bois**, pas à travers le métal. Coller le module contre la face intérieure, sans espace d'air, au centre de l'anneau.
 - **L'anneau ne doit pas recouvrir le module NFC** : son circuit en cuivre gênerait l'antenne.
