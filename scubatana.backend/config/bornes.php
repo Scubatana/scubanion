@@ -20,4 +20,8 @@ return [
 
 	'offline_after_seconds' => (int) env('BORNE_OFFLINE_AFTER_SECONDS', 120),
 
+	'token_refresh_minutes' => (int) env('BORNE_TOKEN_REFRESH_MINUTES', 5),
+
+	'max_travel_speed_kmh' => (int) env('BORNE_MAX_TRAVEL_SPEED_KMH', 150),
+
 ];
