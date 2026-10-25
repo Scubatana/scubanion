@@ -1,6 +1,6 @@
 # Protocole des bornes
 
-Ce document est le contrat entre le code de la borne et l'API : le jeton que la borne donne au téléphone, et les messages MQTT échangés avec le serveur (BOR-03, BCK-04, R5.04).
+Ce document est le contrat entre le code de la borne, l'app et l'API : le jeton que la borne donne au téléphone, la façon dont il est écrit dans le tag NFC, et les messages MQTT échangés avec le serveur (BOR-03, BCK-04, R5.04).
 
 ```mermaid
 flowchart LR
@@ -16,7 +16,7 @@ flowchart LR
 ## Le passage, en résumé
 
 1. Le joueur approche son téléphone de la borne.
-2. La borne calcule un **jeton** avec son identifiant, l'heure du scan et son secret, et le transmet au téléphone par NFC.
+2. Le téléphone lit dans le tag NFC de la borne un **jeton**, calculé avec l'identifiant de la borne, l'heure et son secret, sous la forme d'une adresse web qui ouvre l'app. Quand le téléphone repart, la borne écrit un nouveau jeton.
 3. Le téléphone envoie le jeton à l'API (`POST /api/me/passages`, voir [api/bornes.md](api/bornes.md)). Sans réseau, il le garde et l'envoie dans les 24 h.
 4. L'API retrouve la borne grâce au jeton, vérifie la signature avec le secret de cette borne, vérifie l'heure, et refuse un jeton déjà utilisé.
 5. L'API répond au téléphone, et publie le résultat sur le topic `affichage` de la borne, qui l'affiche à l'écran.
@@ -30,7 +30,7 @@ Format : `{code}.{heure}.{signature}`, en ASCII, 40 caractères au plus.
 | Partie | Contenu |
 | ------ | ------- |
 | `code` | le code de la borne, par exemple `chateau-01` |
-| `heure` | l'heure du scan en secondes Unix (UTC), écrite en base 36, minuscules |
+| `heure` | l'heure du scan en secondes Unix (UTC), écrite en base 36, minuscules. C'est en fait l'heure à laquelle la borne a écrit le jeton dans le tag, au plus 5 minutes avant la lecture (voir [Quand la borne écrit le jeton](#quand-la-borne-écrit-le-jeton)) |
 | `signature` | HMAC-SHA256 de `{code}.{heure}` avec le secret de la borne comme clé, dont on garde les **12 premiers octets**, encodés en base64 URL sans `=` (16 caractères) |
 
 Exemple, pour la borne `chateau-01` à 2026-10-13 13:00:00 UTC (`1791896400`, soit `tmuk40` en base 36) : `chateau-01.tmuk40.` suivi des 16 caractères de signature.
@@ -39,9 +39,48 @@ Règles appliquées par le serveur :
 
 - la signature doit correspondre au secret de la borne nommée dans le jeton ;
 - l'heure du scan doit dater de moins de 24 h et ne pas dépasser l'heure du serveur de plus de 5 minutes : **la borne doit être à l'heure (NTP)** ;
-- un jeton ne sert qu'**une fois** : le serveur garde son empreinte (SHA-256) et refuse le même jeton ensuite, même présenté par un autre joueur. La borne génère donc un nouveau jeton à chaque scan.
+- un jeton ne sert qu'**une fois** : le serveur garde son empreinte (SHA-256) et refuse le même jeton ensuite, même présenté par un autre joueur. La borne écrit donc un nouveau jeton après chaque lecture.
 
 `php artisan bornes:simuler {code}` affiche un jeton calculé exactement comme le ferait la borne, ce qui permet de tester l'app et l'API sans matériel.
+
+## Le contenu du tag NFC
+
+Le tag contient un message NDEF d'un seul enregistrement, de type adresse web (URI) :
+
+```
+https://scuba.picsou06.fr/b/{jeton}
+```
+
+Par exemple `https://scuba.picsou06.fr/b/chateau-01.tmuk40.` suivi des 16 caractères de signature.
+
+- Les caractères du jeton (lettres, chiffres, `-`, `_` et `.`) passent tels quels dans une adresse, sans encodage.
+- Le tout fait moins de 80 octets, en-têtes compris : la zone 1 de la puce suffit largement.
+- Le domaine est un réglage du firmware, comme le Wi-Fi. L'app doit reconnaître celui qu'utilisent les bornes.
+- Le téléphone ne fait que lire : la puce refuse toute écriture en NFC (voir [Protéger la puce NFC](borne-materiel.md#protéger-la-puce-nfc)).
+
+**Pourquoi une adresse et pas un simple texte.** Android ouvre directement une app qui déclare l'adresse lue :
+
+- l'app filtre l'intent `android.nfc.action.NDEF_DISCOVERED` sur `https://scuba.picsou06.fr/b/`. Le joueur approche son téléphone et l'app s'ouvre sur le passage, même si elle était fermée. Avec un enregistrement texte, Android afficherait « Nouveau tag NFC » ou un choix d'appli ;
+- quand l'app est déjà au premier plan, elle lit le tag elle-même (*foreground dispatch* ou *reader mode*), pour ne pas être relancée.
+
+Pas d'enregistrement *Android Application Record* (AAR) pour l'instant : il enverrait un téléphone sans l'app vers le Play Store, où Scubanion n'est pas publiée. À ajouter le jour où elle l'est.
+
+## Quand la borne écrit le jeton
+
+Le téléphone lit le tag dès qu'il entre dans le champ NFC, en quelques millisecondes : la borne n'a pas le temps de réagir à son arrivée, et la puce refuse les accès I2C pendant qu'elle répond au téléphone. La borne garde donc **toujours un jeton prêt** dans le tag. Elle détecte l'arrivée et le départ du téléphone grâce à la broche GPO de la puce (voir [borne-materiel.md](borne-materiel.md#nfc--un-tag-dynamique-pas-un-lecteur)).
+
+| Moment | Ce que fait la borne |
+| ------ | -------------------- |
+| Au démarrage, dès qu'elle a l'heure (horloge ou NTP) | écrit un premier jeton |
+| Un téléphone arrive (`FIELD_RISING`) | lance l'animation de l'anneau, sans rien écrire |
+| Le téléphone repart (`FIELD_FALLING`) | écrit un nouveau jeton : celui qui vient d'être lu ne servira plus |
+| 5 minutes sans scan | écrit un nouveau jeton, pour que son heure reste proche de celle de la lecture |
+
+Conséquences :
+
+- l'`heure` du jeton est celle de son écriture, au plus 5 minutes avant la lecture. Un passage juste après minuit peut donc compter pour la veille ;
+- si deux téléphones lisent la borne l'un après l'autre sans que le premier soit reparti, ils lisent le même jeton : le second reçoit « déjà utilisé » et doit scanner à nouveau ;
+- la borne n'écrit pas plus souvent : chaque bloc de la mémoire de la puce supporte un nombre limité d'écritures, de l'ordre du million d'après la fiche technique (à revérifier). Une écriture toutes les 5 minutes, plus une par scan, tient des années ; une toutes les 10 secondes userait la puce en quelques mois.
 
 ## Topics MQTT
 
