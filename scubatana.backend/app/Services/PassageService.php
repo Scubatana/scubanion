@@ -99,7 +99,11 @@ class PassageService
 
 		$last = $player->position()->first();
 
-		if ($last !== null && ($last->mocked || ! $this->couldHaveReached($place, $last, $scannedAt))) {
+		if ($last === null) {
+			throw ValidationException::withMessages(['position' => 'Active ta localisation pour valider la borne, puis scanne-la à nouveau.']);
+		}
+
+		if ($last->mocked || ! $this->couldHaveReached($place, $last, $scannedAt)) {
 			throw ValidationException::withMessages(['position' => 'Ta dernière position est trop loin de la borne : active ta localisation et scanne-la à nouveau.']);
 		}
 	}

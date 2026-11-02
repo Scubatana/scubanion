@@ -258,17 +258,35 @@ class PassageTest extends TestCase
 		$this->send($this->token())->assertOk();
 	}
 
-	public function test_without_a_position_a_nearby_or_unknown_last_position_is_enough(): void
+	public function test_without_a_position_a_nearby_last_position_is_enough(): void
+	{
+		$this->atTheCastle();
+		UserPosition::factory()->for($this->lea)->create(['latitude' => 43.7043, 'longitude' => 7.2806, 'recorded_at' => now()->subMinutes(2)]);
+
+		$this->send($this->token())->assertOk();
+		$this->assertSame(1, Passage::count());
+	}
+
+	public function test_a_player_whose_position_was_never_received_must_turn_on_location(): void
+	{
+		$this->atTheCastle();
+		$token = $this->token();
+
+		$this->send($token)
+			->assertUnprocessable()
+			->assertJsonPath('errors.position.0', 'Active ta localisation pour valider la borne, puis scanne-la à nouveau.');
+		$this->assertSame(0, Passage::count());
+
+		$this->sendFrom($token, 43.6958, 7.2806)->assertOk()->assertJsonPath('status', 'rewarded');
+	}
+
+	public function test_a_decimal_gps_accuracy_is_accepted_and_rounded(): void
 	{
 		$this->atTheCastle();
 
-		$this->send($this->token())->assertOk();
+		$this->sendFrom($this->token(), 43.6958, 7.2806, ['accuracy_m' => 12.6])->assertOk();
 
-		UserPosition::factory()->for($this->lea)->create(['latitude' => 43.7043, 'longitude' => 7.2806, 'recorded_at' => now()->subMinutes(2)]);
-		$this->travel(1)->minutes();
-
-		$this->send($this->token())->assertOk();
-		$this->assertSame(2, Passage::count());
+		$this->assertSame(13, $this->lea->position()->value('accuracy_m'));
 	}
 
 	public function test_a_terminal_without_a_place_does_not_check_the_position(): void

@@ -71,10 +71,11 @@ Un passage à une borne rapporte 100 XP, une fois par jour et par borne. Le jeto
 
 **Un joueur bloqué** (position simulée ou téléportation, voir [Anti-triche](#quêtes)) ne valide aucun passage à une borne rattachée à un lieu pendant son blocage, avec ou sans position. Comme pour les quêtes, rien ne le lui indique : il reçoit le même refus que s'il était loin. La position envoyée avec un passage n'est enregistrée qu'une fois le jeton reconnu valable et pas encore utilisé : un jeton faux, expiré ou déjà servi ne modifie ni la position du joueur, ni ses blocages.
 
-**L'app n'envoie pas de position** (localisation refusée, pas de signal), ou une position qui ne date pas du scan. Le serveur reprend la dernière position reçue du joueur (refusée si elle était simulée), et vérifie qu'il a pu aller de là jusqu'à la borne à 150 km/h au plus (`BORNE_MAX_TRAVEL_SPEED_KMH`). La borne écrit son jeton jusqu'à 5 minutes avant sa lecture (`BORNE_TOKEN_REFRESH_MINUTES`) : le serveur retient le moment de lecture le plus favorable au joueur. Un joueur dont on ne connaît aucune position passe.
+**L'app n'envoie pas de position** (localisation refusée, pas de signal), ou une position qui ne date pas du scan. Le serveur reprend la dernière position reçue du joueur (refusée si elle était simulée), et vérifie qu'il a pu aller de là jusqu'à la borne à 150 km/h au plus (`BORNE_MAX_TRAVEL_SPEED_KMH`). La borne écrit son jeton jusqu'à 5 minutes avant sa lecture (`BORNE_TOKEN_REFRESH_MINUTES`) : le serveur retient le moment de lecture le plus favorable au joueur. Un joueur dont on n'a jamais reçu de position est refusé : rien ne prouve qu'il est à la borne, il doit activer sa localisation et scanner à nouveau.
 
 | Dernière position connue | Résultat |
 | ------------------------ | -------- |
+| aucune | refusé |
 | à 1 km, 2 minutes avant le scan | accepté |
 | à Paris pour une borne à Nice, 10 minutes avant | refusé |
 | à Paris pour une borne à Nice, 6 heures avant | accepté : le trajet était possible |

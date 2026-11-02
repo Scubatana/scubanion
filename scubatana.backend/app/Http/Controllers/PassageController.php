@@ -17,7 +17,7 @@ class PassageController extends Controller
 			'token' => ['required', 'string', 'max:64'],
 			'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-90,90'],
 			'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
-			'accuracy_m' => ['nullable', 'integer', 'min:0'],
+			'accuracy_m' => ['nullable', 'numeric', 'min:0'],
 			'mocked' => ['sometimes', 'boolean'],
 			'recorded_at' => ['nullable', 'date', 'after_or_equal:'.now()->subHours(config('bornes.max_replay_hours'))->toIso8601String(), 'before_or_equal:'.now()->addMinutes(config('bornes.future_tolerance_minutes'))->toIso8601String()],
 		]);
@@ -46,7 +46,7 @@ class PassageController extends Controller
 		return [
 			'latitude' => (float) $data['latitude'],
 			'longitude' => (float) $data['longitude'],
-			'accuracy' => isset($data['accuracy_m']) ? (int) $data['accuracy_m'] : null,
+			'accuracy' => isset($data['accuracy_m']) ? (int) round((float) $data['accuracy_m']) : null,
 			'mocked' => $request->boolean('mocked'),
 			'recorded_at' => isset($data['recorded_at']) ? CarbonImmutable::parse($data['recorded_at'])->setTimezone(config('app.timezone')) : CarbonImmutable::now(),
 		];
