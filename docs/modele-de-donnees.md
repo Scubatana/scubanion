@@ -8,6 +8,8 @@ Ce document décrit les tables en place dans la base MariaDB. Le schéma est gé
 erDiagram
     place_types ||--o{ places : "type"
     places ||--o{ place_points : "contour"
+    places |o--o{ terminals : "accueille"
+    terminals ||--o{ passages : "enregistre"
     task_types ||--o{ quest_tasks : "type"
     quests ||--o{ quest_tasks : "étapes et tâches"
     places |o--o{ quest_tasks : "lieu visé"
@@ -30,20 +32,23 @@ erDiagram
     users ||--o{ quest_bans : "blocages"
     users ||--o| companions : "possède"
     users ||--o{ activities : "marche"
+    users ||--o{ friendships : "ajoute"
+    users ||--o{ passages : "passe à"
     users ||--o{ encounters : "rencontre"
 ```
 
-Tables antérieures, non redessinées : `users`, `companions`, `activities` (les pas d'un jour, par téléphone), et les tables techniques `login_codes`, `personal_access_tokens`, `sessions`, `cache`, `jobs`.
+Tables antérieures, non redessinées : `users` (avec `friend_code`, code d'invitation unique de 8 caractères), `companions`, `activities` (les pas d'un jour, par téléphone), et les tables techniques `login_codes`, `personal_access_tokens`, `sessions`, `cache`, `jobs`.
 
 ## Catalogue : ce qui se configure
 
-Les types, les textes, les conditions et les lieux sont des **données** : on en ajoute ou on en change sans livrer l'app ni écrire de migration.
+Les types, les textes, les conditions, les lieux et les bornes sont des **données** : on en ajoute ou on en change sans livrer l'app ni écrire de migration.
 
 | Table | Rôle | Points notables |
 | ----- | ---- | --------------- |
 | `place_types` | Les types de lieux | `code`, `label`, `icon`, `color`, `on_map` (affiché sur la carte ou non), `active`. Livrés avec : `park`, `point_of_interest`, `partner`, `bus_stop`, et `zone` (non affiché, sert au ciblage). |
 | `places` | Un lieu ponctuel ou une grande zone | `latitude` et `longitude` (point de référence), `radius_m` pour un lieu ponctuel (enregistré à la création, 100 m si rien n'est donné, pour qu'un changement de la valeur par défaut ne change pas les lieux existants ; vidé quand on trace un contour), rectangle englobant (`min_lat`, `max_lat`, `min_lng`, `max_lng`) toujours renseigné : calculé depuis le rayon pour un lieu ponctuel, depuis le contour pour une zone. C'est lui que la carte et la validation interrogent. `attributes` (JSON libre), `source` et `external_id` pour les imports (unique ensemble), `synced_at`, `active`. |
 | `place_points` | Le contour d'une grande zone | Les sommets dans l'ordre (`position`) : 4 pour un carré, autant qu'il faut pour une forêt. |
+| `terminals` | Les bornes IoT installées sur le terrain | `code` (identifiant MQTT et NFC, unique sur 32 car.), `name`, `secret` (secret HMAC-SHA256 chiffré au repos par Laravel et masqué des réponses JSON), `place_id` (lieu rattaché, mis à `null` si le lieu est retiré), `status` (`online` ou `offline`), `firmware`, `last_seen_at` (dernier signal de vie MQTT reçu ; `Terminal::isOnline()` vérifie aussi sa fraîcheur). |
 | `task_types` | Les types de tâches | `code`, `label`, `app_action`, `params_schema` (forme attendue des paramètres), `active`. |
 | `accessories` | Les accessoires du compagnon | `code`, `label`, `category` (une des catégories de `config/companion.php`), `image` (le dessin SVG, 100 × 100), `earnable` (se gagne par une récompense), `active`. Un accessoire ajouté ici apparaît dans l'app sans livraison. |
 | `quests` | Les quêtes | `name`, `description`, `icon`, attribution (`auto_assign`, `target_ambition`, `target_zone_id`), `repeat` (`once`, `daily`, `weekly`), `starts_at`, `ends_at`, `status` (`draft`, `published`, `archived`). |
@@ -65,13 +70,15 @@ Les types, les textes, les conditions et les lieux sont des **données** : on en
 | `user_accessories` | Les accessoires débloqués | `accessory_id`, `quest_id` (la quête qui l'a donné), `unlocked_at`. Unique par joueur et accessoire. |
 | `user_positions` | La dernière position connue | Une seule ligne par joueur, remplacée à chaque nouvelle position : `latitude`, `longitude`, `accuracy_m`, `mocked` (position simulée signalée par Android), `recorded_at`. |
 | `quest_bans` | Les blocages sur les tâches de localisation | `reason`, `evidence` (JSON), `starts_at`, `ends_at`. |
+| `friendships` | Les demandes et liens d'amitié (APP-07) | `user_id` (demandeur) et `friend_id` (invité), `status` (`pending` ou `accepted`), `accepted_at`. Unique sur `(user_id, friend_id)` et consulté dans les deux sens par `Friendship::between()`. |
+| `passages` | Les passages validés en borne (BOR-02, BCK-04) | `terminal_id`, `user_id`, `token_hash` (empreinte SHA-256 unique du jeton NFC pour empêcher tout rejeu), `scanned_at`, `reward_xp` (0 si le joueur est déjà passé sur cette borne le même jour). |
 | `encounters` | Deux joueurs qui se sont croisés (APP-08) | Voir ci-dessous. |
 
 ## Règles garanties par la base et les modèles
 
 - **Rien d'utilisé ne disparaît.** Une quête, une tâche, une récompense, un lieu, un type ou un accessoire déjà utilisés ne peuvent pas être supprimés : clés étrangères en `restrict`. Une quête sans joueur se supprime seulement après ses récompenses et ses tâches, pour qu'un clic n'efface pas 40 tâches d'un coup. Un accessoire qu'on ne veut plus proposer passe en `active = false`.
 - **Une quête commencée ne change plus de structure.** Dès qu'un joueur l'a reçue, seuls son nom, sa description, son icône et son statut (pour l'archiver) peuvent changer, et pour ses tâches seule la description. Ajouter, retirer ou modifier une tâche ou une récompense lève une erreur (`Quest`, `QuestTask` et `QuestReward`).
-- **Supprimer un compte efface tout ce qui le concerne** : ses quêtes, leur avancement, ses récompenses, ses accessoires, sa position, ses blocages et ses rencontres (en cascade).
+- **Supprimer un compte efface tout ce qui le concerne** : ses quêtes, leur avancement, ses récompenses, ses accessoires, sa position, ses blocages, ses amitiés, ses passages et ses rencontres (en cascade).
 - **Un blocage ne gêne que la localisation.** `User::isBannedFromLocationTasks()` dit si un blocage est en cours.
 
 ## Rencontres
@@ -82,4 +89,4 @@ Pour respecter la minimisation du RGPD, aucune coordonnée brute n'est gardée :
 
 ## Pour plus tard
 
-Photos, import automatique des arrêts de bus et des zones (GTFS, OpenStreetMap), interface admin pour créer les quêtes, rôle admin en base, table des sponsors, consentements. Restent aussi à modéliser : bornes et passages (PR #18), événements, partenaires, amitiés (PR #17), équipes et messages.
+Photos, import automatique des arrêts de bus et des zones (GTFS, OpenStreetMap), interface admin pour créer les quêtes, rôle admin en base, table des sponsors, consentements. Restent aussi à modéliser : événements, partenaires, équipes et messages.

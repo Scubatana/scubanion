@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.9 du 16/10/2026
+- **Version** : 0.10 du 02/11/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -169,19 +169,19 @@ flowchart LR
 
 | Brique                | Techno                                                   | Pourquoi                                                                                                | État            |
 | --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
-| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas |
+| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas, quêtes |
 | Borne                 | ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231, anneau de LED | Vrai système cyber-physique, programmé par l'équipe. Détail dans [borne-materiel.md](borne-materiel.md) | Matériel choisi (D3), à commander |
-| API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Connexion, profil, compagnon, pas |
-| Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Joueurs, compagnons, pas |
-| Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | À faire         |
+| API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Connexion, profil, compagnon, pas, quêtes, carte, amis, passages en borne |
+| Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Joueurs, compagnons, pas, lieux, quêtes, récompenses, amitiés, bornes, passages |
+| Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | Abonné Laravel prêt, broker à conteneuriser |
 | Flux d'événements   | Kafka                                                    | Découpler la réception des événements des règles de jeu, pouvoir les rejouer (vu en R5.04)         | À évaluer (D5) |
 | Standard IoT          | oneM2M                                                   | Décrire les bornes selon un standard (vu en R5.04)                                                     | À évaluer (D5) |
 | Reverse proxy         | nginx                                                    | Point d'entrée HTTP unique                                                                             | Conteneur prêt  |
 | Admin BDD             | phpMyAdmin                                               | En développement uniquement                                                                            | Conteneur prêt  |
-| CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI en place sur `master`, GitHub Actions à faire |
+| CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI et GitHub Actions en place |
 | Qualité              | SonarQube                                                | Exigé par R5.07                                                                                        | À faire (D7)    |
-| Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | Job prêt, attend les accès |
-| Hébergement          | Azure ou autre, hôte configuré par Ansible (optionnel) | Exigé par R5.07                                                                                        | À choisir (D6)  |
+| Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | Job prêt sur GitLab CI |
+| Hébergement          | VPS déployé par SSH depuis GitLab CI (Ansible optionnel) | Exigé par R5.07                                                                                        | VPS en place (`scuba.picsou06.fr`, D6) |
 | Monitoring            | Prometheus + Grafana (+ Alertmanager)                    | Pile vue en R5.07                                                                                       | À faire         |
 | Passage à l'échelle | Docker Swarm (réplicas de l'API)                        | Bonus R5.07                                                                                             | Bonus            |
 
@@ -231,9 +231,9 @@ Topics MQTT :
 
 ### 5.4 Back-end, données et web
 
-- [ ] **BCK-01** · Must : API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.
-- [ ] **BCK-02** · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
-- [ ] **BCK-03** · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
+- [x] **BCK-01** · Must : API REST pour l'app : authentification par jeton, joueur, compagnon, pas, quêtes, amis.
+- [x] **BCK-02** · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
+- [x] **BCK-03** · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
 - [x] **BCK-04** · Must : Abonné MQTT qui suit le signal de vie des bornes ; le serveur vérifie chaque passage (jeton signé, à usage unique) et répond à la borne par MQTT.
 - [ ] **BCK-05** · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).
 - [ ] **BCK-06** · Could : Ressources oneM2M pour décrire les bornes (D5).
@@ -244,8 +244,8 @@ Modèle de données (v0, à affiner). Les tables déjà créées sont décrites 
 
 | Entité                 | Contenu principal                                                                                                      |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Joueur                  | Pseudo, contact (email, D1), date de naissance, genre (facultatif), ambition, consentements        |
-| Compagnon               | Joueur, nom, espèce, niveau, XP, humeur et santé, skin porté. Le volet « relation, login » reste à définir (D4) |
+| Joueur                  | Pseudo, code d'ami, contact (email, D1), date de naissance, genre (facultatif), ambition, consentements                |
+| Compagnon               | Joueur, nom, espèce, niveau, XP, humeur et santé, apparence et accessoires portés (D4)                                 |
 | Amitié                 | Deux joueurs, statut (en attente, acceptée), date                                                                     |
 | Activité               | Joueur, jour, nombre de pas, source (téléphone, Health Connect)                                                            |
 | Quête, progression     | Type, objectif, récompense ; avancement de chaque joueur                                                              |
@@ -273,16 +273,16 @@ La lettre de commande et les consignes détaillées de R5.01, R5.13 et R5.04 n'o
 
 Pipeline de déploiement continu exigé :
 
-- [ ] 1. Lancer automatiquement les tests unitaires.
-- [ ] 2. Construire l'application.
+- [x] 1. Lancer automatiquement les tests unitaires.
+- [x] 2. Construire l'application.
 - [ ] 3. Publier les résultats sur un SonarQube.
 - [ ] 4. Publier les images Docker sur DockerHub.
 - [x] 5. Pouvoir lancer l'application avec un fichier docker-compose.
 - [ ] 6. Déployer automatiquement sur Azure ou ailleurs (Ansible possible pour configurer l'hôte).
 - [ ] 7. *Bonus* : faire passer à l'échelle les services qui en ont besoin.
 - [ ] 8. Mettre en place une pile de monitoring.
-- [ ] Stratégie Git définie et documentée.
-- [ ] Déclencheurs du pipeline définis et documentés.
+- [x] Stratégie Git définie et documentée.
+- [x] Déclencheurs du pipeline définis et documentés.
 - [ ] Documentation qui accompagne le pipeline.
 
 Grille d'évaluation, à relire avant le rendu :
@@ -351,7 +351,7 @@ Pistes, à confirmer quand les consignes arriveront :
 
 **Dépôts**
 
-- **GitHub** (`Picsou06/scubanion`) est le dépôt de travail : branches, PR, revues.
+- **GitHub** (`Scubatana/scubanion`) est le dépôt de travail : branches, PR, revues.
 - Une GitHub Action le **copie automatiquement sur GitLab IUT** (toutes les branches et tous les tags). C'est ce miroir que les enseignants évaluent, et son runner exécute le pipeline officiel.
 - Les PR ne sont pas copiées sur GitLab. On fusionne donc avec un commit de merge (pas de squash) : les commits de chacun et les numéros de PR restent visibles dans l'historique.
 
@@ -399,13 +399,13 @@ flowchart LR
 L'app traite des données personnelles : position, activité physique, rencontres entre joueurs, date de naissance.
 
 - [ ] Consentement explicite et retirable pour la localisation, le Bluetooth et l'activité.
-- [ ] Minimisation : pas d'historique GPS brut conservé, rencontres enregistrées avec une zone approximative.
-- [ ] Durée de conservation définie ; suppression du compte et des données sur demande.
-- [ ] Âge minimum fixé : en France, un mineur consent seul à partir de 15 ans.
+- [x] Minimisation : pas d'historique GPS brut conservé, rencontres enregistrées avec une zone approximative.
+- [x] Durée de conservation définie ; suppression du compte et des données sur demande.
+- [x] Âge minimum fixé : en France, un mineur consent seul à partir de 15 ans.
 
 ## 7. Organisation de l'équipe
 
-Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par lot, et chaque membre porte une étape du pipeline, ce qui garantit que tout le monde y contribue (exigence R5.07). Thomas et Evan se partagent l'app mobile et l'infra.
+Rôles proposés par l'équipe, confirmés (D9) : un référent par lot, et chaque membre porte une étape du pipeline, ce qui garantit que tout le monde y contribue (exigence R5.07). Thomas et Evan se partagent l'app mobile et l'infra.
 
 | Membre           | Référent du lot | Étape du pipeline |
 | ---------------- | ----------------- | ------------------ |
@@ -424,13 +424,13 @@ Rôles proposés par l'équipe, à confirmer le 09/10 (D9) : un référent par l
 | D1  | Mode de connexion                         | **Tranchée : email + code à usage unique.** Écartés : SMS + code (maquettes), email + mot de passe | Code à 6 chiffres envoyé par Brevo, session ouverte par un jeton Sanctum. Les SMS sont payants (Twilio…), un code par email est gratuit | 11/10                                   |
 | D2  | Identification à la borne                | **Tranchée (13/10) : le téléphone lit la borne.** La borne génère à chaque scan un jeton signé avec son secret, que le téléphone lit en NFC et envoie à l'API. Écartés : émulation de carte par le téléphone (HCE), tag NFC personnel | Moyen matériel côté borne tranché avec D3 : un tag NFC dynamique (ST25DV), réécrit par la borne à chaque scan | 11/10                                   |
 | D3  | Microcontrôleur de la borne              | **Tranchée (16/10) : ESP32**, sur une carte Freenove avec écran tactile de 2,8 pouces, avec un tag NFC dynamique ST25DV, une horloge DS3231 et un anneau de LED. Écartés : Arduino Uno, Raspberry Pi, lecteur PN532 en émulation de tag, lecteur RC522 | ESP32 : Wi-Fi intégré, peu cher, sobre. Arduino Uno : pas de réseau sans module. Raspberry Pi : plus cher et plus gourmand. Le RC522 ne sait que lire, il ne peut pas servir de tag. Justification et commande dans [borne-materiel.md](borne-materiel.md) | 11/10, pour avoir le temps de commander |
-| D4  | Compagnon : « relation » et « login » | À définir                                                                                                                                     | Conditionne le modèle de données                                                                                                                           | 11/10                                   |
+| D4  | Compagnon : « relation » et « login » | **Tranchée : humeur et santé calculées sur l'activité.** Compagnon rattaché au compte du joueur (D1), niveau et XP gagnés par les pas, les quêtes et les bornes ; humeur et santé de 0 à 100 mises à jour selon le volume et la régularité des pas | Implémenté dans `CompanionProgressService` et détaillé dans [regles-du-jeu.md](regles-du-jeu.md)                                                             | 11/10                                   |
 | D5  | Kafka et oneM2M                           | Utilisés, ou écartés avec une justification écrite                                                                                          | R5.04 demande d'utiliser ce qui est vu en cours                                                                                                              | 31/10                                   |
-| D6  | Hébergement                              | Azure for Students, VM de l'IUT, autre                                                                                                          | Les crédits Azure sont limités                                                                                                                             | 18/10                                   |
+| D6  | Hébergement                              | **Tranchée : VPS de l'équipe** (`scuba.picsou06.fr`), déployé en SSH depuis GitLab CI. Repli possible sur Azure for Students ou une VM de l'IUT | Déploiement continu configuré dans `.gitlab-ci.yml`                                                                                                          | 18/10                                   |
 | D7  | SonarQube                                 | Instance de l'IUT, auto-hébergé                                                                                                               |                                                                                                                                                              | 18/10                                   |
 | D8  | Miroir GitHub → GitLab                   | GitHub Action, double push depuis les postes                                                                                                    | Vérifier que le GitLab IUT est joignable depuis GitHub                                                                                                      | 04/10                                   |
-| D9  | Rôles                                    | Voir § 7                                                                                                                                       |                                                                                                                                                              | 04/10                                   |
-| D10 | Stratégie Git                            | Proposition du § 6.5                                                                                                                           |                                                                                                                                                              | 04/10                                   |
+| D9  | Rôles                                    | **Tranchée : rôles du § 7 confirmés.** Un référent par lot et une étape du pipeline par membre                                                  | Appliqué dans le plan d'action (§ 2.3)                                                                                                                       | 04/10                                   |
+| D10 | Stratégie Git                            | **Tranchée : GitHub Flow du § 6.5.** PR vers `master` fusionnées sans squash après relecture et CI verte                                        | Protections actives sur `master` et workflow `garde-des-pull-requests.yml`                                                                                   | 04/10                                   |
 
 ## 9. Planning (*proposition*)
 
@@ -475,19 +475,20 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 - [ ] Mettre en place le miroir GitHub → GitLab IUT (D8).
 - [ ] Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT.
 - [X] Retirer `docs/` du `.gitignore` pour versionner la documentation.
-- [ ] Renommer Scoubanion en Scubanion : README, `capacitor.config.json`, `nuxt.config.ts`, `app.vue`, `strings.xml`, `APP_NAME` du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.
+- [x] Renommer Scoubanion en Scubanion : README, `capacitor.config.json`, `nuxt.config.ts`, `app.vue`, `strings.xml`, `APP_NAME` du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.
 - [x] Image du back : build multi-stage avec `composer install --no-dev` pendant le build. Aujourd'hui, les dépendances (dev comprises) sont installées au démarrage du conteneur, et git et unzip restent dans l'image.
 - [x] Compose de prod : supprimer le volume partagé `laravel_code`. Il garde l'ancien code après chaque redéploiement ; le code doit être dans les images.
 - [x] Compose : réseaux explicites, healthchecks, `depends_on` avec `condition: service_healthy`.
 - [ ] Image du front : elle lance le serveur de développement (`npm run dev`) ; prévoir une image de prod si une app web est servie (BCK-07).
 - [x] Remplacer les tests d'exemple par de vrais tests.
-- [ ] Créer `.gitlab-ci.yml` (fait) et `.github/workflows/` (à faire).
+- [x] Créer `.gitlab-ci.yml` et `.github/workflows/`.
 
 ## 12. Historique du document
 
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.10    | 02/11/2026 | Suivi synchronisé avec `master` : BCK-01, BCK-02 et BCK-03 cochés (10 *Must* sur 18), état des briques au § 4 mis à jour (quêtes, carte, amis, bornes, GitHub Actions, VPS), cases R5.07 et RGPD cochées aux § 6.2 et § 6.5, décisions D4, D6, D9 et D10 actées au § 8, renommage Scubanion et workflows cochés au § 11 |
 | 0.9     | 16/10/2026 | Décision D3 tranchée : ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231 et anneau de LED, détaillés dans `borne-materiel.md` (choix, commande, montage). BOR-01 coché, ligne « Borne » du § 4 et D2 mises à jour |
 | 0.8     | 14/10/2026 | Retours de l'enseignante appliqués : ajout des indicateurs d'entreprise K6 (rétention à 30 jours) et K7 (lieux partenaires et revenu récurrent), qui manquaient au tableau de bord ; § 10 Risques reclassé par fréquence et gravité selon la matrice du cours, avec plan préventif et plan correctif pour chaque ligne. La charte de projet passe en v3.0 avec une posture entrepreneuriale |
 | 0.7     | 14/10/2026 | Livrables R5.01 dans `docs/r501/` : charte complète au format du cours (avec analyse des risques), marketing mix, expérience utilisateur, et les deux films en MP4. Le § 2 est aligné dessus : objectif O3 revu à la baisse (2 partenaires, 20 testeurs), K5 recentré sur la fiabilité du passage en borne, relevé des indicateurs au 13/10, et nouveau plan d'action du 13/10 au 13/01, dont l'action A1 porte sur `D3` seule, `D2` étant tranchée |
