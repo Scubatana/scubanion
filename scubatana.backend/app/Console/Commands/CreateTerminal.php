@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class CreateTerminal extends Command
 {
 	protected $signature = 'bornes:creer
-		{code : identifiant de la borne dans les topics MQTT (minuscules, chiffres et tirets)}
+		{code : identifiant de la borne dans les topics MQTT (3 à 16 minuscules, chiffres et tirets)}
 		{nom : nom affiché}
 		{--lieu= : identifiant du lieu où la borne est installée}';
 
@@ -22,7 +22,7 @@ class CreateTerminal extends Command
 		$input = ['code' => $this->argument('code'), 'name' => $this->argument('nom'), 'place_id' => $this->option('lieu')];
 
 		$validator = Validator::make($input, [
-			'code' => ['required', 'regex:/^[a-z0-9-]{3,32}$/', 'unique:terminals,code'],
+			'code' => ['required', 'regex:/^[a-z0-9-]{3,16}$/', 'unique:terminals,code'],
 			'name' => ['required', 'string', 'max:80'],
 			'place_id' => ['nullable', 'integer', 'exists:'.Place::class.',id'],
 		]);

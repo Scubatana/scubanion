@@ -81,7 +81,7 @@ jobs:
         with:
           path: ~/.platformio
           key: platformio-${{ hashFiles('scubatana.borne/platformio.ini') }}
-      - run: pip install platformio
+      - run: pip install "platformio~=6.1"
       - run: pio test -e native
       - run: pio run -e borne
 

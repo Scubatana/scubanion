@@ -11,3 +11,6 @@
 #define WIFI_PASSWORD "a-remplacer"
 
 #define NTP_SERVER "pool.ntp.org"
+
+// Début de l'adresse écrite dans le tag NFC, suivie du jeton (voir docs/mqtt.md).
+#define NFC_URL_PREFIX "https://scuba.picsou06.fr/b/"

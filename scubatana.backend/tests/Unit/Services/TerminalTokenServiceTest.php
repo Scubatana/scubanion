@@ -43,6 +43,14 @@ class TerminalTokenServiceTest extends TestCase
 		}
 	}
 
+	public function test_a_terminal_code_longer_than_16_characters_is_refused(): void
+	{
+		$terminal = Terminal::factory()->create(['code' => 'parc-du-chateau-1']);
+		$tokens = app(TerminalTokenService::class);
+
+		$this->assertNull($tokens->read($tokens->generate($terminal, now())));
+	}
+
 	public function test_a_token_needs_the_secret_of_its_own_terminal(): void
 	{
 		$terminal = Terminal::factory()->create(['code' => 'chateau-01']);
