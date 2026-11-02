@@ -4,6 +4,7 @@ import { readableMessage } from "~/utils/apiError";
 const { companion, today, streak, load } = usePlayer();
 const steps = useSteps();
 const position = usePosition();
+const { consents, ensureLoaded: ensureConsentsLoaded } = useConsents();
 const loading = ref(false);
 const loadError = ref("");
 
@@ -28,6 +29,7 @@ const shownToday = computed(() => (today.value ? { ...today.value, steps: steps.
 
 onMounted(async () => {
 	await refresh();
+	await ensureConsentsLoaded();
 	await steps.start(true).catch(() => undefined);
 	await position.start(true).catch(() => undefined);
 });
@@ -49,12 +51,16 @@ onMounted(async () => {
 			<NuxtLink v-if="shownToday" class="card-link" to="/pas" aria-label="Voir l'historique de tes pas">
 				<StepGoal :today="shownToday" :streak="streak" />
 			</NuxtLink>
-			<div v-if="steps.status.value === 'denied'" class="card stack-tight">
+			<div v-if="!consents.steps" class="card stack-tight">
+				<p class="gallery-note">Le suivi des pas est désactivé dans tes choix de confidentialité.</p>
+				<NuxtLink class="btn btn-ghost" to="/parametres">Gérer mes consentements</NuxtLink>
+			</div>
+			<div v-else-if="steps.status.value === 'denied'" class="card stack-tight">
 				<p class="gallery-note">Autorise l'accès à l'activité physique pour que tes pas soient comptés. Si rien ne s'affiche, active-la dans les réglages.</p>
 				<button class="btn btn-primary" type="button" @click="steps.start(true)">Autoriser le compteur de pas</button>
 				<button class="btn btn-ghost" type="button" @click="steps.openSettings()">Ouvrir les réglages</button>
 			</div>
-			<p v-if="steps.status.value === 'unavailable'" class="gallery-note note-self-centered">Le compteur de pas n'est pas disponible sur cet appareil.</p>
+			<p v-if="consents.steps && steps.status.value === 'unavailable'" class="gallery-note note-self-centered">Le compteur de pas n'est pas disponible sur cet appareil.</p>
 			<p v-if="loading && !companion" class="gallery-note note-centered">Chargement…</p>
 			<div v-if="loadError" class="card stack-tight">
 				<p class="form-error">{{ loadError }}</p>

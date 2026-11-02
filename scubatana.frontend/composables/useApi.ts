@@ -21,6 +21,11 @@ export function useApi() {
 		}
 
 		if (response.status === 401) {
+			usePosition().stop();
+			await useSteps().halt();
+			useQuests().reset();
+			useConsents().reset();
+			usePlayer().reset();
 			await session.clear();
 			await navigateTo("/login");
 		}

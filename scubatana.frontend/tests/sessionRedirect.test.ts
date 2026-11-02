@@ -41,6 +41,10 @@ describe("resolveRedirect", () => {
 		expect(resolveRedirect("/profil", true, true)).toBe("/");
 	});
 
+	it("allows a player with a complete profile to edit their profile explicitly", () => {
+		expect(resolveRedirect("/profil", true, true, false, true)).toBeNull();
+	});
+
 	it("lets a player with a complete profile browse the app", () => {
 		expect(resolveRedirect("/", true, true)).toBeNull();
 		expect(resolveRedirect("/compte", true, true)).toBeNull();

@@ -30,7 +30,11 @@ export function toApiError(status: number, data: unknown): ApiError {
 		}
 	}
 
-	return new ApiError(status, STATUS_MESSAGES[status] ?? DEFAULT_MESSAGE, fields);
+	const rawMessage = (data as { message?: unknown } | null)?.message;
+	const serverMessage = typeof rawMessage === "string" ? rawMessage.trim() : "";
+	const message = STATUS_MESSAGES[status] ?? (status >= 400 && status < 500 && serverMessage !== "" ? serverMessage : DEFAULT_MESSAGE);
+
+	return new ApiError(status, message, fields);
 }
 
 export function readableMessage(error: unknown): string {

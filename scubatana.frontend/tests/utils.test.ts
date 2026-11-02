@@ -15,6 +15,12 @@ describe("toApiError", () => {
 		expect(toApiError(429, { message: "Too Many Attempts." }).message).toContain("Trop de tentatives");
 	});
 
+	it("preserves explicit domain messages on 409 and 403 while masking 5xx internals", () => {
+		expect(toApiError(409, { message: "Cette quête n'est plus disponible." }).message).toBe("Cette quête n'est plus disponible.");
+		expect(toApiError(403, { message: "Action refusée." }).message).toBe("Action refusée.");
+		expect(toApiError(500, { message: "SQLSTATE[HY000]" }).message).toBe("Une erreur est survenue. Réessaie.");
+	});
+
 	it("survives a body that is empty or not an object", () => {
 		expect(toApiError(500, null).fields).toEqual({});
 		expect(toApiError(502, "<html>Bad Gateway</html>").message).toBe("Une erreur est survenue. Réessaie.");
