@@ -15,9 +15,12 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class PassageService
 {
+	private const ALREADY_USED = 'Ce code de borne a déjà été utilisé.';
+
 	public function __construct(
 		private TerminalTokenService $tokens,
 		private CompanionProgressService $progress,
+		private PositionService $positions,
 	) {}
 
 	public function record(User $player, string $token, ?array $position = null): Passage
@@ -32,12 +35,20 @@ class PassageService
 		$terminal = $read['terminal'];
 		$scannedAt = $read['scanned_at'];
 
+		if (Passage::where('token_hash', $tokenHash)->exists()) {
+			throw new ConflictHttpException(self::ALREADY_USED);
+		}
+
+		if ($position !== null) {
+			$this->positions->record($player, $position['latitude'], $position['longitude'], $position['accuracy'], $position['mocked'], $position['recorded_at']);
+		}
+
 		try {
 			$passage = DB::transaction(function () use ($player, $terminal, $scannedAt, $tokenHash, $position): Passage {
 				User::whereKey($player->id)->lockForUpdate()->first();
 
 				if (Passage::where('token_hash', $tokenHash)->exists()) {
-					throw new ConflictHttpException('Ce code de borne a déjà été utilisé.');
+					throw new ConflictHttpException(self::ALREADY_USED);
 				}
 
 				$this->ensurePresent($player, $terminal, $scannedAt, $position);
@@ -56,7 +67,7 @@ class PassageService
 				]);
 			});
 		} catch (UniqueConstraintViolationException) {
-			throw new ConflictHttpException('Ce code de borne a déjà été utilisé.');
+			throw new ConflictHttpException(self::ALREADY_USED);
 		}
 
 		if ($passage->isRewarded()) {
@@ -74,7 +85,11 @@ class PassageService
 			return;
 		}
 
-		if ($position !== null) {
+		if ($player->isBannedFromLocationTasks()) {
+			throw ValidationException::withMessages(['position' => "Tu n'es pas à la borne : rapproche-toi et scanne-la à nouveau."]);
+		}
+
+		if ($position !== null && $this->datesFromTheScan($position['recorded_at'], $scannedAt)) {
 			if ($position['mocked'] || ! $place->contains($position['latitude'], $position['longitude'], $position['accuracy'])) {
 				throw ValidationException::withMessages(['position' => "Tu n'es pas à la borne : rapproche-toi et scanne-la à nouveau."]);
 			}
@@ -84,9 +99,17 @@ class PassageService
 
 		$last = $player->position()->first();
 
-		if ($last !== null && ! $this->couldHaveReached($place, $last, $scannedAt)) {
+		if ($last !== null && ($last->mocked || ! $this->couldHaveReached($place, $last, $scannedAt))) {
 			throw ValidationException::withMessages(['position' => 'Ta dernière position est trop loin de la borne : active ta localisation et scanne-la à nouveau.']);
 		}
+	}
+
+	private function datesFromTheScan(CarbonImmutable $recordedAt, CarbonImmutable $scannedAt): bool
+	{
+		$tolerance = config('bornes.future_tolerance_minutes');
+
+		return $recordedAt->gte($scannedAt->subMinutes($tolerance))
+			&& $recordedAt->lte($scannedAt->addMinutes(config('bornes.token_refresh_minutes') + $tolerance));
 	}
 
 	private function couldHaveReached(Place $place, UserPosition $last, CarbonImmutable $scannedAt): bool

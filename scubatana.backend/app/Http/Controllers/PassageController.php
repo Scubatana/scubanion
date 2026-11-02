@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CompanionResource;
 use App\Services\PassageService;
-use App\Services\PositionService;
 use App\Services\TerminalDisplay;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +11,7 @@ use Illuminate\Http\Request;
 
 class PassageController extends Controller
 {
-	public function store(Request $request, PassageService $passages, PositionService $positions): JsonResponse
+	public function store(Request $request, PassageService $passages): JsonResponse
 	{
 		$data = $request->validate([
 			'token' => ['required', 'string', 'max:64'],
@@ -23,13 +22,7 @@ class PassageController extends Controller
 			'recorded_at' => ['nullable', 'date', 'after_or_equal:'.now()->subHours(config('bornes.max_replay_hours'))->toIso8601String(), 'before_or_equal:'.now()->addMinutes(config('bornes.future_tolerance_minutes'))->toIso8601String()],
 		]);
 
-		$position = $this->position($request, $data);
-
-		if ($position !== null) {
-			$positions->record($request->user(), $position['latitude'], $position['longitude'], $position['accuracy'], $position['mocked'], $position['recorded_at']);
-		}
-
-		$passage = $passages->record($request->user(), $data['token'], $position);
+		$passage = $passages->record($request->user(), $data['token'], $this->position($request, $data));
 		$display = $passages->display($passage);
 		$terminal = $passage->terminal;
 
