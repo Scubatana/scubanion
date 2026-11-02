@@ -8,7 +8,7 @@ use Carbon\CarbonInterface;
 
 class TerminalTokenService
 {
-	private const PATTERN = '/^([a-z0-9-]{3,32})\.([0-9a-z]{1,8})\.([A-Za-z0-9_-]{16})$/';
+	private const PATTERN = '/^([a-z0-9-]{3,16})\.([0-9a-z]{1,8})\.([A-Za-z0-9_-]{16})$/';
 
 	public static function newSecret(): string
 	{
