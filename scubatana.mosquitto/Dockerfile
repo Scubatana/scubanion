@@ -1,0 +1,6 @@
+FROM eclipse-mosquitto:2
+
+COPY conf/mosquitto.conf /mosquitto/config/mosquitto.conf
+
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+	CMD mosquitto_sub -h 127.0.0.1 -p 1883 -t '$SYS/broker/version' -C 1 -W 2 > /dev/null

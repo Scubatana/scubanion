@@ -12,9 +12,12 @@ class MqttConnector
 	{
 		$client = new MqttClient(config('bornes.mqtt.host'), config('bornes.mqtt.port'), $clientId);
 
+		$username = config('bornes.mqtt.username');
+		$password = config('bornes.mqtt.password');
+
 		$settings = (new ConnectionSettings)
-			->setUsername(config('bornes.mqtt.username'))
-			->setPassword(config('bornes.mqtt.password'))
+			->setUsername($username !== '' ? $username : null)
+			->setPassword($password !== '' ? $password : null)
 			->setConnectTimeout(10)
 			->setKeepAliveInterval(30);
 

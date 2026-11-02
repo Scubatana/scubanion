@@ -22,6 +22,14 @@ services:
     depends_on:
       - mariadb
 
+  mosquitto:
+    build:
+      context: ./scubatana.mosquitto
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+
   frontend:
     build:
       context: ./scubatana.frontend
@@ -35,3 +43,4 @@ services:
 
 volumes:
   mariadb_data:
+  mosquitto_data:
