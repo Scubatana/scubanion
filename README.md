@@ -43,6 +43,15 @@ php artisan migrate
 php artisan serve
 ```
 
+Pour travailler sur les bornes, le broker MQTT a besoin de ses comptes avant de démarrer. `MQTT_USERNAME` et `MQTT_PASSWORD` doivent être les mêmes dans `.env` et dans `scubatana.backend/.env` :
+
+```bash
+cd scubatana.backend && php artisan bornes:comptes-mqtt && cd ..
+docker compose -f dev-docker-compose.yml up -d mosquitto
+```
+
+Après chaque `php artisan bornes:creer`, `docker compose -f dev-docker-compose.yml kill -s HUP mosquitto` fait relire les comptes au broker (voir `docs/mqtt.md`).
+
 L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `DELETE /me?confirm=1` (suppression du compte), `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`, `PUT /me/goal`.
 
 Les pas sont lus sur le téléphone par un module Android natif (`StepCounterPlugin`, capteur `STEP_COUNTER`) et envoyés au serveur, qui les plafonne (`STEPS_MAX_PER_HOUR`, `STEPS_MAX_PER_DAY`). L'apparence du compagnon suit la norme décrite dans `docs/skins-compagnon.md`.
@@ -122,6 +131,8 @@ Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de 
 | `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
 | `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
 | `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
+| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé sur `${MQTT_PORT}`. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
+| `bornes` | `scubanion-backend` | même image que `backend`, qui écoute les signaux de vie des bornes (`php artisan bornes:ecouter`) |
 
 ```bash
 cp .env.exemple .env      # puis renseigner les mots de passe et APP_KEY
@@ -134,6 +145,7 @@ docker compose up -d --build
 - Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb`, `backend` et `scheduler` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
 - `backend` et `scheduler` partagent la même configuration (bloc `x-laravel-environment` du compose) ; seul `backend` lance les migrations.
 - Le code est dans les images, pas dans un volume : un redéploiement sert toujours la nouvelle version.
+- `MQTT_USERNAME` et `MQTT_PASSWORD` sont obligatoires : sans eux, `backend` ne peut pas écrire les comptes du broker, et `mosquitto` ne démarre pas. Après avoir déclaré une borne (`docker compose exec backend php artisan bornes:creer …`), `docker compose kill -s HUP mosquitto` fait relire les comptes au broker, sans coupure.
 - L'image nginx se construit par `docker compose build` : elle récupère `public/` dans `scubatana.backend` grâce au contexte de build supplémentaire `backend` (`additional_contexts`). Un `docker build` seul demande `--build-context backend=scubatana.backend`.
 - Les images portent le nom `${DOCKERHUB_NAMESPACE}/scubanion-<service>:${IMAGE_TAG}`. Pour déployer une version publiée sans rebuild : `docker compose pull && docker compose up -d`.
 

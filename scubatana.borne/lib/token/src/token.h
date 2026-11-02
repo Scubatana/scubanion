@@ -12,6 +12,8 @@ constexpr size_t MAX_LENGTH = 40;
 
 std::string generate(const std::string& terminalCode, const std::string& secret, uint64_t scannedAt);
 
+std::string mqttPassword(const std::string& secret);
+
 std::string toBase36(uint64_t value);
 
 std::string base64Url(const uint8_t* bytes, size_t length);
