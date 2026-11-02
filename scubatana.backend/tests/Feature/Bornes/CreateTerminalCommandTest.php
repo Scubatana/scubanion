@@ -30,6 +30,7 @@ class CreateTerminalCommandTest extends TestCase
 		Terminal::factory()->create(['code' => 'chateau-01']);
 
 		$this->artisan('bornes:creer', ['code' => 'Château 01', 'nom' => 'Borne'])->assertFailed();
+		$this->artisan('bornes:creer', ['code' => 'parc-du-chateau-1', 'nom' => 'Borne'])->assertFailed();
 		$this->artisan('bornes:creer', ['code' => 'chateau-01', 'nom' => 'Borne'])->assertFailed();
 		$this->artisan('bornes:creer', ['code' => 'parc-01', 'nom' => 'Borne', '--lieu' => 999])->assertFailed();
 
