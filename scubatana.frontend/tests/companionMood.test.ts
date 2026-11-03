@@ -1,18 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { companionBubble } from "~/utils/companionMood";
+import { companionBubble, companionPosture, companionStateLabel } from "~/utils/companionMood";
 
-describe("companionBubble", () => {
+describe("companionMood", () => {
 	it("invites to go out when the companion is in a good mood", () => {
 		expect(companionBubble({ mood: 100, health: 100 })).toBe("Hey, on sort ? 🌊");
 		expect(companionBubble({ mood: 70, health: 40 })).toBe("Hey, on sort ? 🌊");
+		expect(companionPosture({ mood: 85, health: 80 })).toBe("joyful");
+		expect(companionStateLabel({ mood: 85, health: 80 })).toBe("En pleine forme");
 	});
 
 	it("asks for a walk when the mood drops", () => {
 		expect(companionBubble({ mood: 50, health: 90 })).toBe("On fait un tour ? J'ai besoin de bouger.");
 		expect(companionBubble({ mood: 10, health: 90 })).toBe("Je m'ennuie… On sort marcher ?");
+		expect(companionPosture({ mood: 50, health: 90 })).toBe("calm");
+		expect(companionPosture({ mood: 10, health: 90 })).toBe("bored");
+		expect(companionStateLabel({ mood: 10, health: 90 })).toBe("En manque de sortie");
 	});
 
 	it("speaks of its health first when the last days were too quiet", () => {
 		expect(companionBubble({ mood: 100, health: 39 })).toBe("Je me sens tout mou… On marche un peu chaque jour ?");
+		expect(companionPosture({ mood: 100, health: 39 })).toBe("tired");
+		expect(companionStateLabel({ mood: 100, health: 39 })).toBe("Fatigué");
 	});
 });

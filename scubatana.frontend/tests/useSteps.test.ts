@@ -76,6 +76,7 @@ describe("useSteps", () => {
 		clearNuxtState();
 		usePlayer().player.value = { ...lea };
 		usePlayer().today.value = { date: "2026-10-13", steps: 0, goal: 5000 };
+		mocks.storage.set("consents.7", JSON.stringify({ steps: true, location: true }));
 		await useSession().open("jeton-1", true);
 	});
 
@@ -88,6 +89,15 @@ describe("useSteps", () => {
 		mocks.granted = false;
 		await useSteps().start(true);
 		expect(useSteps().status.value).toBe("denied");
+	});
+
+	it("does not start counting when physical activity consent was revoked", async () => {
+		mocks.storage.set("consents.7", JSON.stringify({ steps: false, location: true }));
+
+		await useSteps().start(true);
+
+		expect(useSteps().status.value).toBe("idle");
+		expect(mocks.emit).toBeNull();
 	});
 
 	it("starts again by itself when the player comes back from the settings with the permission granted", async () => {
@@ -230,6 +240,7 @@ describe("useSteps", () => {
 		expect([...mocks.storage.keys()]).toContain("steps.ledger.7");
 
 		usePlayer().player.value = { ...lea, id: 8 };
+		mocks.storage.set("consents.8", JSON.stringify({ steps: true, location: true }));
 		await steps.start(true);
 		mocks.emit?.(900);
 		await settle();
@@ -252,5 +263,32 @@ describe("useSteps", () => {
 		expect(useSession().token.value).toBeNull();
 		expect(navigateTo).toHaveBeenCalledWith("/login");
 		expect(JSON.parse(mocks.storage.get("steps.ledger.7") ?? "{}").days).toEqual({ [Object.keys(JSON.parse(mocks.storage.get("steps.ledger.7") ?? "{}").days)[0]]: 160 });
+	});
+
+	it("keeps capped steps pending when the server applies the hourly limit", async () => {
+		const todayDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
+		mocks.httpRequest.mockResolvedValueOnce({
+			status: 200,
+			data: { today: { date: todayDate, steps: 12000, goal: 5000 }, streak: { days: 1, active: true }, total_steps: 12000 }
+		});
+		const steps = useSteps();
+		await steps.start(true);
+
+		mocks.emit?.(1000);
+		await settle();
+		mocks.emit?.(16000);
+		await settle();
+
+		expect(steps.displayedSteps.value).toBe(15000);
+
+		mocks.httpRequest.mockResolvedValueOnce({
+			status: 200,
+			data: { today: { date: todayDate, steps: 15000, goal: 5000 }, streak: { days: 1, active: true }, total_steps: 15000 }
+		});
+		await steps.sync();
+
+		expect(mocks.httpRequest).toHaveBeenCalledTimes(2);
+		expect(mocks.httpRequest.mock.calls[1][3].days).toEqual([{ day: todayDate, steps: 15000 }]);
+		expect(steps.displayedSteps.value).toBe(15000);
 	});
 });

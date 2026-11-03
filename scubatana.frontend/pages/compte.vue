@@ -54,6 +54,7 @@ onMounted(refresh);
 				<div class="stat"><b>{{ formatCount(player.stats.friends_count) }}</b><span>amis</span></div>
 			</div>
 			<p v-if="loadError" class="form-error">{{ loadError }}</p>
+			<NuxtLink v-if="player" class="btn btn-primary" to="/profil?edition=1">Modifier mon profil</NuxtLink>
 			<button class="btn btn-ghost" type="button" :disabled="loggingOut" @click="logout">Se déconnecter</button>
 		</div>
 		<BottomNav />
