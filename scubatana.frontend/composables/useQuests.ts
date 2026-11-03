@@ -141,5 +141,14 @@ export function useQuests() {
 		pendingOwner.value = null;
 	}
 
-	return { quests, pending, load, act, claim, flush, waiting, reset };
+	async function discard(): Promise<void> {
+		const key = queueKey();
+		reset();
+
+		if (key !== null) {
+			await Preferences.remove({ key });
+		}
+	}
+
+	return { quests, pending, load, act, claim, flush, waiting, reset, discard };
 }
