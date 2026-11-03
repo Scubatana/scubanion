@@ -10,7 +10,13 @@ export default defineNuxtRouteMiddleware(async (to) => {
 		await auth.restorePendingEmail();
 	}
 
-	const target = resolveRedirect(to.path, session.token.value !== null, session.profileCompleted.value, auth.pendingEmail.value !== null);
+	const target = resolveRedirect(
+		to.path,
+		session.token.value !== null,
+		session.profileCompleted.value,
+		auth.pendingEmail.value !== null,
+		to.query.edition === "1"
+	);
 
 	if (target !== null && target !== to.path) {
 		return navigateTo(target, { replace: true });

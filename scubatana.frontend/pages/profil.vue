@@ -5,7 +5,9 @@ import type { Ambition, Gender } from "~/utils/types";
 
 const MINIMUM_AGE = 15;
 
-const { saveProfile } = usePlayer();
+const session = useSession();
+const { player, load, saveProfile } = usePlayer();
+const isEditing = computed(() => session.profileCompleted.value);
 const pseudo = ref("");
 const birthDate = ref("");
 const gender = ref<Gender | "">("");
@@ -14,6 +16,29 @@ const loading = ref(false);
 const fieldErrors = ref<Record<string, string>>({});
 const formError = ref("");
 const maxBirthDate = latestBirthDate(new Date(), MINIMUM_AGE);
+
+function hydrateFromPlayer(): void {
+	if (!player.value) {
+		return;
+	}
+
+	pseudo.value = player.value.pseudo ?? "";
+	birthDate.value = player.value.birth_date ?? "";
+	gender.value = player.value.gender ?? "";
+	ambition.value = player.value.ambition ?? "fitness";
+}
+
+onMounted(async () => {
+	if (!isEditing.value) {
+		return;
+	}
+
+	if (!player.value) {
+		await load().catch(() => undefined);
+	}
+
+	hydrateFromPlayer();
+});
 
 async function submit(): Promise<void> {
 	if (loading.value) {
@@ -24,6 +49,8 @@ async function submit(): Promise<void> {
 	fieldErrors.value = {};
 	formError.value = "";
 
+	const destination = isEditing.value ? "/compte" : "/";
+
 	try {
 		await saveProfile({
 			pseudo: pseudo.value.trim(),
@@ -31,7 +58,7 @@ async function submit(): Promise<void> {
 			gender: gender.value === "" ? null : gender.value,
 			ambition: ambition.value
 		});
-		await navigateTo("/", { replace: true });
+		await navigateTo(destination, { replace: true });
 	} catch (error) {
 		fieldErrors.value = error instanceof ApiError ? error.fields : {};
 		formError.value = Object.keys(fieldErrors.value).length > 0 ? "" : readableMessage(error);
@@ -44,13 +71,20 @@ async function submit(): Promise<void> {
 <template>
 	<div class="page">
 		<div class="topbar">
-			<div class="brand">
+			<template v-if="isEditing">
+				<NuxtLink class="avatar-btn" to="/compte" aria-label="Retour">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 5l-7 7 7 7"/></svg>
+				</NuxtLink>
+				<span class="topbar-title">Modifier mon profil</span>
+				<span class="topbar-spacer"></span>
+			</template>
+			<div v-else class="brand">
 				<img src="/img/logo.png" alt="Scubanion">
 				<span>Scubanion</span>
 			</div>
 		</div>
 		<form class="content" novalidate @submit.prevent="submit">
-			<h1>Présente-toi</h1>
+			<h1 v-if="!isEditing">Présente-toi</h1>
 			<p class="gallery-note">Ces infos servent à personnaliser ton compagnon et tes quêtes.</p>
 			<div class="card stack">
 				<div class="field">
@@ -81,7 +115,7 @@ async function submit(): Promise<void> {
 			</div>
 			<p class="gallery-note">Ton ambition débloque des objets pour ton compagnon au fil de tes sorties.</p>
 			<p v-if="formError" class="form-error">{{ formError }}</p>
-			<button class="btn btn-primary" type="submit" :disabled="loading">{{ loading ? "Enregistrement…" : "Faire grandir mon compagnon" }}</button>
+			<button class="btn btn-primary" type="submit" :disabled="loading">{{ loading ? "Enregistrement…" : (isEditing ? "Enregistrer les modifications" : "Faire grandir mon compagnon") }}</button>
 		</form>
 	</div>
 </template>

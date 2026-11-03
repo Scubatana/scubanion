@@ -146,6 +146,8 @@ describe("useAuth", () => {
 		await useSession().open("jeton-1", true);
 		usePlayer().player.value = { ...newPlayer, profile_completed: true };
 		storage.set("steps.ledger.1", JSON.stringify({ days: { "2026-10-13": 300 } }));
+		storage.set("quests.pending.1", JSON.stringify([{ questId: 1, taskId: 2, body: {} }]));
+		storage.set("consents.1", JSON.stringify({ steps: false, location: false }));
 		storage.set("steps.device", "telephone-de-lea");
 		httpRequest.mockResolvedValue({ status: 204, data: null });
 
