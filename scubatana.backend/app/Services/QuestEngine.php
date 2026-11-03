@@ -18,6 +18,7 @@ use App\Models\UserReward;
 use App\Support\QuestPeriod;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -38,18 +39,24 @@ class QuestEngine
 			return $existing;
 		}
 
-		$userQuest = $player->userQuests()->create([
-			'quest_id' => $quest->id,
-			'period' => $period->key,
-			'current_step' => 1,
-			'source' => $source,
-			'assigned_at' => $now,
-			'expires_at' => collect([$quest->ends_at, $period->endsAt])->filter()->min(),
-		]);
+		try {
+			return DB::transaction(function () use ($player, $quest, $period, $source, $now): UserQuest {
+				$userQuest = $player->userQuests()->create([
+					'quest_id' => $quest->id,
+					'period' => $period->key,
+					'current_step' => 1,
+					'source' => $source,
+					'assigned_at' => $now,
+					'expires_at' => collect([$quest->ends_at, $period->endsAt])->filter()->min(),
+				]);
 
-		$this->unlockStep($userQuest, 1);
+				$this->unlockStep($userQuest, 1);
 
-		return $userQuest;
+				return $userQuest;
+			});
+		} catch (UniqueConstraintViolationException) {
+			return $player->userQuests()->where('quest_id', $quest->id)->where('period', $period->key)->firstOrFail();
+		}
 	}
 
 	public function exclusively(UserQuest $userQuest, callable $work): mixed
