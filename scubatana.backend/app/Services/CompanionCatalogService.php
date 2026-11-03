@@ -51,7 +51,7 @@ class CompanionCatalogService
 
 	public function conflictingAccessories(array $accessories): array
 	{
-		$categories = Accessory::active()->pluck('category', 'code');
+		$categories = Accessory::query()->pluck('category', 'code');
 		$worn = [];
 		$conflicts = [];
 
