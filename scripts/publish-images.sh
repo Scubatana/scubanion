@@ -12,7 +12,7 @@ export IMAGE_TAG="$tag"
 docker compose -f docker-compose.yml build
 docker compose -f docker-compose.yml push
 
-for image in $(docker compose -f docker-compose.yml config --images); do
+for image in $(docker compose -f docker-compose.yml config --images | sort -u); do
 	latest="${image%:*}:latest"
 	docker tag "$image" "$latest"
 	docker push "$latest"
