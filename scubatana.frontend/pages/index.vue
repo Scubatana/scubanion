@@ -4,7 +4,7 @@ import { readableMessage } from "~/utils/apiError";
 const { companion, today, streak, load } = usePlayer();
 const steps = useSteps();
 const position = usePosition();
-const { consents, ensureLoaded: ensureConsentsLoaded } = useConsents();
+const { consents, ensureLoaded: ensureConsentsLoaded, setStepsConsent } = useConsents();
 const loading = ref(false);
 const loadError = ref("");
 
@@ -53,6 +53,7 @@ onMounted(async () => {
 			</NuxtLink>
 			<div v-if="!consents.steps" class="card stack-tight">
 				<p class="gallery-note">Le suivi des pas est désactivé dans tes choix de confidentialité.</p>
+				<button class="btn btn-primary" type="button" @click="setStepsConsent(true)">Activer le suivi des pas</button>
 				<NuxtLink class="btn btn-ghost" to="/parametres">Gérer mes consentements</NuxtLink>
 			</div>
 			<div v-else-if="steps.status.value === 'denied'" class="card stack-tight">

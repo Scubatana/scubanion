@@ -76,6 +76,7 @@ describe("useSteps", () => {
 		clearNuxtState();
 		usePlayer().player.value = { ...lea };
 		usePlayer().today.value = { date: "2026-10-13", steps: 0, goal: 5000 };
+		mocks.storage.set("consents.7", JSON.stringify({ steps: true, location: true }));
 		await useSession().open("jeton-1", true);
 	});
 
@@ -239,6 +240,7 @@ describe("useSteps", () => {
 		expect([...mocks.storage.keys()]).toContain("steps.ledger.7");
 
 		usePlayer().player.value = { ...lea, id: 8 };
+		mocks.storage.set("consents.8", JSON.stringify({ steps: true, location: true }));
 		await steps.start(true);
 		mocks.emit?.(900);
 		await settle();

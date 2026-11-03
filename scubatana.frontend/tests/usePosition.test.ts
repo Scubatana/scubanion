@@ -49,6 +49,8 @@ describe("usePosition", () => {
 		mocks.current.mockReset();
 		mocks.storage.clear();
 		clearNuxtState();
+		usePlayer().player.value = { id: 7, email: "lea@example.com", pseudo: "Lea", birth_date: "2004-05-12", gender: null, ambition: "fitness", profile_completed: true, stats: { total_steps: 0, quests_done: 0, friends_count: 0 } };
+		mocks.storage.set("consents.7", JSON.stringify({ steps: true, location: true }));
 		await useSession().open("jeton-1", true);
 		mocks.httpRequest.mockResolvedValue({ status: 204, data: null });
 		mocks.current.mockResolvedValue(fix);
@@ -160,5 +162,13 @@ describe("usePosition", () => {
 		expect(mocks.httpRequest.mock.calls[1][0]).toBe("GET");
 		expect(mocks.httpRequest.mock.calls[1][1]).toMatch(/\/api\/me\/quests$/);
 		expect(useQuests().quests.value).toEqual([]);
+	});
+
+	it("does not start or watch location when location consent is revoked", async () => {
+		mocks.storage.set("consents.7", JSON.stringify({ steps: true, location: false }));
+		await usePosition().start(true);
+		expect(usePosition().status.value).toBe("idle");
+		expect(mocks.access).not.toHaveBeenCalled();
+		expect(mocks.current).not.toHaveBeenCalled();
 	});
 });

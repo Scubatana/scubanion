@@ -37,20 +37,21 @@ describe("useConsents", () => {
 		};
 	});
 
-	it("parses stored consents safely and falls back to defaults on invalid JSON", () => {
-		expect(parseConsents(null)).toEqual(defaultConsents());
-		expect(parseConsents("pas-du-json")).toEqual({ steps: true, location: true });
-		expect(parseConsents(JSON.stringify({ steps: false, location: true }))).toEqual({ steps: false, location: true });
+	it("parses stored consents safely and falls back to false defaults on invalid JSON", () => {
+		expect(defaultConsents()).toEqual({ steps: false, location: false });
+		expect(parseConsents(null)).toEqual({ steps: false, location: false });
+		expect(parseConsents("pas-du-json")).toEqual({ steps: false, location: false });
+		expect(parseConsents(JSON.stringify({ steps: true, location: false }))).toEqual({ steps: true, location: false });
 	});
 
 	it("persists revocable consents per player and cleans them up on discard", async () => {
 		const { consents, ensureLoaded, setStepsConsent, setLocationConsent, discard } = useConsents();
 
-		await setStepsConsent(false);
-		await setLocationConsent(false);
+		await setStepsConsent(true);
+		await setLocationConsent(true);
 
-		expect(consents.value).toEqual({ steps: false, location: false });
-		expect(JSON.parse(mocks.storage.get("consents.7") ?? "{}")).toEqual({ steps: false, location: false });
+		expect(consents.value).toEqual({ steps: true, location: true });
+		expect(JSON.parse(mocks.storage.get("consents.7") ?? "{}")).toEqual({ steps: true, location: true });
 
 		clearNuxtState();
 		usePlayer().player.value = {
@@ -64,10 +65,10 @@ describe("useConsents", () => {
 			stats: { total_steps: 0, quests_done: 0, friends_count: 0 }
 		};
 
-		expect(await useConsents().ensureLoaded()).toEqual({ steps: false, location: false });
+		expect(await useConsents().ensureLoaded()).toEqual({ steps: true, location: true });
 
 		await discard();
 		expect(mocks.storage.has("consents.7")).toBe(false);
-		expect(await ensureLoaded()).toEqual({ steps: true, location: true });
+		expect(await ensureLoaded()).toEqual({ steps: false, location: false });
 	});
 });
