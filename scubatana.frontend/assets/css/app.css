@@ -76,8 +76,15 @@ body {
 	font-weight: 500;
 }
 
-.form-error {
+.form-error,
+.form-notice {
 	text-align: center;
+}
+
+.form-notice {
+	font-size: 13px;
+	color: var(--ink-soft);
+	font-weight: 500;
 }
 
 .btn:disabled {
