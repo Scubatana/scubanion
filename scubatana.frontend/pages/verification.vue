@@ -84,7 +84,7 @@ async function resend(): Promise<void> {
 				</label>
 				<span v-if="termsError" class="field-error">{{ termsError }}</span>
 				<p v-if="formError" class="form-error">{{ formError }}</p>
-				<p v-if="notice" class="gallery-note note-centered">{{ notice }}</p>
+				<p v-if="notice" class="form-notice">{{ notice }}</p>
 				<button class="btn btn-primary" type="submit" :disabled="loading">{{ loading ? "Vérification…" : "Confirmer" }}</button>
 			</form>
 			<button class="link-under" type="button" :disabled="resending" @click="resend">Renvoyer le code</button>
