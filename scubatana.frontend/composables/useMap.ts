@@ -1,3 +1,4 @@
+import { Preferences } from "@capacitor/preferences";
 import { currentPosition } from "~/utils/geolocation";
 import {
 	buildBbox,
@@ -24,6 +25,28 @@ interface TerminalsResponse {
 	terminals: MapTerminal[];
 }
 
+async function isLocationConsentGranted(): Promise<boolean> {
+	const playerId = usePlayer().player.value?.id;
+
+	if (playerId === undefined) {
+		return false;
+	}
+
+	try {
+		const raw = (await Preferences.get({ key: `consents.${playerId}` })).value;
+
+		if (raw === null) {
+			return false;
+		}
+
+		const parsed = JSON.parse(raw) as { location?: boolean } | null;
+
+		return parsed?.location === true;
+	} catch {
+		return false;
+	}
+}
+
 export function useMap() {
 	const center = useState<Coordinates>("map-center", () => ({ ...DEFAULT_MAP_CENTER }));
 	const playerLocation = useState<Coordinates | null>("map-player-location", () => null);
@@ -33,6 +56,15 @@ export function useMap() {
 	const terminals = useState<MapTerminal[]>("map-terminals", () => []);
 	const truncated = useState<boolean>("map-truncated", () => false);
 	const loaded = useState<boolean>("map-loaded", () => false);
+
+	const session = useSession();
+	const player = usePlayer();
+
+	watch([session.token, player.player], ([token, currentPlayer]) => {
+		if (token === null || currentPlayer === null) {
+			reset();
+		}
+	}, { immediate: true });
 
 	const span = computed(() => ZOOM_SPANS[zoomIndex.value] ?? ZOOM_SPANS[1]);
 	const bbox = computed<BoundingBox>(() => buildBbox(center.value, span.value));
@@ -46,6 +78,12 @@ export function useMap() {
 	}
 
 	async function locatePlayer(askPermission: boolean): Promise<boolean> {
+		if (!(await isLocationConsentGranted())) {
+			playerLocation.value = null;
+
+			return false;
+		}
+
 		try {
 			const fix = await currentPosition(askPermission);
 			const coords = { latitude: fix.latitude, longitude: fix.longitude };

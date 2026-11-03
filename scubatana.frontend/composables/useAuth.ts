@@ -60,14 +60,18 @@ export function useAuth() {
 		await forgetPendingEmail();
 		player.reset();
 		useQuests().reset();
+		useMap().reset();
 	}
 
 	async function deleteAccount(): Promise<void> {
 		await api.del<void>("/me?confirm=1");
+		usePosition().stop();
 		await useSteps().discard();
 		await session.clear();
 		await forgetPendingEmail();
 		player.reset();
+		useQuests().reset();
+		useMap().reset();
 	}
 
 	return { pendingEmail, restorePendingEmail, requestCode, verifyCode, logout, deleteAccount };
