@@ -15,6 +15,10 @@ x-laravel-environment: &laravel-environment
   MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-hello@example.com}
   MAIL_FROM_NAME: Scubanion
   BREVO_API_KEY: ${BREVO_API_KEY:-}
+  MQTT_HOST: ${MQTT_HOST:-mosquitto}
+  MQTT_PORT: "${MQTT_PORT:-1883}"
+  MQTT_USERNAME: ${MQTT_USERNAME:-}
+  MQTT_PASSWORD: ${MQTT_PASSWORD:-}
 
 services:
   mariadb:
@@ -32,6 +36,16 @@ services:
       - donnees
     restart: unless-stopped
 
+  mosquitto:
+    build:
+      context: ./scubatana.mosquitto
+    image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-mosquitto:${IMAGE_TAG:-latest}
+    volumes:
+      - mosquitto_data:/mosquitto/data
+    networks:
+      - iot
+    restart: unless-stopped
+
   backend:
     build: &backend-build
       context: ./scubatana.backend
@@ -45,6 +59,7 @@ services:
     networks:
       - donnees
       - web
+      - iot
     restart: unless-stopped
 
   scheduler:
@@ -65,6 +80,27 @@ services:
       - donnees
     restart: unless-stopped
 
+  bornes:
+    build: *backend-build
+    image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-backend:${IMAGE_TAG:-latest}
+    command: ["php", "artisan", "bornes:ecouter"]
+    environment:
+      <<: *laravel-environment
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/bornes-ecouter.heartbeat && test $$(expr $$(date +%s) - $$(cat /tmp/bornes-ecouter.heartbeat)) -le 60"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      backend:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    networks:
+      - donnees
+      - iot
+    restart: unless-stopped
+
   nginx:
     build:
       context: ./scubatana.nginx
@@ -83,7 +119,9 @@ services:
 networks:
   donnees:
     internal: true
+  iot:
   web:
 
 volumes:
   mariadb_data:
+  mosquitto_data:
