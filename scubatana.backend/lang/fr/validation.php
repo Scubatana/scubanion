@@ -34,8 +34,11 @@ return [
 		'string' => 'Le champ :attribute doit contenir au moins :min caractères.',
 	],
 	'numeric' => 'Le champ :attribute doit être un nombre.',
+	'present' => 'Le champ :attribute doit être présent.',
 	'regex' => 'Le format du champ :attribute est invalide.',
 	'required' => 'Le champ :attribute est obligatoire.',
+	'required_with' => 'Le champ :attribute est obligatoire quand :values est présent.',
+	'required_without' => 'Le champ :attribute est obligatoire quand :values n\'est pas présent.',
 	'size' => [
 		'array' => 'Le champ :attribute doit contenir :size éléments.',
 		'numeric' => 'Le champ :attribute doit être égal à :size.',

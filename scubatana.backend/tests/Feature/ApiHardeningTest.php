@@ -67,6 +67,20 @@ class ApiHardeningTest extends TestCase
 			->assertJsonValidationErrors('daily_step_goal');
 
 		$this->assertStringContainsString('objectif quotidien de pas', $goalResponse->json('errors.daily_step_goal.0'));
+
+		$companionResponse = $this->putJson('/api/me/companion', [
+			'name' => 'Compagnon',
+			'species' => 'dog',
+			'color' => 'brown',
+		])->assertUnprocessable()->assertJsonValidationErrors('accessories');
+
+		$this->assertSame('Le champ accessoires doit être présent.', $companionResponse->json('errors.accessories.0'));
+
+		$requiredWithValidator = \Illuminate\Support\Facades\Validator::make(
+			['longitude' => 7.28],
+			['latitude' => ['required_with:longitude']]
+		);
+		$this->assertSame('Le champ latitude est obligatoire quand longitude est présent.', $requiredWithValidator->errors()->first('latitude'));
 	}
 
 	public function test_retired_worn_accessory_still_prevents_wearing_a_second_accessory_of_the_same_category(): void
@@ -146,5 +160,16 @@ class ApiHardeningTest extends TestCase
 		$this->artisan('model:prune', ['--model' => [QuestBan::class]])->assertSuccessful();
 
 		$this->assertEqualsCanonicalizing([$recentExpired->id, $active->id], QuestBan::pluck('id')->all());
+	}
+
+	public function test_model_prune_command_is_scheduled(): void
+	{
+		$schedule = app(\Illuminate\Console\Scheduling\Schedule::class);
+		$events = collect($schedule->events());
+
+		$this->assertTrue(
+			$events->contains(fn ($event) => is_string($event->command) && str_contains($event->command, 'model:prune')),
+			'La commande model:prune doit être planifiée.'
+		);
 	}
 }
