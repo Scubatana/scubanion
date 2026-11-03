@@ -269,7 +269,7 @@ describe("useSteps", () => {
 		const todayDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
 		mocks.httpRequest.mockResolvedValueOnce({
 			status: 200,
-			data: { today: { date: todayDate, steps: 12000, goal: 5000 }, streak: { days: 1, active: true }, total_steps: 12000 }
+			data: { today: { date: todayDate, steps: 12000, goal: 5000 }, streak: { days: 1, active: true }, accepted: [{ day: todayDate, steps: 12000 }], total_steps: 12000 }
 		});
 		const steps = useSteps();
 		await steps.start(true);
@@ -283,12 +283,36 @@ describe("useSteps", () => {
 
 		mocks.httpRequest.mockResolvedValueOnce({
 			status: 200,
-			data: { today: { date: todayDate, steps: 15000, goal: 5000 }, streak: { days: 1, active: true }, total_steps: 15000 }
+			data: { today: { date: todayDate, steps: 15000, goal: 5000 }, streak: { days: 1, active: true }, accepted: [{ day: todayDate, steps: 15000 }], total_steps: 15000 }
 		});
 		await steps.sync();
 
 		expect(mocks.httpRequest).toHaveBeenCalledTimes(2);
 		expect(mocks.httpRequest.mock.calls[1][3].days).toEqual([{ day: todayDate, steps: 15000 }]);
 		expect(steps.displayedSteps.value).toBe(15000);
+	});
+
+	it("keeps capped steps pending even when another phone already fills the day", async () => {
+		const todayDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
+		mocks.httpRequest.mockResolvedValueOnce({
+			status: 200,
+			data: { today: { date: todayDate, steps: 20000, goal: 5000 }, streak: { days: 1, active: true }, accepted: [{ day: todayDate, steps: 12000 }], total_steps: 20000 }
+		});
+		const steps = useSteps();
+		await steps.start(true);
+
+		mocks.emit?.(1000);
+		await settle();
+		mocks.emit?.(16000);
+		await settle();
+
+		mocks.httpRequest.mockResolvedValueOnce({
+			status: 200,
+			data: { today: { date: todayDate, steps: 23000, goal: 5000 }, streak: { days: 1, active: true }, accepted: [{ day: todayDate, steps: 15000 }], total_steps: 23000 }
+		});
+		await steps.sync();
+
+		expect(mocks.httpRequest).toHaveBeenCalledTimes(2);
+		expect(mocks.httpRequest.mock.calls[1][3].days).toEqual([{ day: todayDate, steps: 15000 }]);
 	});
 });

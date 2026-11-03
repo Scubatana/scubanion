@@ -40,9 +40,11 @@ class StepController extends Controller
 	public function store(StoreStepsRequest $request, StepService $steps, QuestEngine $quests, CompanionProgressService $progress): JsonResponse
 	{
 		$user = $request->user();
+		$accepted = [];
 
 		foreach ($request->validated('days') as $entry) {
-			$steps->record($user, $request->validated('device_id'), $entry['day'], $entry['steps']);
+			$activity = $steps->record($user, $request->validated('device_id'), $entry['day'], $entry['steps']);
+			$accepted[] = ['day' => $entry['day'], 'steps' => $activity->steps];
 		}
 
 		$quests->refreshPlayer($user);
@@ -51,6 +53,7 @@ class StepController extends Controller
 		return response()->json([
 			'today' => $steps->today($user),
 			'streak' => $steps->streak($user),
+			'accepted' => $accepted,
 			'total_steps' => (int) $user->activities()->sum('steps'),
 			'companion' => $companion ? new CompanionResource($companion) : null,
 		]);

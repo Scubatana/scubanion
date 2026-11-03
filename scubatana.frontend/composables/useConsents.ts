@@ -7,14 +7,18 @@ export function useConsents() {
 	const consents = useState<PrivacyConsents>("privacy-consents", defaultConsents);
 	const loadedOwner = useState<number | null>("privacy-consents-owner", () => null);
 
-	function storageKey(): string | null {
-		const playerId = usePlayer().player.value?.id;
+	function currentPlayerId(): number | null {
+		return usePlayer().player.value?.id ?? useSession().playerId.value;
+	}
 
-		return playerId === undefined ? null : `${CONSENTS_KEY_PREFIX}${playerId}`;
+	function storageKey(): string | null {
+		const playerId = currentPlayerId();
+
+		return playerId === null ? null : `${CONSENTS_KEY_PREFIX}${playerId}`;
 	}
 
 	async function ensureLoaded(): Promise<PrivacyConsents> {
-		const playerId = usePlayer().player.value?.id ?? null;
+		const playerId = currentPlayerId();
 		const key = storageKey();
 
 		if (key === null || loadedOwner.value === playerId) {
@@ -29,7 +33,7 @@ export function useConsents() {
 
 	async function persist(next: PrivacyConsents): Promise<void> {
 		consents.value = next;
-		const playerId = usePlayer().player.value?.id ?? null;
+		const playerId = currentPlayerId();
 		const key = storageKey();
 
 		if (key !== null) {
