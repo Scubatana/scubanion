@@ -21,6 +21,7 @@ export function useApi() {
 		}
 
 		if (response.status === 401) {
+			useFriends().reset();
 			await session.clear();
 			await navigateTo("/login");
 		}

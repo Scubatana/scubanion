@@ -9,6 +9,15 @@ export function useFriends() {
 	const sent = useState<FriendInvitation[]>("friends-sent", () => []);
 	const loaded = useState<boolean>("friends-loaded", () => false);
 
+	const session = useSession();
+	const player = usePlayer();
+
+	watch([session.token, player.player], ([token, currentPlayer]) => {
+		if (token === null || currentPlayer === null) {
+			reset();
+		}
+	}, { immediate: true });
+
 	function applyView(view: FriendsView): void {
 		code.value = view.code;
 		friends.value = view.friends;
@@ -16,13 +25,11 @@ export function useFriends() {
 		sent.value = view.sent;
 		loaded.value = true;
 
-		const { player } = usePlayer();
-
-		if (player.value !== null) {
-			player.value = {
-				...player.value,
+		if (player.player.value !== null) {
+			player.player.value = {
+				...player.player.value,
 				stats: {
-					...player.value.stats,
+					...player.player.value.stats,
 					friends_count: view.friends.length
 				}
 			};

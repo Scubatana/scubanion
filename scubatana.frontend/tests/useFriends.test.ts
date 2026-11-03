@@ -174,4 +174,34 @@ describe("useFriends", () => {
 		expect(friends.friends.value).toEqual([]);
 		expect(usePlayer().player.value?.stats.friends_count).toBe(0);
 	});
+
+	it("resets friends state on logout and on 401 unauthenticated response", async () => {
+		const friends = useFriends();
+		httpRequest.mockResolvedValueOnce({ status: 200, data: sampleView });
+		await friends.load();
+		expect(friends.friends.value).toHaveLength(1);
+		await useAuth().logout();
+		expect(friends.friends.value).toEqual([]);
+		expect(friends.code.value).toBe("");
+		expect(friends.loaded.value).toBe(false);
+		await useSession().open("jeton-2", true);
+		usePlayer().player.value = {
+			id: 2,
+			email: "autre@example.com",
+			pseudo: "Autre",
+			birth_date: "2000-01-01",
+			gender: null,
+			ambition: "explore",
+			profile_completed: true,
+			stats: { total_steps: 0, quests_done: 0, friends_count: 0 }
+		};
+		httpRequest.mockResolvedValueOnce({ status: 200, data: sampleView });
+		await friends.load();
+		expect(friends.friends.value).toHaveLength(1);
+		httpRequest.mockResolvedValueOnce({ status: 401, data: { message: "Unauthenticated." } });
+		await expect(useApi().get("/me/friends")).rejects.toThrow();
+		expect(friends.friends.value).toEqual([]);
+		expect(friends.code.value).toBe("");
+		expect(friends.loaded.value).toBe(false);
+	});
 });
