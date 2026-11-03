@@ -19,14 +19,14 @@ class PositionController extends Controller
 		$data = $request->validate([
 			'latitude' => ['required', 'numeric', 'between:-90,90'],
 			'longitude' => ['required', 'numeric', 'between:-180,180'],
-			'accuracy_m' => ['nullable', 'integer', 'min:0'],
+			'accuracy_m' => ['nullable', 'numeric', 'min:0'],
 			'mocked' => ['sometimes', 'boolean'],
 			'recorded_at' => ['nullable', 'date', 'before_or_equal:'.now()->addMinutes(self::CLOCK_TOLERANCE_MINUTES)->toIso8601String()],
 		]);
 
 		$latitude = (float) $data['latitude'];
 		$longitude = (float) $data['longitude'];
-		$accuracy = isset($data['accuracy_m']) ? (int) $data['accuracy_m'] : null;
+		$accuracy = isset($data['accuracy_m']) ? (int) round((float) $data['accuracy_m']) : null;
 		$recordedAt = isset($data['recorded_at']) ? CarbonImmutable::parse($data['recorded_at'])->setTimezone(config('app.timezone')) : CarbonImmutable::now();
 
 		$positions->record($request->user(), $latitude, $longitude, $accuracy, $request->boolean('mocked'), $recordedAt);
