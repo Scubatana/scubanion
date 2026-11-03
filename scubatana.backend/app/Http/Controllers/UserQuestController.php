@@ -146,14 +146,14 @@ class UserQuestController extends Controller
 		$position = $request->validate([
 			'latitude' => ['required', 'numeric', 'between:-90,90'],
 			'longitude' => ['required', 'numeric', 'between:-180,180'],
-			'accuracy_m' => ['nullable', 'integer', 'min:0'],
+			'accuracy_m' => ['nullable', 'numeric', 'min:0'],
 			'mocked' => ['sometimes', 'boolean'],
 		]);
 
 		return [
 			'latitude' => (float) $position['latitude'],
 			'longitude' => (float) $position['longitude'],
-			'accuracy' => isset($position['accuracy_m']) ? (int) $position['accuracy_m'] : null,
+			'accuracy' => isset($position['accuracy_m']) ? (int) round((float) $position['accuracy_m']) : null,
 			'mocked' => $request->boolean('mocked'),
 		];
 	}
