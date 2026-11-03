@@ -26,7 +26,7 @@ services:
     build:
       context: ./scubatana.mosquitto
     ports:
-      - "${MQTT_PORT:-1883}:1883"
+      - "127.0.0.1:${MQTT_PORT:-1883}:1883"
     volumes:
       - mosquitto_data:/mosquitto/data
 

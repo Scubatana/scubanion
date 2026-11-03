@@ -40,8 +40,6 @@ services:
     build:
       context: ./scubatana.mosquitto
     image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-mosquitto:${IMAGE_TAG:-latest}
-    ports:
-      - "${MQTT_PORT:-1883}:1883"
     volumes:
       - mosquitto_data:/mosquitto/data
     networks:
@@ -89,7 +87,7 @@ services:
     environment:
       <<: *laravel-environment
     healthcheck:
-      test: ["CMD-SHELL", "pgrep -f bornes:ecouter > /dev/null"]
+      test: ["CMD-SHELL", "test -f /tmp/bornes-ecouter.heartbeat && test $$(expr $$(date +%s) - $$(cat /tmp/bornes-ecouter.heartbeat)) -le 60"]
       interval: 30s
       timeout: 3s
       retries: 3

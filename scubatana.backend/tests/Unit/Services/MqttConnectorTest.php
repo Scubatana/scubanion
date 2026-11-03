@@ -12,8 +12,14 @@ class MqttConnectorTest extends TestCase
 {
 	public function test_listen_command_connects_loops_and_disconnects_cleanly(): void
 	{
+		$heartbeat = tempnam(sys_get_temp_dir(), 'heartbeat_test_');
+
 		$client = Mockery::mock(MqttClient::class);
-		$client->shouldReceive('loop')->once()->with(true);
+		$client->shouldReceive('registerLoopEventHandler')->once();
+		$client->shouldReceive('loop')->once()->with(true)->andReturnUsing(function () use ($heartbeat) {
+			$this->assertFileExists($heartbeat);
+			$this->assertGreaterThan(0, (int) file_get_contents($heartbeat));
+		});
 		$client->shouldReceive('disconnect')->once();
 
 		$connector = Mockery::mock(MqttConnector::class);
@@ -25,6 +31,8 @@ class MqttConnectorTest extends TestCase
 		$this->app->instance(MqttConnector::class, $connector);
 		$this->app->instance(BorneListener::class, $listener);
 
-		$this->artisan('bornes:ecouter')->assertSuccessful();
+		$this->artisan('bornes:ecouter', ['--heartbeat' => $heartbeat])->assertSuccessful();
+
+		$this->assertFileDoesNotExist($heartbeat);
 	}
 }
