@@ -5,8 +5,10 @@ import { GOAL_MAX, GOAL_MIN, GOAL_STEP, shiftedGoal } from "~/utils/stepGoal";
 
 const { today, load, saveGoal } = usePlayer();
 const auth = useAuth();
+const { consents, ensureLoaded: ensureConsentsLoaded, setStepsConsent, setLocationConsent } = useConsents();
 const loading = ref(false);
 const saving = ref(false);
+const updatingConsent = ref(false);
 const loadError = ref("");
 const saveError = ref("");
 const confirmingDeletion = ref(false);
@@ -23,10 +25,39 @@ async function refresh(): Promise<void> {
 
 	try {
 		await load();
+		await ensureConsentsLoaded();
 	} catch (error) {
 		loadError.value = readableMessage(error);
 	} finally {
 		loading.value = false;
+	}
+}
+
+async function toggleStepsConsent(): Promise<void> {
+	if (updatingConsent.value) {
+		return;
+	}
+
+	updatingConsent.value = true;
+
+	try {
+		await setStepsConsent(!consents.value.steps);
+	} finally {
+		updatingConsent.value = false;
+	}
+}
+
+async function toggleLocationConsent(): Promise<void> {
+	if (updatingConsent.value) {
+		return;
+	}
+
+	updatingConsent.value = true;
+
+	try {
+		await setLocationConsent(!consents.value.location);
+	} finally {
+		updatingConsent.value = false;
 	}
 }
 
@@ -95,6 +126,46 @@ onMounted(refresh);
 					</button>
 				</div>
 				<p v-if="saveError" class="form-error">{{ saveError }}</p>
+			</div>
+			<div class="card stack-tight">
+				<span class="section-title">Confidentialité et données (RGPD)</span>
+				<p class="gallery-note">Tu peux activer ou suspendre à tout moment la collecte de chaque donnée utilisée par Scubanion.</p>
+				<div class="consent-row">
+					<div class="consent-copy">
+						<b>Activité physique</b>
+						<span class="gallery-note">Comptage et synchronisation quotidienne de tes pas pour faire progresser ton compagnon.</span>
+					</div>
+					<button
+						class="consent-switch"
+						:class="{ active: consents.steps }"
+						type="button"
+						role="switch"
+						:aria-checked="consents.steps"
+						aria-label="Autoriser le suivi de l'activité physique"
+						:disabled="updatingConsent"
+						@click="toggleStepsConsent"
+					>
+						<span></span>
+					</button>
+				</div>
+				<div class="consent-row">
+					<div class="consent-copy">
+						<b>Position géographique</b>
+						<span class="gallery-note">Vérification ponctuelle de ta présence sur les lieux de quête et devant les bornes.</span>
+					</div>
+					<button
+						class="consent-switch"
+						:class="{ active: consents.location }"
+						type="button"
+						role="switch"
+						:aria-checked="consents.location"
+						aria-label="Autoriser l'utilisation de la position géographique"
+						:disabled="updatingConsent"
+						@click="toggleLocationConsent"
+					>
+						<span></span>
+					</button>
+				</div>
 			</div>
 			<p v-if="loading && !today" class="gallery-note note-self-centered">Chargement…</p>
 			<div v-if="loadError" class="card stack-tight">
