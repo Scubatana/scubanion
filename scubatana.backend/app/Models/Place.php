@@ -108,6 +108,24 @@ class Place extends Model
 			|| Geo::distanceToOutlineInMeters($latitude, $longitude, $outline) <= $margin;
 	}
 
+	public function distanceOutside(float $latitude, float $longitude, ?int $accuracy = null): float
+	{
+		$margin = self::accuracyMargin($accuracy);
+		$points = $this->points;
+
+		if ($points->isEmpty()) {
+			return max(0.0, Geo::distanceInMeters($latitude, $longitude, $this->latitude, $this->longitude) - $this->effectiveRadius() - $margin);
+		}
+
+		$outline = $points->map(fn (PlacePoint $point) => [$point->latitude, $point->longitude])->all();
+
+		if (Geo::insidePolygon($latitude, $longitude, $outline)) {
+			return 0.0;
+		}
+
+		return max(0.0, Geo::distanceToOutlineInMeters($latitude, $longitude, $outline) - $margin);
+	}
+
 	#[Scope]
 	protected function reaching(Builder $query, float $latitude, float $longitude, int $margin): void
 	{
