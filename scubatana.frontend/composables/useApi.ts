@@ -25,6 +25,7 @@ export function useApi() {
 			await useSteps().halt();
 			useQuests().reset();
 			useConsents().reset();
+			useFriends().reset();
 			usePlayer().reset();
 			await session.clear();
 			await navigateTo("/login");
