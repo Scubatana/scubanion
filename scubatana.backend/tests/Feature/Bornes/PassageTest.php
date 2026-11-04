@@ -5,8 +5,10 @@ namespace Tests\Feature\Bornes;
 use App\Enums\TerminalStatus;
 use App\Models\Companion;
 use App\Models\Passage;
+use App\Models\Place;
 use App\Models\Terminal;
 use App\Models\User;
+use App\Models\UserPosition;
 use App\Services\BorneMessageHandler;
 use App\Services\TerminalDisplay;
 use App\Services\TerminalTokenService;
@@ -45,6 +47,17 @@ class PassageTest extends TestCase
 	private function send(string $token)
 	{
 		return $this->postJson('/api/me/passages', ['token' => $token]);
+	}
+
+	private function sendFrom(string $token, float $latitude, float $longitude, array $extra = [])
+	{
+		return $this->postJson('/api/me/passages', ['token' => $token, 'latitude' => $latitude, 'longitude' => $longitude, 'accuracy_m' => 10, ...$extra]);
+	}
+
+	private function atTheCastle(): void
+	{
+		$castle = Place::factory()->create(['latitude' => 43.6953, 'longitude' => 7.2806, 'radius_m' => 100]);
+		$this->terminal->update(['place_id' => $castle->id]);
 	}
 
 	public function test_it_requires_a_token(): void
@@ -125,6 +138,166 @@ class PassageTest extends TestCase
 		$this->send($this->token('2026-10-12 14:59:00'))->assertUnprocessable()->assertJsonValidationErrors('token');
 		$this->send($this->token('2026-10-13 15:06:00'))->assertUnprocessable()->assertJsonValidationErrors('token');
 		$this->assertSame(2, Passage::count());
+	}
+
+	public function test_a_player_at_the_terminal_gets_the_passage_and_their_position_is_kept(): void
+	{
+		$this->atTheCastle();
+
+		$this->sendFrom($this->token(), 43.6958, 7.2806)->assertOk()->assertJsonPath('status', 'rewarded');
+
+		$this->assertEqualsWithDelta(43.6958, $this->lea->position()->value('latitude'), 0.00001);
+	}
+
+	public function test_a_position_away_from_the_terminal_is_refused_and_the_token_stays_usable(): void
+	{
+		$this->atTheCastle();
+		$this->display->shouldReceive('show')->once();
+		$token = $this->token();
+
+		$this->sendFrom($token, 43.7043, 7.2806)
+			->assertUnprocessable()
+			->assertJsonPath('errors.position.0', "Tu n'es pas à la borne : rapproche-toi et scanne-la à nouveau.");
+		$this->assertSame(0, Passage::count());
+
+		$this->sendFrom($token, 43.6958, 7.2806)->assertOk()->assertJsonPath('status', 'rewarded');
+		$this->assertSame(1, Passage::count());
+	}
+
+	public function test_a_mocked_position_does_not_prove_presence(): void
+	{
+		$this->atTheCastle();
+
+		$this->sendFrom($this->token(), 43.6958, 7.2806, ['mocked' => true])->assertUnprocessable()->assertJsonValidationErrors('position');
+
+		$this->assertSame(0, Passage::count());
+		$this->assertSame(1, $this->lea->questBans()->count());
+	}
+
+	public function test_a_teleport_to_the_terminal_is_refused(): void
+	{
+		$this->atTheCastle();
+		UserPosition::factory()->for($this->lea)->create(['latitude' => 48.8566, 'longitude' => 2.3522, 'mocked' => false, 'recorded_at' => now()->subMinute()]);
+
+		$this->sendFrom($this->token(), 43.6958, 7.2806)->assertUnprocessable()->assertJsonValidationErrors('position');
+
+		$this->assertSame(0, Passage::count());
+		$this->assertSame('teleport', $this->lea->questBans()->value('reason'));
+	}
+
+	public function test_a_mocked_position_cannot_be_reused_by_sending_the_token_again_without_a_position(): void
+	{
+		$this->atTheCastle();
+		$token = $this->token();
+
+		$this->sendFrom($token, 43.6958, 7.2806, ['mocked' => true])->assertUnprocessable()->assertJsonValidationErrors('position');
+		$this->send($token)->assertUnprocessable()->assertJsonValidationErrors('position');
+
+		$this->assertSame(0, Passage::count());
+	}
+
+	public function test_a_last_known_position_that_was_mocked_does_not_prove_presence(): void
+	{
+		$this->atTheCastle();
+		UserPosition::factory()->for($this->lea)->create(['latitude' => 43.6958, 'longitude' => 7.2806, 'mocked' => true, 'recorded_at' => now()->subMinute()]);
+
+		$this->send($this->token())->assertUnprocessable()->assertJsonValidationErrors('position');
+
+		$this->assertSame(0, Passage::count());
+	}
+
+	public function test_a_position_that_does_not_date_from_the_scan_counts_as_a_last_known_position(): void
+	{
+		$this->atTheCastle();
+
+		$this->sendFrom($this->token('2026-10-13 14:00:00'), 43.6958, 7.2806, ['recorded_at' => '2026-10-13T14:20:00+02:00'])->assertOk();
+
+		UserPosition::where('user_id', $this->lea->id)->update(['latitude' => 48.8566, 'longitude' => 2.3522, 'recorded_at' => '2026-10-13 14:25:00']);
+
+		$this->sendFrom($this->token('2026-10-13 14:30:00'), 43.6958, 7.2806, ['recorded_at' => '2026-10-13T09:00:00+02:00'])
+			->assertUnprocessable()
+			->assertJsonPath('errors.position.0', 'Ta dernière position est trop loin de la borne : active ta localisation et scanne-la à nouveau.');
+		$this->assertSame(1, Passage::count());
+	}
+
+	public function test_a_refused_or_used_token_leaves_the_position_untouched(): void
+	{
+		$this->sendFrom($this->token('2026-10-12 14:59:00'), 48.8566, 2.3522)->assertUnprocessable()->assertJsonValidationErrors('token');
+		$this->assertNull($this->lea->position()->first());
+
+		$token = $this->token();
+		$this->sendFrom($token, 43.6958, 7.2806)->assertOk();
+		$this->sendFrom($token, 48.8566, 2.3522)->assertStatus(409);
+
+		$this->assertEqualsWithDelta(43.6958, $this->lea->position()->value('latitude'), 0.00001);
+		$this->assertSame(0, $this->lea->questBans()->count());
+	}
+
+	public function test_an_offline_passage_brings_the_position_of_the_scan(): void
+	{
+		$this->atTheCastle();
+
+		$this->sendFrom($this->token('2026-10-12 18:00:00'), 43.6958, 7.2806, ['recorded_at' => '2026-10-12T18:00:30+02:00'])->assertOk();
+		$this->sendFrom($this->token('2026-10-13 14:00:00'), 43.6958, 7.2806, ['recorded_at' => '2026-10-12T14:59:00+02:00'])->assertUnprocessable()->assertJsonValidationErrors('recorded_at');
+
+		$this->assertSame('2026-10-12 18:00:30', $this->lea->position()->first()->recorded_at->toDateTimeString());
+	}
+
+	public function test_without_a_position_the_last_known_one_must_be_within_reach(): void
+	{
+		$this->atTheCastle();
+		UserPosition::factory()->for($this->lea)->create(['latitude' => 48.8566, 'longitude' => 2.3522, 'recorded_at' => now()->subMinutes(10)]);
+
+		$this->send($this->token())
+			->assertUnprocessable()
+			->assertJsonPath('errors.position.0', 'Ta dernière position est trop loin de la borne : active ta localisation et scanne-la à nouveau.');
+		$this->assertSame(0, Passage::count());
+
+		$this->lea->position()->update(['recorded_at' => now()->subHours(6)]);
+
+		$this->send($this->token())->assertOk();
+	}
+
+	public function test_without_a_position_a_nearby_last_position_is_enough(): void
+	{
+		$this->atTheCastle();
+		UserPosition::factory()->for($this->lea)->create(['latitude' => 43.7043, 'longitude' => 7.2806, 'recorded_at' => now()->subMinutes(2)]);
+
+		$this->send($this->token())->assertOk();
+		$this->assertSame(1, Passage::count());
+	}
+
+	public function test_a_player_whose_position_was_never_received_must_turn_on_location(): void
+	{
+		$this->atTheCastle();
+		$token = $this->token();
+
+		$this->send($token)
+			->assertUnprocessable()
+			->assertJsonPath('errors.position.0', 'Active ta localisation pour valider la borne, puis scanne-la à nouveau.');
+		$this->assertSame(0, Passage::count());
+
+		$this->sendFrom($token, 43.6958, 7.2806)->assertOk()->assertJsonPath('status', 'rewarded');
+	}
+
+	public function test_a_decimal_gps_accuracy_is_accepted_and_rounded(): void
+	{
+		$this->atTheCastle();
+
+		$this->sendFrom($this->token(), 43.6958, 7.2806, ['accuracy_m' => 12.6])->assertOk();
+
+		$this->assertSame(13, $this->lea->position()->value('accuracy_m'));
+	}
+
+	public function test_a_terminal_without_a_place_does_not_check_the_position(): void
+	{
+		$this->sendFrom($this->token(), 48.8566, 2.3522)->assertOk();
+	}
+
+	public function test_a_position_needs_both_coordinates(): void
+	{
+		$this->postJson('/api/me/passages', ['token' => $this->token(), 'latitude' => 43.6958])->assertUnprocessable()->assertJsonValidationErrors('longitude');
+		$this->postJson('/api/me/passages', ['token' => $this->token(), 'longitude' => 7.2806])->assertUnprocessable()->assertJsonValidationErrors('latitude');
 	}
 
 	public function test_the_reward_goes_to_the_companion_progression(): void

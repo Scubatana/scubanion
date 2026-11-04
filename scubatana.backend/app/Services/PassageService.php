@@ -3,7 +3,11 @@
 namespace App\Services;
 
 use App\Models\Passage;
+use App\Models\Place;
+use App\Models\Terminal;
 use App\Models\User;
+use App\Models\UserPosition;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -11,12 +15,15 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class PassageService
 {
+	private const ALREADY_USED = 'Ce code de borne a déjà été utilisé.';
+
 	public function __construct(
 		private TerminalTokenService $tokens,
 		private CompanionProgressService $progress,
+		private PositionService $positions,
 	) {}
 
-	public function record(User $player, string $token): Passage
+	public function record(User $player, string $token, ?array $position = null): Passage
 	{
 		$read = $this->tokens->read($token);
 
@@ -28,13 +35,23 @@ class PassageService
 		$terminal = $read['terminal'];
 		$scannedAt = $read['scanned_at'];
 
+		if (Passage::where('token_hash', $tokenHash)->exists()) {
+			throw new ConflictHttpException(self::ALREADY_USED);
+		}
+
+		if ($position !== null) {
+			$this->positions->record($player, $position['latitude'], $position['longitude'], $position['accuracy'], $position['mocked'], $position['recorded_at']);
+		}
+
 		try {
-			$passage = DB::transaction(function () use ($player, $terminal, $scannedAt, $tokenHash): Passage {
+			$passage = DB::transaction(function () use ($player, $terminal, $scannedAt, $tokenHash, $position): Passage {
 				User::whereKey($player->id)->lockForUpdate()->first();
 
 				if (Passage::where('token_hash', $tokenHash)->exists()) {
-					throw new ConflictHttpException('Ce code de borne a déjà été utilisé.');
+					throw new ConflictHttpException(self::ALREADY_USED);
 				}
+
+				$this->ensurePresent($player, $terminal, $scannedAt, $position);
 
 				$alreadyRewarded = $terminal->passages()
 					->where('user_id', $player->id)
@@ -50,7 +67,7 @@ class PassageService
 				]);
 			});
 		} catch (UniqueConstraintViolationException) {
-			throw new ConflictHttpException('Ce code de borne a déjà été utilisé.');
+			throw new ConflictHttpException(self::ALREADY_USED);
 		}
 
 		if ($passage->isRewarded()) {
@@ -58,6 +75,56 @@ class PassageService
 		}
 
 		return $passage;
+	}
+
+	private function ensurePresent(User $player, Terminal $terminal, CarbonImmutable $scannedAt, ?array $position): void
+	{
+		$place = $terminal->place;
+
+		if ($place === null) {
+			return;
+		}
+
+		if ($player->isBannedFromLocationTasks()) {
+			throw ValidationException::withMessages(['position' => "Tu n'es pas à la borne : rapproche-toi et scanne-la à nouveau."]);
+		}
+
+		if ($position !== null && $this->datesFromTheScan($position['recorded_at'], $scannedAt)) {
+			if ($position['mocked'] || ! $place->contains($position['latitude'], $position['longitude'], $position['accuracy'])) {
+				throw ValidationException::withMessages(['position' => "Tu n'es pas à la borne : rapproche-toi et scanne-la à nouveau."]);
+			}
+
+			return;
+		}
+
+		$last = $player->position()->first();
+
+		if ($last === null) {
+			throw ValidationException::withMessages(['position' => 'Active ta localisation pour valider la borne, puis scanne-la à nouveau.']);
+		}
+
+		if ($last->mocked || ! $this->couldHaveReached($place, $last, $scannedAt)) {
+			throw ValidationException::withMessages(['position' => 'Ta dernière position est trop loin de la borne : active ta localisation et scanne-la à nouveau.']);
+		}
+	}
+
+	private function datesFromTheScan(CarbonImmutable $recordedAt, CarbonImmutable $scannedAt): bool
+	{
+		$tolerance = config('bornes.future_tolerance_minutes');
+
+		return $recordedAt->gte($scannedAt->subMinutes($tolerance))
+			&& $recordedAt->lte($scannedAt->addMinutes(config('bornes.token_refresh_minutes') + $tolerance));
+	}
+
+	private function couldHaveReached(Place $place, UserPosition $last, CarbonImmutable $scannedAt): bool
+	{
+		$distance = $place->distanceOutside($last->latitude, $last->longitude, $last->accuracy_m);
+		$seconds = max(
+			abs($last->recorded_at->diffInSeconds($scannedAt, false)),
+			abs($last->recorded_at->diffInSeconds($scannedAt->addMinutes(config('bornes.token_refresh_minutes')), false)),
+		);
+
+		return $distance <= config('bornes.max_travel_speed_kmh') / 3.6 * $seconds;
 	}
 
 	public function display(Passage $passage): array
