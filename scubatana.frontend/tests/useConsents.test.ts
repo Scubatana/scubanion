@@ -71,4 +71,12 @@ describe("useConsents", () => {
 		expect(mocks.storage.has("consents.7")).toBe(false);
 		expect(await ensureLoaded()).toEqual({ steps: false, location: false });
 	});
+
+	it("finds the consents of the session player when the profile cannot be loaded offline", async () => {
+		mocks.storage.set("consents.7", JSON.stringify({ steps: true, location: false }));
+		await useSession().open("jeton-1", true, 7);
+		usePlayer().player.value = null;
+
+		expect(await useConsents().ensureLoaded()).toEqual({ steps: true, location: false });
+	});
 });
