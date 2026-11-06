@@ -2,7 +2,7 @@ import { App } from "@capacitor/app";
 import { ApiError } from "~/utils/apiError";
 import { Preferences } from "@capacitor/preferences";
 import { openStepSettings, readRecordedSteps, stepPermissionGranted, stepSensorAvailable, watchSteps } from "~/utils/stepCounter";
-import { acceptedEntries, applyReading, applyRecorded, emptyLedger, localDay, markSynced, parseLedger, pendingEntries, recordedFrom, resume, suspend, unsyncedSteps, type StepLedger } from "~/utils/stepLedger";
+import { acceptedEntries, applyReading, applyRecorded, emptyLedger, localDay, markSynced, parseLedger, pendingEntries, recordedFrom, resume, suspend, unsyncedSteps, type StepEntry, type StepLedger } from "~/utils/stepLedger";
 import type { Companion, Streak, Today } from "~/utils/types";
 
 export type StepStatus = "idle" | "unavailable" | "denied" | "tracking";
@@ -10,6 +10,7 @@ export type StepStatus = "idle" | "unavailable" | "denied" | "tracking";
 interface SyncResponse {
 	today: Today;
 	streak: Streak;
+	accepted?: StepEntry[];
 	total_steps: number;
 	companion?: Companion | null;
 }
@@ -77,7 +78,7 @@ export function useSteps() {
 		try {
 			const response = await useApi().post<SyncResponse>("/me/steps", { device_id: await deviceId(), days: entries });
 
-			ledger = markSynced(ledger, acceptedEntries(entries, response.today));
+			ledger = markSynced(ledger, acceptedEntries(entries, response.accepted ?? entries));
 			today.value = response.today;
 			streak.value = response.streak ?? streak.value;
 			companion.value = response.companion ?? companion.value;
