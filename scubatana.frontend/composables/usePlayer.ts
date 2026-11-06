@@ -30,6 +30,7 @@ export function usePlayer() {
 		today.value = response.today;
 		streak.value = response.streak ?? null;
 		await useSession().markProfileCompleted(response.player.profile_completed);
+		await useSession().rememberPlayer(response.player.id);
 	}
 
 	async function saveProfile(payload: ProfilePayload): Promise<void> {

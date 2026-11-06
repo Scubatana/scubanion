@@ -83,6 +83,19 @@ class StoreStepsTest extends TestCase
 		$this->send([['day' => '2026-10-13', 'steps' => 50000]])->assertOk()->assertJsonPath('today.steps', 2200);
 	}
 
+	public function test_it_returns_what_was_kept_for_this_phone_alone(): void
+	{
+		Sanctum::actingAs(User::factory()->create());
+
+		$this->send([['day' => '2026-10-13', 'steps' => 3000]], 'phone-bbbb-2222')->assertOk()->assertJsonPath('accepted', [['day' => '2026-10-13', 'steps' => 3000]]);
+		$this->travel(60)->seconds();
+
+		$this->send([['day' => '2026-10-12', 'steps' => 7400], ['day' => '2026-10-13', 'steps' => 2600]])
+			->assertOk()
+			->assertJsonPath('today.steps', 3200)
+			->assertJsonPath('accepted', [['day' => '2026-10-12', 'steps' => 7400], ['day' => '2026-10-13', 'steps' => 200]]);
+	}
+
 	public function test_capped_steps_are_recovered_once_enough_time_has_passed(): void
 	{
 		Sanctum::actingAs(User::factory()->create());

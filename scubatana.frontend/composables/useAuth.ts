@@ -48,7 +48,7 @@ export function useAuth() {
 
 		player.reset();
 		player.player.value = response.player;
-		await session.open(response.token, response.player.profile_completed);
+		await session.open(response.token, response.player.profile_completed, response.player.id);
 		await forgetPendingEmail();
 	}
 

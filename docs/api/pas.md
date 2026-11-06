@@ -27,10 +27,16 @@ Réponse **200** :
 {
   "today": { "date": "2026-10-13", "steps": 3200, "goal": 5000 },
   "streak": { "days": 4, "active": false },
+  "accepted": [
+    { "day": "2026-10-12", "steps": 8420 },
+    { "day": "2026-10-13", "steps": 3200 }
+  ],
   "total_steps": 48210,
   "companion": { "...": "voir compagnon.md" }
 }
 ```
+
+`accepted` donne, pour chaque jour envoyé, le total retenu pour **ce téléphone**, après les garde-fous ci-dessous. L'app ne marque comme envoyés que ces pas-là : le reste est renvoyé plus tard. `today.steps`, lui, additionne tous les téléphones du joueur.
 
 Chaque envoi fait aussi avancer les tâches de pas des quêtes en cours ([quetes.md](quetes.md)) et recalcule le compagnon, renvoyé à jour (`null` avant le profil).
 
