@@ -26,6 +26,7 @@ export function useApi() {
 			useQuests().reset();
 			useConsents().reset();
 			useFriends().reset();
+			useMap().reset();
 			usePlayer().reset();
 			await session.clear();
 			await navigateTo("/login");
