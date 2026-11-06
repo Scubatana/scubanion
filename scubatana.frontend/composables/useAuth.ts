@@ -62,6 +62,7 @@ export function useAuth() {
 		useQuests().reset();
 		useConsents().reset();
 		useFriends().reset();
+		useMap().reset();
 	}
 
 	async function deleteAccount(): Promise<void> {
@@ -74,6 +75,7 @@ export function useAuth() {
 		await forgetPendingEmail();
 		player.reset();
 		useFriends().reset();
+		useMap().reset();
 	}
 
 	return { pendingEmail, restorePendingEmail, requestCode, verifyCode, logout, deleteAccount };
