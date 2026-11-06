@@ -62,3 +62,26 @@ Une tâche de pas compte les pas reçus par le serveur après le déblocage de s
 **Limite connue (négligeable).** Des pas faits app ouverte juste avant un déblocage, mais pas encore envoyés à ce moment (synchro toutes les 20 secondes, ou téléphone sans réseau), comptent pour l'étape débloquée. Le corriger demanderait de dater les pas plus finement qu'au jour.
 
 Le code est dans `app/Services/QuestEngine.php` (avancement), `QuestAssigner.php` (attribution) et `QuestPresenter.php` (ce qui est envoyé à l'app), les tests dans `tests/Feature/Quests/QuestEngineTest.php`.
+
+## Bornes
+
+Un passage à une borne rapporte 100 XP, une fois par jour et par borne. Le jeton lu sur la borne prouve que quelqu'un était devant elle, mais pas que c'est le joueur qui l'envoie : un joueur sur place pourrait scanner plusieurs fois et donner les jetons à des amis restés chez eux. Pour une borne rattachée à un lieu, le serveur vérifie donc aussi la position du joueur. Il y a deux cas.
+
+**L'app envoie la position du scan.** Elle doit tomber dans le lieu de la borne, avec la même marge que pour valider un lieu dans une quête : le rayon du lieu (100 m par défaut) ou son contour, plus la précision du GPS plafonnée à 50 m. Cette règle vaut pour une position qui date du scan : entre 5 minutes avant l'heure du jeton et 10 minutes après (la borne écrit son jeton jusqu'à 5 minutes avant sa lecture, plus 5 minutes de tolérance sur les horloges). Une position plus ancienne ou plus récente, par exemple un GPS qui a mis du temps à répondre, n'est pas refusée : elle compte comme une position reçue parmi les autres, et on applique la règle sans position ci-dessous. Une position simulée ne prouve rien, et bloque le joueur 24 h comme ailleurs.
+
+**Un joueur bloqué** (position simulée ou téléportation, voir [Anti-triche](#quêtes)) ne valide aucun passage à une borne rattachée à un lieu pendant son blocage, avec ou sans position. Comme pour les quêtes, rien ne le lui indique : il reçoit le même refus que s'il était loin. La position envoyée avec un passage n'est enregistrée qu'une fois le jeton reconnu valable et pas encore utilisé : un jeton faux, expiré ou déjà servi ne modifie ni la position du joueur, ni ses blocages.
+
+**L'app n'envoie pas de position** (localisation refusée, pas de signal), ou une position qui ne date pas du scan. Le serveur reprend la dernière position reçue du joueur (refusée si elle était simulée), et vérifie qu'il a pu aller de là jusqu'à la borne à 150 km/h au plus (`BORNE_MAX_TRAVEL_SPEED_KMH`). La borne écrit son jeton jusqu'à 5 minutes avant sa lecture (`BORNE_TOKEN_REFRESH_MINUTES`) : le serveur retient le moment de lecture le plus favorable au joueur. Un joueur dont on n'a jamais reçu de position est refusé : rien ne prouve qu'il est à la borne, il doit activer sa localisation et scanner à nouveau.
+
+| Dernière position connue | Résultat |
+| ------------------------ | -------- |
+| aucune | refusé |
+| à 1 km, 2 minutes avant le scan | accepté |
+| à Paris pour une borne à Nice, 10 minutes avant | refusé |
+| à Paris pour une borne à Nice, 6 heures avant | accepté : le trajet était possible |
+
+Un refus ne consomme pas le jeton : le joueur peut le renvoyer avec sa localisation activée, ou une fois sur place. Il ne bloque pas le joueur. La borne n'affiche rien.
+
+**Limites connues.** Une app modifiée peut envoyer n'importe quelle position, et un ami qui coupe sa localisation n'est arrêté que si sa dernière position le trahit. La vérification bloque surtout l'ami qui reçoit un jeton à l'autre bout de la ville ou du pays avec l'app normale. Une borne sans lieu n'est pas vérifiée.
+
+Le code est dans `app/Services/PassageService.php`, les tests dans `tests/Feature/Bornes/PassageTest.php`.

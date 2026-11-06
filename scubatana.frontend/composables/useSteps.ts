@@ -2,7 +2,7 @@ import { App } from "@capacitor/app";
 import { ApiError } from "~/utils/apiError";
 import { Preferences } from "@capacitor/preferences";
 import { openStepSettings, readRecordedSteps, stepPermissionGranted, stepSensorAvailable, watchSteps } from "~/utils/stepCounter";
-import { applyReading, applyRecorded, emptyLedger, localDay, markSynced, parseLedger, pendingEntries, recordedFrom, resume, suspend, unsyncedSteps, type StepLedger } from "~/utils/stepLedger";
+import { acceptedEntries, applyReading, applyRecorded, emptyLedger, localDay, markSynced, parseLedger, pendingEntries, recordedFrom, resume, suspend, unsyncedSteps, type StepLedger } from "~/utils/stepLedger";
 import type { Companion, Streak, Today } from "~/utils/types";
 
 export type StepStatus = "idle" | "unavailable" | "denied" | "tracking";
@@ -77,7 +77,7 @@ export function useSteps() {
 		try {
 			const response = await useApi().post<SyncResponse>("/me/steps", { device_id: await deviceId(), days: entries });
 
-			ledger = markSynced(ledger, entries);
+			ledger = markSynced(ledger, acceptedEntries(entries, response.today));
 			today.value = response.today;
 			streak.value = response.streak ?? streak.value;
 			companion.value = response.companion ?? companion.value;
@@ -145,6 +145,12 @@ export function useSteps() {
 	}
 
 	async function onResume(): Promise<void> {
+		const allowed = await useConsents().ensureLoaded();
+
+		if (!allowed.steps) {
+			return;
+		}
+
 		if (status.value === "tracking") {
 			await catchUp();
 		} else if (status.value === "denied") {
@@ -154,6 +160,13 @@ export function useSteps() {
 
 	async function start(askPermission: boolean): Promise<void> {
 		if (status.value === "tracking" || player.value === null) {
+			return;
+		}
+
+		const allowed = await useConsents().ensureLoaded();
+
+		if (!allowed.steps) {
+			status.value = "idle";
 			return;
 		}
 
@@ -203,5 +216,5 @@ export function useSteps() {
 		await openStepSettings();
 	}
 
-	return { status, displayedSteps, start, sync, settled, reset, discard, openSettings };
+	return { status, displayedSteps, start, sync, settled, halt, reset, discard, openSettings };
 }

@@ -29,10 +29,10 @@ export function usePosition() {
 	const status = useState<PositionStatus>("position.status", () => "idle");
 	const asked = useState("position.asked", () => false);
 	const promptDismissed = useState("position.prompt-dismissed", () => false);
-	const showPrompt = computed(() => status.value === "denied" && !promptDismissed.value);
+	const showPrompt = computed(() => useConsents().consents.value.location && status.value === "denied" && !promptDismissed.value);
 
 	async function send(): Promise<void> {
-		if (useSession().token.value === null) {
+		if (useSession().token.value === null || !useConsents().consents.value.location) {
 			return;
 		}
 
@@ -52,6 +52,10 @@ export function usePosition() {
 		listenersReady = true;
 		await App.addListener("pause", () => clearTimer());
 		await App.addListener("resume", () => {
+			if (!useConsents().consents.value.location) {
+				return;
+			}
+
 			const position = usePosition();
 
 			if (position.status.value === "tracking" || position.status.value === "denied") {
@@ -62,6 +66,13 @@ export function usePosition() {
 
 	async function start(askPermission: boolean): Promise<void> {
 		if (timer !== null) {
+			return;
+		}
+
+		const allowed = await useConsents().ensureLoaded();
+
+		if (!allowed.location) {
+			stop();
 			return;
 		}
 

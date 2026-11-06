@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { resolveLook } from "~/utils/companionLook";
+import type { CompanionPosture } from "~/utils/companionMood";
 
-const props = defineProps<{ species: string; color: string; accessories: string[]; name: string; small?: boolean }>();
+const props = defineProps<{
+	species: string;
+	color: string;
+	accessories: string[];
+	name: string;
+	small?: boolean;
+	posture?: CompanionPosture;
+}>();
 
 const { catalog, ensureLoaded } = useCatalog();
 
@@ -11,7 +19,7 @@ onMounted(() => ensureLoaded().catch(() => undefined));
 </script>
 
 <template>
-	<div class="companion-avatar" :class="{ small }" role="img" :aria-label="name">
+	<div class="companion-avatar" :class="[{ small }, posture ? `posture-${posture}` : '']" role="img" :aria-label="name">
 		<div v-if="look" class="companion-avatar-base" :style="look.palette" v-html="look.species.svg"></div>
 		<img v-else class="companion-avatar-base" src="/img/logo.png" alt="">
 		<img v-for="accessory in look?.accessories ?? []" :key="accessory.id" class="companion-avatar-accessory" :src="accessory.image" :style="accessory.style" alt="">

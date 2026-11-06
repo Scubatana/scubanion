@@ -21,7 +21,13 @@ export function useApi() {
 		}
 
 		if (response.status === 401) {
+			usePosition().stop();
+			await useSteps().halt();
+			useQuests().reset();
+			useConsents().reset();
+			useFriends().reset();
 			useMap().reset();
+			usePlayer().reset();
 			await session.clear();
 			await navigateTo("/login");
 		}

@@ -60,6 +60,8 @@ export function useAuth() {
 		await forgetPendingEmail();
 		player.reset();
 		useQuests().reset();
+		useConsents().reset();
+		useFriends().reset();
 		useMap().reset();
 	}
 
@@ -67,10 +69,12 @@ export function useAuth() {
 		await api.del<void>("/me?confirm=1");
 		usePosition().stop();
 		await useSteps().discard();
+		await useQuests().discard();
+		await useConsents().discard();
 		await session.clear();
 		await forgetPendingEmail();
 		player.reset();
-		useQuests().reset();
+		useFriends().reset();
 		useMap().reset();
 	}
 

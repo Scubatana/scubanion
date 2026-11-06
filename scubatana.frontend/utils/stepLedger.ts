@@ -137,6 +137,14 @@ export function pendingEntries(ledger: StepLedger, today: string): StepEntry[] {
 		.map((day) => ({ day, steps: ledger.days[day] }));
 }
 
+export function acceptedEntries(entries: StepEntry[], serverToday: { date: string; steps: number }): StepEntry[] {
+	return entries.map((entry) => (
+		entry.day === serverToday.date
+			? { day: entry.day, steps: Math.min(entry.steps, Math.max(0, serverToday.steps)) }
+			: entry
+	));
+}
+
 export function markSynced(ledger: StepLedger, entries: StepEntry[]): StepLedger {
 	const synced = { ...ledger.synced };
 
