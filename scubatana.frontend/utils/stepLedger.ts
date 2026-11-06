@@ -137,12 +137,10 @@ export function pendingEntries(ledger: StepLedger, today: string): StepEntry[] {
 		.map((day) => ({ day, steps: ledger.days[day] }));
 }
 
-export function acceptedEntries(entries: StepEntry[], serverToday: { date: string; steps: number }): StepEntry[] {
-	return entries.map((entry) => (
-		entry.day === serverToday.date
-			? { day: entry.day, steps: Math.min(entry.steps, Math.max(0, serverToday.steps)) }
-			: entry
-	));
+export function acceptedEntries(entries: StepEntry[], accepted: StepEntry[]): StepEntry[] {
+	const kept = new Map(accepted.map((entry) => [entry.day, entry.steps]));
+
+	return entries.map((entry) => ({ day: entry.day, steps: Math.min(entry.steps, Math.max(0, kept.get(entry.day) ?? entry.steps)) }));
 }
 
 export function markSynced(ledger: StepLedger, entries: StepEntry[]): StepLedger {

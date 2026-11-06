@@ -37,7 +37,7 @@ describe("useSession", () => {
 	});
 
 	it("restores the stored session after a restart", async () => {
-		await useSession().open("jeton-1", true);
+		await useSession().open("jeton-1", true, 7);
 		clearNuxtState();
 
 		const session = useSession();
@@ -45,6 +45,18 @@ describe("useSession", () => {
 
 		expect(session.token.value).toBe("jeton-1");
 		expect(session.profileCompleted.value).toBe(true);
+		expect(session.playerId.value).toBe(7);
+	});
+
+	it("remembers the player of a session opened before the player id was stored", async () => {
+		await useSession().open("jeton-1", true);
+		expect(useSession().playerId.value).toBeNull();
+
+		await useSession().rememberPlayer(7);
+		clearNuxtState();
+		await useSession().restore();
+
+		expect(useSession().playerId.value).toBe(7);
 	});
 
 	it("remembers that the profile has been completed", async () => {
@@ -59,12 +71,13 @@ describe("useSession", () => {
 
 	it("erases everything when the session ends", async () => {
 		const session = useSession();
-		await session.open("jeton-1", true);
+		await session.open("jeton-1", true, 7);
 
 		await session.clear();
 
 		expect(session.token.value).toBeNull();
 		expect(session.profileCompleted.value).toBe(false);
+		expect(session.playerId.value).toBeNull();
 		expect(storage.size).toBe(0);
 	});
 });
