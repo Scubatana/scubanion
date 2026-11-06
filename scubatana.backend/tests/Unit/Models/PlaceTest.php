@@ -111,6 +111,23 @@ class PlaceTest extends TestCase
 		$forest->setOutline([[43.70, 7.20], [43.70, 7.30]]);
 	}
 
+	public function test_the_distance_outside_a_place_counts_from_its_edge_minus_the_gps_margin(): void
+	{
+		$castle = Place::factory()->create(['latitude' => 43.6953, 'longitude' => 7.2806, 'radius_m' => 100]);
+
+		$this->assertSame(0.0, $castle->distanceOutside(43.6960, 7.2806));
+		$this->assertEqualsWithDelta(133.5, $castle->distanceOutside(43.6974, 7.2806), 1);
+		$this->assertEqualsWithDelta(103.5, $castle->distanceOutside(43.6974, 7.2806, 30), 1);
+
+		$forest = Place::factory()->ofType('zone')->create(['latitude' => 43.65, 'longitude' => 7.25]);
+		$forest->setOutline([[43.70, 7.20], [43.70, 7.30], [43.60, 7.30], [43.60, 7.20]]);
+		$forest = $forest->fresh();
+
+		$this->assertSame(0.0, $forest->distanceOutside(43.61, 7.29));
+		$this->assertEqualsWithDelta(111.3, $forest->distanceOutside(43.7010, 7.25), 1);
+		$this->assertEqualsWithDelta(71.3, $forest->distanceOutside(43.7010, 7.25, 40), 1);
+	}
+
 	public function test_it_keeps_free_attributes_and_an_external_identifier(): void
 	{
 		$stop = Place::factory()->ofType('bus_stop')->create(['attributes' => ['lines' => ['15', '25']], 'source' => 'gtfs', 'external_id' => 'NICE:1234']);

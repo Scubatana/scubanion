@@ -175,7 +175,7 @@ Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'
 3. Mettre le code et le secret dans `include/borne_config.h` du firmware, puis flasher la borne.
 4. Vérifier que la borne passe en ligne : `online` à `true` dans `GET /api/bornes`.
 
-Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `MQTT_ACCOUNTS_DIRECTORY` (`storage/app/mqtt`), `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5).
+Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `MQTT_ACCOUNTS_DIRECTORY` (`storage/app/mqtt`), `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5), `BORNE_TOKEN_REFRESH_MINUTES` (5), `BORNE_MAX_TRAVEL_SPEED_KMH` (150). Les deux derniers servent à vérifier que le joueur était à la borne (voir les [règles du jeu](regles-du-jeu.md#bornes)).
 
 L'affichage est publié après l'envoi de la réponse au téléphone : un broker injoignable ne bloque pas le passage, il est seulement noté dans les journaux.
 
