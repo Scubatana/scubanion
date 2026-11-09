@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\FriendshipStatus;
+use App\Models\Block;
 use App\Models\Friendship;
 use App\Models\User;
 use App\Support\FriendCode;
@@ -22,6 +23,10 @@ class FriendshipService
 
 		if ($other->is($player)) {
 			$this->refuse("C'est ton propre code : partage-le à tes amis.");
+		}
+
+		if (Block::between($player, $other)->exists()) {
+			$this->refuse("Aucun joueur n'a ce code.");
 		}
 
 		$existing = Friendship::between($player, $other)->first();

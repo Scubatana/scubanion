@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlockController;
 use App\Http\Controllers\CompanionController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\MapController;
@@ -38,4 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::post('/me/friends', [FriendController::class, 'store'])->middleware('throttle:friend-invite');
 	Route::post('/me/friends/{friendship}/accept', [FriendController::class, 'accept']);
 	Route::delete('/me/friends/{friendship}', [FriendController::class, 'destroy']);
+	Route::get('/me/blocks', [BlockController::class, 'index']);
+	Route::post('/me/blocks', [BlockController::class, 'store'])->middleware('throttle:30,1');
+	Route::delete('/me/blocks/{block}', [BlockController::class, 'destroy']);
 });
