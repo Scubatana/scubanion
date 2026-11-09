@@ -17,7 +17,7 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 
 | Fonctionnalité                                               | § | Exigence          | Priorité proposée | État                                              |
 | ------------------------------------------------------------- | -- | ----------------- | ------------------- | -------------------------------------------------- |
-| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage : API faite, écran à faire ([api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
+| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage et signalement : API faite, écran à faire ([api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
 | Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | À faire                                           |
 | Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | Fait (API et écran)                               |
 | Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | À faire                                           |

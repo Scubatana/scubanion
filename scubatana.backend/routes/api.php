@@ -9,6 +9,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PassageController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\UserQuestController;
@@ -42,4 +43,5 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me/blocks', [BlockController::class, 'index']);
 	Route::post('/me/blocks', [BlockController::class, 'store'])->middleware('throttle:30,1');
 	Route::delete('/me/blocks/{block}', [BlockController::class, 'destroy']);
+	Route::post('/me/reports', [ReportController::class, 'store'])->middleware('throttle:player-report');
 });
