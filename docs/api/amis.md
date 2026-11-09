@@ -47,7 +47,7 @@ Invite un joueur par son code.
 | `code` | obligatoire. Majuscules, minuscules, espaces et tirets sont acceptés. |
 
 - Si l'autre joueur avait déjà invité ce joueur, l'invitation est acceptée directement : ils deviennent amis.
-- **422** sur `code` : code inconnu (ou joueur sans profil), son propre code, invitation déjà envoyée, ou déjà amis.
+- **422** sur `code` : code inconnu (ou joueur sans profil), son propre code, invitation déjà envoyée, ou déjà amis. Un blocage entre les deux joueurs, dans un sens ou dans l'autre, donne la même erreur qu'un code inconnu ([securite.md](securite.md)).
 - **409** si le joueur n'a pas encore rempli son profil.
 - Limite : 20 invitations par minute et par joueur, puis **429**.
 
@@ -62,3 +62,5 @@ Supprime le lien, quel que soit son état : refuser une invitation reçue, annul
 ## Ailleurs dans l'API
 
 `GET /me` renvoie le nombre d'amis dans `player.stats.friends_count`.
+
+Bloquer un joueur supprime l'amitié ou les invitations avec lui : voir [securite.md](securite.md).
