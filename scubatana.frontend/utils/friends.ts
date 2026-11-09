@@ -38,6 +38,25 @@ export interface FriendsView {
 	sent: FriendInvitation[];
 }
 
+export interface FriendQrToken {
+	token: string;
+	expires_at: string;
+}
+
+/**
+ * Délai avant de redemander un QR : 10 secondes avant son expiration, pour qu'un ami
+ * ne scanne jamais un QR périmé, mais jamais moins de 5 secondes entre deux demandes.
+ */
+export function qrRefreshDelay(expiresAt: string, now: number = Date.now()): number {
+	const remaining = new Date(expiresAt).getTime() - now;
+
+	if (Number.isNaN(remaining)) {
+		return 5_000;
+	}
+
+	return Math.max(5_000, remaining - 10_000);
+}
+
 export function normalizeFriendCodeInput(input: string): string {
 	return input.replace(/[\s-]+/g, "").toUpperCase();
 }

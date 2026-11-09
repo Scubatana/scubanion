@@ -1,4 +1,4 @@
-import { normalizeFriendCodeInput, type FriendInvitation, type Friendship, type FriendsView } from "~/utils/friends";
+import { normalizeFriendCodeInput, type FriendInvitation, type FriendQrToken, type Friendship, type FriendsView } from "~/utils/friends";
 
 export type InviteOutcome = "sent" | "mutual";
 
@@ -52,6 +52,10 @@ export function useFriends() {
 		return view.friends.length > previousCount ? "mutual" : "sent";
 	}
 
+	async function qrToken(): Promise<FriendQrToken> {
+		return useApi().get<FriendQrToken>("/me/friends/qr");
+	}
+
 	async function accept(id: number): Promise<void> {
 		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/accept`));
 	}
@@ -68,5 +72,5 @@ export function useFriends() {
 		loaded.value = false;
 	}
 
-	return { code, friends, received, sent, loaded, load, invite, accept, remove, reset };
+	return { code, friends, received, sent, loaded, load, invite, qrToken, accept, remove, reset };
 }

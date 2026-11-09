@@ -16,6 +16,17 @@ const copied = ref(false);
 const busy = ref<string | null>(null);
 const confirming = ref<{ key: string; action: "remove" | "block" } | null>(null);
 const reporting = ref<{ playerId: number; pseudo: string } | null>(null);
+const showingQr = ref(false);
+
+async function closeQr(): Promise<void> {
+	showingQr.value = false;
+
+	try {
+		await load();
+	} catch (error) {
+		actionError.value = readableMessage(error);
+	}
+}
 
 function isConfirming(key: string, action: "remove" | "block"): boolean {
 	return confirming.value?.key === key && confirming.value.action === action;
@@ -166,7 +177,14 @@ onMounted(refresh);
 		<div class="topbar">
 			<span class="topbar-spacer"></span>
 			<span class="topbar-title">Amis</span>
-			<span class="topbar-spacer"></span>
+			<button class="avatar-btn" type="button" aria-label="Afficher mon QR code ami" @click="showingQr = true">
+				<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true">
+					<rect x="3.5" y="3.5" width="6" height="6" rx="1"/>
+					<rect x="14.5" y="3.5" width="6" height="6" rx="1"/>
+					<rect x="3.5" y="14.5" width="6" height="6" rx="1"/>
+					<path d="M14.5 14.5h2.5v2.5M20.5 14.5v0M14.5 20.5h2.5M20.5 17.5v3h-1"/>
+				</svg>
+			</button>
 		</div>
 		<div class="content">
 			<div v-if="code" class="card stack-tight">
@@ -372,6 +390,7 @@ onMounted(refresh);
 				<button class="btn btn-ghost" type="button" :disabled="loading" @click="refresh">Réessayer</button>
 			</div>
 		</div>
+		<FriendQrSheet v-if="showingQr" @close="closeQr" />
 		<ReportSheet
 			v-if="reporting"
 			:player-id="reporting.playerId"

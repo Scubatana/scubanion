@@ -1,6 +1,6 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { formatFriendCode, friendGoalFill, normalizeFriendCodeInput, sortFriendsBySteps, type FriendsView } from "~/utils/friends";
+import { formatFriendCode, friendGoalFill, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, type FriendsView } from "~/utils/friends";
 
 const { httpRequest, navigateTo, storage } = vi.hoisted(() => ({
 	httpRequest: vi.fn(),
@@ -71,6 +71,15 @@ describe("friends utils", () => {
 		]);
 
 		expect(sorted.map((entry) => entry.player.pseudo)).toEqual(["Amine", "Yanis"]);
+	});
+
+	it("refreshes the QR ten seconds before it expires, but never faster than every five seconds", () => {
+		const now = Date.parse("2026-11-09T16:00:00+01:00");
+
+		expect(qrRefreshDelay("2026-11-09T16:01:00+01:00", now)).toBe(50_000);
+		expect(qrRefreshDelay("2026-11-09T16:00:12+01:00", now)).toBe(5_000);
+		expect(qrRefreshDelay("2026-11-09T15:59:00+01:00", now)).toBe(5_000);
+		expect(qrRefreshDelay("pas une date", now)).toBe(5_000);
 	});
 });
 
@@ -173,6 +182,15 @@ describe("useFriends", () => {
 		expect(httpRequest.mock.calls[1][1]).toMatch(/\/api\/me\/friends\/12$/);
 		expect(friends.friends.value).toEqual([]);
 		expect(usePlayer().player.value?.stats.friends_count).toBe(0);
+	});
+
+	it("asks the server for a QR token to display", async () => {
+		const token = { token: "eyJpdiI6...", expires_at: "2026-11-09T16:01:00+01:00" };
+		httpRequest.mockResolvedValueOnce({ status: 200, data: token });
+
+		await expect(useFriends().qrToken()).resolves.toEqual(token);
+		expect(httpRequest.mock.calls[0][0]).toBe("GET");
+		expect(httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/friends\/qr$/);
 	});
 
 	it("resets friends state on logout and on 401 unauthenticated response", async () => {
