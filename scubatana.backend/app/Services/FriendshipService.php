@@ -7,6 +7,7 @@ use App\Models\Block;
 use App\Models\Friendship;
 use App\Models\User;
 use App\Support\FriendCode;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class FriendshipService
@@ -44,6 +45,49 @@ class FriendshipService
 		}
 
 		return Friendship::create(['user_id' => $player->id, 'friend_id' => $other->id, 'status' => FriendshipStatus::Pending]);
+	}
+
+	/**
+	 * Ajout en vrai, par le QR de l'autre joueur : afficher son QR vaut accord, ils sont amis tout de suite.
+	 * Les deux joueurs sont verrouillés le temps de la vérification, pour que deux scans croisés
+	 * au même moment ne créent pas deux amitiés.
+	 */
+	public function addByQr(User $player, ?User $other): Friendship
+	{
+		$invalid = "Ce QR code n'est plus valable. Demande à ton ami de l'afficher à nouveau.";
+
+		if ($other === null) {
+			$this->refuse($invalid, 'token');
+		}
+
+		if ($other->is($player)) {
+			$this->refuse("C'est ton propre QR code : fais-le scanner par ton ami.", 'token');
+		}
+
+		return DB::transaction(function () use ($player, $other, $invalid): Friendship {
+			User::whereKey([$player->id, $other->id])->orderBy('id')->lockForUpdate()->get();
+
+			if (Block::between($player, $other)->exists()) {
+				$this->refuse($invalid, 'token');
+			}
+
+			$existing = Friendship::between($player, $other)->first();
+
+			if ($existing?->status === FriendshipStatus::Accepted) {
+				$this->refuse('Vous êtes déjà amis.', 'token');
+			}
+
+			if ($existing !== null) {
+				return $this->accept($existing);
+			}
+
+			return Friendship::create([
+				'user_id' => $other->id,
+				'friend_id' => $player->id,
+				'status' => FriendshipStatus::Accepted,
+				'accepted_at' => now(),
+			]);
+		});
 	}
 
 	public function accept(Friendship $friendship): Friendship
@@ -103,8 +147,8 @@ class FriendshipService
 		];
 	}
 
-	private function refuse(string $message): never
+	private function refuse(string $message, string $field = 'code'): never
 	{
-		throw ValidationException::withMessages(['code' => $message]);
+		throw ValidationException::withMessages([$field => $message]);
 	}
 }

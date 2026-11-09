@@ -1,8 +1,11 @@
 # Amis
 
-Chaque joueur a un **code ami** de 8 caractères (lettres et chiffres, sans `0`, `O`, `1` ni `I` pour éviter les confusions), donné à la création du compte. Pour devenir amis, un joueur saisit le code de l'autre, qui accepte l'invitation (APP-07).
+Deux façons de devenir amis (APP-07, [fonctionnalites-sociales.md](../fonctionnalites-sociales.md) § 3.1) :
 
-Les quatre routes renvoient le même objet, la vue complète des amis du joueur : l'app n'a qu'à réafficher la réponse après chaque action.
+- **À distance, par code.** Chaque joueur a un **code ami** de 8 caractères (lettres et chiffres, sans `0`, `O`, `1` ni `I` pour éviter les confusions), donné à la création du compte. Un joueur saisit le code de l'autre, qui accepte l'invitation.
+- **En vrai, par QR code.** Un joueur affiche son QR, l'autre le scanne : ils sont amis tout de suite, sans invitation à accepter. Afficher son QR vaut accord (voir [Ajout par QR code](#ajout-par-qr-code)).
+
+Les routes des amis, sauf `GET /me/friends/qr`, renvoient le même objet, la vue complète des amis du joueur : l'app n'a qu'à réafficher la réponse après chaque action.
 
 ```json
 {
@@ -58,6 +61,47 @@ Accepte une invitation reçue. **409** si le joueur n'est pas celui qui a été 
 ## `DELETE /me/friends/{id}`
 
 Supprime le lien, quel que soit son état : refuser une invitation reçue, annuler une invitation envoyée, ou retirer un ami. **404** si le joueur n'est pas concerné.
+
+## Ajout par QR code
+
+Le QR d'ami contient un **jeton** : l'identifiant du joueur et une heure d'expiration, chiffrés par le serveur avec la clé de l'application (`APP_KEY`). Il est illisible (on n'y trouve ni identifiant, ni pseudo, ni position) et infalsifiable sans cette clé. Il n'est pas stocké : le serveur n'a qu'à le déchiffrer.
+
+Le jeton est **valable 60 secondes**. Comme scanner rend amis sans validation, une photo du QR partagée en ligne permettrait sinon à n'importe qui de devenir ami avec ce joueur. Pendant sa minute de validité, le même QR peut être scanné par plusieurs joueurs.
+
+Côté app :
+
+1. le joueur ouvre « Mon QR » : l'app appelle `GET /me/friends/qr` et dessine le QR à partir de `token` ;
+2. tant que le QR est affiché, l'app redemande un jeton avant `expires_at`, par exemple toutes les 50 secondes ;
+3. l'autre joueur scanne le QR : son app envoie le texte lu à `POST /me/friends/qr`.
+
+### `GET /me/friends/qr`
+
+Un nouveau jeton à afficher en QR.
+
+```json
+{ "token": "eyJpdiI6IkZ3...", "expires_at": "2026-11-09T16:01:00+01:00" }
+```
+
+- **409** si le joueur n'a pas encore rempli son profil.
+- Limite : 30 par minute et par joueur, puis **429**.
+
+### `POST /me/friends/qr`
+
+Ajoute en ami le joueur dont on a scanné le QR, et renvoie la vue des amis.
+
+| Champ | Règle |
+| ----- | ----- |
+| `token` | obligatoire. Le texte lu dans le QR, tel quel. |
+
+- Les deux joueurs deviennent amis tout de suite. Si une invitation était en attente entre eux, dans un sens ou dans l'autre, elle est acceptée.
+- **422** sur `token` :
+  - « Ce QR code n'est plus valable. Demande à ton ami de l'afficher à nouveau. » : jeton expiré, illisible ou modifié, ou joueur supprimé. Un blocage entre les deux joueurs, dans un sens ou dans l'autre, donne la même erreur ([securite.md](securite.md)) ;
+  - son propre QR ;
+  - déjà amis.
+- **409** si le joueur n'a pas encore rempli son profil.
+- Limite : 20 scans par minute et par joueur, puis **429**.
+
+Si les deux joueurs se scannent au même moment, une seule amitié est créée : le serveur verrouille les deux joueurs le temps de la vérification.
 
 ## Ailleurs dans l'API
 

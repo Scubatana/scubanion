@@ -38,6 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 	Route::get('/me/friends', [FriendController::class, 'index']);
 	Route::post('/me/friends', [FriendController::class, 'store'])->middleware('throttle:friend-invite');
+	Route::get('/me/friends/qr', [FriendController::class, 'qr'])->middleware('throttle:30,1');
+	Route::post('/me/friends/qr', [FriendController::class, 'scan'])->middleware('throttle:20,1');
 	Route::post('/me/friends/{friendship}/accept', [FriendController::class, 'accept']);
 	Route::delete('/me/friends/{friendship}', [FriendController::class, 'destroy']);
 	Route::get('/me/blocks', [BlockController::class, 'index']);
