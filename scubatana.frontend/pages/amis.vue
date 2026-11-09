@@ -4,6 +4,7 @@ import { formatFriendCode, friendGoalFill, sortFriendsBySteps } from "~/utils/fr
 import { formatCount } from "~/utils/labels";
 
 const { code, friends, received, sent, loaded, load, invite, accept, remove } = useFriends();
+const { block } = useSafety();
 const { ensureLoaded } = useCatalog();
 const loading = ref(false);
 const loadError = ref("");
@@ -13,7 +14,12 @@ const actionError = ref("");
 const notice = ref("");
 const copied = ref(false);
 const busy = ref<string | null>(null);
-const confirmingRemoval = ref<number | null>(null);
+const confirming = ref<{ key: string; action: "remove" | "block" } | null>(null);
+const reporting = ref<{ playerId: number; pseudo: string } | null>(null);
+
+function isConfirming(key: string, action: "remove" | "block"): boolean {
+	return confirming.value?.key === key && confirming.value.action === action;
+}
 
 const rankedFriends = computed(() => sortFriendsBySteps(friends.value));
 const formattedCode = computed(() => formatFriendCode(code.value));
@@ -102,12 +108,53 @@ async function deleteLink(id: number, message: string): Promise<void> {
 
 	try {
 		await remove(id);
-		confirmingRemoval.value = null;
+		confirming.value = null;
 		notice.value = message;
 	} catch (error) {
 		actionError.value = readableMessage(error);
 	} finally {
 		busy.value = null;
+	}
+}
+
+async function blockPlayer(playerId: number, pseudo: string): Promise<void> {
+	if (busy.value !== null) {
+		return;
+	}
+
+	busy.value = `block-${playerId}`;
+	actionError.value = "";
+	notice.value = "";
+
+	try {
+		await block(playerId);
+		confirming.value = null;
+		notice.value = `${pseudo} est bloqué. Vous ne pourrez plus vous ajouter en ami.`;
+		await load();
+	} catch (error) {
+		actionError.value = readableMessage(error);
+	} finally {
+		busy.value = null;
+	}
+}
+
+function openReport(playerId: number, pseudo: string): void {
+	confirming.value = null;
+	actionError.value = "";
+	notice.value = "";
+	reporting.value = { playerId, pseudo };
+}
+
+async function reportDone(result: { message: string; blocked: boolean }): Promise<void> {
+	reporting.value = null;
+	notice.value = result.message;
+
+	if (result.blocked) {
+		try {
+			await load();
+		} catch (error) {
+			actionError.value = readableMessage(error);
+		}
 	}
 }
 
@@ -181,6 +228,33 @@ onMounted(refresh);
 							Refuser
 						</button>
 					</div>
+					<div class="safety-actions">
+						<template v-if="isConfirming(`invitation-${invitation.id}`, 'block')">
+							<span class="eyebrow">Bloquer {{ invitation.player.pseudo }} ?</span>
+							<button
+								class="inline-action danger"
+								type="button"
+								:disabled="busy !== null"
+								@click="blockPlayer(invitation.player.id, invitation.player.pseudo)"
+							>
+								Bloquer
+							</button>
+							<button class="inline-action" type="button" :disabled="busy !== null" @click="confirming = null">Annuler</button>
+						</template>
+						<template v-else>
+							<button
+								class="inline-action"
+								type="button"
+								:disabled="busy !== null"
+								@click="confirming = { key: `invitation-${invitation.id}`, action: 'block' }"
+							>
+								Bloquer
+							</button>
+							<button class="inline-action" type="button" :disabled="busy !== null" @click="openReport(invitation.player.id, invitation.player.pseudo)">
+								Signaler
+							</button>
+						</template>
+					</div>
 				</div>
 			</div>
 
@@ -217,27 +291,54 @@ onMounted(refresh);
 					</div>
 					<div class="xp-row">
 						<div class="wave-bar thin" :style="{ '--fill': friendGoalFill(friendship.player.today) }"><span></span></div>
-						<div class="row-between">
-							<span class="eyebrow">{{ formatCount(friendship.player.today.steps) }} / {{ formatCount(friendship.player.today.goal) }} pas</span>
-							<template v-if="confirmingRemoval === friendship.id">
-								<div class="remove-confirm">
-									<button
-										class="inline-action danger"
-										type="button"
-										:disabled="busy !== null"
-										@click="deleteLink(friendship.id, `${friendship.player.pseudo} a été retiré de tes amis.`)"
-									>
-										Confirmer
-									</button>
-									<button class="inline-action" type="button" :disabled="busy !== null" @click="confirmingRemoval = null">
-										Annuler
-									</button>
-								</div>
-							</template>
-							<button v-else class="inline-action" type="button" :disabled="busy !== null" @click="confirmingRemoval = friendship.id">
+						<span class="eyebrow">{{ formatCount(friendship.player.today.steps) }} / {{ formatCount(friendship.player.today.goal) }} pas</span>
+					</div>
+					<div class="safety-actions">
+						<template v-if="isConfirming(`friend-${friendship.id}`, 'remove')">
+							<span class="eyebrow">Retirer {{ friendship.player.pseudo }} ?</span>
+							<button
+								class="inline-action danger"
+								type="button"
+								:disabled="busy !== null"
+								@click="deleteLink(friendship.id, `${friendship.player.pseudo} a été retiré de tes amis.`)"
+							>
 								Retirer
 							</button>
-						</div>
+							<button class="inline-action" type="button" :disabled="busy !== null" @click="confirming = null">Annuler</button>
+						</template>
+						<template v-else-if="isConfirming(`friend-${friendship.id}`, 'block')">
+							<span class="eyebrow">Bloquer {{ friendship.player.pseudo }} ?</span>
+							<button
+								class="inline-action danger"
+								type="button"
+								:disabled="busy !== null"
+								@click="blockPlayer(friendship.player.id, friendship.player.pseudo)"
+							>
+								Bloquer
+							</button>
+							<button class="inline-action" type="button" :disabled="busy !== null" @click="confirming = null">Annuler</button>
+						</template>
+						<template v-else>
+							<button
+								class="inline-action"
+								type="button"
+								:disabled="busy !== null"
+								@click="confirming = { key: `friend-${friendship.id}`, action: 'remove' }"
+							>
+								Retirer
+							</button>
+							<button
+								class="inline-action"
+								type="button"
+								:disabled="busy !== null"
+								@click="confirming = { key: `friend-${friendship.id}`, action: 'block' }"
+							>
+								Bloquer
+							</button>
+							<button class="inline-action" type="button" :disabled="busy !== null" @click="openReport(friendship.player.id, friendship.player.pseudo)">
+								Signaler
+							</button>
+						</template>
 					</div>
 				</div>
 			</div>
@@ -260,12 +361,24 @@ onMounted(refresh);
 				</div>
 			</div>
 
+			<NuxtLink v-if="loaded" class="blocked-link" to="/bloques">
+				Joueurs bloqués
+				<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+			</NuxtLink>
+
 			<p v-if="loading && !loaded" class="gallery-note note-self-centered">Chargement…</p>
 			<div v-if="loadError" class="card stack-tight">
 				<p class="form-error">{{ loadError }}</p>
 				<button class="btn btn-ghost" type="button" :disabled="loading" @click="refresh">Réessayer</button>
 			</div>
 		</div>
+		<ReportSheet
+			v-if="reporting"
+			:player-id="reporting.playerId"
+			:pseudo="reporting.pseudo"
+			@close="reporting = null"
+			@done="reportDone"
+		/>
 		<BottomNav />
 	</div>
 </template>
@@ -376,10 +489,32 @@ onMounted(refresh);
 	display: block;
 }
 
-.remove-confirm {
+.safety-actions {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	justify-content: flex-end;
+	gap: 14px;
+}
+
+.safety-actions .eyebrow {
+	margin-right: auto;
+}
+
+.blocked-link {
+	align-self: center;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--ink-soft);
+	text-decoration: none;
+}
+
+.blocked-link svg {
+	width: 14px;
+	height: 14px;
+	stroke: currentColor;
 }
 
 .inline-action {
