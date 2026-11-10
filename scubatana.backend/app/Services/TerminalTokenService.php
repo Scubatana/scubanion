@@ -41,6 +41,11 @@ class TerminalTokenService
 		];
 	}
 
+	public function mqttPassword(Terminal $terminal): string
+	{
+		return self::base64Url(hash_hmac('sha256', 'mqtt', $terminal->secret, true));
+	}
+
 	private function sign(string $secret, string $payload): string
 	{
 		return self::base64Url(substr(hash_hmac('sha256', $payload, $secret, true), 0, 12));

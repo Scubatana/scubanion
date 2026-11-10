@@ -129,17 +129,54 @@ Publié par l'API dès qu'un passage est enregistré :
 
 `scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne peut l'ignorer s'il est trop ancien.
 
+## Connexion au broker
+
+Le broker refuse les connexions sans compte. Il y a un compte pour l'API et un par borne.
+
+| Compte | Nom d'utilisateur | Mot de passe |
+| ------ | ----------------- | ------------ |
+| API | `MQTT_USERNAME` (`scubanion.api` par défaut) | `MQTT_PASSWORD` |
+| Borne | son code, par exemple `chateau-01` | HMAC-SHA256 du texte `mqtt` avec le secret de la borne comme clé, encodé en base64 URL sans `=` (43 caractères) |
+
+Le mot de passe d'une borne est **dérivé de son secret** : il n'y a rien de plus à enregistrer dans la borne, et le secret qui signe les jetons ne passe jamais sur le réseau. Quelqu'un qui intercepterait le mot de passe MQTT ne pourrait pas en déduire le secret, donc pas fabriquer de jetons. Pour le secret `secret-de-test-scubanion` des [jetons de référence](#jetons-de-référence), le mot de passe vaut `eq27dNBa_0w-n0P9aCVmWRopOfEXQWMvMNDfz7MS-dc` : le firmware (`token::mqttPassword`) et l'API (`TerminalTokenService::mqttPassword`) sont testés avec cette valeur.
+
+Le nom du compte de l'API contient un point, qu'un code de borne ne peut pas contenir : une borne ne peut pas prendre le nom de l'API.
+
+**Droits.** Chaque compte ne touche qu'à ce dont il a besoin :
+
+| Compte | Peut publier sur | Peut lire |
+| ------ | ---------------- | --------- |
+| API | tous les topics `scubanion/bornes/…` | tous les topics `scubanion/bornes/…`, et `$SYS/…` pour le healthcheck du broker |
+| Borne `{code}` | `scubanion/bornes/{code}/etat` | `scubanion/bornes/{code}/affichage` |
+
+Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'une autre borne (qui contient le pseudo des joueurs), ni écrire sur son propre écran.
+
+**Où sont les comptes.** L'API écrit les fichiers `passwd` (mots de passe hachés au format de `mosquitto_passwd`) et `acl` (droits) dans `storage/app/mqtt`, que le broker lit dans `/mosquitto/comptes`. En prod, c'est le volume `mqtt_comptes`, partagé entre `backend` et `mosquitto`.
+
+- Le conteneur `backend` les écrit à chaque démarrage (`php artisan bornes:comptes-mqtt`), avant que le broker ne démarre.
+- `php artisan bornes:creer` ajoute aussitôt le compte de la nouvelle borne. Le broker ne relit ses fichiers que sur demande : `docker compose kill -s HUP mosquitto`, sans redémarrage ni coupure.
+
+**Limite connue.** Le port 1883 n'est pas chiffré : quelqu'un sur le même réseau que la borne peut lire son mot de passe MQTT et se faire passer pour elle (faux signaux de vie, lecture de son affichage). Le secret des jetons, lui, reste protégé. La suite est de passer en TLS (port 8883), que l'ESP32 sait gérer.
+
 ## Côté serveur
 
 | Commande | Rôle |
 | -------- | ---- |
-| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, et affiche son secret une seule fois |
+| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT |
+| `php artisan bornes:comptes-mqtt` | réécrit les comptes et les droits du broker (voir [Connexion au broker](#connexion-au-broker)) |
 | `php artisan bornes:ecouter` | écoute les signaux de vie des bornes. Processus permanent : un conteneur ou un service dédié en prod |
 | `php artisan bornes:simuler chateau-01` | joue le rôle de la borne : affiche le jeton qu'elle donnerait au téléphone, puis attend et affiche la réponse publiée sur `affichage` |
 | `php artisan bornes:simuler chateau-01 --etat=online` | envoie un signal de vie |
 
-Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5), `BORNE_TOKEN_REFRESH_MINUTES` (5), `BORNE_MAX_TRAVEL_SPEED_KMH` (150). Les deux derniers servent à vérifier que le joueur était à la borne (voir les [règles du jeu](regles-du-jeu.md#bornes)).
+### Mettre une borne en service
+
+1. Déclarer la borne : `docker compose exec backend php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3`, et noter le secret affiché.
+2. Faire relire les comptes au broker : `docker compose kill -s HUP mosquitto`. Sans ça, la borne est refusée par le broker jusqu'au prochain redémarrage de `mosquitto`.
+3. Mettre le code et le secret dans `include/borne_config.h` du firmware, puis flasher la borne.
+4. Vérifier que la borne passe en ligne : `online` à `true` dans `GET /api/bornes`.
+
+Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `MQTT_ACCOUNTS_DIRECTORY` (`storage/app/mqtt`), `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5), `BORNE_TOKEN_REFRESH_MINUTES` (5), `BORNE_MAX_TRAVEL_SPEED_KMH` (150). Les deux derniers servent à vérifier que le joueur était à la borne (voir les [règles du jeu](regles-du-jeu.md#bornes)).
 
 L'affichage est publié après l'envoi de la réponse au téléphone : un broker injoignable ne bloque pas le passage, il est seulement noté dans les journaux.
 
-Tests : le jeton dans `tests/Unit/Services/TerminalTokenServiceTest.php`, les passages dans `tests/Feature/Bornes/PassageTest.php`, l'écoute MQTT (client remplacé par un mock) dans `tests/Feature/Bornes/BorneListenerTest.php`.
+Tests : le jeton et le mot de passe MQTT dans `tests/Unit/Services/TerminalTokenServiceTest.php`, les comptes du broker dans `tests/Unit/Services/MqttAccountsTest.php`, les passages dans `tests/Feature/Bornes/PassageTest.php`, l'écoute MQTT (client remplacé par un mock) dans `tests/Feature/Bornes/BorneListenerTest.php`.

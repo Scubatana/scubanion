@@ -104,6 +104,12 @@ void test_tokens_match_the_reference_tokens_of_the_api()
 	TEST_ASSERT_EQUAL_STRING("musee-02.tmuk5p.hZhp5q5RKaRZW-9C", token::generate("musee-02", "un-autre-secret", 1791896461).c_str());
 }
 
+void test_the_mqtt_password_matches_the_api()
+{
+	TEST_ASSERT_EQUAL_STRING("eq27dNBa_0w-n0P9aCVmWRopOfEXQWMvMNDfz7MS-dc", token::mqttPassword("secret-de-test-scubanion").c_str());
+	TEST_ASSERT_EQUAL_STRING("JMHu3fsCSnrZByPSJJ63pYjxBxs5H5qC70wmnTvSAaQ", token::mqttPassword("un-autre-secret").c_str());
+}
+
 void test_a_token_with_the_longest_code_fits_in_40_characters()
 {
 	TEST_ASSERT_LESS_OR_EQUAL(token::MAX_LENGTH, token::generate("abcdefghijklmnop", "secret", 1791896400).size());
@@ -120,6 +126,7 @@ int main()
 	RUN_TEST(test_the_time_is_written_in_lowercase_base_36);
 	RUN_TEST(test_base64_url_has_no_padding_and_no_plus_or_slash);
 	RUN_TEST(test_tokens_match_the_reference_tokens_of_the_api);
+	RUN_TEST(test_the_mqtt_password_matches_the_api);
 	RUN_TEST(test_a_token_with_the_longest_code_fits_in_40_characters);
 
 	return UNITY_END();
