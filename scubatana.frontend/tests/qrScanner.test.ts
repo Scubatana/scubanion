@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isCancellation, QrScanError, scanQrCode } from "~/utils/qrScanner";
 
-const { scanBarcode } = vi.hoisted(() => ({ scanBarcode: vi.fn() }));
+const { scanBarcode, isNativePlatform } = vi.hoisted(() => ({ scanBarcode: vi.fn(), isNativePlatform: vi.fn() }));
 
 vi.mock("@capacitor/barcode-scanner", () => ({
 	CapacitorBarcodeScanner: { scanBarcode },
@@ -9,9 +9,27 @@ vi.mock("@capacitor/barcode-scanner", () => ({
 	CapacitorBarcodeScannerTypeHint: { QR_CODE: 0 }
 }));
 
+vi.mock("@capacitor/core", async (importOriginal) => ({
+	...(await importOriginal<typeof import("@capacitor/core")>()),
+	Capacitor: { isNativePlatform }
+}));
+
+function stubWebcam(getUserMedia: () => Promise<unknown>): void {
+	vi.stubGlobal("navigator", { ...navigator, mediaDevices: { getUserMedia } });
+}
+
+function domError(name: string): Error {
+	const error = new Error(name);
+	error.name = name;
+
+	return error;
+}
+
 describe("scanQrCode", () => {
 	beforeEach(() => {
 		scanBarcode.mockReset();
+		isNativePlatform.mockReset().mockReturnValue(true);
+		vi.unstubAllGlobals();
 	});
 
 	it("opens the back camera for a QR code and returns the trimmed text", async () => {
@@ -40,6 +58,32 @@ describe("scanQrCode", () => {
 
 		await expect(failure).rejects.toBeInstanceOf(QrScanError);
 		await expect(failure).rejects.toThrow(/caméra/);
+	});
+
+	it("in the browser, says so instead of hanging when there is no webcam", async () => {
+		isNativePlatform.mockReturnValue(false);
+		stubWebcam(() => Promise.reject(domError("NotFoundError")));
+
+		await expect(scanQrCode()).rejects.toThrow(/Aucune caméra/);
+		expect(scanBarcode).not.toHaveBeenCalled();
+	});
+
+	it("in the browser, reports a refused camera permission", async () => {
+		isNativePlatform.mockReturnValue(false);
+		stubWebcam(() => Promise.reject(domError("NotAllowedError")));
+
+		await expect(scanQrCode()).rejects.toThrow(/le droit d'y accéder/);
+		expect(scanBarcode).not.toHaveBeenCalled();
+	});
+
+	it("in the browser, releases the test stream then opens the scanner", async () => {
+		isNativePlatform.mockReturnValue(false);
+		const stop = vi.fn();
+		stubWebcam(() => Promise.resolve({ getTracks: () => [{ stop }] }));
+		scanBarcode.mockResolvedValue({ ScanResult: "jeton", format: 0 });
+
+		await expect(scanQrCode()).resolves.toBe("jeton");
+		expect(stop).toHaveBeenCalled();
 	});
 
 	it("recognises a cancellation from its message", () => {
