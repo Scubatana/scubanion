@@ -56,7 +56,6 @@ export function useFriends() {
 		return useApi().get<FriendQrToken>("/me/friends/qr");
 	}
 
-	/** Ajoute en ami le joueur dont on a scanné le QR. Renvoie son pseudo. */
 	async function scanQr(token: string): Promise<string | null> {
 		const before = new Set(friends.value.map((friendship) => friendship.player.id));
 

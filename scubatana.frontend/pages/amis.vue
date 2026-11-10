@@ -596,7 +596,6 @@ onMounted(refresh);
 	padding: 4px 0 12px;
 }
 
-/* Sans min-width: 0, un champ garde sa largeur par défaut (~20 caractères) et pousse le bouton hors de la carte. */
 .invite-box input {
 	min-width: 0;
 	width: 100%;

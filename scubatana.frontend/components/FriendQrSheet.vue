@@ -82,7 +82,6 @@ onBeforeUnmount(() => {
 				<p class="gallery-note">Montre ce QR à un ami : en le scannant avec Scubanion, il t'ajoute tout de suite.</p>
 
 				<div class="qr-box" :class="{ faded: loading && svg !== '' }">
-					<!-- eslint-disable-next-line vue/no-v-html -- SVG généré localement par la librairie qrcode -->
 					<div v-if="svg" class="qr-image" role="img" aria-label="QR code à scanner par ton ami" v-html="svg"></div>
 					<p v-else-if="loading" class="gallery-note">Chargement…</p>
 				</div>

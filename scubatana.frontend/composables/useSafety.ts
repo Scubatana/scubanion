@@ -1,9 +1,5 @@
 import type { BlockedPlayer, BlocksView, ReportReason } from "~/utils/safety";
 
-/**
- * Sécurité entre joueurs : bloquer, débloquer et signaler (docs/api/securite.md).
- * Bloquer supprime aussi l'amitié côté serveur : la page doit recharger la liste d'amis ensuite.
- */
 export function useSafety() {
 	const blocked = useState<BlockedPlayer[]>("safety-blocked", () => []);
 	const loaded = useState<boolean>("safety-loaded", () => false);

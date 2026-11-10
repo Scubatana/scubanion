@@ -43,10 +43,6 @@ export interface FriendQrToken {
 	expires_at: string;
 }
 
-/**
- * Délai avant de redemander un QR : 10 secondes avant son expiration, pour qu'un ami
- * ne scanne jamais un QR périmé, mais jamais moins de 5 secondes entre deux demandes.
- */
 export function qrRefreshDelay(expiresAt: string, now: number = Date.now()): number {
 	const remaining = new Date(expiresAt).getTime() - now;
 

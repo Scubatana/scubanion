@@ -6,10 +6,6 @@ export class QrScanError extends Error {}
 const CAMERA_ERROR = "Impossible d'utiliser la caméra. Vérifie que Scubanion a le droit d'y accéder, ou saisis le code de ton ami.";
 const NO_CAMERA_ERROR = "Aucune caméra trouvée sur cet appareil. Saisis plutôt le code de ton ami.";
 
-/**
- * Ouvre la caméra et lit un QR code. Écran natif sur Android, webcam dans le navigateur.
- * Renvoie le texte lu, ou null si le joueur a fermé le scanner sans rien scanner.
- */
 export async function scanQrCode(): Promise<string | null> {
 	if (!Capacitor.isNativePlatform()) {
 		await ensureWebCamera();
@@ -33,11 +29,6 @@ export async function scanQrCode(): Promise<string | null> {
 	}
 }
 
-/**
- * Dans le navigateur, le plugin n'attrape pas l'échec d'ouverture de la webcam : sa promesse
- * ne se termine jamais et sa fenêtre reste ouverte. On ouvre donc la caméra une première fois
- * nous-mêmes pour échouer proprement s'il n'y en a pas ou si l'accès est refusé.
- */
 async function ensureWebCamera(): Promise<void> {
 	if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
 		throw new QrScanError(NO_CAMERA_ERROR);

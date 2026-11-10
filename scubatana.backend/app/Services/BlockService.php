@@ -11,8 +11,6 @@ class BlockService
 {
 	public function block(User $player, User $other): Block
 	{
-		// Même verrou que FriendshipService::addByQr() : un scan simultané attend la fin du blocage,
-		// puis le voit et est refusé, au lieu de recréer une amitié à côté d'un blocage actif.
 		return DB::transaction(function () use ($player, $other): Block {
 			User::whereKey([$player->id, $other->id])->orderBy('id')->lockForUpdate()->get();
 			Friendship::between($player, $other)->delete();

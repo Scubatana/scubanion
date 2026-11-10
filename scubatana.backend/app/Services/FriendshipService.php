@@ -47,11 +47,6 @@ class FriendshipService
 		return Friendship::create(['user_id' => $player->id, 'friend_id' => $other->id, 'status' => FriendshipStatus::Pending]);
 	}
 
-	/**
-	 * Ajout en vrai, par le QR de l'autre joueur : afficher son QR vaut accord, ils sont amis tout de suite.
-	 * Les deux joueurs sont verrouillés le temps de la vérification, pour que deux scans croisés
-	 * au même moment ne créent pas deux amitiés.
-	 */
 	public function addByQr(User $player, ?User $other): Friendship
 	{
 		$invalid = "Ce QR code n'est plus valable. Demande à ton ami de l'afficher à nouveau.";
