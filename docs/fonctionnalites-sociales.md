@@ -17,10 +17,10 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 
 | Fonctionnalité                                               | § | Exigence          | Priorité proposée | État                                              |
 | ------------------------------------------------------------- | -- | ----------------- | ------------------- | -------------------------------------------------- |
-| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage et signalement : API faite, écran à faire ([api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
+| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage et signalement : fait (API et écran, [api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
 | Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | À faire                                           |
 | Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | Fait (API et écran)                               |
-| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code : API faite, écran à faire ([api/amis.md](api/amis.md)). Le reste à faire |
+| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code : fait (API et écran, [api/amis.md](api/amis.md)). Le reste à faire |
 | Squads : invitation, QR code, marche ensemble                 | 4  | APP-08, APP-10    | Should              | Table `encounters` faite, le reste à faire      |
 | Moment partagé (animation des compagnons)                    | 4  | APP-10            | Should              | À faire                                           |
 | Quêtes à plusieurs, défis du jour et de la semaine, collection | 5  | APP-05, APP-10    | Should              | À faire, sur le moteur de quêtes existant        |
