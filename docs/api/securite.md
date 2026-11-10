@@ -52,7 +52,9 @@ Un joueur signale un pseudo déplacé ou un comportement gênant. Le signalement
 
 Signaler ne bloque pas le joueur et ne touche pas à l'amitié. Pour faire les deux, l'app appelle `POST /me/reports` puis `POST /me/blocks`, par exemple quand le joueur coche « Bloquer aussi ce joueur ».
 
-Un même joueur peut être signalé plusieurs fois, par la même personne ou par d'autres. Un signalement est supprimé avec le compte de l'un ou l'autre joueur.
+Un même joueur peut être signalé plusieurs fois, par la même personne ou par d'autres.
+
+Un signalement **n'est pas supprimé** avec le compte de l'un ou l'autre joueur, pour que l'équipe puisse toujours l'examiner : le compte supprimé est remplacé par `null` (`user_id` ou `reported_id`). Le pseudo du joueur signalé est copié dans `reported_pseudo` au moment du signalement : la ligne reste lisible même si ce joueur change de pseudo ou supprime son compte.
 
 ### `POST /me/reports`
 

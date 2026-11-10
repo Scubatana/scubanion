@@ -49,6 +49,7 @@ class ReportsTest extends TestCase
 		$report = Report::sole();
 		$this->assertSame($this->lea->id, $report->user_id);
 		$this->assertSame($this->yanis->id, $report->reported_id);
+		$this->assertSame('Yanis', $report->reported_pseudo);
 		$this->assertSame(ReportReason::Behavior, $report->reason);
 		$this->assertSame('Messages insistants.', $report->comment);
 		$this->assertSame(ReportStatus::Pending, $report->status);

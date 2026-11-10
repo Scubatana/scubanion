@@ -65,14 +65,42 @@ class ReportTest extends TestCase
 		$this->assertSame([$toReview->id], Report::pending()->pluck('id')->all());
 	}
 
-	public function test_reports_are_deleted_with_either_account(): void
+	public function test_a_report_keeps_the_pseudo_of_the_reported_player_at_the_time(): void
 	{
-		[$reporter, $reported, $other] = User::factory()->count(3)->create();
-		Report::create(['user_id' => $reporter->id, 'reported_id' => $reported->id, 'reason' => ReportReason::Pseudo]);
-		Report::create(['user_id' => $other->id, 'reported_id' => $reporter->id, 'reason' => ReportReason::Behavior]);
+		$reporter = User::factory()->create();
+		$reported = User::factory()->create(['pseudo' => 'Yanis']);
+		$report = Report::create(['user_id' => $reporter->id, 'reported_id' => $reported->id, 'reason' => ReportReason::Pseudo]);
+
+		$reported->update(['pseudo' => 'Yanis2']);
+
+		$this->assertSame('Yanis', $report->fresh()->reported_pseudo);
+	}
+
+	public function test_a_report_survives_the_deletion_of_either_account(): void
+	{
+		[$reporter, $reported] = User::factory()->count(2)->create();
+		$reported->update(['pseudo' => 'Yanis']);
+		$report = Report::create(['user_id' => $reporter->id, 'reported_id' => $reported->id, 'reason' => ReportReason::Behavior]);
 
 		$reporter->delete();
+		$reported->delete();
 
-		$this->assertSame(0, Report::count());
+		$report = $report->fresh();
+		$this->assertNull($report->user_id);
+		$this->assertNull($report->reported_id);
+		$this->assertSame('Yanis', $report->reported_pseudo);
+		$this->assertSame(ReportReason::Behavior, $report->reason);
+	}
+
+	public function test_a_report_whose_accounts_are_gone_can_still_be_reviewed(): void
+	{
+		[$reporter, $reported] = User::factory()->count(2)->create();
+		$report = Report::create(['user_id' => $reporter->id, 'reported_id' => $reported->id, 'reason' => ReportReason::Pseudo]);
+		$reporter->delete();
+		$reported->delete();
+
+		$report->fresh()->update(['status' => ReportStatus::Reviewed]);
+
+		$this->assertSame(ReportStatus::Reviewed, $report->fresh()->status);
 	}
 }

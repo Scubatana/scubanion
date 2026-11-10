@@ -10,8 +10,11 @@ return new class extends Migration
 	{
 		Schema::create('reports', function (Blueprint $table) {
 			$table->id();
-			$table->foreignId('user_id')->constrained()->cascadeOnDelete();
-			$table->foreignId('reported_id')->constrained('users')->cascadeOnDelete();
+			// Un signalement survit à la suppression d'un des deux comptes : l'id passe à null,
+			// et le pseudo du joueur signalé, copié au moment du signalement, garde la ligne exploitable.
+			$table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
+			$table->foreignId('reported_id')->nullable()->constrained('users')->nullOnDelete();
+			$table->string('reported_pseudo', 20)->nullable();
 			$table->string('reason', 16);
 			$table->string('comment', 500)->nullable();
 			$table->string('status', 16)->default('pending');

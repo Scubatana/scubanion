@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use InvalidArgumentException;
 
-#[Fillable(['user_id', 'reported_id', 'reason', 'comment', 'status'])]
+#[Fillable(['user_id', 'reported_id', 'reported_pseudo', 'reason', 'comment', 'status'])]
 class Report extends Model
 {
 	protected $attributes = [
@@ -20,8 +20,14 @@ class Report extends Model
 
 	protected static function booted(): void
 	{
+		static::creating(function (Report $report): void {
+			if ($report->reported_pseudo === null && $report->reported_id !== null) {
+				$report->reported_pseudo = User::whereKey($report->reported_id)->value('pseudo');
+			}
+		});
+
 		static::saving(function (Report $report): void {
-			if ((int) $report->user_id === (int) $report->reported_id) {
+			if ($report->user_id !== null && $report->user_id === $report->reported_id) {
 				throw new InvalidArgumentException('A player cannot report themselves.');
 			}
 		});
