@@ -25,10 +25,14 @@ services:
   mosquitto:
     build:
       context: ./scubatana.mosquitto
+    environment:
+      MQTT_USERNAME: ${MQTT_USERNAME:-}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:-}
     ports:
       - "127.0.0.1:${MQTT_PORT:-1883}:1883"
     volumes:
       - mosquitto_data:/mosquitto/data
+      - ./scubatana.backend/storage/app/mqtt:/mosquitto/comptes:ro
 
   frontend:
     build:

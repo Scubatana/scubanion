@@ -8,6 +8,7 @@ return [
 		'username' => env('MQTT_USERNAME'),
 		'password' => env('MQTT_PASSWORD'),
 		'client_id' => env('MQTT_CLIENT_ID', 'scubanion-api'),
+		'accounts_directory' => env('MQTT_ACCOUNTS_DIRECTORY', storage_path('app/mqtt')),
 		'heartbeat_path' => env('MQTT_HEARTBEAT_PATH', '/tmp/bornes-ecouter.heartbeat'),
 	],
 

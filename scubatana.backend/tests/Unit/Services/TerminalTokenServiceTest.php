@@ -43,6 +43,14 @@ class TerminalTokenServiceTest extends TestCase
 		}
 	}
 
+	public function test_the_mqtt_password_of_a_terminal_matches_the_firmware(): void
+	{
+		$tokens = app(TerminalTokenService::class);
+
+		$this->assertSame('eq27dNBa_0w-n0P9aCVmWRopOfEXQWMvMNDfz7MS-dc', $tokens->mqttPassword(Terminal::factory()->create(['secret' => 'secret-de-test-scubanion'])));
+		$this->assertSame('JMHu3fsCSnrZByPSJJ63pYjxBxs5H5qC70wmnTvSAaQ', $tokens->mqttPassword(Terminal::factory()->create(['secret' => 'un-autre-secret'])));
+	}
+
 	public function test_a_terminal_code_longer_than_16_characters_is_refused(): void
 	{
 		$terminal = Terminal::factory()->create(['code' => 'parc-du-chateau-1']);
