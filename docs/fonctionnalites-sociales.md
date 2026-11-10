@@ -17,10 +17,10 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 
 | Fonctionnalité                                               | § | Exigence          | Priorité proposée | État                                              |
 | ------------------------------------------------------------- | -- | ----------------- | ------------------- | -------------------------------------------------- |
-| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | À faire (suppression de compte déjà en cascade) |
+| Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage et signalement : fait (API et écran, [api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
 | Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | À faire                                           |
-| Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | API faite, écran à faire                         |
-| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | À faire                                           |
+| Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | Fait (API et écran)                               |
+| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code : fait (API et écran, [api/amis.md](api/amis.md)). Le reste à faire |
 | Squads : invitation, QR code, marche ensemble                 | 4  | APP-08, APP-10    | Should              | Table `encounters` faite, le reste à faire      |
 | Moment partagé (animation des compagnons)                    | 4  | APP-10            | Should              | À faire                                           |
 | Quêtes à plusieurs, défis du jour et de la semaine, collection | 5  | APP-05, APP-10    | Should              | À faire, sur le moteur de quêtes existant        |
@@ -43,7 +43,7 @@ Ces règles sont livrées **avant ou avec** la première fonctionnalité sociale
 - **Signaler** un joueur (pseudo déplacé, comportement gênant) : le signalement est enregistré avec son motif, et l'équipe l'examine. Pas de sanction automatique.
 - **Quitter une squad** à tout moment, sans confirmation des autres.
 - **Exclure d'une squad** : le chef de squad (celui qui l'a créée, puis le membre arrivé le plus tôt s'il part) peut exclure un membre, qui ne peut plus la rejoindre.
-- **Supprimer son compte** efface tout ce qui le concerne, données dérivées comprises : amitiés, invitations, squads, rencontres, coups de patte, messages, signalements qu'il a faits, participations aux raids. Les tables actuelles sont déjà supprimées en cascade ; chaque nouvelle table doit suivre la même règle.
+- **Supprimer son compte** efface tout ce qui le concerne, données dérivées comprises : amitiés, invitations, squads, rencontres, coups de patte, messages, participations aux raids. Les tables actuelles sont déjà supprimées en cascade ; chaque nouvelle table doit suivre la même règle. **Exception : les signalements**, faits par lui ou contre lui, sont conservés pour la modération. Ils ne sont plus reliés au compte, mais gardent le motif, le commentaire et le pseudo du joueur signalé au moment du signalement.
 - **Durée de conservation.** Les rencontres et les squads gardent leur zone approximative 30 jours au plus, puis seulement des compteurs (« 12 sorties ensemble »). Une zone gardée longtemps finirait par révéler des habitudes : mêmes personnes, même endroit, chaque semaine.
 - **Limites de fréquence** sur toutes les actions sociales, comme les 20 invitations par minute déjà en place.
 

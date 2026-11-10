@@ -38,6 +38,21 @@ export interface FriendsView {
 	sent: FriendInvitation[];
 }
 
+export interface FriendQrToken {
+	token: string;
+	expires_at: string;
+}
+
+export function qrRefreshDelay(expiresAt: string, now: number = Date.now()): number {
+	const remaining = new Date(expiresAt).getTime() - now;
+
+	if (Number.isNaN(remaining)) {
+		return 5_000;
+	}
+
+	return Math.max(5_000, remaining - 10_000);
+}
+
 export function normalizeFriendCodeInput(input: string): string {
 	return input.replace(/[\s-]+/g, "").toUpperCase();
 }

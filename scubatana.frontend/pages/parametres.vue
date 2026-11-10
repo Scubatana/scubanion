@@ -167,6 +167,11 @@ onMounted(refresh);
 					</button>
 				</div>
 			</div>
+			<div class="card stack-tight">
+				<span class="section-title">Joueurs bloqués</span>
+				<p class="gallery-note">Les joueurs que tu as bloqués ne peuvent plus t'ajouter en ami.</p>
+				<NuxtLink class="btn btn-ghost" to="/bloques">Voir les joueurs bloqués</NuxtLink>
+			</div>
 			<p v-if="loading && !today" class="gallery-note note-self-centered">Chargement…</p>
 			<div v-if="loadError" class="card stack-tight">
 				<p class="form-error">{{ loadError }}</p>

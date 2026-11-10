@@ -93,6 +93,8 @@ Réponse **200** : `{ "player": {...}, "companion": {...} }`.
 
 Supprime le compte et toutes ses données : compagnon, pas, quêtes et leur avancement, récompenses, accessoires débloqués, amitiés, passages en borne, position, codes de connexion et jetons (tous les téléphones sont déconnectés).
 
+Seuls les **signalements** faits par ce joueur ou contre lui sont conservés, sans lien avec le compte, pour que l'équipe puisse les examiner : motif, commentaire et pseudo du joueur signalé au moment du signalement ([securite.md](securite.md)).
+
 - La confirmation passe dans l'adresse (`confirm=1`), car certains clients n'envoient pas de corps avec un `DELETE`.
 - Réponse **204**. **422** sur `confirm` sans confirmation explicite : rien n'est supprimé.
 - Après la suppression, l'app oublie la session, l'email en attente et les pas gardés sur le téléphone, puis revient à l'écran de connexion.
