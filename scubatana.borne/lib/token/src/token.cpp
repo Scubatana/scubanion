@@ -17,6 +17,19 @@ std::string generate(const std::string& terminalCode, const std::string& secret,
 	return payload + "." + base64Url(digest, SIGNATURE_BYTES);
 }
 
+std::string mqttPassword(const std::string& secret)
+{
+	static const std::string PURPOSE = "mqtt";
+	uint8_t digest[SHA256_SIZE];
+
+	hmacSha256(
+		reinterpret_cast<const uint8_t*>(secret.data()), secret.size(),
+		reinterpret_cast<const uint8_t*>(PURPOSE.data()), PURPOSE.size(),
+		digest);
+
+	return base64Url(digest, SHA256_SIZE);
+}
+
 std::string toBase36(uint64_t value)
 {
 	static const char DIGITS[] = "0123456789abcdefghijklmnopqrstuvwxyz";
