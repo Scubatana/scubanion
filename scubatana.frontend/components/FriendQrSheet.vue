@@ -11,6 +11,9 @@ const { code, qrToken } = useFriends();
 const svg = ref("");
 const error = ref("");
 const loading = ref(false);
+const isDev = import.meta.dev;
+const currentToken = ref("");
+const tokenCopied = ref(false);
 let timer: ReturnType<typeof setTimeout> | null = null;
 let closed = false;
 
@@ -30,6 +33,8 @@ async function refresh(): Promise<void> {
 
 	try {
 		const issued = await qrToken();
+		currentToken.value = issued.token;
+		tokenCopied.value = false;
 		svg.value = await QRCode.toString(issued.token, {
 			type: "svg",
 			margin: 1,
@@ -45,6 +50,15 @@ async function refresh(): Promise<void> {
 		error.value = readableMessage(caught);
 	} finally {
 		loading.value = false;
+	}
+}
+
+async function copyToken(): Promise<void> {
+	try {
+		await navigator.clipboard.writeText(currentToken.value);
+		tokenCopied.value = true;
+	} catch {
+		tokenCopied.value = false;
 	}
 }
 
@@ -83,6 +97,10 @@ onBeforeUnmount(() => {
 				<p v-if="code" class="gallery-note note-self-centered">
 					Pas de caméra ? Ton code ami : <b class="friend-code-inline">{{ formattedCode }}</b>
 				</p>
+
+				<button v-if="isDev && currentToken" class="btn btn-ghost" type="button" @click="copyToken">
+					{{ tokenCopied ? "Jeton copié (valable 1 min)" : "Dev : copier le jeton" }}
+				</button>
 
 				<button class="btn btn-primary" type="button" @click="close">Fermer</button>
 			</div>

@@ -193,6 +193,40 @@ describe("useFriends", () => {
 		expect(httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/friends\/qr$/);
 	});
 
+	it("adds the friend whose QR was scanned and returns their pseudo", async () => {
+		const friends = useFriends();
+		httpRequest.mockResolvedValueOnce({ status: 200, data: sampleView });
+		await friends.load();
+
+		httpRequest.mockResolvedValueOnce({
+			status: 200,
+			data: {
+				...sampleView,
+				friends: [
+					...sampleView.friends,
+					{
+						id: 20,
+						since: "2026-11-09",
+						player: {
+							id: 9,
+							pseudo: "Lina",
+							companion: null,
+							today: { date: "2026-11-09", steps: 0, goal: 5000 },
+							streak: { days: 0, active: false }
+						}
+					}
+				]
+			}
+		});
+
+		await expect(friends.scanQr("  eyJpdiI6...  ")).resolves.toBe("Lina");
+		expect(httpRequest.mock.calls[1][0]).toBe("POST");
+		expect(httpRequest.mock.calls[1][1]).toMatch(/\/api\/me\/friends\/qr$/);
+		expect(httpRequest.mock.calls[1][3]).toEqual({ token: "eyJpdiI6..." });
+		expect(friends.friends.value).toHaveLength(2);
+		expect(usePlayer().player.value?.stats.friends_count).toBe(2);
+	});
+
 	it("resets friends state on logout and on 401 unauthenticated response", async () => {
 		const friends = useFriends();
 		httpRequest.mockResolvedValueOnce({ status: 200, data: sampleView });

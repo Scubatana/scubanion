@@ -56,6 +56,15 @@ export function useFriends() {
 		return useApi().get<FriendQrToken>("/me/friends/qr");
 	}
 
+	/** Ajoute en ami le joueur dont on a scanné le QR. Renvoie son pseudo. */
+	async function scanQr(token: string): Promise<string | null> {
+		const before = new Set(friends.value.map((friendship) => friendship.player.id));
+
+		applyView(await useApi().post<FriendsView>("/me/friends/qr", { token: token.trim() }));
+
+		return friends.value.find((friendship) => !before.has(friendship.player.id))?.player.pseudo ?? null;
+	}
+
 	async function accept(id: number): Promise<void> {
 		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/accept`));
 	}
@@ -72,5 +81,5 @@ export function useFriends() {
 		loaded.value = false;
 	}
 
-	return { code, friends, received, sent, loaded, load, invite, qrToken, accept, remove, reset };
+	return { code, friends, received, sent, loaded, load, invite, qrToken, scanQr, accept, remove, reset };
 }

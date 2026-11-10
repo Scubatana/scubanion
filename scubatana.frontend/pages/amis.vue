@@ -2,8 +2,9 @@
 import { ApiError, readableMessage } from "~/utils/apiError";
 import { formatFriendCode, friendGoalFill, sortFriendsBySteps } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
+import { QrScanError, scanQrCode } from "~/utils/qrScanner";
 
-const { code, friends, received, sent, loaded, load, invite, accept, remove } = useFriends();
+const { code, friends, received, sent, loaded, load, invite, scanQr, accept, remove } = useFriends();
 const { block } = useSafety();
 const { ensureLoaded } = useCatalog();
 const loading = ref(false);
@@ -17,6 +18,52 @@ const busy = ref<string | null>(null);
 const confirming = ref<{ key: string; action: "remove" | "block" } | null>(null);
 const reporting = ref<{ playerId: number; pseudo: string } | null>(null);
 const showingQr = ref(false);
+const isDev = import.meta.dev;
+const devToken = ref("");
+
+async function scanFriendQr(): Promise<void> {
+	if (busy.value !== null) {
+		return;
+	}
+
+	inviteError.value = "";
+	actionError.value = "";
+	notice.value = "";
+
+	let token: string | null;
+
+	try {
+		token = await scanQrCode();
+	} catch (error) {
+		inviteError.value = error instanceof QrScanError ? error.message : readableMessage(error);
+		return;
+	}
+
+	if (token !== null) {
+		await addFriendByQr(token);
+	}
+}
+
+async function addFriendByQr(token: string): Promise<void> {
+	if (busy.value !== null || token.trim() === "") {
+		return;
+	}
+
+	busy.value = "scan";
+	inviteError.value = "";
+	actionError.value = "";
+	notice.value = "";
+
+	try {
+		const pseudo = await scanQr(token);
+		devToken.value = "";
+		notice.value = pseudo ? `${pseudo} fait maintenant partie de tes amis !` : "Vous êtes maintenant amis !";
+	} catch (error) {
+		inviteError.value = error instanceof ApiError && error.fields.token ? error.fields.token : readableMessage(error);
+	} finally {
+		busy.value = null;
+	}
+}
 
 async function closeQr(): Promise<void> {
 	showingQr.value = false;
@@ -213,6 +260,22 @@ onMounted(refresh);
 				<button class="btn btn-primary" type="submit" :disabled="busy !== null || inviteCode.trim().length === 0">
 					{{ busy === "invite" ? "Envoi…" : "Envoyer une invitation" }}
 				</button>
+				<p class="gallery-note or-separator">ou, si vous êtes ensemble</p>
+				<button class="btn btn-ghost scan-btn" type="button" :disabled="busy !== null" @click="scanFriendQr">
+					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true">
+						<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M4 12h16"/>
+					</svg>
+					{{ busy === "scan" ? "Ajout…" : "Scanner le QR d'un ami" }}
+				</button>
+				<div v-if="isDev" class="field dev-field">
+					<label for="dev-qr-token">Dev : coller un jeton QR (sans caméra)</label>
+					<div class="dev-row">
+						<input id="dev-qr-token" v-model="devToken" type="text" autocomplete="off" placeholder="eyJpdiI6...">
+						<button class="btn btn-ghost compact-btn" type="button" :disabled="busy !== null || devToken.trim() === ''" @click="addFriendByQr(devToken)">
+							Ajouter
+						</button>
+					</div>
+				</div>
 			</form>
 
 			<p v-if="notice" class="gallery-note quest-notice note-self-centered">{{ notice }}</p>
@@ -517,6 +580,40 @@ onMounted(refresh);
 
 .safety-actions .eyebrow {
 	margin-right: auto;
+}
+
+.or-separator {
+	text-align: center;
+	font-size: 12px;
+}
+
+.scan-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.scan-btn svg {
+	width: 18px;
+	height: 18px;
+	stroke: currentColor;
+}
+
+.dev-field {
+	padding: 10px;
+	border: 1px dashed var(--ocean-light);
+	border-radius: var(--radius-sm);
+}
+
+.dev-row {
+	display: flex;
+	gap: 8px;
+}
+
+.dev-row input {
+	flex: 1;
+	min-width: 0;
 }
 
 .blocked-link {
