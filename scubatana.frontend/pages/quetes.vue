@@ -5,7 +5,7 @@ import { formatCount } from "~/utils/labels";
 import { actionMessage, currentQuestion, rewardLabel, statusLabel, taskFill } from "~/utils/quests";
 import type { PlayerQuest, QuestTask } from "~/utils/types";
 
-const { quests, load, act, claim, waiting } = useQuests();
+const { quests, flushErrors, flushNotice, load, act, claim, waiting, clearFlushError } = useQuests();
 const { catalog, ensureLoaded } = useCatalog();
 const { today } = usePlayer();
 const loading = ref(false);
@@ -42,6 +42,9 @@ async function run(key: string, work: () => Promise<string | void>): Promise<voi
 	busy.value = key;
 	notice.value = "";
 	errors.value = { ...errors.value, [key]: "" };
+	if (key.startsWith("task-")) {
+		clearFlushError(Number(key.slice(5)));
+	}
 
 	try {
 		notice.value = (await work()) ?? "";
@@ -96,6 +99,10 @@ onMounted(refresh);
 			<span class="topbar-spacer"></span>
 		</div>
 		<div class="content">
+			<div v-if="flushNotice" class="card stack-tight" role="alert">
+				<p class="form-error">{{ flushNotice }}</p>
+				<button class="btn btn-ghost compact-btn" type="button" @click="clearFlushError()">Compris</button>
+			</div>
 			<p v-if="notice" class="card quest-notice">{{ notice }}</p>
 			<div v-for="quest in quests" :key="quest.id" class="card stack-tight">
 				<div class="row-between">
@@ -124,7 +131,7 @@ onMounted(refresh);
 							<button v-for="(choice, index) in currentQuestion(task)?.choices" :key="index" class="btn btn-ghost" type="button" :disabled="busy !== null" @click="answer(quest, task, index)">{{ choice }}</button>
 						</template>
 					</template>
-					<p v-if="errors[`task-${task.id}`]" class="form-error">{{ errors[`task-${task.id}`] }}</p>
+					<p v-if="errors[`task-${task.id}`] || flushErrors[task.id]" class="form-error">{{ errors[`task-${task.id}`] || flushErrors[task.id] }}</p>
 				</div>
 				<span v-if="quest.step_rewards.length > 0" class="eyebrow">Fin de l'étape : {{ rewardLabel(quest.step_rewards, accessories) }}</span>
 				<span v-if="quest.quest_rewards.length > 0" class="eyebrow">Fin de la quête : {{ rewardLabel(quest.quest_rewards, accessories) }}</span>
