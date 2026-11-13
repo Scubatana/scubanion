@@ -31,6 +31,7 @@ const {
 	focusOn
 } = useMap();
 
+const { pending: pendingPassages, submitting: submittingPassage, scan: scanPassage } = usePassages();
 const loading = ref(false);
 const moving = ref(false);
 const loadError = ref("");
@@ -38,6 +39,21 @@ const locationNotice = ref("");
 const searchQuery = ref("");
 const activeFilter = ref<MapFilter>("all");
 const selectedKey = ref<string | null>(null);
+const manualPassageToken = ref("");
+const showManualPassage = ref(false);
+
+async function submitManualPassage(): Promise<void> {
+	if (submittingPassage.value || manualPassageToken.value.trim() === "") {
+		return;
+	}
+
+	const outcome = await scanPassage(manualPassageToken.value);
+
+	if (outcome !== null) {
+		manualPassageToken.value = "";
+		showManualPassage.value = false;
+	}
+}
 
 const entries = computed(() =>
 	filterMapEntries(places.value, terminals.value, placeTypes.value, referencePoint.value, searchQuery.value, activeFilter.value)
@@ -293,11 +309,44 @@ onMounted(refresh);
 					</div>
 					<span class="pill">{{ formatDistance(selectedEntry.distanceMeters) }}</span>
 				</div>
-				<div v-if="selectedEntry.kind === 'terminal'" class="row-between">
-					<span class="status-badge" :class="{ online: selectedEntry.online }">
-						{{ selectedEntry.online ? "Borne en ligne" : "Borne hors ligne" }}
+				<div v-if="selectedEntry.kind === 'terminal'" class="stack-tight">
+					<div class="row-between">
+						<span class="status-badge" :class="{ online: selectedEntry.online }">
+							{{ selectedEntry.online ? "Borne en ligne" : "Borne hors ligne" }}
+						</span>
+						<span class="eyebrow">Approche ton téléphone du repère NFC</span>
+					</div>
+					<span v-if="pendingPassages.length > 0" class="eyebrow">
+						{{ pendingPassages.length }} passage{{ pendingPassages.length > 1 ? "s" : "" }} en attente de réseau
 					</span>
-					<span class="eyebrow">Approche ton téléphone du repère NFC</span>
+					<button
+						v-if="!showManualPassage"
+						class="btn btn-ghost compact-btn"
+						type="button"
+						@click="showManualPassage = true"
+					>
+						Saisir un jeton de borne
+					</button>
+					<form v-else class="stack-tight" novalidate @submit.prevent="submitManualPassage">
+						<div class="field">
+							<label for="borne-token-input">Jeton ou URL de la borne</label>
+							<input
+								id="borne-token-input"
+								v-model="manualPassageToken"
+								type="text"
+								autocomplete="off"
+								placeholder="https://scuba.picsou06.fr/b/…"
+							>
+						</div>
+						<div class="row-between">
+							<button class="btn btn-primary compact-btn" type="submit" :disabled="submittingPassage">
+								{{ submittingPassage ? "Envoi…" : "Valider le passage" }}
+							</button>
+							<button class="btn btn-ghost compact-btn" type="button" :disabled="submittingPassage" @click="showManualPassage = false">
+								Annuler
+							</button>
+						</div>
+					</form>
 				</div>
 				<span v-else-if="selectedEntry.radiusMeters" class="eyebrow">Rayon de validation : {{ selectedEntry.radiusMeters }} m</span>
 			</div>
