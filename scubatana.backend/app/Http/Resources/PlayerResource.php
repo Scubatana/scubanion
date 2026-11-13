@@ -18,6 +18,10 @@ class PlayerResource extends JsonResource
 			'gender' => $this->gender?->value,
 			'ambition' => $this->ambition?->value,
 			'profile_completed' => $this->hasCompletedProfile(),
+			'privacy' => [
+				'share_steps' => (bool) $this->share_steps,
+				'share_streak' => (bool) $this->share_streak,
+			],
 			'stats' => [
 				'total_steps' => (int) $this->activities()->sum('steps'),
 				'quests_done' => $this->userQuests()->whereNotNull('completed_at')->count(),

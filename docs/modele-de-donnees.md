@@ -39,7 +39,7 @@ erDiagram
     users ||--o{ reports : "signale un joueur"
 ```
 
-Tables antérieures, non redessinées : `users` (avec `friend_code`, code d'invitation unique de 8 caractères), `companions`, `activities` (les pas d'un jour, par téléphone), et les tables techniques `login_codes`, `personal_access_tokens`, `sessions`, `cache`, `jobs`.
+Tables antérieures, non redessinées : `users` (avec `friend_code`, code d'invitation unique de 8 caractères, et les réglages de partage avec les amis `share_steps` et `share_streak`, faux par défaut : voir [fonctionnalites-sociales.md § 2](fonctionnalites-sociales.md#2-ce-que-chacun-partage)), `companions`, `activities` (les pas d'un jour, par téléphone), et les tables techniques `login_codes`, `personal_access_tokens`, `sessions`, `cache`, `jobs`.
 
 ## Catalogue : ce qui se configure
 
