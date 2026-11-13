@@ -125,7 +125,7 @@ Publié par l'API dès qu'un passage est enregistré :
 | `status` | Quand | `message` |
 | -------- | ----- | --------- |
 | `rewarded` | premier passage du joueur à cette borne ce jour-là | « Bravo {pseudo} ! +100 XP » |
-| `already_rewarded` | le joueur est déjà passé ce jour-là : le passage est enregistré, sans récompense | « Déjà passé aujourd'hui, {pseudo}. Reviens demain ! » |
+| `already_rewarded` | le joueur est déjà passé ce jour-là : le passage est enregistré, sans récompense | « Ton passage du jour est déjà compté, {pseudo}. Reviens demain ! » |
 
 `scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne l'ignore si son `scanned_at` a plus de 10 minutes (le jeton est écrit au plus 5 minutes avant le scan).
 
@@ -165,9 +165,11 @@ Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `
 - **Session persistante** (`clean session` à faux) et abonnement en QoS 1 à `affichage` : un affichage publié pendant une courte coupure arrive à la reconnexion, et la règle des 10 minutes écarte ceux qui sont trop vieux.
 - **Keep alive de 15 secondes** : le broker publie le testament environ 20 secondes après une coupure franche (borne débranchée, Wi-Fi perdu).
 - **Reconnexion** toutes les 5 secondes tant que le broker ne répond pas. Le jeton continue d'être écrit, mais une tentative vers une adresse injoignable bloque la boucle quelques secondes : à revoir avec la détection du téléphone par la broche GPO.
-- L'affichage reçu est écrit sur le port série, en attendant l'écran.
+- **Écran** : au repos, l'accueil : le logo de l'app qui flotte doucement (±6 px, un aller-retour en 3,6 s), « Pose ton téléphone sur le cercle », et en bas à gauche une pastille verte ou rouge selon la connexion au broker, pour l'équipe. Un affichage reçu reste 8 secondes : fond vert et titre « Bien joué ! » pour `rewarded`, fond orange pour `already_rewarded`, avec le `message` de l'API coupé en lignes. Il est aussi écrit sur le port série.
 
-Le code testable (topics, messages JSON, lecture de `scanned_at`) est dans `lib/messages`, testé par `pio test -e native` (`test/test_messages`).
+L'écran est une dalle ST7789 (identifiant `81 81 B3`) pilotée par Adafruit ST7789, sans inversion des couleurs, et le texte passe par U8g2 pour les accents. Ses broches sont dans `src/screen.cpp`. Le logo est une image RGB565 dans `src/logo.h`, générée par `tools/logo.py` depuis `scubatana.frontend/public/img/logo.png`.
+
+Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`) et `lib/text` (coupure du message en lignes), testé par `pio test -e native`.
 
 ## Côté serveur
 
