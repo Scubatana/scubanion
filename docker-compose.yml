@@ -62,6 +62,7 @@ services:
     environment:
       <<: *laravel-environment
       RUN_MIGRATIONS: "true"
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
     volumes:
       - mqtt_comptes:/var/www/html/storage/app/mqtt
     depends_on:
@@ -127,6 +128,49 @@ services:
       - web
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    volumes:
+      - ./scubatana.prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "${MONITORING_BIND:-127.0.0.1}:${PROMETHEUS_PORT:-9090}:9090"
+    depends_on:
+      nginx:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:9090/-/healthy"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - web
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD manquant dans .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./scubatana.grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./scubatana.grafana/dashboards:/etc/grafana/provisioning/dashboards/files:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "${MONITORING_BIND:-127.0.0.1}:${GRAFANA_PORT:-3001}:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    networks:
+      - web
+    restart: unless-stopped
+
 networks:
   donnees:
     internal: true
@@ -137,3 +181,5 @@ volumes:
   mariadb_data:
   mosquitto_data:
   mqtt_comptes:
+  prometheus_data:
+  grafana_data:

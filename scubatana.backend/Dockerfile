@@ -14,7 +14,7 @@ RUN composer dump-autoload --no-dev --optimize \
 FROM php:8.4-fpm-alpine
 
 RUN apk add --no-cache fcgi \
-	&& docker-php-ext-install pdo_mysql opcache \
+	&& docker-php-ext-install pdo_mysql opcache pcntl \
 	&& mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 COPY docker/php-fpm-ping.conf /usr/local/etc/php-fpm.d/zz-ping.conf
