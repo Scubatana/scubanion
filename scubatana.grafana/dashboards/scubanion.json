@@ -1,0 +1,78 @@
+{
+	"annotations": { "list": [] },
+	"editable": true,
+	"fiscalYearStartMonth": 0,
+	"graphTooltip": 0,
+	"id": null,
+	"panels": [
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": { "defaults": {}, "overrides": [] },
+			"gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+			"id": 1,
+			"options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+			"targets": [{ "expr": "scubanion_users_total{profile_completed=\"true\"}", "refId": "A" }],
+			"title": "Joueurs actifs (profil complet)",
+			"type": "stat"
+		},
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": { "defaults": {}, "overrides": [] },
+			"gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+			"id": 2,
+			"options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+			"targets": [{ "expr": "scubanion_steps_today_total", "refId": "A" }],
+			"title": "Pas enregistrés aujourd'hui",
+			"type": "stat"
+		},
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": { "defaults": {}, "overrides": [] },
+			"gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+			"id": 3,
+			"options": { "colorMode": "value", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+			"targets": [{ "expr": "scubanion_terminals_online", "refId": "A" }],
+			"title": "Bornes en ligne",
+			"type": "stat"
+		},
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": { "defaults": {}, "overrides": [] },
+			"gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+			"id": 4,
+			"options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+			"targets": [{ "expr": "scubanion_passages_total", "refId": "A" }],
+			"title": "Passages en borne NFC",
+			"type": "stat"
+		},
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": { "defaults": {}, "overrides": [] },
+			"gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+			"id": 5,
+			"targets": [
+				{ "expr": "scubanion_terminals_online", "legendFormat": "En ligne", "refId": "A" },
+				{ "expr": "scubanion_terminals_total", "legendFormat": "Total", "refId": "B" }
+			],
+			"title": "État du parc de bornes",
+			"type": "timeseries"
+		},
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": { "defaults": {}, "overrides": [] },
+			"gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+			"id": 6,
+			"targets": [
+				{ "expr": "scubanion_active_quests_total", "legendFormat": "Quêtes actives", "refId": "A" },
+				{ "expr": "scubanion_reports_pending", "legendFormat": "Signalements en attente", "refId": "B" }
+			],
+			"title": "Activité jeu & modération",
+			"type": "timeseries"
+		}
+	],
+	"schemaVersion": 39,
+	"tags": ["scubanion"],
+	"time": { "from": "now-6h", "to": "now" },
+	"title": "Scubanion — Supervision",
+	"uid": "scubanion-overview"
+}
