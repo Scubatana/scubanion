@@ -196,6 +196,33 @@ describe("usePassages", () => {
 		expect(passages.lastNotice.value).toBe("Bravo Lea ! +100 XP");
 	});
 
+	it("keeps a passage in the queue when the server is down or overloaded, and only drops it on a real refusal", async () => {
+		storage.set("consents.7", JSON.stringify({ steps: true, location: false }));
+		httpRequest.mockResolvedValueOnce({ status: 503, data: {} });
+
+		const passages = usePassages();
+
+		expect(await passages.scan(sampleUrl)).toBe("queued");
+		expect(passages.lastNotice.value).toContain("Serveur indisponible");
+
+		httpRequest.mockResolvedValueOnce({ status: 429, data: {} });
+		await passages.flush();
+
+		expect(passages.pending.value).toHaveLength(1);
+		expect(passages.lastError.value).toBe("");
+
+		httpRequest.mockResolvedValueOnce({ status: 500, data: {} });
+		await passages.flush();
+
+		expect(JSON.parse(storage.get("passages.pending.7") ?? "[]")).toHaveLength(1);
+
+		httpRequest.mockResolvedValueOnce({ status: 409, data: { message: "Ce jeton a déjà été utilisé." } });
+		await passages.flush();
+
+		expect(passages.pending.value).toEqual([]);
+		expect(passages.lastError.value).toBe("Ce jeton a déjà été utilisé.");
+	});
+
 	it("consumes cold-start NFC intent and listens for live native NFC tag events", async () => {
 		nfcState.pendingUrl = sampleUrl;
 		httpRequest.mockResolvedValue({

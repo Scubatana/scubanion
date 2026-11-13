@@ -1,6 +1,6 @@
 import { App } from "@capacitor/app";
 import { Preferences } from "@capacitor/preferences";
-import { ApiError, readableMessage } from "~/utils/apiError";
+import { ApiError, isTransientError, readableMessage } from "~/utils/apiError";
 import { currentPosition } from "~/utils/geolocation";
 import { extractBorneToken, watchNfcTags } from "~/utils/nfc";
 import {
@@ -50,7 +50,7 @@ export function usePassages() {
 		watch([session.token, player.player], ([token, currentPlayer]) => {
 			if (token === null) {
 				reset();
-			} else if (deferredUrl.value !== null && currentPlayer !== null) {
+			} else if (deferredUrl.value && currentPlayer) {
 				const pendingTag = deferredUrl.value;
 				deferredUrl.value = null;
 				void scan(pendingTag);
@@ -158,10 +158,12 @@ export function usePassages() {
 				await postPassage(entry);
 				return "submitted";
 			} catch (error) {
-				if (error instanceof ApiError && error.status === 0) {
+				if (isTransientError(error)) {
 					await restorePending();
 					await savePending(withPassage(pending.value, entry));
-					lastNotice.value = "Pas de réseau : passage conservé hors ligne (valable 24 h).";
+					lastNotice.value = error instanceof ApiError && error.status === 0
+						? "Pas de réseau : passage conservé hors ligne (valable 24 h)."
+						: "Serveur indisponible : passage conservé, il sera renvoyé tout seul (valable 24 h).";
 					return "queued";
 				}
 
@@ -202,7 +204,7 @@ export function usePassages() {
 				try {
 					await postPassage(entry);
 				} catch (error) {
-					if (error instanceof ApiError && error.status === 0) {
+					if (isTransientError(error)) {
 						return;
 					}
 

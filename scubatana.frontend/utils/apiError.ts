@@ -40,3 +40,7 @@ export function toApiError(status: number, data: unknown): ApiError {
 export function readableMessage(error: unknown): string {
 	return error instanceof ApiError ? error.message : DEFAULT_MESSAGE;
 }
+
+export function isTransientError(error: unknown): boolean {
+	return error instanceof ApiError && (error.status === 0 || error.status === 408 || error.status === 429 || error.status >= 500);
+}
