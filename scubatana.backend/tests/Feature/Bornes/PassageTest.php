@@ -92,7 +92,7 @@ class PassageTest extends TestCase
 		$this->send($this->token())
 			->assertOk()
 			->assertJsonPath('status', 'already_rewarded')
-			->assertJsonPath('message', "Déjà passé aujourd'hui, Lea. Reviens demain !")
+			->assertJsonPath('message', "Ton passage du jour est déjà compté, Lea. Reviens demain !")
 			->assertJsonPath('reward_xp', 0);
 
 		$this->travelTo('2026-10-14 09:00:00');
