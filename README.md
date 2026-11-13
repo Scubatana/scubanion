@@ -176,17 +176,6 @@ Pour une version release signée, qui appelle le serveur en ligne :
 npm run adb:install
 ```
 
-Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe. Le dépôt étant public, l'APK des releases peut être signé par une clé distincte, gardée hors du dépôt : voir [Clé de signature des releases](#clé-de-signature-des-releases). L'adresse de l'API est choisie au build par le script : `NUXT_PUBLIC_API_URL_DEV` pour `adb:install:debug` (par défaut `http://localhost:8000`) et `NUXT_PUBLIC_API_URL_PROD` pour `adb:install` (par défaut `https://scuba.picsou06.fr`). Les deux se règlent dans `scubatana.frontend/.env`.
+Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe. Le dépôt étant public, l'APK des releases peut être signé par une clé distincte, gardée hors du dépôt : voir [scubatana.frontend/android-keystore/README.md](scubatana.frontend/android-keystore/README.md). L'adresse de l'API est choisie au build par le script : `NUXT_PUBLIC_API_URL_DEV` pour `adb:install:debug` (par défaut `http://localhost:8000`) et `NUXT_PUBLIC_API_URL_PROD` pour `adb:install` (par défaut `https://scuba.picsou06.fr`). Les deux se règlent dans `scubatana.frontend/.env`.
 
 Une version debug et une version release ne peuvent pas se remplacer l'une l'autre : désinstaller l'app avant de changer de type de build.
-
-## Clé de signature des releases
-
-Le pipeline GitLab (`build:android`) signe l'APK avec la clé dev du dépôt, sauf si la variable `ANDROID_RELEASE_KEYSTORE_BASE64` est définie dans *Settings > CI/CD > Variables* (masquée et protégée). Une variable protégée n'est transmise qu'aux branches et tags protégés : protéger aussi les tags `v*` (*Settings > Repository > Protected tags*), sinon les pipelines de release signent avec la clé dev. Pour la créer, une seule fois, hors du dépôt :
-
-```bash
-keytool -genkeypair -v -keystore scubanion-release.keystore -alias scubanion -keyalg RSA -keysize 2048 -validity 10000
-base64 -w0 scubanion-release.keystore   # valeur de ANDROID_RELEASE_KEYSTORE_BASE64
-```
-
-Mettre aussi à jour `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` et `ANDROID_KEY_PASSWORD` avec ceux de cette clé, et la ranger en lieu sûr : la perdre empêche de publier une mise à jour de l'app. Un APK signé avec une clé ne remplace pas une app installée avec l'autre : désinstaller avant de passer de l'une à l'autre.
