@@ -2,7 +2,7 @@
 
 - **Projet** : Scubanion · **Équipe** : Scubatana · Projet BUT3-IoT (IUT)
 - **Membres** : BANDIERAS Thomas · DALMASSO Evan · KARROUCHI Hamza · LESUEUR Shaleena
-- **Version** : 0.10 du 02/11/2026
+- **Version** : 0.11 du 13/11/2026
 - **Sources** : cours R5.07, programme de R5.04, consignes de R5.01, notes de l'équipe, README et maquettes du dépôt
 
 Ce document résume le projet et les règles à respecter. C'est notre référence commune et notre liste de suivi : on coche au fil de l'avancement, et chaque décision met le document à jour (par PR, comme le code). Les éléments marqués *proposition* sont à valider en équipe.
@@ -191,13 +191,13 @@ flowchart LR
 
 - [x] **APP-01** · Must : Inscription et connexion par email et code à usage unique (D1).
 - [x] **APP-02** · Must : Profil : pseudo, date de naissance, genre (facultatif), ambition (retrouver la forme, sortir plus souvent, rencontrer du monde, explorer son quartier). L'ambition oriente les quêtes et les objets débloqués.
-- [ ] **APP-03** · Must : Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.
+- [x] **APP-03** · Must : Compagnon animé : niveau, XP et état (humeur, santé) qui évoluent avec l'activité réelle.
 - [x] **APP-04** · Must : Objectif de pas du jour (5 000 par défaut) et compteur en direct.
 - [ ] **APP-05** · Must : Quêtes : quiz, photos de sortie, nouveaux lieux, rencontres, défi de la semaine.
-- [ ] **APP-06** · Must : Consentements explicites (localisation, Bluetooth, activité) et suppression du compte (RGPD, § 6.5).
-- [ ] **APP-07** · Should : Amis : liste, invitation par code, activité des amis.
+- [x] **APP-06** · Must : Consentements explicites (localisation, Bluetooth, activité) et suppression du compte (RGPD, § 6.5).
+- [x] **APP-07** · Should : Amis : liste, invitation par code, activité des amis.
 - [ ] **APP-08** · Should : Rencontres : deux joueurs qui se croisent gagnent un bonus (BLE entre téléphones, recoupé par la géolocalisation côté serveur).
-- [ ] **APP-09** · Should : Carte : lieux, bornes et quêtes à proximité, recherche.
+- [x] **APP-09** · Should : Carte : lieux, bornes et quêtes à proximité, recherche.
 - [ ] **APP-10** · Could : Équipes : marcher ensemble fait grandir les deux compagnons plus vite.
 - [ ] **APP-11** · Could : Chat entre amis et en équipe.
 - [ ] **APP-12** · Could : Notifications (« passe au parc avant 20 h pour une quête bonus »).
@@ -488,6 +488,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.11    | 13/11/2026 | APP-03 et APP-06 cochés (12 *Must* sur 18), ainsi que APP-07 et APP-09 (*Should*) : compagnon animé, consentements RGPD, amis et carte sont sur `master` |
 | 0.10    | 02/11/2026 | Suivi synchronisé avec `master` : BCK-01, BCK-02 et BCK-03 cochés (10 *Must* sur 18), état des briques au § 4 mis à jour (quêtes, carte, amis, bornes, GitHub Actions, VPS), cases R5.07 et RGPD cochées aux § 6.2 et § 6.5, décisions D4, D6, D9 et D10 actées au § 8, renommage Scubanion et workflows cochés au § 11 |
 | 0.9     | 16/10/2026 | Décision D3 tranchée : ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231 et anneau de LED, détaillés dans `borne-materiel.md` (choix, commande, montage). BOR-01 coché, ligne « Borne » du § 4 et D2 mises à jour |
 | 0.8     | 14/10/2026 | Retours de l'enseignante appliqués : ajout des indicateurs d'entreprise K6 (rétention à 30 jours) et K7 (lieux partenaires et revenu récurrent), qui manquaient au tableau de bord ; § 10 Risques reclassé par fréquence et gravité selon la matrice du cours, avec plan préventif et plan correctif pour chaque ligne. La charte de projet passe en v3.0 avec une posture entrepreneuriale |
