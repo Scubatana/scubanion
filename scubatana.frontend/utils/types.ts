@@ -8,6 +8,11 @@ export interface PlayerStats {
 	friends_count: number;
 }
 
+export interface PlayerPrivacy {
+	share_steps: boolean;
+	share_streak: boolean;
+}
+
 export interface Player {
 	id: number;
 	email: string;
@@ -16,6 +21,7 @@ export interface Player {
 	gender: Gender | null;
 	ambition: Ambition | null;
 	profile_completed: boolean;
+	privacy?: PlayerPrivacy;
 	stats: PlayerStats;
 }
 

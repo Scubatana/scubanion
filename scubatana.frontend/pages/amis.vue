@@ -341,13 +341,13 @@ onMounted(refresh);
 						<div class="identity">
 							<div class="name-row">
 								<span class="name">{{ friendship.player.pseudo }}</span>
-								<StreakFlame :streak="friendship.player.streak" />
+								<StreakFlame v-if="friendship.player.streak" :streak="friendship.player.streak" />
 							</div>
 							<span v-if="friendship.player.companion" class="sub">
 								{{ friendship.player.companion.name }} · Niv. {{ friendship.player.companion.level }}
 							</span>
 						</div>
-						<span class="meta">{{ formatCount(friendship.player.today.steps) }} pas</span>
+						<span class="meta">{{ friendship.player.today ? `${formatCount(friendship.player.today.steps)} pas` : "Masqué" }}</span>
 						<button
 							class="more-btn"
 							type="button"
@@ -359,6 +359,7 @@ onMounted(refresh);
 						</button>
 					</div>
 					<div
+						v-if="friendship.player.today"
 						class="wave-bar goal-bar"
 						:style="{ '--fill': friendGoalFill(friendship.player.today) }"
 						role="img"

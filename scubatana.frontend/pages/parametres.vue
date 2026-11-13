@@ -167,6 +167,7 @@ onMounted(refresh);
 					</button>
 				</div>
 			</div>
+			<PrivacySharingCard />
 			<div class="card stack-tight">
 				<span class="section-title">Joueurs bloqués</span>
 				<p class="gallery-note">Les joueurs que tu as bloqués ne peuvent plus t'ajouter en ami.</p>

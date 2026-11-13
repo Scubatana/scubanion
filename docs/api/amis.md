@@ -33,7 +33,7 @@ Les routes des amis, sauf `GET /me/friends/qr`, renvoient le même objet, la vue
 ```
 
 - `code` : le code ami du joueur, à partager.
-- `friends` : les amitiés acceptées, avec le compagnon et les pas du jour de chaque ami. `companion` vaut `null` si l'ami n'en a pas encore.
+- `friends` : les amitiés acceptées, avec le compagnon, les pas du jour et la série de chaque ami. `companion` vaut `null` si l'ami n'en a pas encore ; `today` et `streak` valent `null` tant que l'ami n'active pas leur partage (`PUT /me/privacy`).
 - `received` : les invitations reçues, à accepter ou refuser. `sent` : les invitations envoyées, en attente.
 - `id` est l'identifiant de l'amitié ou de l'invitation, à utiliser dans les routes ci-dessous.
 
