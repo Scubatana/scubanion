@@ -13,6 +13,7 @@ updates:
       include: scope
     groups:
       app:
+        patterns: ["*"]
         update-types: [minor, patch]
 
   - package-ecosystem: composer
@@ -26,6 +27,7 @@ updates:
       include: scope
     groups:
       api:
+        patterns: ["*"]
         update-types: [minor, patch]
 
   - package-ecosystem: github-actions
