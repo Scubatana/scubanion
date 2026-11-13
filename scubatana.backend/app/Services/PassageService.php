@@ -134,7 +134,7 @@ class PassageService
 		return [
 			'scanned_at' => $passage->scanned_at->toIso8601String(),
 			'status' => $passage->isRewarded() ? 'rewarded' : 'already_rewarded',
-			'message' => $passage->isRewarded() ? "Bravo {$pseudo} ! +{$passage->reward_xp} XP" : "Déjà passé aujourd'hui, {$pseudo}. Reviens demain !",
+			'message' => $passage->isRewarded() ? "Bravo {$pseudo} ! +{$passage->reward_xp} XP" : "Ton passage du jour est déjà compté, {$pseudo}. Reviens demain !",
 			'reward_xp' => $passage->reward_xp,
 		];
 	}

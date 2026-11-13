@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "messages.h"
+#include "screen.h"
 #include "token.h"
 
 #if __has_include("borne_config.h")
@@ -15,7 +16,7 @@
 
 namespace {
 
-constexpr const char* FIRMWARE_VERSION = "0.2.0";
+constexpr const char* FIRMWARE_VERSION = "0.3.0";
 
 constexpr time_t EARLIEST_VALID_TIME = 1767225600;
 
@@ -34,6 +35,8 @@ constexpr int QOS_AT_LEAST_ONCE = 1;
 // Le jeton a été écrit au plus 5 minutes avant le scan : au-delà de 10 minutes,
 // la réponse vient d'un téléphone qui a envoyé son jeton plus tard, hors ligne.
 constexpr int64_t DISPLAY_MAX_AGE_SECONDS = 10 * 60;
+
+constexpr unsigned long DISPLAY_DURATION_MS = 8000;
 
 const std::string STATE_TOPIC = messages::topic(BORNE_CODE, "etat");
 
@@ -58,6 +61,18 @@ bool mqttAttempted = false;
 unsigned long lastMqttAttemptAt = 0;
 
 unsigned long lastHeartbeatAt = 0;
+
+bool hasPendingDisplay = false;
+
+messages::Display pendingDisplay;
+
+bool showingDisplay = false;
+
+unsigned long displayShownAt = 0;
+
+bool idleShown = false;
+
+bool idleShownOnline = false;
 
 bool clockIsSet()
 {
@@ -85,8 +100,8 @@ void writeToken()
 	lastTokenAt = millis();
 }
 
-// Appelé pendant mqtt.loop() : ne pas publier ici.
-void showDisplay(String& topic, String& payload)
+// Appelé pendant mqtt.loop() : ne pas publier ici. L'écran est dessiné ensuite, dans updateScreen().
+void receiveDisplay(String& topic, String& payload)
 {
 	messages::Display display;
 
@@ -101,6 +116,36 @@ void showDisplay(String& topic, String& payload)
 	}
 
 	Serial.printf("Affichage (%s) : %s\n", display.status.c_str(), display.message.c_str());
+
+	pendingDisplay = display;
+	hasPendingDisplay = true;
+}
+
+// Montre la réponse du serveur pendant DISPLAY_DURATION_MS, puis revient à l'écran d'accueil.
+void updateScreen()
+{
+	if (hasPendingDisplay) {
+		hasPendingDisplay = false;
+		screen::showDisplay(pendingDisplay);
+		showingDisplay = true;
+		displayShownAt = millis();
+		return;
+	}
+
+	if (showingDisplay && millis() - displayShownAt < DISPLAY_DURATION_MS) {
+		return;
+	}
+
+	const bool online = mqtt.connected();
+
+	if (showingDisplay || !idleShown || online != idleShownOnline) {
+		screen::showIdle(online);
+		showingDisplay = false;
+		idleShown = true;
+		idleShownOnline = online;
+	}
+
+	screen::animate();
 }
 
 void publishOnline()
@@ -154,6 +199,8 @@ void setup()
 	Serial.begin(115200);
 	Serial.printf("Borne %s, firmware %s\n", BORNE_CODE, FIRMWARE_VERSION);
 
+	screen::begin();
+
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 	configTime(0, 0, NTP_SERVER);
@@ -162,12 +209,13 @@ void setup()
 	mqtt.setKeepAlive(MQTT_KEEP_ALIVE_SECONDS);
 	mqtt.setCleanSession(false);
 	mqtt.setWill(STATE_TOPIC.c_str(), OFFLINE_MESSAGE.c_str(), true, QOS_AT_LEAST_ONCE);
-	mqtt.onMessage(showDisplay);
+	mqtt.onMessage(receiveDisplay);
 }
 
 void loop()
 {
 	keepMqttConnected();
+	updateScreen();
 
 	if (!clockIsSet()) {
 		waitForClock();
