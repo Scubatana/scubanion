@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		registerPlugin(StepCounterPlugin.class);
 		registerPlugin(PositionPlugin.class);
+		registerPlugin(NfcPlugin.class);
 		super.onCreate(savedInstanceState);
 	}
 }
