@@ -148,6 +148,7 @@ describe("useAuth", () => {
 		storage.set("steps.ledger.1", JSON.stringify({ days: { "2026-10-13": 300 } }));
 		storage.set("quests.pending.1", JSON.stringify([{ questId: 1, taskId: 2, body: {} }]));
 		storage.set("consents.1", JSON.stringify({ steps: false, location: false }));
+		storage.set("passages.pending.1", JSON.stringify([{ token: "chateau-01.t3k2w0.AbCdEfGhIjKlMnOp", recorded_at: "2026-10-13T15:00:00.000Z", latitude: 43.69, longitude: 7.28 }]));
 		storage.set("steps.device", "telephone-de-lea");
 		httpRequest.mockResolvedValue({ status: 204, data: null });
 

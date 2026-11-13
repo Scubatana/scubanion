@@ -8,7 +8,8 @@ export default defineNuxtConfig({
 	css: ["~/assets/css/style.css", "~/assets/css/app.css"],
 	runtimeConfig: {
 		public: {
-			apiUrl: process.env.NUXT_PUBLIC_API_URL || "http://localhost:8000"
+			apiUrl: process.env.NUXT_PUBLIC_API_URL || "http://localhost:8000",
+			manualBorneToken: process.env.NUXT_PUBLIC_MANUAL_BORNE_TOKEN === "true"
 		}
 	},
 	app: {
