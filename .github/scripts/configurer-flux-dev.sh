@@ -85,6 +85,10 @@ gh api -X PATCH "repos/$REPO" \
 	-F delete_branch_on_merge=true > /dev/null
 echo "Fait."
 
+step "Signalement privé des failles (bouton « Report a vulnerability » de SECURITY.md)"
+gh api -X PUT "repos/$REPO/private-vulnerability-reporting" > /dev/null
+echo "Fait."
+
 step "PR ouvertes vers master redirigées vers dev"
 for number in $(gh pr list --repo "$REPO" --state open --base master --limit 100 --json number,headRefName --jq '.[] | select(.headRefName != "dev") | .number'); do
 	gh pr edit "$number" --repo "$REPO" --base dev > /dev/null
