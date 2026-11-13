@@ -42,7 +42,7 @@ void test_a_display_without_reward_has_zero_xp()
 	messages::Display display;
 
 	TEST_ASSERT_TRUE(messages::parseDisplay(
-		"{\"scanned_at\":\"2026-10-13T15:00:00+02:00\",\"status\":\"already_rewarded\",\"message\":\"Déjà passé aujourd'hui, Léa. Reviens demain !\"}",
+		"{\"scanned_at\":\"2026-10-13T15:00:00+02:00\",\"status\":\"already_rewarded\",\"message\":\"Ton passage du jour est déjà compté, Léa. Reviens demain !\"}",
 		display));
 	TEST_ASSERT_EQUAL_STRING("already_rewarded", display.status.c_str());
 	TEST_ASSERT_EQUAL_INT(0, display.rewardXp);
