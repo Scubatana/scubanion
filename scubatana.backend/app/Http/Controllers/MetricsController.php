@@ -24,7 +24,7 @@ class MetricsController extends Controller
 
 		$usersCompleted = User::whereNotNull('pseudo')->count();
 		$usersIncomplete = User::whereNull('pseudo')->count();
-		$stepsToday = (int) Activity::where('day', now()->toDateString())->sum('steps');
+		$stepsToday = (int) Activity::whereDate('day', now()->toDateString())->sum('steps');
 		$passagesTotal = Passage::count();
 		$terminalsTotal = Terminal::count();
 		$terminalsOnline = Terminal::where('status', TerminalStatus::Online)
