@@ -127,7 +127,7 @@ Publié par l'API dès qu'un passage est enregistré :
 | `rewarded` | premier passage du joueur à cette borne ce jour-là | « Bravo {pseudo} ! +100 XP » |
 | `already_rewarded` | le joueur est déjà passé ce jour-là : le passage est enregistré, sans récompense | « Déjà passé aujourd'hui, {pseudo}. Reviens demain ! » |
 
-`scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne peut l'ignorer s'il est trop ancien.
+`scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne l'ignore si son `scanned_at` a plus de 10 minutes (le jeton est écrit au plus 5 minutes avant le scan).
 
 ## Connexion au broker
 
@@ -158,6 +158,17 @@ Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'
 
 **Limite connue.** Le port 1883 n'est pas chiffré : quelqu'un sur le même réseau que la borne peut lire son mot de passe MQTT et se faire passer pour elle (faux signaux de vie, lecture de son affichage). Le secret des jetons, lui, reste protégé. La suite est de passer en TLS (port 8883), que l'ESP32 sait gérer.
 
+## Côté borne
+
+Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `include/borne_config.h`, avec son code comme identifiant de client et comme nom d'utilisateur.
+
+- **Session persistante** (`clean session` à faux) et abonnement en QoS 1 à `affichage` : un affichage publié pendant une courte coupure arrive à la reconnexion, et la règle des 10 minutes écarte ceux qui sont trop vieux.
+- **Keep alive de 15 secondes** : le broker publie le testament environ 20 secondes après une coupure franche (borne débranchée, Wi-Fi perdu).
+- **Reconnexion** toutes les 5 secondes tant que le broker ne répond pas. Le jeton continue d'être écrit, mais une tentative vers une adresse injoignable bloque la boucle quelques secondes : à revoir avec la détection du téléphone par la broche GPO.
+- L'affichage reçu est écrit sur le port série, en attendant l'écran.
+
+Le code testable (topics, messages JSON, lecture de `scanned_at`) est dans `lib/messages`, testé par `pio test -e native` (`test/test_messages`).
+
 ## Côté serveur
 
 | Commande | Rôle |
@@ -172,7 +183,7 @@ Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'
 
 1. Déclarer la borne : `docker compose exec backend php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3`, et noter le secret affiché.
 2. Faire relire les comptes au broker : `docker compose kill -s HUP mosquitto`. Sans ça, la borne est refusée par le broker jusqu'au prochain redémarrage de `mosquitto`.
-3. Mettre le code et le secret dans `include/borne_config.h` du firmware, puis flasher la borne.
+3. Mettre le code, le secret et l'adresse du broker (`MQTT_HOST`) dans `include/borne_config.h` du firmware, puis flasher la borne.
 4. Vérifier que la borne passe en ligne : `online` à `true` dans `GET /api/bornes`.
 
 Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `MQTT_ACCOUNTS_DIRECTORY` (`storage/app/mqtt`), `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5), `BORNE_TOKEN_REFRESH_MINUTES` (5), `BORNE_MAX_TRAVEL_SPEED_KMH` (150). Les deux derniers servent à vérifier que le joueur était à la borne (voir les [règles du jeu](regles-du-jeu.md#bornes)).
