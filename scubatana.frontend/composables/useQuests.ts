@@ -1,6 +1,7 @@
 import { Preferences } from "@capacitor/preferences";
 import { ApiError } from "~/utils/apiError";
 import { isPending, parseQueue, withAction, withoutAction, type PendingAction } from "~/utils/questQueue";
+import { actionMessage } from "~/utils/quests";
 import type { ClaimableReward, Companion, PlayerQuest, QuestStatus } from "~/utils/types";
 
 interface QuestsResponse {
@@ -28,6 +29,8 @@ export function useQuests() {
 	const quests = useState<PlayerQuest[]>("quests", () => []);
 	const pending = useState<PendingAction[]>("quests-pending", () => []);
 	const pendingOwner = useState<number | null>("quests-pending-owner", () => null);
+	const flushErrors = useState<Record<number, string>>("quests-flush-errors", () => ({}));
+	const flushNotice = useState<string>("quests-flush-notice", () => "");
 
 	function queueKey(): string | null {
 		const playerId = usePlayer().player.value?.id;
@@ -83,10 +86,20 @@ export function useQuests() {
 			for (const action of [...pending.value]) {
 				try {
 					await send(action);
+					clearFlushError(action.taskId);
 				} catch (error) {
 					if (error instanceof ApiError && error.status === 0) {
 						return;
 					}
+
+					if (error instanceof ApiError && error.status === 401) {
+						reset();
+						return;
+					}
+
+					const message = actionMessage(error);
+					flushErrors.value = { ...flushErrors.value, [action.taskId]: message };
+					flushNotice.value = `Validation hors ligne refusée : ${message}`;
 				}
 
 				await savePending(withoutAction(pending.value, action));
@@ -135,10 +148,26 @@ export function useQuests() {
 		return isPending(pending.value, questId, taskId);
 	}
 
+	function clearFlushError(taskId?: number): void {
+		if (taskId !== undefined && taskId in flushErrors.value) {
+			const next = { ...flushErrors.value };
+			delete next[taskId];
+			flushErrors.value = next;
+		} else if (taskId === undefined) {
+			flushErrors.value = {};
+		}
+
+		if (taskId === undefined || Object.keys(flushErrors.value).length === 0) {
+			flushNotice.value = "";
+		}
+	}
+
 	function reset(): void {
 		quests.value = [];
 		pending.value = [];
 		pendingOwner.value = null;
+		flushErrors.value = {};
+		flushNotice.value = "";
 	}
 
 	async function discard(): Promise<void> {
@@ -150,5 +179,5 @@ export function useQuests() {
 		}
 	}
 
-	return { quests, pending, load, act, claim, flush, waiting, reset, discard };
+	return { quests, pending, flushErrors, flushNotice, load, act, claim, flush, waiting, clearFlushError, reset, discard };
 }
