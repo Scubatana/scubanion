@@ -177,6 +177,8 @@ Fil par fil :
 | QWORK, borne GND | Anneau, pastille GND | soudure côté anneau |
 | QWORK, borne GND | Broche GND du module NFC (fil Dupont mâle/femelle) | **masse commune** : le module est relié au GND de la carte par la chaîne I2C. Sans elle, l'anneau ne comprend pas le signal |
 
+**Variante pour la masse commune, sans souder de broche GND sur le module NFC** : la prendre sur la broche GND du port Serial de la carte. Toutes les GND de la carte sont reliées, c'est la même masse. Il faut alors un **troisième câble MX1.25 4 broches vers Dupont femelles**, à acheter : les deux câbles 4 broches fournis sont déjà sur les ports SPI et Input pin, et le câble 2 broches ne rentre pas dans une prise 4 broches. Seule la broche GND de ce câble sert, avec un fil Dupont mâle/mâle vers la borne GND du QWORK. La broche GPO du module NFC reste à souder dans les deux cas. Choix à faire au montage, une fois tous les composants en main.
+
 La pastille DO (ou DOUT, OUT) de l'anneau ne sert pas : elle chaîne un autre anneau. Les bornes D-, D+ et blindage du QWORK ne servent pas non plus.
 
 Les couleurs des câbles STEMMA QT suivent la convention Qwiic : noir GND, rouge 3,3 V, bleu SDA, jaune SCL. Celles des câbles fournis avec la carte (rouge, noir, jaune, vert) ne suivent pas forcément une convention : **vérifier chaque fil avec le brochage avant de brancher**.
@@ -187,7 +189,7 @@ Les couleurs des câbles STEMMA QT suivent la convention Qwiic : noir GND, rouge
 | ------- | ---------- |
 | 3 fils sur les pastilles de l'anneau (5V, GND, DI) | Facile |
 | Fil du 5 V sur la patte de la diode | Facile |
-| Broches mâles sur les pastilles GPO et GND du module NFC (barrette au pas de 2,54 mm), pour y brancher les prises femelles | Facile |
+| Broches mâles sur les pastilles GPO et GND du module NFC (barrette au pas de 2,54 mm), pour y brancher les prises femelles. Chaque broche sur sa pastille, **sans pont d'étain entre les deux** : à vérifier au multimètre, en mode continuité, qu'elles ne sont pas reliées. GPO seule avec la variante du port Serial | Facile |
 | Résistance de 10 kΩ entre GPO et 3,3 V, si besoin | Facile |
 
 Rien n'est soudé sur la carte ESP32.
