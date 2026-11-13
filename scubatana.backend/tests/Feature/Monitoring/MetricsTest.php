@@ -70,6 +70,27 @@ class MetricsTest extends TestCase
 		$this->withHeader('Authorization', 'Bearer secret-prometheus-token')->get('/metrics')->assertOk();
 	}
 
+	public function test_the_internal_nginx_scrape_still_works_when_a_token_is_configured(): void
+	{
+		config(['monitoring.metrics_token' => 'secret-prometheus-token']);
+		$previousEnv = $this->app['env'];
+		$this->app['env'] = 'production';
+
+		try {
+			$this->get('/metrics')->assertForbidden();
+			$this->withServerVariables(['SCUBANION_INTERNAL_METRICS' => '1'])->get('/metrics')->assertOk();
+		} finally {
+			$this->app['env'] = $previousEnv;
+		}
+	}
+
+	public function test_a_scrape_opens_no_session_and_sets_no_cookie(): void
+	{
+		$response = $this->get('/metrics')->assertOk();
+
+		$this->assertFalse($response->headers->has('Set-Cookie'));
+	}
+
 	public function test_it_allows_only_internal_nginx_scrapes_in_production_without_token(): void
 	{
 		config(['monitoring.metrics_token' => '']);

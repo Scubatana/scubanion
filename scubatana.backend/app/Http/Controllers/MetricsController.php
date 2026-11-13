@@ -66,6 +66,11 @@ class MetricsController extends Controller
 
 	private function authorizeScrape(Request $request): void
 	{
+		// Paramètre FastCGI posé par le vhost Nginx interne (port 9091) : un en-tête HTTP ne peut pas le forger.
+		if ($request->server('SCUBANION_INTERNAL_METRICS') === '1') {
+			return;
+		}
+
 		$token = (string) config('monitoring.metrics_token', '');
 
 		if ($token !== '') {
@@ -74,7 +79,6 @@ class MetricsController extends Controller
 			return;
 		}
 
-		$allowed = app()->environment('local', 'testing') || $request->server('SCUBANION_INTERNAL_METRICS') === '1';
-		abort_unless($allowed, 403, 'Accès refusé.');
+		abort_unless(app()->environment('local', 'testing'), 403, 'Accès refusé.');
 	}
 }
