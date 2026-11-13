@@ -12,11 +12,11 @@
       ansible.builtin.command: docker compose version
       changed_when: false
 
-    - name: Vérifier la présence du dossier de déploiement
+    - name: Vérifier la présence du .env de production (généré hors dépôt)
       ansible.builtin.stat:
-        path: "{{ app_dir }}/docker-compose.yml"
-      register: compose_file
-      failed_when: not compose_file.stat.exists
+        path: "{{ app_dir }}/.env"
+      register: env_file
+      failed_when: not env_file.stat.exists
 
     - name: Copier la définition docker-compose.yml à jour
       ansible.builtin.copy:
@@ -29,12 +29,14 @@
         src: ../scubatana.prometheus/
         dest: "{{ app_dir }}/scubatana.prometheus/"
         mode: "0644"
+        directory_mode: "0755"
 
     - name: Copier le provisioning Grafana à jour
       ansible.builtin.copy:
         src: ../scubatana.grafana/
         dest: "{{ app_dir }}/scubatana.grafana/"
         mode: "0644"
+        directory_mode: "0755"
 
     - name: Récupérer les dernières images Docker
       ansible.builtin.command:

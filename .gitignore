@@ -2,3 +2,4 @@
 .env
 CLAUDE.md
 Claude.md
+deploy/inventory.yml
