@@ -3,8 +3,9 @@ set -uo pipefail
 
 MARKER="<!-- garde-des-pull-requests -->"
 
+# PR ouvertes qui visent la branche qui vient de recevoir un push ($BRANCH).
 open_pull_requests() {
-	gh pr list --state open --limit 100 --json number,baseRefName --jq '.[] | select(.baseRefName == "master" or .baseRefName == "main") | .number'
+	gh pr list --state open --base "${BRANCH:?BRANCH manquant}" --limit 100 --json number --jq '.[].number'
 }
 
 bot_comment_id() {
@@ -57,6 +58,13 @@ update() {
 	if [ "$state" != "OPEN" ]; then
 		return 0
 	fi
+
+	# La PR de release dev → master n'est jamais mise à jour : dev est protégée, et master ne reçoit que dev.
+	case "$head" in
+	dev | master | main)
+		return 0
+		;;
+	esac
 
 	if [ "$cross" = "true" ]; then
 		say "$number" "Cette PR vient d'un fork : sa branche ne peut pas être mise à jour automatiquement. Fusionne \`$base\` dans ta branche avant la relecture."

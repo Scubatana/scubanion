@@ -179,3 +179,7 @@ npm run adb:install
 Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe. L'adresse de l'API est choisie au build par le script : `NUXT_PUBLIC_API_URL_DEV` pour `adb:install:debug` (par défaut `http://localhost:8000`) et `NUXT_PUBLIC_API_URL_PROD` pour `adb:install` (par défaut `https://scuba.picsou06.fr`). Les deux se règlent dans `scubatana.frontend/.env`.
 
 Une version debug et une version release ne peuvent pas se remplacer l'une l'autre : désinstaller l'app avant de changer de type de build.
+
+## Contribuer
+
+Les branches de travail partent de `dev` et y reviennent par pull request ; seule la PR de release `dev` → `master` fusionne dans `master`, ce qui crée le tag `vX.Y.Z` et la release. Branches, commits, relecture et release : [CONTRIBUTING.md](CONTRIBUTING.md).

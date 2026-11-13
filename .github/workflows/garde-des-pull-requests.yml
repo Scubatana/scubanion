@@ -4,7 +4,7 @@ on:
   pull_request_target:
     types: [opened, reopened, edited, synchronize]
   push:
-    branches: [master, main]
+    branches: [dev, master, main]
 
 permissions:
   actions: write
@@ -20,22 +20,40 @@ jobs:
     if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
-      - name: Refuser une PR qui ne vise ni main ni master
+      - name: N'accepter que dev, et la PR de release dev → master
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.pull_request.number }}
           BASE: ${{ github.event.pull_request.base.ref }}
+          HEAD: ${{ github.event.pull_request.head.ref }}
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
-          if [ "$BASE" = "master" ] || [ "$BASE" = "main" ]; then
+          if [ "$BASE" = "dev" ]; then
             exit 0
           fi
-          gh pr close "$NUMBER" --comment "Cette PR vise \`$BASE\`. Les pull requests ne peuvent viser que \`master\` ou \`main\` : change la branche cible puis rouvre la PR."
+
+          if [ "$BASE" = "master" ] || [ "$BASE" = "main" ]; then
+            if [ "$HEAD" = "dev" ] && [ "$SAME_REPO" = "true" ]; then
+              exit 0
+            fi
+
+            # Tant que dev n'existe pas (avant .github/scripts/configurer-flux-dev.sh), master reste la cible.
+            if ! gh api "repos/$GH_REPO/branches/dev" > /dev/null 2>&1; then
+              exit 0
+            fi
+
+            gh pr edit "$NUMBER" --base dev
+            gh pr comment "$NUMBER" --body "Cette PR visait \`$BASE\` : elle a été redirigée vers \`dev\`. Les branches de travail fusionnent dans \`dev\` ; seule la PR de release \`dev\` → \`$BASE\` vise \`$BASE\` (voir CONTRIBUTING.md)."
+            exit 0
+          fi
+
+          gh pr close "$NUMBER" --comment "Cette PR vise \`$BASE\`. Les pull requests visent \`dev\` (ou \`master\` pour la seule PR de release depuis \`dev\`) : change la branche cible puis rouvre la PR."
           exit 1
 
   update:
     name: Mise à jour de la branche
-    if: github.event_name == 'push' || github.event.pull_request.base.ref == 'master' || github.event.pull_request.base.ref == 'main'
+    if: github.event_name == 'push' || contains(fromJSON('["dev", "master", "main"]'), github.event.pull_request.base.ref)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,4 +65,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.ref_name }}
         run: bash .github/scripts/mettre-a-jour-les-pr.sh "$NUMBER"
