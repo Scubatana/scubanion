@@ -135,7 +135,7 @@ describe("useQuests", () => {
 		expect(JSON.parse(storage.get("quests.pending.7") ?? "[]")).toEqual([]);
 	});
 
-	it("drops a waiting validation the server refuses, and never queues a quiz answer", async () => {
+	it("drops a waiting validation the server refuses, surfaces the reason, and never queues a quiz answer", async () => {
 		usePlayer().player.value = { id: 7 } as never;
 		const state = useQuests();
 		httpRequest.mockRejectedValueOnce(new TypeError("Failed to fetch"));
@@ -145,10 +145,41 @@ describe("useQuests", () => {
 		await state.flush();
 
 		expect(state.pending.value).toEqual([]);
+		expect(state.flushErrors.value[9]).toBe("Tu n'es pas encore sur place.");
+		expect(state.flushNotice.value).toContain("Tu n'es pas encore sur place.");
+
+		state.clearFlushError(9);
+		expect(state.flushErrors.value[9]).toBeUndefined();
+		expect(state.flushNotice.value).toBe("");
 
 		httpRequest.mockRejectedValueOnce(new TypeError("Failed to fetch"));
 		await expect(state.act(4, 9, { question: 0, choice: 1 })).rejects.toMatchObject({ status: 0 });
 		expect(state.pending.value).toEqual([]);
+	});
+
+	it("keeps a waiting validation while the server is overloaded or briefly down, then sends it", async () => {
+		usePlayer().player.value = { id: 7 } as never;
+		const state = useQuests();
+		httpRequest.mockResolvedValueOnce({ status: 503, data: {} });
+
+		expect(await state.act(4, 9, { code: "X" }, true)).toBe("queued");
+
+		httpRequest.mockResolvedValueOnce({ status: 429, data: {} });
+		await state.flush();
+
+		expect(state.waiting(4, 9)).toBe(true);
+		expect(state.flushErrors.value[9]).toBeUndefined();
+
+		httpRequest.mockResolvedValueOnce({ status: 500, data: {} });
+		await state.flush();
+
+		expect(state.waiting(4, 9)).toBe(true);
+
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { status: "completed", quest: null } });
+		await state.flush();
+
+		expect(state.waiting(4, 9)).toBe(false);
+		expect(JSON.parse(storage.get("quests.pending.7") ?? "[]")).toEqual([]);
 	});
 
 	it("finds the waiting validations of a player again after the app restarts", async () => {
