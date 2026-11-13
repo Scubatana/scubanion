@@ -28,11 +28,21 @@ constexpr int MARGIN = 16;
 constexpr int LINE_GAP = 8;
 constexpr uint32_t SPI_FREQUENCY = 40000000;
 
+// Le logo de l'accueil flotte de haut en bas : ±6 px autour de LOGO_TOP, un aller-retour en 3,6 s.
+constexpr int LOGO_LEFT = (WIDTH - LOGO_WIDTH) / 2;
+constexpr int LOGO_TOP = 28;
+constexpr float LOGO_FLOAT_PX = 6;
+constexpr unsigned long LOGO_FLOAT_PERIOD_MS = 3600;
+
 SPIClass bus(HSPI);
 
 Adafruit_ST7789 tft(&bus, PIN_CS, PIN_DC, -1);
 
 U8G2_FOR_ADAFRUIT_GFX u8g2;
+
+bool idleShown = false;
+
+int logoY = LOGO_TOP;
 
 // Même couleur que BACKGROUND dans tools/logo.py, qui remplace la transparence du logo.
 uint16_t idleColor()
@@ -63,6 +73,34 @@ std::vector<std::string> wrapped(const std::string& paragraph)
 	return text::wrap(paragraph, WIDTH - 2 * MARGIN, [](const std::string& line) {
 		return static_cast<int>(u8g2.getUTF8Width(line.c_str()));
 	});
+}
+
+int floatingLogoY()
+{
+	const float phase = static_cast<float>(millis() % LOGO_FLOAT_PERIOD_MS) / LOGO_FLOAT_PERIOD_MS;
+
+	return LOGO_TOP + static_cast<int>(lroundf(LOGO_FLOAT_PX * sinf(2 * PI * phase)));
+}
+
+// Version rapide de drawRGBBitmap (celle d'Adafruit_SPITFT, qui envoie les pixels d'un bloc) :
+// elle attend un pointeur non constant, mais ne modifie pas l'image.
+void drawLogo(int y)
+{
+	tft.drawRGBBitmap(LOGO_LEFT, y, const_cast<uint16_t*>(LOGO), LOGO_WIDTH, LOGO_HEIGHT);
+}
+
+// L'image du logo a déjà le fond de l'accueil : il suffit d'effacer la bande que la nouvelle position ne recouvre pas.
+void moveLogo(int y)
+{
+	drawLogo(y);
+
+	if (y > logoY) {
+		tft.fillRect(LOGO_LEFT, logoY, LOGO_WIDTH, y - logoY, idleColor());
+	} else {
+		tft.fillRect(LOGO_LEFT, y + LOGO_HEIGHT, LOGO_WIDTH, logoY - y, idleColor());
+	}
+
+	logoY = y;
 }
 
 // Centre verticalement un paragraphe autour de centerY.
@@ -102,18 +140,35 @@ void showIdle(bool online)
 {
 	clear(idleColor());
 
-	tft.drawRGBBitmap((WIDTH - LOGO_WIDTH) / 2, 24, LOGO, LOGO_WIDTH, LOGO_HEIGHT);
+	logoY = floatingLogoY();
+	drawLogo(logoY);
+	idleShown = true;
 
 	u8g2.setFont(u8g2_font_helvR18_tf);
-	drawCentered("Pose ton téléphone", 164);
-	drawCentered("sur le cercle", 194);
+	drawCentered("Pose ton téléphone", 172);
+	drawCentered("sur le cercle", 202);
 
 	// Pastille pour l'équipe : verte quand la borne est connectée au broker, rouge sinon.
 	tft.fillCircle(MARGIN, HEIGHT - MARGIN, 5, online ? tft.color565(76, 175, 80) : tft.color565(229, 57, 53));
 }
 
+void animate()
+{
+	if (!idleShown) {
+		return;
+	}
+
+	const int y = floatingLogoY();
+
+	if (y != logoY) {
+		moveLogo(y);
+	}
+}
+
 void showDisplay(const messages::Display& display)
 {
+	idleShown = false;
+
 	if (display.status == "rewarded") {
 		clear(tft.color565(46, 125, 50));
 

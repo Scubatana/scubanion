@@ -9,6 +9,9 @@ void begin();
 
 void showIdle(bool online);
 
+// À appeler à chaque tour de boucle : fait flotter le logo tant que l'accueil est affiché.
+void animate();
+
 void showDisplay(const messages::Display& display);
 
 }

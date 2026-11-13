@@ -144,6 +144,8 @@ void updateScreen()
 		idleShown = true;
 		idleShownOnline = online;
 	}
+
+	screen::animate();
 }
 
 void publishOnline()
