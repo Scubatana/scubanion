@@ -7,4 +7,5 @@ android/.gradle
 android/local.properties
 .env
 android-keystore/*.jks
+coverage
 *.log
