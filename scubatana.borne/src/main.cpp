@@ -197,7 +197,7 @@ void setup()
 	Serial.begin(115200);
 	Serial.printf("Borne %s, firmware %s\n", BORNE_CODE, FIRMWARE_VERSION);
 
-	screen::begin(BORNE_CODE);
+	screen::begin();
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);

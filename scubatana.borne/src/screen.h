@@ -5,7 +5,7 @@
 // Écran ST7789 de la carte (320 × 240 en paysage).
 namespace screen {
 
-void begin(const char* terminalCode);
+void begin();
 
 void showIdle(bool online);
 

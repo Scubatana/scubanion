@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "logo.h"
 #include "text.h"
 
 namespace screen {
@@ -33,8 +34,7 @@ Adafruit_ST7789 tft(&bus, PIN_CS, PIN_DC, -1);
 
 U8G2_FOR_ADAFRUIT_GFX u8g2;
 
-std::string code;
-
+// Même couleur que BACKGROUND dans tools/logo.py, qui remplace la transparence du logo.
 uint16_t idleColor()
 {
 	return tft.color565(16, 42, 67);
@@ -82,10 +82,8 @@ void drawParagraph(const std::string& paragraph, const uint8_t* font, int center
 
 }
 
-void begin(const char* terminalCode)
+void begin()
 {
-	code = terminalCode;
-
 	pinMode(PIN_BACKLIGHT, OUTPUT);
 	digitalWrite(PIN_BACKLIGHT, HIGH);
 
@@ -104,18 +102,14 @@ void showIdle(bool online)
 {
 	clear(idleColor());
 
-	u8g2.setFont(u8g2_font_helvB24_tf);
-	drawCentered("Scubanion", 70);
+	tft.drawRGBBitmap((WIDTH - LOGO_WIDTH) / 2, 24, LOGO, LOGO_WIDTH, LOGO_HEIGHT);
 
 	u8g2.setFont(u8g2_font_helvR18_tf);
-	drawCentered("Pose ton téléphone", 125);
-	drawCentered("sur le cercle", 155);
+	drawCentered("Pose ton téléphone", 164);
+	drawCentered("sur le cercle", 194);
 
-	u8g2.setFont(u8g2_font_helvR10_tf);
-	const std::string status = "Borne " + code + (online ? " · en ligne" : " · hors ligne");
-	drawCentered(status, HEIGHT - 14);
-
-	tft.fillCircle(MARGIN, HEIGHT - 18, 5, online ? tft.color565(76, 175, 80) : tft.color565(229, 57, 53));
+	// Pastille pour l'équipe : verte quand la borne est connectée au broker, rouge sinon.
+	tft.fillCircle(MARGIN, HEIGHT - MARGIN, 5, online ? tft.color565(76, 175, 80) : tft.color565(229, 57, 53));
 }
 
 void showDisplay(const messages::Display& display)
