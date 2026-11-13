@@ -39,6 +39,7 @@ const locationNotice = ref("");
 const searchQuery = ref("");
 const activeFilter = ref<MapFilter>("all");
 const selectedKey = ref<string | null>(null);
+const manualPassageEnabled = import.meta.dev || useRuntimeConfig().public.manualBorneToken === true;
 const manualPassageToken = ref("");
 const showManualPassage = ref(false);
 
@@ -319,34 +320,36 @@ onMounted(refresh);
 					<span v-if="pendingPassages.length > 0" class="eyebrow">
 						{{ pendingPassages.length }} passage{{ pendingPassages.length > 1 ? "s" : "" }} en attente de réseau
 					</span>
-					<button
-						v-if="!showManualPassage"
-						class="btn btn-ghost compact-btn"
-						type="button"
-						@click="showManualPassage = true"
-					>
-						Saisir un jeton de borne
-					</button>
-					<form v-else class="stack-tight" novalidate @submit.prevent="submitManualPassage">
-						<div class="field">
-							<label for="borne-token-input">Jeton ou URL de la borne</label>
-							<input
-								id="borne-token-input"
-								v-model="manualPassageToken"
-								type="text"
-								autocomplete="off"
-								placeholder="https://scuba.picsou06.fr/b/…"
-							>
-						</div>
-						<div class="row-between">
-							<button class="btn btn-primary compact-btn" type="submit" :disabled="submittingPassage">
-								{{ submittingPassage ? "Envoi…" : "Valider le passage" }}
-							</button>
-							<button class="btn btn-ghost compact-btn" type="button" :disabled="submittingPassage" @click="showManualPassage = false">
-								Annuler
-							</button>
-						</div>
-					</form>
+					<template v-if="manualPassageEnabled">
+						<button
+							v-if="!showManualPassage"
+							class="btn btn-ghost compact-btn"
+							type="button"
+							@click="showManualPassage = true"
+						>
+							Saisir un jeton de borne
+						</button>
+						<form v-else class="stack-tight" novalidate @submit.prevent="submitManualPassage">
+							<div class="field">
+								<label for="borne-token-input">Jeton ou URL de la borne</label>
+								<input
+									id="borne-token-input"
+									v-model="manualPassageToken"
+									type="text"
+									autocomplete="off"
+									placeholder="https://scuba.picsou06.fr/b/…"
+								>
+							</div>
+							<div class="row-between">
+								<button class="btn btn-primary compact-btn" type="submit" :disabled="submittingPassage">
+									{{ submittingPassage ? "Envoi…" : "Valider le passage" }}
+								</button>
+								<button class="btn btn-ghost compact-btn" type="button" :disabled="submittingPassage" @click="showManualPassage = false">
+									Annuler
+								</button>
+							</div>
+						</form>
+					</template>
 				</div>
 				<span v-else-if="selectedEntry.radiusMeters" class="eyebrow">Rayon de validation : {{ selectedEntry.radiusMeters }} m</span>
 			</div>
