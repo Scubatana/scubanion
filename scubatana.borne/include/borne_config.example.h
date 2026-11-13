@@ -12,5 +12,9 @@
 
 #define NTP_SERVER "pool.ntp.org"
 
+// Broker MQTT (voir docs/mqtt.md). En dev, l'adresse IP du PC qui fait tourner docker compose.
+#define MQTT_HOST "scuba.picsou06.fr"
+#define MQTT_PORT 1883
+
 // Début de l'adresse écrite dans le tag NFC, suivie du jeton (voir docs/mqtt.md).
 #define NFC_URL_PREFIX "https://scuba.picsou06.fr/b/"
