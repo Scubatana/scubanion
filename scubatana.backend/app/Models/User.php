@@ -13,10 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['email', 'pseudo', 'birth_date', 'gender', 'ambition', 'daily_step_goal', 'terms_accepted_at'])]
+#[Fillable(['email', 'pseudo', 'birth_date', 'gender', 'ambition', 'daily_step_goal', 'share_steps', 'share_streak', 'terms_accepted_at'])]
 class User extends Authenticatable
 {
 	use HasApiTokens, HasFactory;
+
+	protected $attributes = [
+		'share_steps' => false,
+		'share_streak' => false,
+	];
 
 	protected static function booted(): void
 	{
@@ -32,6 +37,8 @@ class User extends Authenticatable
 			'gender' => Gender::class,
 			'ambition' => Ambition::class,
 			'daily_step_goal' => 'integer',
+			'share_steps' => 'boolean',
+			'share_streak' => 'boolean',
 			'terms_accepted_at' => 'datetime',
 		];
 	}

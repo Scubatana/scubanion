@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdatePrivacyRequest;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\CompanionResource;
 use App\Http\Resources\PlayerResource;
@@ -39,6 +40,19 @@ class MeController extends Controller
 		return response()->json([
 			'player' => new PlayerResource($user),
 			'companion' => new CompanionResource($companions->createFor($user)),
+		]);
+	}
+
+	public function updatePrivacy(UpdatePrivacyRequest $request): JsonResponse
+	{
+		$user = $request->user();
+		$user->update([
+			'share_steps' => $request->boolean('share_steps'),
+			'share_streak' => $request->boolean('share_streak'),
+		]);
+
+		return response()->json([
+			'player' => new PlayerResource($user),
 		]);
 	}
 }
