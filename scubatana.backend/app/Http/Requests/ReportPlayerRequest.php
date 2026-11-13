@@ -11,7 +11,12 @@ class ReportPlayerRequest extends FormRequest
 	public function rules(): array
 	{
 		return [
-			'player_id' => ['required', 'integer', Rule::exists('users', 'id'), Rule::notIn([$this->user()->id])],
+			'player_id' => [
+				'required',
+				'integer',
+				Rule::exists('users', 'id')->where(fn ($query) => $query->whereNotNull('pseudo')),
+				Rule::notIn([$this->user()->id]),
+			],
 			'reason' => ['required', Rule::enum(ReportReason::class)],
 			'comment' => ['nullable', 'string', 'max:500'],
 		];

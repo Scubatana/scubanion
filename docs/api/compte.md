@@ -63,6 +63,7 @@ Le joueur, son compagnon et ses pas du jour : c'est l'appel de l'écran d'accuei
     "gender": "female",
     "ambition": "fitness",
     "profile_completed": true,
+    "privacy": { "share_steps": false, "share_streak": false },
     "stats": { "total_steps": 48210, "quests_done": 0, "friends_count": 0 }
   },
   "companion": { "...": "voir compagnon.md" },
@@ -88,6 +89,17 @@ Enregistre le profil et crée le compagnon de départ s'il n'existe pas.
 | `ambition` | obligatoire : `fitness`, `go_out`, `meet_people` ou `explore` |
 
 Réponse **200** : `{ "player": {...}, "companion": {...} }`.
+
+### `PUT /me/privacy`
+
+Met à jour la visibilité des pas du jour et de la série auprès des amis (masqués par défaut, `false`).
+
+| Champ | Règle |
+| ----- | ----- |
+| `share_steps` | booléen obligatoire (`false` par défaut) |
+| `share_streak` | booléen obligatoire (`false` par défaut) |
+
+Réponse **200** : `{ "player": {...} }`.
 
 ### `DELETE /me?confirm=1`
 

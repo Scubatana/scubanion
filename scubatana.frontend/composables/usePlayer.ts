@@ -1,4 +1,4 @@
-import type { Companion, CompanionLookPayload, Player, ProfilePayload, Streak, Today } from "~/utils/types";
+import type { Companion, CompanionLookPayload, Player, PlayerPrivacy, ProfilePayload, Streak, Today } from "~/utils/types";
 
 interface MeResponse {
 	player: Player;
@@ -55,6 +55,12 @@ export function usePlayer() {
 		companion.value = response.companion ?? companion.value;
 	}
 
+	async function savePrivacy(payload: PlayerPrivacy): Promise<void> {
+		const response = await useApi().put<{ player: Player }>("/me/privacy", payload);
+
+		player.value = response.player;
+	}
+
 	function reset(): void {
 		player.value = null;
 		companion.value = null;
@@ -62,5 +68,5 @@ export function usePlayer() {
 		streak.value = null;
 	}
 
-	return { player, companion, today, streak, load, saveProfile, saveCompanion, saveGoal, reset };
+	return { player, companion, today, streak, load, saveProfile, saveCompanion, saveGoal, savePrivacy, reset };
 }
