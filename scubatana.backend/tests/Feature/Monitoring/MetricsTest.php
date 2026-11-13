@@ -29,10 +29,12 @@ class MetricsTest extends TestCase
 		Activity::factory()->for($reported)->create(['day' => '2026-10-13', 'steps' => 1200]);
 
 		$onlineTerminal = Terminal::factory()->create([
+			'code' => 'chateau-01',
 			'status' => TerminalStatus::Online,
 			'last_seen_at' => now()->subSeconds(30),
 		]);
 		Terminal::factory()->create([
+			'code' => 'port-02',
 			'status' => TerminalStatus::Online,
 			'last_seen_at' => now()->subMinutes(10),
 		]);
@@ -57,6 +59,8 @@ class MetricsTest extends TestCase
 		$this->assertStringContainsString('scubanion_passages_total 1', $body);
 		$this->assertStringContainsString('scubanion_terminals_total 2', $body);
 		$this->assertStringContainsString('scubanion_terminals_online 1', $body);
+		$this->assertStringContainsString('scubanion_terminal_online{code="chateau-01"} 1', $body);
+		$this->assertStringContainsString('scubanion_terminal_online{code="port-02"} 0', $body);
 		$this->assertStringContainsString('scubanion_active_quests_total 1', $body);
 		$this->assertStringContainsString('scubanion_reports_pending 1', $body);
 	}

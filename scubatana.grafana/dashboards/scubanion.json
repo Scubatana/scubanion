@@ -68,6 +68,23 @@
 			],
 			"title": "Activité jeu & modération",
 			"type": "timeseries"
+		},
+		{
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"fieldConfig": {
+				"defaults": {
+					"mappings": [
+						{ "type": "value", "options": { "0": { "text": "Hors ligne", "color": "red" }, "1": { "text": "En ligne", "color": "green" } } }
+					]
+				},
+				"overrides": []
+			},
+			"gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
+			"id": 7,
+			"options": { "showValue": "never" },
+			"targets": [{ "expr": "scubanion_terminal_online", "legendFormat": "{{code}}", "refId": "A" }],
+			"title": "Signal de vie par borne (BOR-08)",
+			"type": "state-timeline"
 		}
 	],
 	"schemaVersion": 39,

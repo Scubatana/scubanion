@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReportStatus;
-use App\Enums\TerminalStatus;
 use App\Models\Activity;
 use App\Models\Passage;
 use App\Models\Report;
@@ -26,11 +25,8 @@ class MetricsController extends Controller
 		$usersIncomplete = User::whereNull('pseudo')->count();
 		$stepsToday = (int) Activity::whereDate('day', now()->toDateString())->sum('steps');
 		$passagesTotal = Passage::count();
-		$terminalsTotal = Terminal::count();
-		$terminalsOnline = Terminal::where('status', TerminalStatus::Online)
-			->whereNotNull('last_seen_at')
-			->where('last_seen_at', '>', now()->subSeconds((int) config('bornes.offline_after_seconds')))
-			->count();
+		$terminals = Terminal::orderBy('code')->get(['id', 'code', 'status', 'last_seen_at']);
+		$terminalsOnline = $terminals->filter(fn (Terminal $terminal) => $terminal->isOnline())->count();
 		$activeQuests = UserQuest::activeAt(now())->count();
 		$pendingReports = Report::where('status', ReportStatus::Pending)->count();
 
@@ -47,10 +43,13 @@ class MetricsController extends Controller
 			"scubanion_passages_total {$passagesTotal}",
 			'# HELP scubanion_terminals_total Nombre total de bornes déclarées.',
 			'# TYPE scubanion_terminals_total gauge',
-			"scubanion_terminals_total {$terminalsTotal}",
+			"scubanion_terminals_total {$terminals->count()}",
 			'# HELP scubanion_terminals_online Nombre de bornes actuellement en ligne.',
 			'# TYPE scubanion_terminals_online gauge',
 			"scubanion_terminals_online {$terminalsOnline}",
+			'# HELP scubanion_terminal_online Signal de vie de chaque borne : 1 en ligne, 0 hors ligne (BOR-08).',
+			'# TYPE scubanion_terminal_online gauge',
+			...$terminals->map(fn (Terminal $terminal) => sprintf('scubanion_terminal_online{code="%s"} %d', $terminal->code, $terminal->isOnline() ? 1 : 0))->all(),
 			'# HELP scubanion_active_quests_total Nombre de quêtes joueurs actuellement actives.',
 			'# TYPE scubanion_active_quests_total gauge',
 			"scubanion_active_quests_total {$activeQuests}",
