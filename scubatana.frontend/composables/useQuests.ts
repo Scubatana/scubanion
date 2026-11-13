@@ -1,5 +1,5 @@
 import { Preferences } from "@capacitor/preferences";
-import { ApiError } from "~/utils/apiError";
+import { ApiError, isTransientError } from "~/utils/apiError";
 import { isPending, parseQueue, withAction, withoutAction, type PendingAction } from "~/utils/questQueue";
 import { actionMessage } from "~/utils/quests";
 import type { ClaimableReward, Companion, PlayerQuest, QuestStatus } from "~/utils/types";
@@ -88,7 +88,7 @@ export function useQuests() {
 					await send(action);
 					clearFlushError(action.taskId);
 				} catch (error) {
-					if (error instanceof ApiError && error.status === 0) {
+					if (isTransientError(error)) {
 						return;
 					}
 
@@ -121,7 +121,7 @@ export function useQuests() {
 		try {
 			return await send(action);
 		} catch (error) {
-			if (!queueable || !(error instanceof ApiError) || error.status !== 0) {
+			if (!queueable || !isTransientError(error)) {
 				throw error;
 			}
 
