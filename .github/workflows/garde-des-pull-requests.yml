@@ -7,8 +7,8 @@ on:
     branches: [dev, master, main]
 
 permissions:
-  actions: write
-  contents: write
+  contents: read
+  issues: write
   pull-requests: write
 
 concurrency:
@@ -52,7 +52,7 @@ jobs:
           exit 1
 
   update:
-    name: Mise à jour de la branche
+    name: Branche à jour
     if: github.event_name == 'push' || contains(fromJSON('["dev", "master", "main"]'), github.event.pull_request.base.ref)
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +60,7 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: .github/scripts
-      - name: Mettre la ou les PR à jour avec leur branche cible
+      - name: Prévenir les PR en retard sur leur branche cible
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}

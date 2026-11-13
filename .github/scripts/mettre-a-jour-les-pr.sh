@@ -34,24 +34,8 @@ forget() {
 	fi
 }
 
-wait_for_new_head() {
-	local number=$1 previous=$2 current
-
-	for _ in $(seq 1 30); do
-		current=$(gh pr view "$number" --json headRefOid --jq .headRefOid)
-
-		if [ "$current" != "$previous" ]; then
-			return 0
-		fi
-
-		sleep 2
-	done
-
-	return 1
-}
-
 update() {
-	local number=$1 state head sha base cross base_sha behind answer
+	local number=$1 state head sha base cross base_sha behind
 
 	IFS=$'\t' read -r state head sha base cross < <(gh pr view "$number" --json state,headRefName,headRefOid,baseRefName,isCrossRepository --jq '[.state, .headRefName, .headRefOid, .baseRefName, .isCrossRepository] | @tsv')
 
@@ -79,27 +63,17 @@ update() {
 		return 0
 	fi
 
-	if ! answer=$(gh api -X PUT "repos/$GH_REPO/pulls/$number/update-branch" -f expected_head_sha="$sha" 2>&1); then
-		if grep -qi "workflow" <<< "$answer"; then
-			say "$number" "La branche n'a pas pu être mise à jour automatiquement : \`$base\` modifie des fichiers de \`.github/workflows\`, ce que l'automatisation n'a pas le droit de faire. Fusionne \`$base\` dans ta branche (\`git fetch origin\` puis \`git merge origin/$base\` et \`git push\`). La fusion reste bloquée tant que la branche n'est pas à jour."
-		elif grep -qi "conflict" <<< "$answer"; then
-			say "$number" "PR refusée : sa branche est en conflit avec \`$base\`. Fusionne \`$base\` dans ta branche, résous les conflits puis pousse. La fusion reste bloquée tant que la branche n'est pas à jour."
-		else
-			say "$number" "La branche n'a pas pu être mise à jour automatiquement avec \`$base\`. Fusionne \`$base\` dans ta branche puis pousse. La fusion reste bloquée tant que la branche n'est pas à jour."
-		fi
+	# Pas de mise à jour par le bot : le commit de merge doit être celui de l'auteur, Git est noté sur GitLab IUT.
+	say "$number" "Ta branche a $behind commit(s) de retard sur \`$base\`. Mets-la à jour toi-même, pour que le commit de merge te soit attribué sur GitLab IUT (Git y est noté) :
 
-		echo "PR #$number non mise à jour : $answer"
-		return 1
-	fi
+\`\`\`bash
+git fetch origin
+git merge origin/$base
+git push
+\`\`\`
 
-	if ! wait_for_new_head "$number" "$sha"; then
-		echo "PR #$number : la mise à jour n'est pas encore visible."
-		return 1
-	fi
-
-	gh workflow run tests.yml --ref "$head"
-	forget "$number"
-	echo "PR #$number mise à jour avec $base, tests relancés."
+La fusion reste bloquée tant que la branche n'est pas à jour. Le bouton « Update branch » de GitHub marche aussi, mais il signe le commit avec l'email de ton compte GitHub, qui n'est pas forcément celui de GitLab IUT."
+	echo "PR #$number : $behind commit(s) de retard sur $base, auteur prévenu."
 }
 
 if [ -n "${1:-}" ]; then

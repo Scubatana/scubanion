@@ -45,7 +45,7 @@ gh pr create --base dev --fill
 1. La PR vise `dev` et suit le modèle proposé (résumé, exigences `APP-`, `PAS-`, `BOR-`, `BCK-` concernées, vérification).
 2. La CI doit être verte : `Tests API` et `Tests app` sont obligatoires, `Tests API MariaDB` et `Tests borne` doivent passer aussi.
 3. Un autre membre relit et approuve **le dernier push**. Tous les fils de revue sont résolus.
-4. La garde fusionne automatiquement `dev` dans la branche si elle a pris du retard. Si `dev` touche `.github/workflows`, il faut le faire à la main : `git merge origin/dev` puis `git push`.
+4. Si `dev` a avancé entre-temps, la garde le signale en commentaire et la fusion reste bloquée : l'auteur fusionne `dev` dans sa branche (`git fetch origin`, `git merge origin/dev`, `git push`). C'est voulu : le commit de merge est ainsi le sien, et il compte dans son historique Git sur GitLab IUT, alors qu'un commit fait par le bot ne compte pour personne.
 5. L'auteur fusionne, la branche est supprimée.
 
 ## Release
