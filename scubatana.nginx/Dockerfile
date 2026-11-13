@@ -1,6 +1,7 @@
 FROM nginx:1.27-alpine
 
 COPY conf/default.conf /etc/nginx/conf.d/default.conf
+COPY conf/metrics.conf /etc/nginx/conf.d/metrics.conf
 COPY --from=backend public /var/www/html/public
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
