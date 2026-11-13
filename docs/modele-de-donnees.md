@@ -35,6 +35,8 @@ erDiagram
     users ||--o{ friendships : "ajoute"
     users ||--o{ passages : "passe à"
     users ||--o{ encounters : "rencontre"
+    users ||--o{ blocks : "bloque un joueur"
+    users ||--o{ reports : "signale un joueur"
 ```
 
 Tables antérieures, non redessinées : `users` (avec `friend_code`, code d'invitation unique de 8 caractères), `companions`, `activities` (les pas d'un jour, par téléphone), et les tables techniques `login_codes`, `personal_access_tokens`, `sessions`, `cache`, `jobs`.
@@ -73,13 +75,15 @@ Les types, les textes, les conditions, les lieux et les bornes sont des **donné
 | `friendships` | Les demandes et liens d'amitié (APP-07) | `user_id` (demandeur) et `friend_id` (invité), `status` (`pending` ou `accepted`), `accepted_at`. Unique sur `(user_id, friend_id)` et consulté dans les deux sens par `Friendship::between()`. |
 | `passages` | Les passages validés en borne (BOR-02, BCK-04) | `terminal_id`, `user_id`, `token_hash` (empreinte SHA-256 unique du jeton NFC pour empêcher tout rejeu), `scanned_at`, `reward_xp` (0 si le joueur est déjà passé sur cette borne le même jour). |
 | `encounters` | Deux joueurs qui se sont croisés (APP-08) | Voir ci-dessous. |
+| `blocks` | Un joueur qui en bloque un autre (APP-07) | `user_id` (celui qui bloque), `blocked_id` (le joueur bloqué). Unique par paire ; le modèle `Block` refuse qu'un joueur se bloque lui-même. `Block::between($a, $b)` trouve un blocage dans un sens ou dans l'autre. À ne pas confondre avec `quest_bans`, l'anti-triche. Règles dans [api/securite.md](api/securite.md). |
+| `reports` | Un joueur qui en signale un autre (APP-07) | `user_id` (celui qui signale), `reported_id` (le joueur signalé), `reported_pseudo` (son pseudo au moment du signalement), `reason` (`pseudo`, `behavior`, `other` : enum `ReportReason`), `comment` (facultatif, 500 caractères), `status` (`pending` puis `reviewed` : enum `ReportStatus`). Pas d'unicité : un joueur peut être signalé plusieurs fois. Le modèle `Report` refuse qu'un joueur se signale lui-même ; `Report::pending()` liste ceux à examiner. |
 
 ## Règles garanties par la base et les modèles
 
 - **Rien d'utilisé ne disparaît.** Une quête, une tâche, une récompense, un lieu, un type ou un accessoire déjà utilisés ne peuvent pas être supprimés : clés étrangères en `restrict`. Une quête sans joueur se supprime seulement après ses récompenses et ses tâches, pour qu'un clic n'efface pas 40 tâches d'un coup. Un accessoire qu'on ne veut plus proposer passe en `active = false`.
 - **Une quête commencée ne change plus de structure.** Dès qu'un joueur l'a reçue, seuls son nom, sa description, son icône et son statut (pour l'archiver) peuvent changer, et pour ses tâches seule la description. Ajouter, retirer ou modifier une tâche ou une récompense lève une erreur (`Quest`, `QuestTask` et `QuestReward`).
-- **Supprimer un compte efface tout ce qui le concerne** : ses quêtes, leur avancement, ses récompenses, ses accessoires, sa position, ses blocages, ses amitiés, ses passages et ses rencontres (en cascade).
-- **Un blocage ne gêne que la localisation.** `User::isBannedFromLocationTasks()` dit si un blocage est en cours.
+- **Supprimer un compte efface tout ce qui le concerne** : ses quêtes, leur avancement, ses récompenses, ses accessoires, sa position, ses blocages anti-triche, ses amitiés, ses passages, ses rencontres, ainsi que les blocages entre joueurs dans les deux sens (en cascade). **Seule exception : les signalements** (`reports`). Pour la modération, ils restent : `user_id` et `reported_id` passent à `null` (`nullOnDelete`), et `reported_pseudo` garde le nom du joueur signalé.
+- **Un blocage anti-triche (`quest_bans`) ne gêne que la localisation.** `User::isBannedFromLocationTasks()` dit si un blocage est en cours.
 
 ## Rencontres
 
