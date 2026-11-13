@@ -22,10 +22,15 @@ Les messages de `errors` sont en français et peuvent être affichés tels quels
 
 ## Domaines
 
-Un fichier par domaine dans ce dossier. Les premiers :
+Un fichier par domaine dans ce dossier :
 
-- [Connexion et compte](compte.md) : code par email, profil, joueur.
-- [Compagnon](compagnon.md) : apparence et catalogue.
-- [Pas](pas.md) : envoi des pas, historique, objectif.
+- [Connexion et compte](compte.md) : code par email, profil, joueur, suppression du compte.
+- [Compagnon](compagnon.md) : apparence, progression et catalogue des accessoires.
+- [Pas](pas.md) : envoi des pas, historique, objectif quotidien.
+- [Quêtes](quetes.md) : position du joueur, liste des quêtes, validation des tâches, récupération des récompenses.
+- [Carte](carte.md) : lieux et bornes dans un rectangle géographique, types de lieux.
+- [Amis](amis.md) : code d'ami, demandes reçues et envoyées, activité des amis.
+- [Bornes](bornes.md) : validation d'un passage par jeton NFC signé, historique des passages.
+- [Sécurité entre joueurs](securite.md) : bloquer, débloquer et signaler un joueur.
 
-Chaque nouvelle fonctionnalité (amis, quêtes, bornes…) ajoute son propre fichier, sans toucher à cette liste, pour que les PR en parallèle ne se gênent pas.
+Chaque nouvelle fonctionnalité (rencontres, équipes…) ajoute son propre fichier dans ce dossier, pour que les PR en parallèle ne se gênent pas.
