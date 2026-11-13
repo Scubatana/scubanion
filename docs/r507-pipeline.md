@@ -7,7 +7,7 @@ Ce document décrit la chaîne d'intégration et de déploiement continu du proj
 - **Dépôt de travail** : GitHub (`Scubatana/scubanion`). Les règles complètes sont dans [CONTRIBUTING.md](../CONTRIBUTING.md).
   - `dev` : branche d'intégration et branche par défaut. Chaque tâche part de `dev` sur une branche courte (`feature/...`, `fix/...`, `docs/...`, `ci/...`, `build/...`) et y revient par PR : relecture d'un autre membre, CI verte, commit de merge (pas de squash ni de rebase).
   - `master` : la version livrée. Elle ne reçoit que des PR `dev` → `master`, une par version. La fusion crée le tag `vX.Y.Z` et la release GitHub (`.github/workflows/release.yml`), avec un numéro calculé depuis les Conventional Commits.
-  - `garde-des-pull-requests.yml` redirige vers `dev` toute PR qui vise `master` depuis une autre branche que `dev`, et tient les PR à jour avec leur branche cible.
+  - `garde-des-pull-requests.yml` redirige vers `dev` toute PR qui vise `master` depuis une autre branche que `dev`, et signale en commentaire une PR en retard sur sa branche cible : l'auteur fusionne lui-même, pour que le commit de merge lui soit attribué (Git est noté sur GitLab IUT).
 - **Miroir évalué** : GitLab IUT, synchronisé automatiquement depuis GitHub (`.github/workflows/miroir-gitlab.yml`) : branches copiées à l'identique, tags ajoutés sans jamais être supprimés. Son runner (`picsou06`) exécute le pipeline officiel.
 - **Commits** : format Conventional Commits en français (`feat:`, `fix:`, `docs:`, `ci:`, `test:`, `build:`).
 
