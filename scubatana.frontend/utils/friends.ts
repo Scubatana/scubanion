@@ -12,8 +12,8 @@ export interface FriendPlayer {
 	id: number;
 	pseudo: string;
 	companion: FriendCompanion | null;
-	today: Today;
-	streak: Streak;
+	today: Today | null;
+	streak: Streak | null;
 }
 
 export interface Friendship {
@@ -67,8 +67,8 @@ export function formatFriendCode(code: string): string {
 	return `${clean.slice(0, 4)}-${clean.slice(4)}`;
 }
 
-export function friendGoalFill(today: Today): string {
-	if (today.goal <= 0) {
+export function friendGoalFill(today: Today | null): string {
+	if (today === null || today.goal <= 0) {
 		return "0%";
 	}
 
@@ -77,7 +77,7 @@ export function friendGoalFill(today: Today): string {
 
 export function sortFriendsBySteps(friends: Friendship[]): Friendship[] {
 	return [...friends].sort((first, second) => {
-		const diff = second.player.today.steps - first.player.today.steps;
+		const diff = (second.player.today?.steps ?? -1) - (first.player.today?.steps ?? -1);
 
 		if (diff !== 0) {
 			return diff;
