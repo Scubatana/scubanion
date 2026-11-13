@@ -24,6 +24,9 @@ public class NfcPlugin extends Plugin {
 	private static final String TAG_HOST = "scuba.picsou06.fr";
 	private static final String TAG_PATH_PREFIX = "/b/";
 
+	// Survit à la recréation de l'activité (rotation) : getIntent() rend alors encore l'intent du scan de départ.
+	private static String lastDeliveredUrl;
+
 	private NfcAdapter nfcAdapter;
 	private String pendingUrl;
 
@@ -31,10 +34,13 @@ public class NfcPlugin extends Plugin {
 	public void load() {
 		nfcAdapter = NfcAdapter.getDefaultAdapter(getContext());
 		Activity activity = getActivity();
-		String initialUrl = activity == null ? null : extractUrl(activity.getIntent());
+		Intent intent = activity == null ? null : activity.getIntent();
+		String initialUrl = extractUrl(intent);
+		boolean fromRecents = intent != null && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0;
 
-		if (initialUrl != null) {
+		if (initialUrl != null && !fromRecents && !initialUrl.equals(lastDeliveredUrl)) {
 			pendingUrl = initialUrl;
+			lastDeliveredUrl = initialUrl;
 		}
 	}
 
@@ -64,6 +70,8 @@ public class NfcPlugin extends Plugin {
 		if (url == null) {
 			return;
 		}
+
+		lastDeliveredUrl = url;
 
 		if (hasListeners("tag")) {
 			JSObject data = new JSObject();
