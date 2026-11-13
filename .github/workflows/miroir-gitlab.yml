@@ -69,5 +69,10 @@ jobs:
           GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$ASKPASS_GITHUB" \
             git clone --bare "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" mirror.git
 
+          # Branches : copie exacte, suppressions comprises. Tags : ajoutés, jamais forcés ni supprimés,
+          # pour ne pas effacer ceux que GitLab crée lui-même (job release).
           GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$ASKPASS_GITLAB" \
-            git -C mirror.git push --mirror "$GITLAB_MIRROR_URL"
+            git -C mirror.git push --prune "$GITLAB_MIRROR_URL" '+refs/heads/*:refs/heads/*'
+
+          GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$ASKPASS_GITLAB" \
+            git -C mirror.git push "$GITLAB_MIRROR_URL" 'refs/tags/*:refs/tags/*'
