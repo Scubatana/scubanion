@@ -128,8 +128,8 @@ class FriendshipService
 				'accessories' => $companion->accessories ?? [],
 				'level' => $companion->level,
 			],
-			'today' => $this->steps->today($friend),
-			'streak' => $this->steps->streak($friend),
+			'today' => $friend->share_steps ? $this->steps->today($friend) : null,
+			'streak' => $friend->share_streak ? $this->steps->streak($friend) : null,
 		];
 	}
 
