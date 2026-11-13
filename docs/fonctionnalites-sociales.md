@@ -328,7 +328,7 @@ Proposition, à affiner au moment du développement. Chaque table est supprimée
 
 | Table                               | Contenu                                                                       |
 | ----------------------------------- | ----------------------------------------------------------------------------- |
-| `privacy_settings`                | Les réglages de partage du § 2                                              |
+| `users.share_steps`, `users.share_streak` | Fait : les réglages de partage du § 2 déjà en place sont deux colonnes de `users` (faux par défaut, `PUT /me/privacy`), pas une table à part. Les réglages suivants (fil d'activité, succès, classement) s'y ajouteront |
 | `blocks`, `reports`             | Blocages ; signalements avec motif et état d'examen                          |
 | `cheers`                          | Coups de patte : qui, à qui, quel jour (unique par paire et par jour)        |
 | `squads`, `squad_members`       | Chef, début, fin ; membres, invitation ou scan, arrivée, départ, exclusion |

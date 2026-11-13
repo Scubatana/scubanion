@@ -112,7 +112,7 @@ class FriendsTest extends TestCase
 		$this->assertSame(1, Friendship::count());
 	}
 
-	public function test_friends_see_each_other_s_companion_and_steps_of_the_day(): void
+	public function test_friends_hide_steps_and_streak_by_default_and_share_them_when_opted_in(): void
 	{
 		Companion::factory()->for($this->yanis)->create(['name' => 'Bulle', 'level' => 3]);
 		Activity::factory()->for($this->yanis)->create(['day' => '2026-10-13', 'steps' => 4200]);
@@ -128,8 +128,21 @@ class FriendsTest extends TestCase
 			->assertJsonPath('friends.0.player.id', $this->yanis->id)
 			->assertJsonPath('friends.0.player.companion.name', 'Bulle')
 			->assertJsonPath('friends.0.player.companion.level', 3)
+			->assertJsonPath('friends.0.player.today', null)
+			->assertJsonPath('friends.0.player.streak', null);
+
+		$this->as($this->yanis)->putJson('/api/me/privacy', [
+			'share_steps' => true,
+			'share_streak' => true,
+		])->assertOk()
+			->assertJsonPath('player.privacy.share_steps', true)
+			->assertJsonPath('player.privacy.share_streak', true);
+
+		$this->as($this->lea)->getJson('/api/me/friends')
+			->assertOk()
 			->assertJsonPath('friends.0.player.today.steps', 4200)
-			->assertJsonPath('friends.0.player.today.goal', 5000);
+			->assertJsonPath('friends.0.player.today.goal', 5000)
+			->assertJsonPath('friends.0.player.streak.days', 0);
 
 		$this->getJson('/api/me')->assertJsonPath('player.stats.friends_count', 1);
 	}
