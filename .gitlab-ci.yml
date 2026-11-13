@@ -37,6 +37,7 @@ test:backend:
   extends: .backend
   stage: test
   script:
+    - (pecl install pcov > /dev/null && docker-php-ext-enable pcov) || echo "pcov indisponible : tests lancés sans couverture"
     - composer install --no-interaction --no-progress --prefer-dist
     - cp .env.example .env
     - php artisan key:generate
@@ -86,7 +87,7 @@ test:frontend:
 sonarqube:
   stage: quality
   image:
-    name: sonarsource/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0
     entrypoint: [""]
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
