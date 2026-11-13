@@ -1,0 +1,21 @@
+# Référents par lot (cahier des charges § 7) : GitHub leur demande automatiquement la relecture
+# des PR qui touchent leur partie. Ce n'est pas bloquant : n'importe quel autre membre peut approuver.
+
+/scubatana.frontend/         @Picsou06
+/scubatana.backend/          @CodeByHaamza
+/scubatana.mariadb/          @CodeByHaamza
+/docs/api/                   @CodeByHaamza
+/docs/modele-de-donnees.md   @CodeByHaamza
+/docs/regles-du-jeu.md       @CodeByHaamza
+/scubatana.borne/            @shalee-pnt
+/scubatana.mosquitto/        @shalee-pnt
+/docs/mqtt.md                @shalee-pnt
+/docs/borne-materiel.md      @shalee-pnt
+/scubatana.prometheus/       @shalee-pnt
+/scubatana.grafana/          @shalee-pnt
+/.github/                    @Tiretinium
+/.gitlab-ci.yml              @Tiretinium
+/sonar-project.properties    @Tiretinium
+/docker-compose.yml          @Tiretinium @Picsou06
+/scubatana.nginx/            @Tiretinium @Picsou06
+/deploy/                     @Picsou06
