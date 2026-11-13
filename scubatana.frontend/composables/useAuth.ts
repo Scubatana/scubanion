@@ -71,6 +71,7 @@ export function useAuth() {
 		await useSteps().discard();
 		await useQuests().discard();
 		await useConsents().discard();
+		await usePassages().discard();
 		await session.clear();
 		await forgetPendingEmail();
 		player.reset();
