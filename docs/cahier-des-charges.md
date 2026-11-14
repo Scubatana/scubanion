@@ -169,20 +169,20 @@ flowchart LR
 
 | Brique                | Techno                                                   | Pourquoi                                                                                                | État            |
 | --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
-| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas, quêtes |
-| Borne                 | ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231, anneau de LED | Vrai système cyber-physique, programmé par l'équipe. Détail dans [borne-materiel.md](borne-materiel.md) | Matériel choisi (D3), à commander |
+| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas, quêtes, amis (QR, partage choisi), carte, passages en borne par NFC avec file hors ligne |
+| Borne                 | ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231, anneau de LED | Vrai système cyber-physique, programmé par l'équipe. Détail dans [borne-materiel.md](borne-materiel.md) | Carte reçue et brochage relevé ; firmware : jeton signé, MQTT (signal de vie, testament, affichage), écran. Restent l'écriture du jeton dans le tag NFC (ST25DV), l'anneau de LED et l'horloge DS3231 ; TLS et mise au repos de l'écran en relecture (#69, #70) |
 | API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Connexion, profil, compagnon, pas, quêtes, carte, amis, passages en borne |
 | Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Joueurs, compagnons, pas, lieux, quêtes, récompenses, amitiés, bornes, passages |
-| Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | Abonné Laravel prêt, broker à conteneuriser |
-| Flux d'événements   | Kafka                                                    | Découpler la réception des événements des règles de jeu, pouvoir les rejouer (vu en R5.04)         | À évaluer (D5) |
-| Standard IoT          | oneM2M                                                   | Décrire les bornes selon un standard (vu en R5.04)                                                     | À évaluer (D5) |
+| Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | Mosquitto conteneurisé, un compte par borne, abonné Laravel `bornes:ecouter` |
+| Flux d'événements   | Kafka                                                    | Découpler la réception des événements des règles de jeu, pouvoir les rejouer (vu en R5.04)         | Écarté en v1 (D5) |
+| Standard IoT          | oneM2M                                                   | Décrire les bornes selon un standard (vu en R5.04)                                                     | Écarté en v1 (D5) |
 | Reverse proxy         | nginx                                                    | Point d'entrée HTTP unique                                                                             | Conteneur prêt  |
 | Admin BDD             | phpMyAdmin                                               | En développement uniquement                                                                            | Conteneur prêt  |
-| CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI et GitHub Actions en place |
-| Qualité              | SonarQube                                                | Exigé par R5.07                                                                                        | À faire (D7)    |
+| CI/CD                 | GitLab CI (runner Docker du VPS), GitHub Actions         | Dépôt de travail sur GitHub, miroir évalué sur GitLab IUT (§ 6.5)                                  | GitLab CI et GitHub Actions en place, miroir GitHub → GitLab prêt (secrets à renseigner, #68) |
+| Qualité              | SonarQube                                                | Exigé par R5.07                                                                                        | Job `sonarqube` prêt (couverture PHP et app, quality gate) ; variables du serveur à renseigner (D7) |
 | Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | Job prêt sur GitLab CI |
-| Hébergement          | VPS déployé par SSH depuis GitLab CI (Ansible optionnel) | Exigé par R5.07                                                                                        | VPS en place (`scuba.picsou06.fr`, D6) |
-| Monitoring            | Prometheus + Grafana (+ Alertmanager)                    | Pile vue en R5.07                                                                                       | À faire         |
+| Hébergement          | VPS déployé par SSH depuis GitLab CI (Ansible optionnel) | Exigé par R5.07                                                                                        | VPS en place (`scuba.picsou06.fr`, D6) ; playbook Ansible de repli dans `deploy/` |
+| Monitoring            | Prometheus + Grafana (+ Alertmanager)                    | Pile vue en R5.07                                                                                       | `/metrics`, Prometheus et Grafana dans le compose, signal de vie de chaque borne ([r507-pipeline.md](r507-pipeline.md)) |
 | Passage à l'échelle | Docker Swarm (réplicas de l'API)                        | Bonus R5.07                                                                                             | Bonus            |
 
 ## 5. Exigences fonctionnelles
@@ -212,12 +212,12 @@ flowchart LR
 
 - [x] **BOR-01** · Must : Matériel choisi et justifié : microcontrôleur, puce NFC, écran (D3). Choix, commande et montage dans [borne-materiel.md](borne-materiel.md).
 - [ ] **BOR-02** · Must : Passage prouvé par NFC (D2) : la borne transmet au téléphone un jeton signé avec son propre secret, horodaté et à usage unique. Le joueur est identifié par sa session dans l'app : aucun identifiant de joueur ne passe par la borne.
-- [ ] **BOR-03** · Must : Communication avec le serveur en MQTT, via Wi-Fi : signal de vie de la borne, et réponse du serveur à afficher après chaque passage.
+- [x] **BOR-03** · Must : Communication avec le serveur en MQTT, via Wi-Fi : signal de vie de la borne, et réponse du serveur à afficher après chaque passage. Firmware : signal de vie et testament sur `etat`, affichage reçu sur `affichage` et dessiné à l'écran ([mqtt.md](mqtt.md#côté-borne)).
 - [ ] **BOR-04** · Must : Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur.
 - [ ] **BOR-05** · Should : Événements limités dans le temps (bonus d'un week-end, skin de saison).
 - [ ] **BOR-06** · Should : Jeux et énigmes à résoudre sur la borne.
 - [ ] **BOR-07** · Should : Collabs : une borne chez un partenaire débloque un contenu exclusif (ex. Decathlon Châtelet-les-Halles).
-- [ ] **BOR-08** · Must : Signal de vie envoyé au serveur, visible dans le monitoring.
+- [x] **BOR-08** · Must : Signal de vie envoyé au serveur, visible dans le monitoring. Série `scubanion_terminal_online{code}` sur `/metrics` et panneau « Signal de vie par borne » dans Grafana.
 - [ ] **BOR-09** · Must : Mode hors ligne : la borne fonctionne sans réseau (le jeton ne demande que son horloge, tenue à l'heure par NTP), et le téléphone garde le jeton puis l'envoie au serveur dans les 24 h.
 
 Passage à une borne : la borne donne un jeton signé au téléphone par NFC, le téléphone l'envoie à l'API (`POST /api/me/passages`), l'API le vérifie et répond à la borne par MQTT. Le protocole complet (format du jeton, messages) est dans [mqtt.md](mqtt.md).
@@ -235,8 +235,8 @@ Topics MQTT :
 - [x] **BCK-02** · Must : Base MariaDB : infos joueur, amitiés, compagnon, et le reste du modèle ci-dessous.
 - [x] **BCK-03** · Must : Règles de jeu calculées côté serveur (XP, niveaux, validation des quêtes et des passages), avec des garde-fous simples contre la triche (plafond de pas par heure, cohérence des positions).
 - [x] **BCK-04** · Must : Abonné MQTT qui suit le signal de vie des bornes ; le serveur vérifie chaque passage (jeton signé, à usage unique) et répond à la borne par MQTT.
-- [ ] **BCK-05** · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5).
-- [ ] **BCK-06** · Could : Ressources oneM2M pour décrire les bornes (D5).
+- [ ] **BCK-05** · Should : Kafka pour le flux d'événements (pas, passages, rencontres), si l'intérêt est démontré (D5). Écarté en v1, avec le seuil de bascule : [r504-justifications.md](r504-justifications.md#2-décision-d5--pourquoi-apache-kafka-et-onem2m-ne-sont-pas-retenus-en-v1).
+- [ ] **BCK-06** · Could : Ressources oneM2M pour décrire les bornes (D5). Écarté en v1 : [r504-justifications.md](r504-justifications.md#2-décision-d5--pourquoi-apache-kafka-et-onem2m-ne-sont-pas-retenus-en-v1).
 - [ ] **BCK-07** · Could : Application web de consultation (compagnon, historique, quêtes), construite à partir des maquettes de `scubatana.demo`.
 - [ ] **BCK-08** · Could : Back-office pour créer quêtes, événements, skins et partenaires.
 
@@ -280,10 +280,10 @@ Pipeline de déploiement continu exigé :
 - [x] 5. Pouvoir lancer l'application avec un fichier docker-compose.
 - [ ] 6. Déployer automatiquement sur Azure ou ailleurs (Ansible possible pour configurer l'hôte).
 - [ ] 7. *Bonus* : faire passer à l'échelle les services qui en ont besoin.
-- [ ] 8. Mettre en place une pile de monitoring.
+- [x] 8. Mettre en place une pile de monitoring : `/metrics`, Prometheus et Grafana ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)).
 - [x] Stratégie Git définie et documentée.
 - [x] Déclencheurs du pipeline définis et documentés.
-- [ ] Documentation qui accompagne le pipeline.
+- [x] Documentation qui accompagne le pipeline ([r507-pipeline.md](r507-pipeline.md), [CONTRIBUTING.md](../CONTRIBUTING.md)).
 
 Grille d'évaluation, à relire avant le rendu :
 
@@ -301,9 +301,9 @@ Grille d'évaluation, à relire avant le rendu :
   - [ ] Images Docker de qualité : taille réduite, pas d'IP en dur.
   - [ ] Rapports SonarQube au vert.
 - **Déploiement**
-  - [ ] docker-compose de qualité (pas d'IP en dur, réseaux) et fichiers Ansible.
+  - [x] docker-compose de qualité (pas d'IP en dur, réseaux) et fichiers Ansible ([docker-compose.yml](../docker-compose.yml), [deploy/](../deploy/)).
   - [ ] Mécanisme de passage à l'échelle expliqué, s'il est mis en place.
-  - [ ] Mécanisme de monitoring expliqué.
+  - [x] Mécanisme de monitoring expliqué ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)).
 
 ### 6.3 R5.04 - Programmation avancée (IoT)
 
@@ -426,10 +426,10 @@ Rôles proposés par l'équipe, confirmés (D9) : un référent par lot, et chaq
 | D2  | Identification à la borne                | **Tranchée (13/10) : le téléphone lit la borne.** La borne génère à chaque scan un jeton signé avec son secret, que le téléphone lit en NFC et envoie à l'API. Écartés : émulation de carte par le téléphone (HCE), tag NFC personnel | Moyen matériel côté borne tranché avec D3 : un tag NFC dynamique (ST25DV), réécrit par la borne à chaque scan | 11/10                                   |
 | D3  | Microcontrôleur de la borne              | **Tranchée (16/10) : ESP32**, sur une carte Freenove avec écran tactile de 2,8 pouces, avec un tag NFC dynamique ST25DV, une horloge DS3231 et un anneau de LED. Écartés : Arduino Uno, Raspberry Pi, lecteur PN532 en émulation de tag, lecteur RC522 | ESP32 : Wi-Fi intégré, peu cher, sobre. Arduino Uno : pas de réseau sans module. Raspberry Pi : plus cher et plus gourmand. Le RC522 ne sait que lire, il ne peut pas servir de tag. Justification et commande dans [borne-materiel.md](borne-materiel.md) | 11/10, pour avoir le temps de commander |
 | D4  | Compagnon : « relation » et « login » | **Tranchée : humeur et santé calculées sur l'activité.** Compagnon rattaché au compte du joueur (D1), niveau et XP gagnés par les pas, les quêtes et les bornes ; humeur et santé de 0 à 100 mises à jour selon le volume et la régularité des pas | Implémenté dans `CompanionProgressService` et détaillé dans [regles-du-jeu.md](regles-du-jeu.md)                                                             | 11/10                                   |
-| D5  | Kafka et oneM2M                           | Utilisés, ou écartés avec une justification écrite                                                                                          | R5.04 demande d'utiliser ce qui est vu en cours                                                                                                              | 31/10                                   |
+| D5  | Kafka et oneM2M                           | **Tranchée (13/11) : Kafka et oneM2M écartés en v1.** MQTT et REST JSON suffisent au parc visé ; le seuil de bascule et la passerelle possible sont écrits | Justification dans [r504-justifications.md § 2](r504-justifications.md#2-décision-d5--pourquoi-apache-kafka-et-onem2m-ne-sont-pas-retenus-en-v1) | 31/10, tranchée le 13/11 |
 | D6  | Hébergement                              | **Tranchée : VPS de l'équipe** (`scuba.picsou06.fr`), déployé en SSH depuis GitLab CI. Repli possible sur Azure for Students ou une VM de l'IUT | Déploiement continu configuré dans `.gitlab-ci.yml`                                                                                                          | 18/10                                   |
 | D7  | SonarQube                                 | Instance de l'IUT, auto-hébergé                                                                                                               |                                                                                                                                                              | 18/10                                   |
-| D8  | Miroir GitHub → GitLab                   | GitHub Action, double push depuis les postes                                                                                                    | Vérifier que le GitLab IUT est joignable depuis GitHub                                                                                                      | 04/10                                   |
+| D8  | Miroir GitHub → GitLab                   | **Tranchée (13/11) : GitHub Action** `miroir-gitlab.yml` : branches copiées à l'identique, tags ajoutés sans jamais être supprimés | Secrets `GITLAB_MIRROR_URL` et `GITLAB_MIRROR_TOKEN` à renseigner (#68) | 04/10, tranchée le 13/11 |
 | D9  | Rôles                                    | **Tranchée : rôles du § 7 confirmés.** Un référent par lot et une étape du pipeline par membre                                                  | Appliqué dans le plan d'action (§ 2.3)                                                                                                                       | 04/10                                   |
 | D10 | Stratégie Git                            | **Tranchée : GitHub Flow du § 6.5.** PR vers `master` fusionnées sans squash après relecture et CI verte                                        | Protections actives sur `master` et workflow `garde-des-pull-requests.yml`                                                                                   | 04/10                                   |
 
@@ -473,7 +473,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 
 Écarts à corriger :
 
-- [ ] Mettre en place le miroir GitHub → GitLab IUT (D8).
+- [ ] Mettre en place le miroir GitHub → GitLab IUT (D8). Workflow `miroir-gitlab.yml` en place ; reste à renseigner ses secrets (#68).
 - [ ] Chaque membre configure son identité Git : vrai nom et email du compte GitLab IUT.
 - [X] Retirer `docs/` du `.gitignore` pour versionner la documentation.
 - [x] Renommer Scoubanion en Scubanion : README, `capacitor.config.json`, `nuxt.config.ts`, `app.vue`, `strings.xml`, `APP_NAME` du back, maquettes. Le fichier et l'alias du keystore peuvent garder l'ancien nom.
@@ -489,6 +489,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.12    | 14/11/2026 | BOR-03 et BOR-08 cochés (14 *Must* sur 18) : la borne parle MQTT (signal de vie, affichage à l'écran) et chaque borne est suivie dans Grafana. Décisions D5 (Kafka et oneM2M écartés en v1) et D8 (miroir par GitHub Action) tranchées. Cases R5.07 de la supervision, de la documentation du pipeline et du compose cochées. État des briques du § 4 mis à jour |
 | 0.11    | 13/11/2026 | APP-03 et APP-06 cochés (12 *Must* sur 18), ainsi que APP-07 et APP-09 (*Should*) : compagnon animé, consentements RGPD, amis et carte sont sur `master` |
 | 0.10    | 02/11/2026 | Suivi synchronisé avec `master` : BCK-01, BCK-02 et BCK-03 cochés (10 *Must* sur 18), état des briques au § 4 mis à jour (quêtes, carte, amis, bornes, GitHub Actions, VPS), cases R5.07 et RGPD cochées aux § 6.2 et § 6.5, décisions D4, D6, D9 et D10 actées au § 8, renommage Scubanion et workflows cochés au § 11 |
 | 0.9     | 16/10/2026 | Décision D3 tranchée : ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231 et anneau de LED, détaillés dans `borne-materiel.md` (choix, commande, montage). BOR-01 coché, ligne « Borne » du § 4 et D2 mises à jour |
