@@ -7,7 +7,7 @@ Scubanion traite des données personnelles (position, pas, date de naissance, re
 - Dans l'onglet **Security** du dépôt GitHub, bouton **Report a vulnerability** (signalement privé) ;
 - ou directement à un membre de l'équipe, par message privé.
 
-Indiquer la brique concernée (app, API, borne, infrastructure), comment reproduire et l'impact estimé. L'équipe répond sous une semaine ; le correctif passe par une PR vers `dev` et sort à la release suivante.
+Indiquer la brique concernée (app, API, borne, infrastructure), comment reproduire et l'impact estimé. L'équipe répond sous une semaine ; le correctif passe par une PR vers `develop` et sort à la release suivante.
 
 ## Périmètre
 
