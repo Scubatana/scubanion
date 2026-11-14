@@ -1,10 +1,10 @@
 # Mises à jour de dépendances regroupées : au plus une PR par écosystème et par mois pour les versions
-# mineures et correctives, plus les correctifs de sécurité dès qu'ils sortent. Elles visent dev.
+# mineures et correctives, plus les correctifs de sécurité dès qu'ils sortent. Elles visent develop.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /scubatana.frontend
-    target-branch: dev
+    target-branch: develop
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
@@ -18,7 +18,7 @@ updates:
 
   - package-ecosystem: composer
     directory: /scubatana.backend
-    target-branch: dev
+    target-branch: develop
     schedule:
       interval: monthly
     open-pull-requests-limit: 3
@@ -32,7 +32,7 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
-    target-branch: dev
+    target-branch: develop
     schedule:
       interval: monthly
     commit-message:
