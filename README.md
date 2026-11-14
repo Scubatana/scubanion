@@ -133,7 +133,7 @@ Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de 
 | `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
 | `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
 | `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
-| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé sur `${MQTT_PORT}`. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
+| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé en TLS sur `${MQTT_TLS_PORT}` (8883) avec le certificat de `MQTT_TLS_DIR` ; le port 1883, en clair, reste interne. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
 | `bornes` | `scubanion-backend` | même image que `backend`, qui écoute les signaux de vie des bornes (`php artisan bornes:ecouter`) |
 
 ```bash
