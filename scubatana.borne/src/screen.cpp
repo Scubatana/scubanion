@@ -53,6 +53,16 @@ bool resting = false;
 
 int logoY = LOGO_TOP;
 
+// L'API LEDC a changé avec le core Arduino-ESP32 3.x (plateforme espressif32 7.x) : la broche remplace le canal.
+void setBacklight(uint8_t duty)
+{
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+	ledcWrite(PIN_BACKLIGHT, duty);
+#else
+	ledcWrite(BACKLIGHT_CHANNEL, duty);
+#endif
+}
+
 // Même couleur que BACKGROUND dans tools/logo.py, qui remplace la transparence du logo.
 uint16_t idleColor()
 {
@@ -131,9 +141,13 @@ void drawParagraph(const std::string& paragraph, const uint8_t* font, int center
 
 void begin()
 {
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+	ledcAttach(PIN_BACKLIGHT, BACKLIGHT_FREQUENCY, BACKLIGHT_RESOLUTION_BITS);
+#else
 	ledcSetup(BACKLIGHT_CHANNEL, BACKLIGHT_FREQUENCY, BACKLIGHT_RESOLUTION_BITS);
 	ledcAttachPin(PIN_BACKLIGHT, BACKLIGHT_CHANNEL);
-	ledcWrite(BACKLIGHT_CHANNEL, BACKLIGHT_FULL);
+#endif
+	setBacklight(BACKLIGHT_FULL);
 
 	bus.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
 	tft.init(240, 320);
@@ -182,7 +196,7 @@ void rest()
 	}
 
 	resting = true;
-	ledcWrite(BACKLIGHT_CHANNEL, BACKLIGHT_RESTING);
+	setBacklight(BACKLIGHT_RESTING);
 
 	if (idleShown && logoY != LOGO_TOP) {
 		moveLogo(LOGO_TOP);
@@ -196,7 +210,7 @@ void wake()
 	}
 
 	resting = false;
-	ledcWrite(BACKLIGHT_CHANNEL, BACKLIGHT_FULL);
+	setBacklight(BACKLIGHT_FULL);
 }
 
 bool isResting()
