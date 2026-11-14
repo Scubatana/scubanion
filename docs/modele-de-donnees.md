@@ -70,7 +70,7 @@ Les types, les textes, les conditions, les lieux et les bornes sont des **donné
 | `user_quest_tasks` | L'avancement d'une tâche | `value`, `baseline` (la valeur de départ au déblocage de l'étape, par exemple le total de pas du joueur à ce moment), `completed_at`. |
 | `user_quest_task_places` | Les lieux déjà validés pour une tâche | Unique par tâche et lieu : « passe par 3 arrêts de bus » demande 3 arrêts différents. |
 | `user_rewards` | Les récompenses gagnées | `xp` et `accessory_id` recopiés au moment du gain, `earned_at`, `claimed_at` (rempli quand le joueur appuie sur « Récupérer »). Unique par quête du joueur et récompense : une récompense ne se gagne qu'une fois. |
-| `user_accessories` | Les accessoires débloqués | `accessory_id`, `quest_id` (la quête qui l'a donné), `unlocked_at`. Unique par joueur et accessoire. |
+| `user_accessories` | Les accessoires débloqués | `accessory_id`, `quest_id` (la quête qui l'a donné, vide pour un palier de série de coups de patte), `unlocked_at`. Unique par joueur et accessoire. |
 | `user_positions` | La dernière position connue | Une seule ligne par joueur, remplacée à chaque nouvelle position : `latitude`, `longitude`, `accuracy_m`, `mocked` (position simulée signalée par Android), `recorded_at`. |
 | `quest_bans` | Les blocages sur les tâches de localisation | `reason`, `evidence` (JSON), `starts_at`, `ends_at`. |
 | `friendships` | Les demandes et liens d'amitié (APP-07) | `user_id` (demandeur) et `friend_id` (invité), `status` (`pending` ou `accepted`), `accepted_at`. Unique sur `(user_id, friend_id)` et consulté dans les deux sens par `Friendship::between()`. |

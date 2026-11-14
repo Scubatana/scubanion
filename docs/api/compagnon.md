@@ -20,7 +20,7 @@ Renvoyé par `GET /me`, `PUT /me/profile`, `PUT /me/companion`, `POST /me/steps`
 ```
 
 - `species`, `color` et `accessories` sont des identifiants du catalogue.
-- `unlocked_accessories` : les accessoires « à gagner » que le joueur a débloqués avec une récompense de quête.
+- `unlocked_accessories` : les accessoires « à gagner » que le joueur a débloqués, avec une récompense de quête ou un palier de série de coups de patte ([amis.md](amis.md)).
 - `level`, `xp`, `mood` et `health` sont calculés par le serveur à partir des pas, des récompenses de quête récupérées et des passages en borne ([../regles-du-jeu.md](../regles-du-jeu.md)). L'app ne fait que les afficher.
 - `xp` est l'XP gagnée dans le niveau en cours, `xp_for_next_level` celle qu'il faut pour passer au suivant.
 - `mood` et `health` vont de 0 à 100.
@@ -67,7 +67,7 @@ Tout ce qu'il faut pour dessiner un compagnon. L'app le charge une fois et le ga
 ```
 
 - Les accessoires viennent de la table `accessories` : un accessoire ajouté par un admin apparaît dans l'app sans nouvelle version. Un accessoire désactivé n'est plus envoyé.
-- `earnable` : l'accessoire se gagne par une récompense de quête. L'app l'affiche grisé tant qu'il n'est pas dans `unlocked_accessories`.
+- `earnable` : l'accessoire se gagne (récompense de quête, palier de série de coups de patte). L'app l'affiche grisé tant qu'il n'est pas dans `unlocked_accessories`.
 
 - `svg` est le dessin de la base. Il utilise les variables CSS `--companion-main`, `--companion-shade` et `--companion-light`, à remplir avec la couleur choisie.
 - Chaque accessoire se place sur l'ancre de sa catégorie (`anchors`, en pourcentage du dessin), recentré selon l'`origin` de la catégorie.

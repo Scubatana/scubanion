@@ -63,7 +63,13 @@ Accepte une invitation reçue. **409** si le joueur n'est pas celui qui a été 
 
 ## `POST /me/friends/{id}/cheer`
 
-Envoie un coup de patte à un ami ([fonctionnalites-sociales.md](../fonctionnalites-sociales.md) § 3.2). Pas de corps. Renvoie la vue des amis, où `cheer.sent` passe à `true`.
+Envoie un coup de patte à un ami ([fonctionnalites-sociales.md](../fonctionnalites-sociales.md) § 3.2). Pas de corps. Renvoie la vue des amis, où `cheer.sent` passe à `true`, avec en plus `unlocked` : les accessoires que ce coup de patte vient de débloquer pour le joueur (liste vide le plus souvent).
+
+```json
+{ "code": "K7Q2MZ4P", "friends": ["..."], "received": [], "sent": [], "unlocked": ["paw_scarf"] }
+```
+
+- Paliers de la série de coups de patte (§ 3.6) : à 7, 30 et 100 jours, `paw_scarf`, `paw_bucket_hat` puis `starfish_glasses` sont débloqués pour les deux amis, au coup de patte qui complète l'échange du jour. L'ami qui avait envoyé le sien en premier les reçoit aussi, sans `unlocked` dans sa réponse : il les voit dans `unlocked_accessories` de son compagnon. Un accessoire déjà débloqué n'est jamais redonné.
 
 - Un coup de patte par jour et par ami, heure de Paris : la contrainte unique de la table `cheers` le garantit, même si deux requêtes arrivent en même temps. Les deux amis peuvent s'en envoyer un chacun le même jour.
 - Chaque coup de patte reçu dans la journée ajoute 5 points à l'humeur du compagnon de l'ami, 15 au plus par jour, sans dépasser 100 ([regles-du-jeu.md](../regles-du-jeu.md)).
