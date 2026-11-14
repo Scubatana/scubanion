@@ -6,6 +6,7 @@ const props = defineProps<{
 	friendship: Friendship;
 	cheering: boolean;
 	cheerError: string;
+	unlocked?: string[];
 }>();
 
 const emit = defineEmits<{
@@ -20,6 +21,7 @@ const closeButton = ref<HTMLButtonElement | null>(null);
 const player = computed(() => props.friendship.player);
 const details = computed(() => (player.value.companion ? friendCompanionDetails(catalog.value, player.value.companion) : null));
 const since = computed(() => formatFriendSince(props.friendship.since));
+const unlockedAccessories = computed(() => (catalog.value?.accessories ?? []).filter((accessory) => props.unlocked?.includes(accessory.id)));
 const cheerStreak = computed(() => props.friendship.cheer.streak);
 const sharesEverything = computed(() => player.value.today !== null && player.value.streak !== null);
 
@@ -117,6 +119,17 @@ onMounted(() => closeButton.value?.focus());
 					<PawIcon />
 					{{ player.pseudo }} t'a envoyé un coup de patte aujourd'hui.
 				</p>
+				<div v-if="unlockedAccessories.length > 0" class="milestone" role="status">
+					<span class="milestone-title">Palier de série atteint !</span>
+					<span>{{ player.pseudo }} et toi gagnez :</span>
+					<ul class="showcase-list">
+						<li v-for="accessory in unlockedAccessories" :key="accessory.id" class="showcase-item">
+							<span class="showcase-thumb"><img :src="accessory.image" alt=""></span>
+							<span class="showcase-label">{{ accessory.label }}</span>
+						</li>
+					</ul>
+					<NuxtLink class="btn btn-ghost milestone-link" to="/compagnon">{{ unlockedAccessories.length > 1 ? "Les porter" : "Le porter" }} sur mon compagnon</NuxtLink>
+				</div>
 				<p class="cheer-streak-info">
 					<template v-if="cheerStreak.days > 0">
 						<StreakFlame :streak="cheerFlame(friendship.cheer)" :label="`Série de coups de patte de ${formatDays(cheerStreak.days)}`" />
@@ -287,6 +300,35 @@ onMounted(() => closeButton.value?.focus());
 	font-weight: 600;
 	color: var(--ocean-dark);
 	text-align: center;
+}
+
+.milestone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 14px 12px;
+	border: 2px solid var(--coral);
+	border-radius: var(--radius-sm);
+	background: var(--mist);
+	font-size: 14px;
+	color: var(--ocean-dark);
+	text-align: center;
+}
+
+.milestone-title {
+	font-family: 'Baloo 2', sans-serif;
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--coral);
+}
+
+.milestone .showcase-list {
+	justify-content: center;
+}
+
+.milestone-link {
+	width: auto;
 }
 
 .cheer-streak-info {

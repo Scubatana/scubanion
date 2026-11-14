@@ -324,4 +324,20 @@ describe("useFriends", () => {
 		expect(friends.code.value).toBe("");
 		expect(friends.loaded.value).toBe(false);
 	});
+
+	it("returns the accessories a cheer unlocked and makes them wearable at once", async () => {
+		usePlayer().companion.value = { name: "Bulle", species: "dog", color: "sand", accessories: [], unlocked_accessories: ["crown"], level: 3, xp: 0, xp_for_next_level: 100, mood: 50, health: 100 };
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { ...sampleView, unlocked: ["paw_scarf"] } });
+
+		const unlocked = await useFriends().cheer(12);
+
+		expect(unlocked).toEqual(["paw_scarf"]);
+		expect(usePlayer().companion.value?.unlocked_accessories).toEqual(["crown", "paw_scarf"]);
+	});
+
+	it("returns no accessory when the server unlocks none", async () => {
+		httpRequest.mockResolvedValueOnce({ status: 200, data: { ...sampleView, unlocked: [] } });
+
+		expect(await useFriends().cheer(12)).toEqual([]);
+	});
 });

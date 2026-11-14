@@ -20,6 +20,7 @@ const showingQr = ref(false);
 const addingFriend = ref(false);
 const profileId = ref<number | null>(null);
 const cheerError = ref("");
+const unlocked = ref<string[]>([]);
 const search = ref("");
 const content = ref<HTMLElement | null>(null);
 const NOTICE_DURATION_MS = 4000;
@@ -172,6 +173,7 @@ async function blockPlayer(playerId: number, pseudo: string): Promise<boolean> {
 function openProfile(id: number): void {
 	clearMessages();
 	cheerError.value = "";
+	unlocked.value = [];
 	profileId.value = id;
 	load().catch(() => undefined);
 }
@@ -187,7 +189,7 @@ async function cheerFromProfile(): Promise<void> {
 	cheerError.value = "";
 
 	try {
-		await cheer(friendship.id);
+		unlocked.value = await cheer(friendship.id);
 	} catch (error) {
 		cheerError.value = readableMessage(error);
 	} finally {
@@ -462,6 +464,7 @@ onMounted(refresh);
 			:friendship="profileFriendship"
 			:cheering="busy === `cheer-${profileFriendship.id}`"
 			:cheer-error="cheerError"
+			:unlocked="unlocked"
 			@close="profileId = null"
 			@cheer="cheerFromProfile"
 			@actions="actionsFromProfile"

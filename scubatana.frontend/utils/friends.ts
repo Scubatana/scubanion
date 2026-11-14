@@ -52,6 +52,10 @@ export interface FriendsView {
 	sent: FriendInvitation[];
 }
 
+export interface CheerResult extends FriendsView {
+	unlocked: string[];
+}
+
 export interface FriendQrToken {
 	token: string;
 	expires_at: string;

@@ -13,7 +13,11 @@ const catalog: CompanionCatalog = {
 	categories: [],
 	species: [{ id: "dog", label: "Chien", svg: "", anchors: {} }],
 	colors: [],
-	accessories: [{ id: "cap", label: "Casquette", category: "head", image: "/cap.png" }]
+	accessories: [
+		{ id: "cap", label: "Casquette", category: "head", image: "/cap.png" },
+		{ id: "paw_scarf", label: "Foulard de l'amitié", category: "neck", image: "/paw_scarf.png" },
+		{ id: "paw_bucket_hat", label: "Bob à pattes", category: "hat", image: "/paw_bucket_hat.png" }
+	]
 };
 
 function friendship(player: Partial<Friendship["player"]> = {}, cheer: Friendship["cheer"] = { sent: false, received: false, streak: { days: 0, record: 0 } }): Friendship {
@@ -32,7 +36,7 @@ function friendship(player: Partial<Friendship["player"]> = {}, cheer: Friendshi
 	};
 }
 
-function mount(value: Friendship, extra: { cheering?: boolean; cheerError?: string } = {}) {
+function mount(value: Friendship, extra: { cheering?: boolean; cheerError?: string; unlocked?: string[] } = {}) {
 	return mountSuspended(FriendProfileSheet, {
 		props: { friendship: value, cheering: false, cheerError: "", ...extra },
 		global: { stubs: { teleport: true } }
@@ -153,5 +157,30 @@ describe("FriendProfileSheet", () => {
 		const wrapper = await mount(friendship());
 
 		expect(wrapper.get(".cheer-streak-info").text()).toBe("Échangez un coup de patte le même jour pour lancer une série.");
+	});
+
+	it("celebrates a milestone with the accessories both friends just won", async () => {
+		const wrapper = await mount(friendship(), { unlocked: ["paw_scarf"] });
+		const milestone = wrapper.get(".milestone");
+
+		expect(milestone.attributes("role")).toBe("status");
+		expect(milestone.text()).toContain("Palier de série atteint !");
+		expect(milestone.text()).toContain("Yanis et toi gagnez :");
+		expect(milestone.text()).toContain("Foulard de l'amitié");
+		expect(milestone.get("a").attributes("href")).toBe("/compagnon");
+		expect(milestone.get("a").text()).toBe("Le porter sur mon compagnon");
+	});
+
+	it("speaks of several accessories when a long streak unlocks more than one", async () => {
+		const wrapper = await mount(friendship(), { unlocked: ["paw_scarf", "paw_bucket_hat"] });
+
+		expect(wrapper.findAll(".milestone .showcase-item")).toHaveLength(2);
+		expect(wrapper.get(".milestone a").text()).toBe("Les porter sur mon compagnon");
+	});
+
+	it("shows no milestone without a new accessory", async () => {
+		const wrapper = await mount(friendship());
+
+		expect(wrapper.find(".milestone").exists()).toBe(false);
 	});
 });

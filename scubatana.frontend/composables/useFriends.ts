@@ -1,4 +1,4 @@
-import { normalizeFriendCodeInput, type FriendInvitation, type FriendQrToken, type Friendship, type FriendsView } from "~/utils/friends";
+import { normalizeFriendCodeInput, type CheerResult, type FriendInvitation, type FriendQrToken, type Friendship, type FriendsView } from "~/utils/friends";
 
 export type InviteOutcome = "sent" | "mutual";
 
@@ -78,8 +78,20 @@ export function useFriends() {
 		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/accept`));
 	}
 
-	async function cheer(id: number): Promise<void> {
-		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/cheer`));
+	async function cheer(id: number): Promise<string[]> {
+		const { unlocked = [], ...view } = await useApi().post<CheerResult>(`/me/friends/${id}/cheer`);
+
+		applyView(view);
+
+		const companion = usePlayer().companion;
+
+		if (unlocked.length > 0 && companion.value !== null) {
+			const known = companion.value.unlocked_accessories ?? [];
+
+			companion.value = { ...companion.value, unlocked_accessories: [...known, ...unlocked.filter((code) => !known.includes(code))] };
+		}
+
+		return unlocked;
 	}
 
 	async function remove(id: number): Promise<void> {

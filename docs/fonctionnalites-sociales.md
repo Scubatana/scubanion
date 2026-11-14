@@ -27,7 +27,7 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 | Échanges d'objets entre joueurs                               | 5  | nouvelle exigence | Could               | À faire                                           |
 | Cadeaux entre amis                                            | 5  | nouvelle exigence | Could               | À faire                                           |
 | Succès sociaux                                                | 5  | nouvelle exigence | Should              | À faire                                           |
-| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | Série, record et accessoires des paliers : faits (API, et écran pour la série). Annonce du palier dans l'app à faire |
+| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | Fait (API et écran). Le moment partagé attend le § 4.4, l'annonce à l'ami qui avait envoyé en premier attend les notifications (§ 7) |
 | Raid de borne                                                 | 6  | BOR-05            | Should              | À faire                                           |
 | Notifications                                                 | 7  | APP-12            | Should              | À faire                                           |
 | Fil d'activité réduit, classement facultatif                | 3  | APP-07            | Could               | À faire                                           |
@@ -121,7 +121,7 @@ Entre deux amis, une **série** compte les jours d'affilée où ils se sont **é
 | 30 jours | Bob à pattes (`paw_bucket_hat`, chapeau) |
 | 100 jours | Lunettes étoiles de mer (`starfish_glasses`, lunettes) |
 
-Le serveur les donne au coup de patte qui complète l'échange du jour, aux deux amis en même temps. Un accessoire déjà débloqué, avec un autre ami par exemple, n'est pas redonné. Une série déjà longue au moment où les paliers sont arrivés est récompensée au coup de patte suivant.
+Le serveur les donne au coup de patte qui complète l'échange du jour, aux deux amis en même temps. Un accessoire déjà débloqué, avec un autre ami par exemple, n'est pas redonné. Une série déjà longue au moment où les paliers sont arrivés est récompensée au coup de patte suivant. Celui dont le coup de patte complète l'échange voit le palier fêté sur la fiche de l'ami, avec un lien vers son compagnon pour porter l'accessoire ; l'autre le trouve débloqué dans son compagnon, en attendant les notifications.
 
 **Ne pas en faire une corvée.** Les séries de Snapchat sont connues pour la pression qu'elles mettent sur les adolescents ; celle de Scubanion suit ces règles :
 

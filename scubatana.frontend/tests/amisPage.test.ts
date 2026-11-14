@@ -50,10 +50,12 @@ const view: FriendsView = {
 	sent: []
 };
 
-function answer(friends: FriendsView): void {
+const scarf = { id: "paw_scarf", label: "Foulard de l'amitié", category: "neck", image: "/paw_scarf.png", earnable: true };
+
+function answer(friends: FriendsView & { unlocked?: string[] }): void {
 	httpRequest.mockImplementation(async (_method: string, url: string) => {
 		if (url.endsWith("/companion/catalog")) {
-			return { status: 200, data: { categories: [], species: [], colors: [], accessories: [] } };
+			return { status: 200, data: { categories: [], species: [], colors: [], accessories: [scarf] } };
 		}
 
 		return { status: 200, data: friends };
@@ -224,5 +226,24 @@ describe("page Amis", () => {
 		const wrapper = await mountPage();
 
 		expect(wrapper.find(".name-row .streak").exists()).toBe(false);
+	});
+
+	it("celebrates the milestone in the profile after the cheer that reached it", async () => {
+		const wrapper = await mountPage();
+		const reached = { ...view, friends: [{ ...view.friends[0], cheer: { sent: true, received: true, streak: { days: 7, record: 7 } } }], unlocked: ["paw_scarf"] };
+
+		await wrapper.get("button.profile-btn").trigger("click");
+		await flushPromises();
+		answer(reached);
+		await wrapper.get("button.cheer-btn").trigger("click");
+		await flushPromises();
+
+		expect(wrapper.get(".milestone").text()).toContain("Foulard de l'amitié");
+
+		await wrapper.get(".sheet-close").trigger("click");
+		await wrapper.get("button.profile-btn").trigger("click");
+		await flushPromises();
+
+		expect(wrapper.find(".milestone").exists()).toBe(false);
 	});
 });
