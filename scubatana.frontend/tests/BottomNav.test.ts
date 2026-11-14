@@ -55,14 +55,47 @@ describe("BottomNav", () => {
 		expect(friendsLink(wrapper).attributes("aria-label")).toBe("Amis, 1 invitation reçue");
 	});
 
-	it("shows no dot without invitations, and does not reload a list already loaded", async () => {
-		const friends = useFriends();
-		friends.loaded.value = true;
+	it("shows no dot without invitations", async () => {
+		httpRequest.mockResolvedValue({ status: 200, data: { code: "K7Q2MZ4P", friends: [], received: [], sent: [] } });
 		const wrapper = await mountSuspended(BottomNav);
 		await flushPromises();
 
 		expect(friendsLink(wrapper).find(".dot").exists()).toBe(false);
 		expect(friendsLink(wrapper).attributes("aria-label")).toBeUndefined();
-		expect(httpRequest).not.toHaveBeenCalled();
+	});
+
+	it("reloads the invitations at most once a minute when changing page", async () => {
+		const now = vi.spyOn(Date, "now").mockReturnValue(Date.parse("2026-11-14T10:00:00Z"));
+		httpRequest.mockResolvedValue({ status: 200, data: { code: "K7Q2MZ4P", friends: [], received: [], sent: [] } });
+
+		try {
+			await useFriends().load();
+			now.mockReturnValue(Date.parse("2026-11-14T10:00:30Z"));
+			(await mountSuspended(BottomNav)).unmount();
+			await flushPromises();
+
+			expect(httpRequest).toHaveBeenCalledTimes(1);
+
+			now.mockReturnValue(Date.parse("2026-11-14T10:01:01Z"));
+			await mountSuspended(BottomNav);
+			await flushPromises();
+
+			expect(httpRequest).toHaveBeenCalledTimes(2);
+		} finally {
+			now.mockRestore();
+		}
+	});
+
+	it("does not try to load the invitations while offline", async () => {
+		const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+
+		try {
+			await mountSuspended(BottomNav);
+			await flushPromises();
+
+			expect(httpRequest).not.toHaveBeenCalled();
+		} finally {
+			online.mockRestore();
+		}
 	});
 });

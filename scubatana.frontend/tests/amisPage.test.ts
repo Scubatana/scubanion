@@ -193,7 +193,8 @@ describe("page Amis", () => {
 
 		expect(cheerCall).toBeDefined();
 		expect(wrapper.get("button.cheer-btn").text()).toBe("Coup de patte envoyé");
-		expect(wrapper.text()).toContain("Coup de patte envoyé à Yanis !");
+		expect(wrapper.get(".cheer-note").text()).toBe("Tu pourras lui en envoyer un autre demain.");
+		expect(wrapper.find(".toast").exists()).toBe(false);
 	});
 
 	it("marks a friend who cheered the player in the list", async () => {

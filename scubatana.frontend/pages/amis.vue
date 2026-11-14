@@ -187,8 +187,8 @@ async function cheerFromProfile(): Promise<void> {
 	cheerError.value = "";
 
 	try {
+		// Pas de message éphémère : il passerait sous la fiche. La fiche montre elle-même que c'est envoyé.
 		await cheer(friendship.id);
-		notice.value = `Coup de patte envoyé à ${friendship.player.pseudo} !`;
 	} catch (error) {
 		cheerError.value = readableMessage(error);
 	} finally {

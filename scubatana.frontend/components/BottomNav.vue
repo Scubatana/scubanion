@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const route = useRoute();
-const { received, loaded, load } = useFriends();
+const { received, loadIfStale } = useFriends();
+
+// La pastille se rafraîchit au plus une fois par minute en changeant de page, pour voir arriver les nouvelles invitations.
+const BADGE_REFRESH_MS = 60_000;
 
 const items = [
 	{ to: "/", label: "Accueil", icon: "home" },
@@ -12,11 +15,13 @@ const items = [
 
 const invitationsLabel = computed(() => (received.value.length === 1 ? "Amis, 1 invitation reçue" : `Amis, ${received.value.length} invitations reçues`));
 
-// Pour la pastille des invitations reçues. La page Amis charge déjà la liste elle-même.
+// La page Amis charge déjà la liste elle-même. Hors ligne, on n'essaie même pas : la requête échouerait.
 onMounted(() => {
-	if (!loaded.value && route.path !== "/amis") {
-		load().catch(() => undefined);
+	if (route.path === "/amis" || navigator.onLine === false) {
+		return;
 	}
+
+	loadIfStale(BADGE_REFRESH_MS).catch(() => undefined);
 });
 </script>
 

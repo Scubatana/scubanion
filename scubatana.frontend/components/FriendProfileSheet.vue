@@ -126,7 +126,7 @@ onMounted(() => closeButton.value?.focus());
 					<PawIcon />
 					{{ cheerLabel }}
 				</button>
-				<p v-if="friendship.cheer.sent" class="gallery-note cheer-note">Tu pourras lui en envoyer un autre demain.</p>
+				<p v-if="friendship.cheer.sent" class="gallery-note cheer-note" role="status">Tu pourras lui en envoyer un autre demain.</p>
 				<button class="btn btn-ghost" type="button" @click="emit('actions')">Plus d'actions</button>
 			</div>
 		</div>

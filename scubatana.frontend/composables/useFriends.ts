@@ -8,6 +8,8 @@ export function useFriends() {
 	const received = useState<FriendInvitation[]>("friends-received", () => []);
 	const sent = useState<FriendInvitation[]>("friends-sent", () => []);
 	const loaded = useState<boolean>("friends-loaded", () => false);
+	// Heure du dernier essai de chargement, réussi ou non, pour ne pas réessayer à chaque changement de page.
+	const checkedAt = useState<number>("friends-checked-at", () => 0);
 
 	const session = useSession();
 	const player = usePlayer();
@@ -37,8 +39,17 @@ export function useFriends() {
 	}
 
 	async function load(): Promise<void> {
+		checkedAt.value = Date.now();
 		await useSteps().settled();
 		applyView(await useApi().get<FriendsView>("/me/friends"));
+	}
+
+	async function loadIfStale(maxAgeMs: number): Promise<void> {
+		if (Date.now() - checkedAt.value < maxAgeMs) {
+			return;
+		}
+
+		await load();
 	}
 
 	async function invite(rawCode: string): Promise<InviteOutcome> {
@@ -82,7 +93,8 @@ export function useFriends() {
 		received.value = [];
 		sent.value = [];
 		loaded.value = false;
+		checkedAt.value = 0;
 	}
 
-	return { code, friends, received, sent, loaded, load, invite, qrToken, scanQr, accept, cheer, remove, reset };
+	return { code, friends, received, sent, loaded, load, loadIfStale, invite, qrToken, scanQr, accept, cheer, remove, reset };
 }
