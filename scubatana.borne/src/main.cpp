@@ -16,7 +16,7 @@
 
 namespace {
 
-constexpr const char* FIRMWARE_VERSION = "0.3.0";
+constexpr const char* FIRMWARE_VERSION = "0.3.1";
 
 constexpr time_t EARLIEST_VALID_TIME = 1767225600;
 
@@ -37,6 +37,9 @@ constexpr int QOS_AT_LEAST_ONCE = 1;
 constexpr int64_t DISPLAY_MAX_AGE_SECONDS = 10 * 60;
 
 constexpr unsigned long DISPLAY_DURATION_MS = 8000;
+
+// Sans passage depuis 2 minutes, l'écran se met au repos (rétroéclairage bas, logo immobile).
+constexpr unsigned long SCREEN_REST_AFTER_MS = 2UL * 60 * 1000;
 
 const std::string STATE_TOPIC = messages::topic(BORNE_CODE, "etat");
 
@@ -143,6 +146,12 @@ void updateScreen()
 		showingDisplay = false;
 		idleShown = true;
 		idleShownOnline = online;
+	}
+
+	// displayShownAt vaut 0 au démarrage : le repos arrive aussi 2 minutes après l'allumage.
+	if (!screen::isResting() && millis() - displayShownAt >= SCREEN_REST_AFTER_MS) {
+		screen::rest();
+		Serial.println("Écran au repos");
 	}
 
 	screen::animate();
