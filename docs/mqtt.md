@@ -156,11 +156,48 @@ Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'
 - Le conteneur `backend` les écrit à chaque démarrage (`php artisan bornes:comptes-mqtt`), avant que le broker ne démarre.
 - `php artisan bornes:creer` ajoute aussitôt le compte de la nouvelle borne. Le broker ne relit ses fichiers que sur demande : `docker compose kill -s HUP mosquitto`, sans redémarrage ni coupure.
 
-**Limite connue.** Le port 1883 n'est pas chiffré : quelqu'un sur le même réseau que la borne peut lire son mot de passe MQTT et se faire passer pour elle (faux signaux de vie, lecture de son affichage). Le secret des jetons, lui, reste protégé. La suite est de passer en TLS (port 8883), que l'ESP32 sait gérer.
+## Chiffrement TLS
+
+Les bornes passent par Internet : en clair, quelqu'un sur le chemin lirait leur mot de passe MQTT et pourrait se faire passer pour elles (faux signaux de vie, lecture de l'affichage). Elles se connectent donc en **TLS sur le port 8883**, comme HTTPS pour un site :
+
+1. Mosquitto présente le certificat de `scuba.picsou06.fr`, celui du site, signé par Let's Encrypt ;
+2. la borne le vérifie avec les autorités racines de Let's Encrypt, gravées dans le firmware (`include/autorites_racines.h` : ISRG Root X1, valable jusqu'en 2035, et ISRG Root X2, jusqu'en 2040). Un faux broker, même à la bonne adresse, est refusé (`Certificate verification failed`) ;
+3. tout ce qui suit est chiffré, mot de passe compris.
+
+| Port | Où | Pour qui |
+| ---- | -- | -------- |
+| 8883 (TLS) | publié sur Internet | les bornes |
+| 1883 (en clair) | réseau Docker `iot` seulement | l'API et `bornes:ecouter`, qui tournent à côté du broker |
+
+**Côté serveur.** Un dossier de l'hôte qui contient **seulement** le certificat et la clé de `scuba.picsou06.fr` est monté en lecture seule dans le conteneur `mosquitto` (`MQTT_TLS_DIR`, avec les noms `MQTT_TLS_CERT` et `MQTT_TLS_KEY` dans ce dossier ; voir `.env.exemple`). On ne monte pas tout `/etc/letsencrypt` : le broker est exposé sur Internet, et s'il était compromis il emporterait les clés des autres domaines et celle du compte Let's Encrypt. Un *deploy hook* certbot copie le certificat à chaque renouvellement :
+
+```bash
+#!/bin/sh
+# /etc/letsencrypt/renewal-hooks/deploy/certificat-mqtt.sh (exécutable), à lancer aussi une fois à la main
+set -eu
+dest=/opt/scubatana/certificat-mqtt
+mkdir -p "$dest"
+cp /etc/letsencrypt/live/scuba.picsou06.fr/fullchain.pem /etc/letsencrypt/live/scuba.picsou06.fr/privkey.pem "$dest/"
+chmod 600 "$dest/privkey.pem"
+```
+
+Au démarrage, `scubatana.mosquitto/demarrer.sh` :
+
+- copie le certificat et la clé dans le conteneur, pour l'utilisateur `mosquitto` : la clé de Let's Encrypt n'est lisible que par root, et Mosquitto refuse alors de démarrer ;
+- ajoute le listener 8883 ;
+- vérifie toutes les heures si le certificat a changé et, après un renouvellement, le fait recharger par Mosquitto (`SIGHUP`, sans couper les connexions) ;
+- relaie à Mosquitto le `SIGHUP` de `docker compose kill -s HUP mosquitto` (relecture des comptes après `bornes:creer`) : avec un certificat, c'est ce script qui reçoit les signaux du conteneur ;
+- vérifie toutes les 10 secondes que Mosquitto tourne : s'il s'arrête, le conteneur s'arrête avec lui et Docker le relance.
+
+Sans certificat dans le dossier, le broker démarre seulement sur 1883 et l'écrit dans ses journaux : c'est le cas en dev.
+
+**Côté borne.** `MQTT_TLS` à `true` et `MQTT_PORT` à 8883 dans `include/borne_config.h`. La borne attend d'avoir l'heure (NTP) avant de se connecter : sans elle, elle ne peut pas vérifier les dates de validité du certificat. Pour un broker de test signé par sa propre autorité, `MQTT_CA_CERT` remplace les autorités de Let's Encrypt (voir `borne_config.example.h`).
+
+**Testé** sur la vraie carte avec un broker de test (image `scubatana.mosquitto`, certificat signé par une autorité de test) : connexion chiffrée, signal de vie, affichage, testament, refus d'un broker signé par une autre autorité, renouvellement du certificat pris en compte sans redémarrage.
 
 ## Côté borne
 
-Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `include/borne_config.h`, avec son code comme identifiant de client et comme nom d'utilisateur.
+Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `include/borne_config.h`, en TLS (voir [Chiffrement TLS](#chiffrement-tls)), avec son code comme identifiant de client et comme nom d'utilisateur.
 
 - **Session persistante** (`clean session` à faux) et abonnement en QoS 1 à `affichage` : un affichage publié pendant une courte coupure arrive à la reconnexion, et la règle des 10 minutes écarte ceux qui sont trop vieux.
 - **Keep alive de 15 secondes** : le broker publie le testament environ 20 secondes après une coupure franche (borne débranchée, Wi-Fi perdu).
@@ -185,7 +222,7 @@ Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `sca
 
 1. Déclarer la borne : `docker compose exec backend php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3`, et noter le secret affiché.
 2. Faire relire les comptes au broker : `docker compose kill -s HUP mosquitto`. Sans ça, la borne est refusée par le broker jusqu'au prochain redémarrage de `mosquitto`.
-3. Mettre le code, le secret et l'adresse du broker (`MQTT_HOST`) dans `include/borne_config.h` du firmware, puis flasher la borne.
+3. Mettre le code, le secret et l'adresse du broker (`MQTT_HOST`, port 8883 en TLS) dans `include/borne_config.h` du firmware, puis flasher la borne.
 4. Vérifier que la borne passe en ligne : `online` à `true` dans `GET /api/bornes`.
 
 Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `MQTT_ACCOUNTS_DIRECTORY` (`storage/app/mqtt`), `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5), `BORNE_TOKEN_REFRESH_MINUTES` (5), `BORNE_MAX_TRAVEL_SPEED_KMH` (150). Les deux derniers servent à vérifier que le joueur était à la borne (voir les [règles du jeu](regles-du-jeu.md#bornes)).
