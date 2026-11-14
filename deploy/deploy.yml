@@ -1,0 +1,70 @@
+---
+- name: Déployer la pile applicative Scubanion en production
+  hosts: production
+  become: false
+  vars:
+    app_dir: "{{ scubanion_dir | default('/opt/scubatana/scubanion') }}"
+    image_tag: "{{ lookup('env', 'IMAGE_TAG') | default('latest', true) }}"
+    dockerhub_namespace: "{{ lookup('env', 'DOCKERHUB_NAMESPACE') | default('scubatana', true) }}"
+
+  tasks:
+    - name: Vérifier que Docker et Docker Compose v2 sont disponibles
+      ansible.builtin.command: docker compose version
+      changed_when: false
+
+    - name: Vérifier la présence du .env de production (généré hors dépôt)
+      ansible.builtin.stat:
+        path: "{{ app_dir }}/.env"
+      register: env_file
+      failed_when: not env_file.stat.exists
+
+    - name: Copier la définition docker-compose.yml à jour
+      ansible.builtin.copy:
+        src: ../docker-compose.yml
+        dest: "{{ app_dir }}/docker-compose.yml"
+        mode: "0644"
+
+    - name: Copier la configuration Prometheus à jour
+      ansible.builtin.copy:
+        src: ../scubatana.prometheus/
+        dest: "{{ app_dir }}/scubatana.prometheus/"
+        mode: "0644"
+        directory_mode: "0755"
+
+    - name: Copier le provisioning Grafana à jour
+      ansible.builtin.copy:
+        src: ../scubatana.grafana/
+        dest: "{{ app_dir }}/scubatana.grafana/"
+        mode: "0644"
+        directory_mode: "0755"
+
+    - name: Récupérer les dernières images Docker
+      ansible.builtin.command:
+        cmd: docker compose pull
+        chdir: "{{ app_dir }}"
+      environment:
+        IMAGE_TAG: "{{ image_tag }}"
+        DOCKERHUB_NAMESPACE: "{{ dockerhub_namespace }}"
+      changed_when: true
+
+    - name: Démarrer ou mettre à jour les conteneurs en arrière-plan
+      ansible.builtin.command:
+        cmd: docker compose up -d --remove-orphans
+        chdir: "{{ app_dir }}"
+      environment:
+        IMAGE_TAG: "{{ image_tag }}"
+        DOCKERHUB_NAMESPACE: "{{ dockerhub_namespace }}"
+      changed_when: true
+
+    - name: Vérifier que l'API répond sur /up via Nginx
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ lookup('env', 'NGINX_PORT') | default('8000', true) }}/up"
+        status_code: 200
+      register: health_check
+      retries: 10
+      delay: 3
+      until: health_check.status == 200
+
+    - name: Nettoyer les anciennes images inutilisées
+      ansible.builtin.command: docker image prune -f
+      changed_when: true
