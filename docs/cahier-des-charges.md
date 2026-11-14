@@ -289,7 +289,7 @@ Grille d'évaluation, à relire avant le rendu :
 
 - **Fonctionnement et documentation**
   - [ ] Le pipeline fonctionne de bout en bout.
-  - [ ] La documentation est claire et explique les choix de conception.
+  - [x] La documentation d'architecture pipeline et de déploiement explique les choix de conception ([r507-pipeline.md](r507-pipeline.md), [deploy/deploy.yml](../deploy/deploy.yml)).
 - **Git** (sur GitLab IUT, noté pour chaque étudiant)
   - [ ] La stratégie d'utilisation du dépôt est respectée.
   - [ ] Chacun des 4 membres fait des commits réguliers et bien documentés.
@@ -318,8 +318,8 @@ Programme : systèmes IoT et cyber-physiques (CPS) · supports de communication 
 | Standards et protocoles                         | MQTT (borne ↔ serveur) ; Kafka et oneM2M à évaluer (D5)                                                                     |
 | Frameworks de développement et de déploiement | À compléter avec le cours (côté borne : framework Arduino ou ESP-IDF)                                                      |
 
-- [ ] Chaque protocole ou standard utilisé est justifié dans la documentation.
-- [ ] Si un outil vu en cours n'est pas retenu, la raison est écrite.
+- [x] Chaque protocole ou standard utilisé est justifié dans la documentation ([r504-justifications.md](r504-justifications.md)).
+- [x] Si un outil vu en cours n'est pas retenu, la raison est écrite ([r504-justifications.md § 2 — Décision D5](r504-justifications.md#2-d%C3%A9cision-d5--pourquoi-apache-kafka-et-onem2m-ne-sont-pas-retenus-en-v1)).
 
 ### 6.4 R5.01 et R5.13
 
@@ -337,6 +337,7 @@ Livrables produits à ce jour :
 | Charte de projet (opérationnelle) | § 2                                                                           | Objectifs SMART, indicateurs relevés chaque vendredi, plan d'action daté |
 | Marketing mix                  | [r501/marketing-mix.pdf](r501/marketing-mix.pdf)                                 | Les 4 P, les 7 P et les 4 C, illustrés par les maquettes et les films  |
 | Expérience utilisateur         | [r501/experience-utilisateur.pdf](r501/experience-utilisateur.pdf)               | Récit en pictogrammes, storyboard des films, Toolbox Persona pour le prix |
+| Personas B2B                   | [r501/personas-b2b.md](r501/personas-b2b.md)                                     | Quatre personas entreprises/collectivités + suivi prospection O3         |
 | Films de démonstration         | [r501/videos/](r501/videos/)                                                     | Deux animations de 15 s : passage en borne au musée et à la Trattoria  |
 
 Le Business Model Canvas laisse cinq hypothèses ouvertes (grille tarifaire B2B, taille du marché, coût unitaire de la borne, pertinence de l'indice de besoin de contact sans mesure cardiaque, validité des personas). Elles sont listées en fin de `bmc-reponses-relecture.md` et l'objectif **O3** du § 2.1 est ce qui doit les lever.
