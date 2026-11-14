@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Accessory;
 use App\Models\Cheer;
+use App\Models\UserAccessory;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -14,6 +16,12 @@ class CheerService
 	public const MOOD_BONUS = 5;
 
 	public const MOOD_BONUS_MAX = 15;
+
+	public const STREAK_MILESTONES = [
+		7 => 'paw_scarf',
+		30 => 'paw_bucket_hat',
+		100 => 'starfish_glasses',
+	];
 
 	// Faux si un coup de patte a déjà été envoyé à cet ami aujourd'hui.
 	public function send(User $player, User $friend): bool
@@ -47,7 +55,7 @@ class CheerService
 		return min(self::MOOD_BONUS_MAX, $received * self::MOOD_BONUS);
 	}
 
-	public function exchangeDaysFor(User $player): array
+	public function exchangeDaysFor(User $player, ?User $friend = null): array
 	{
 		return DB::table('cheers as sent')
 			->join('cheers as back', function ($join) {
@@ -56,6 +64,7 @@ class CheerService
 					->on('back.day', '=', 'sent.day');
 			})
 			->where('sent.user_id', $player->id)
+			->when($friend !== null, fn ($query) => $query->where('sent.friend_id', $friend->id))
 			->orderBy('sent.day')
 			->get(['sent.friend_id', 'sent.day'])
 			->groupBy('friend_id')
@@ -89,6 +98,35 @@ class CheerService
 		}
 
 		return ['days' => $days, 'record' => $record];
+	}
+
+	public function rewardMilestones(User $player, User $friend, CarbonImmutable $since): array
+	{
+		$days = $this->streak($this->exchangeDaysFor($player, $friend)[$friend->id] ?? [], $since)['days'];
+		$codes = array_values(array_filter(self::STREAK_MILESTONES, fn (int $milestone) => $days >= $milestone, ARRAY_FILTER_USE_KEY));
+
+		if ($codes === []) {
+			return [];
+		}
+
+		$ids = Accessory::whereIn('code', $codes)->pluck('id', 'code');
+		$unlocked = [];
+
+		foreach ($codes as $code) {
+			$id = $ids[$code] ?? null;
+
+			if ($id === null) {
+				continue;
+			}
+
+			UserAccessory::insertOrIgnore(['user_id' => $friend->id, 'accessory_id' => $id, 'unlocked_at' => now()]);
+
+			if (UserAccessory::insertOrIgnore(['user_id' => $player->id, 'accessory_id' => $id, 'unlocked_at' => now()]) > 0) {
+				$unlocked[] = $code;
+			}
+		}
+
+		return $unlocked;
 	}
 
 	private function today(): string

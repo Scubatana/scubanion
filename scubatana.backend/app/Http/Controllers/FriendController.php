@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\CheerService;
 use App\Services\FriendQrService;
 use App\Services\FriendshipService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -86,7 +87,9 @@ class FriendController extends Controller
 			return response()->json(['message' => "Tu as déjà envoyé un coup de patte à {$friend->pseudo} aujourd'hui."], 409);
 		}
 
-		return response()->json($friends->overview($player));
+		$unlocked = $cheers->rewardMilestones($player, $friend, CarbonImmutable::instance($friendship->accepted_at));
+
+		return response()->json([...$friends->overview($player), 'unlocked' => $unlocked]);
 	}
 
 	public function destroy(Request $request, Friendship $friendship, FriendshipService $friends): JsonResponse
