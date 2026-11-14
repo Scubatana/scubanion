@@ -1,0 +1,78 @@
+name: Miroir GitLab IUT
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
+  delete:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitlab-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    name: Synchroniser vers GitLab IUT
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier la configuration du miroir
+        id: check
+        env:
+          GITLAB_MIRROR_URL: ${{ secrets.GITLAB_MIRROR_URL }}
+          GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          if [ -z "$GITLAB_MIRROR_URL" ] || [ -z "$GITLAB_MIRROR_TOKEN" ]; then
+            echo "::notice::Secrets GITLAB_MIRROR_URL et GITLAB_MIRROR_TOKEN non configurés : synchronisation ignorée."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Pousser branches et tags vers GitLab IUT
+        if: steps.check.outputs.ready == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITLAB_MIRROR_URL: ${{ secrets.GITLAB_MIRROR_URL }}
+          GITLAB_MIRROR_USER: ${{ secrets.GITLAB_MIRROR_USER || 'oauth2' }}
+          GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          ASKPASS_GITHUB="$(mktemp)"
+          ASKPASS_GITLAB="$(mktemp)"
+          trap 'rm -rf "$ASKPASS_GITHUB" "$ASKPASS_GITLAB" mirror.git' EXIT
+
+          cat > "$ASKPASS_GITHUB" <<'EOF'
+          #!/bin/sh
+          case "$1" in
+            *Username*|*username*) printf '%s\n' "x-access-token" ;;
+            *) printf '%s\n' "$GITHUB_TOKEN" ;;
+          esac
+          EOF
+          chmod 700 "$ASKPASS_GITHUB"
+
+          cat > "$ASKPASS_GITLAB" <<'EOF'
+          #!/bin/sh
+          case "$1" in
+            *Username*|*username*) printf '%s\n' "$GITLAB_MIRROR_USER" ;;
+            *) printf '%s\n' "$GITLAB_MIRROR_TOKEN" ;;
+          esac
+          EOF
+          chmod 700 "$ASKPASS_GITLAB"
+
+          GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$ASKPASS_GITHUB" \
+            git clone --bare "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" mirror.git
+
+          # Branches : copie exacte, suppressions comprises. Tags : ajoutés, jamais forcés ni supprimés,
+          # pour ne pas effacer ceux que GitLab crée lui-même (job release).
+          GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$ASKPASS_GITLAB" \
+            git -C mirror.git push --prune "$GITLAB_MIRROR_URL" '+refs/heads/*:refs/heads/*'
+
+          GIT_TERMINAL_PROMPT=0 GIT_ASKPASS="$ASKPASS_GITLAB" \
+            git -C mirror.git push "$GITLAB_MIRROR_URL" 'refs/tags/*:refs/tags/*'
