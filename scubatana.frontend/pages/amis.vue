@@ -1,27 +1,29 @@
 <script setup lang="ts">
-import { ApiError, readableMessage } from "~/utils/apiError";
-import { formatFriendCode, friendGoalFill, sortFriendsBySteps } from "~/utils/friends";
+import { readableMessage } from "~/utils/apiError";
+import { FRIEND_SEARCH_FROM, filterFriends, friendGoalFill, friendRowLabel, sortFriendsBySteps } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
-import { QrScanError, scanQrCode } from "~/utils/qrScanner";
+import { PULL_THRESHOLD } from "~/utils/pullToRefresh";
 
 type PlayerActionsTarget = { linkId: number; playerId: number; pseudo: string; isFriend: boolean };
 
-const { code, friends, received, sent, loaded, load, invite, scanQr, accept, remove } = useFriends();
+const { friends, received, sent, loaded, load, accept, cheer, remove } = useFriends();
 const { block } = useSafety();
 const { ensureLoaded } = useCatalog();
 const loading = ref(false);
 const loadError = ref("");
-const inviteCode = ref("");
-const inviteError = ref("");
 const actionError = ref("");
 const notice = ref("");
-const copied = ref(false);
 const busy = ref<string | null>(null);
 const actionsFor = ref<PlayerActionsTarget | null>(null);
 const reporting = ref<{ playerId: number; pseudo: string } | null>(null);
 const showingQr = ref(false);
-const isDev = import.meta.dev;
-const devToken = ref("");
+const addingFriend = ref(false);
+const profileId = ref<number | null>(null);
+const cheerError = ref("");
+const search = ref("");
+const content = ref<HTMLElement | null>(null);
+const NOTICE_DURATION_MS = 4000;
+let noticeTimer: ReturnType<typeof setTimeout> | null = null;
 
 const AVATAR_COLORS = ["var(--ocean)", "var(--coral)", "var(--ocean-light)"];
 
@@ -34,49 +36,38 @@ function initial(pseudo: string): string {
 }
 
 function clearMessages(): void {
-	inviteError.value = "";
 	actionError.value = "";
 	notice.value = "";
 }
 
-async function scanFriendQr(): Promise<void> {
-	if (busy.value !== null) {
-		return;
+// Comme un message éphémère d'Android : il s'efface tout seul au bout de quelques secondes.
+watch(notice, (message) => {
+	if (noticeTimer !== null) {
+		clearTimeout(noticeTimer);
+		noticeTimer = null;
 	}
 
-	clearMessages();
-
-	let token: string | null;
-
-	try {
-		token = await scanQrCode();
-	} catch (error) {
-		inviteError.value = error instanceof QrScanError ? error.message : readableMessage(error);
-		return;
+	if (message !== "") {
+		noticeTimer = setTimeout(() => {
+			notice.value = "";
+		}, NOTICE_DURATION_MS);
 	}
+});
 
-	if (token !== null) {
-		await addFriendByQr(token);
+onBeforeUnmount(() => {
+	if (noticeTimer !== null) {
+		clearTimeout(noticeTimer);
 	}
+});
+
+function friendAdded(message: string): void {
+	addingFriend.value = false;
+	notice.value = message;
 }
 
-async function addFriendByQr(token: string): Promise<void> {
-	if (busy.value !== null || token.trim() === "") {
-		return;
-	}
-
-	busy.value = "scan";
-	clearMessages();
-
-	try {
-		const pseudo = await scanQr(token);
-		devToken.value = "";
-		notice.value = pseudo ? `${pseudo} fait maintenant partie de tes amis !` : "Vous êtes maintenant amis !";
-	} catch (error) {
-		inviteError.value = error instanceof ApiError && error.fields.token ? error.fields.token : readableMessage(error);
-	} finally {
-		busy.value = null;
-	}
+function showQrFromAdd(): void {
+	addingFriend.value = false;
+	showingQr.value = true;
 }
 
 async function closeQr(): Promise<void> {
@@ -90,7 +81,16 @@ async function closeQr(): Promise<void> {
 }
 
 const rankedFriends = computed(() => sortFriendsBySteps(friends.value));
-const formattedCode = computed(() => formatFriendCode(code.value));
+const showSearch = computed(() => friends.value.length >= FRIEND_SEARCH_FROM);
+const shownFriends = computed(() => (showSearch.value ? filterFriends(rankedFriends.value, search.value) : rankedFriends.value));
+// Par identifiant : la fiche suit les rechargements de la liste, et se ferme si l'ami n'y est plus.
+const profileFriendship = computed(() => friends.value.find((friendship) => friendship.id === profileId.value) ?? null);
+
+watch(profileFriendship, (friendship) => {
+	if (friendship === null) {
+		profileId.value = null;
+	}
+});
 
 async function refresh(): Promise<void> {
 	if (loading.value) {
@@ -106,41 +106,6 @@ async function refresh(): Promise<void> {
 		loadError.value = readableMessage(error);
 	} finally {
 		loading.value = false;
-	}
-}
-
-async function copyCode(): Promise<void> {
-	if (!code.value || typeof navigator === "undefined" || !navigator.clipboard) {
-		return;
-	}
-
-	try {
-		await navigator.clipboard.writeText(code.value);
-		copied.value = true;
-		setTimeout(() => {
-			copied.value = false;
-		}, 2000);
-	} catch {
-		copied.value = false;
-	}
-}
-
-async function submitInvite(): Promise<void> {
-	if (busy.value !== null) {
-		return;
-	}
-
-	busy.value = "invite";
-	clearMessages();
-
-	try {
-		const outcome = await invite(inviteCode.value);
-		inviteCode.value = "";
-		notice.value = outcome === "mutual" ? "Invitation réciproque : vous êtes maintenant amis !" : "Invitation envoyée.";
-	} catch (error) {
-		inviteError.value = error instanceof ApiError && error.fields.code ? error.fields.code : readableMessage(error);
-	} finally {
-		busy.value = null;
 	}
 }
 
@@ -203,6 +168,43 @@ async function blockPlayer(playerId: number, pseudo: string): Promise<boolean> {
 	}
 }
 
+// La fiche s'ouvre tout de suite avec la liste déjà chargée, puis se met à jour : les pas ont pu avancer depuis.
+function openProfile(id: number): void {
+	clearMessages();
+	cheerError.value = "";
+	profileId.value = id;
+	load().catch(() => undefined);
+}
+
+async function cheerFromProfile(): Promise<void> {
+	const friendship = profileFriendship.value;
+
+	if (friendship === null || busy.value !== null) {
+		return;
+	}
+
+	busy.value = `cheer-${friendship.id}`;
+	cheerError.value = "";
+
+	try {
+		await cheer(friendship.id);
+		notice.value = `Coup de patte envoyé à ${friendship.player.pseudo} !`;
+	} catch (error) {
+		cheerError.value = readableMessage(error);
+	} finally {
+		busy.value = null;
+	}
+}
+
+function actionsFromProfile(): void {
+	const friendship = profileFriendship.value;
+
+	if (friendship) {
+		profileId.value = null;
+		openActions({ linkId: friendship.id, playerId: friendship.player.id, pseudo: friendship.player.pseudo, isFriend: true });
+	}
+}
+
 function openActions(target: PlayerActionsTarget): void {
 	clearMessages();
 	actionsFor.value = target;
@@ -251,14 +253,22 @@ async function reportDone(result: { message: string; blocked: boolean }): Promis
 	}
 }
 
+const { offset: pullOffset, refreshing: pulling } = usePullToRefresh(content, async () => {
+	clearMessages();
+
+	try {
+		await load();
+	} catch (error) {
+		actionError.value = readableMessage(error);
+	}
+});
+
 onMounted(refresh);
 </script>
 
 <template>
 	<div class="page">
 		<div class="topbar">
-			<span class="topbar-spacer"></span>
-			<span class="topbar-title">Amis</span>
 			<button class="avatar-btn" type="button" aria-label="Afficher mon QR code ami" @click="showingQr = true">
 				<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true">
 					<rect x="3.5" y="3.5" width="6" height="6" rx="1"/>
@@ -267,9 +277,22 @@ onMounted(refresh);
 					<path d="M14.5 14.5h2.5v2.5M20.5 14.5v0M14.5 20.5h2.5M20.5 17.5v3h-1"/>
 				</svg>
 			</button>
+			<span class="topbar-title">Amis</span>
+			<button class="avatar-btn" type="button" aria-label="Ajouter un ami" @click="addingFriend = true">
+				<svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+			</button>
 		</div>
-		<div class="content">
-			<p v-if="notice" class="gallery-note quest-notice note-self-centered" role="status">{{ notice }}</p>
+		<div ref="content" class="content">
+			<div
+				class="pull-indicator"
+				:class="{ ready: pullOffset >= PULL_THRESHOLD, spinning: pulling }"
+				:style="{ height: `${pulling ? PULL_THRESHOLD : pullOffset}px` }"
+				aria-hidden="true"
+			>
+				<svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4.5h-4.5"/></svg>
+			</div>
+			<p v-if="pulling" class="sr-only" role="status">Actualisation…</p>
+			<p v-if="notice" class="toast" role="status">{{ notice }}</p>
 			<p v-if="actionError && !actionsFor" class="form-error">{{ actionError }}</p>
 
 			<div v-if="received.length > 0" class="card list-card">
@@ -322,32 +345,58 @@ onMounted(refresh);
 					<span class="section-title">Mes amis</span>
 					<span class="eyebrow">pas du jour</span>
 				</div>
-				<p v-if="rankedFriends.length === 0" class="gallery-note empty-note">
-					Tu n'as pas encore d'ami. Scanne le QR d'un proche ou saisis son code pour suivre vos pas ensemble.
-				</p>
-				<div v-for="friendship in rankedFriends" :key="friendship.id" class="player-row">
+				<input
+					v-if="showSearch"
+					v-model="search"
+					class="friend-search"
+					type="search"
+					autocomplete="off"
+					placeholder="Chercher un ami"
+					aria-label="Chercher un ami par pseudo"
+				>
+				<div v-if="rankedFriends.length === 0" class="empty-state">
+					<img class="empty-logo" src="/img/logo.png" alt="">
+					<p class="gallery-note empty-note">
+						Tu n'as pas encore d'ami. Scanne le QR d'un proche ou partage ton code pour suivre vos pas ensemble.
+					</p>
+					<button class="btn btn-primary" type="button" @click="addingFriend = true">Ajouter un ami</button>
+				</div>
+				<p v-else-if="shownFriends.length === 0" class="gallery-note empty-note">Aucun ami ne s'appelle comme ça.</p>
+				<div v-for="friendship in shownFriends" :key="friendship.id" class="player-row">
 					<div class="row-main">
-						<div class="friend-avatar-box">
-							<CompanionAvatar
-								v-if="friendship.player.companion"
-								:species="friendship.player.companion.species"
-								:color="friendship.player.companion.color"
-								:accessories="friendship.player.companion.accessories"
-								:name="friendship.player.companion.name"
-								:small="true"
-							/>
-							<img v-else class="friend-fallback" src="/img/logo.png" alt="">
-						</div>
-						<div class="identity">
-							<div class="name-row">
-								<span class="name">{{ friendship.player.pseudo }}</span>
-								<StreakFlame v-if="friendship.player.streak" :streak="friendship.player.streak" />
-							</div>
-							<span v-if="friendship.player.companion" class="sub">
-								{{ friendship.player.companion.name }} · Niv. {{ friendship.player.companion.level }}
+						<button
+							class="profile-btn"
+							type="button"
+							:aria-label="friendRowLabel(friendship)"
+							:disabled="busy !== null"
+							@click="openProfile(friendship.id)"
+						>
+							<span class="friend-avatar-box">
+								<CompanionAvatar
+									v-if="friendship.player.companion"
+									:species="friendship.player.companion.species"
+									:color="friendship.player.companion.color"
+									:accessories="friendship.player.companion.accessories"
+									:name="friendship.player.companion.name"
+									:small="true"
+								/>
+								<img v-else class="friend-fallback" src="/img/logo.png" alt="">
 							</span>
-						</div>
-						<span class="meta">{{ friendship.player.today ? `${formatCount(friendship.player.today.steps)} pas` : "Masqué" }}</span>
+							<span class="identity">
+								<span class="name-row">
+									<span class="name">{{ friendship.player.pseudo }}</span>
+									<StreakFlame v-if="friendship.player.streak" :streak="friendship.player.streak" />
+									<PawIcon v-if="friendship.cheer.received && !friendship.cheer.sent" class="cheer-waiting" />
+								</span>
+								<span v-if="friendship.player.companion" class="sub">
+									{{ friendship.player.companion.name }} · Niv. {{ friendship.player.companion.level }}
+								</span>
+							</span>
+							<span v-if="friendship.player.today" class="meta">{{ formatCount(friendship.player.today.steps) }} pas</span>
+							<svg v-else class="meta-masked" viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true">
+								<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>
+							</svg>
+						</button>
 						<button
 							class="more-btn"
 							type="button"
@@ -391,55 +440,33 @@ onMounted(refresh);
 				</div>
 			</div>
 
-			<form class="card stack-tight" novalidate @submit.prevent="submitInvite">
-				<span class="section-title">Ajouter un ami</span>
-				<div class="field">
-					<label for="friend-code-input">Avec son code ami</label>
-					<div class="invite-box">
-						<input
-							id="friend-code-input"
-							v-model="inviteCode"
-							type="text"
-							autocomplete="off"
-							maxlength="16"
-							placeholder="Ex : K7Q2-MZ4P"
-						>
-						<button class="btn btn-primary" type="submit" :disabled="busy !== null || inviteCode.trim().length === 0">
-							{{ busy === "invite" ? "…" : "Inviter" }}
-						</button>
-					</div>
-					<span v-if="inviteError" class="field-error">{{ inviteError }}</span>
-				</div>
-				<button class="btn btn-ghost scan-btn" type="button" :disabled="busy !== null" @click="scanFriendQr">
-					<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" aria-hidden="true">
-						<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16M4 12h16"/>
-					</svg>
-					{{ busy === "scan" ? "Ajout…" : "Scanner le QR d'un ami" }}
-				</button>
-				<p v-if="code" class="own-code">
-					Ton code : <b>{{ formattedCode }}</b>
-					<button class="inline-action" type="button" @click="copyCode">{{ copied ? "Copié" : "Copier" }}</button>
-				</p>
-				<div v-if="isDev" class="field dev-field">
-					<label for="dev-qr-token">Dev : coller un jeton QR (sans caméra)</label>
-					<div class="invite-box">
-						<input id="dev-qr-token" v-model="devToken" type="text" autocomplete="off" placeholder="eyJpdiI6...">
-						<button class="btn btn-ghost" type="button" :disabled="busy !== null || devToken.trim() === ''" @click="addFriendByQr(devToken)">
-							Ajouter
-						</button>
-					</div>
-				</div>
-			</form>
-
 			<NuxtLink v-if="loaded" class="link-under" to="/bloques">Joueurs bloqués ›</NuxtLink>
 
-			<p v-if="loading && !loaded" class="gallery-note note-self-centered">Chargement…</p>
+			<div v-if="loading && !loaded" class="card list-card" aria-busy="true" aria-label="Chargement de tes amis">
+				<div v-for="row in 3" :key="row" class="player-row skeleton-row" aria-hidden="true">
+					<span class="skeleton skeleton-avatar"></span>
+					<span class="skeleton-lines">
+						<span class="skeleton skeleton-line"></span>
+						<span class="skeleton skeleton-line short"></span>
+					</span>
+				</div>
+			</div>
 			<div v-if="loadError" class="card stack-tight">
 				<p class="form-error">{{ loadError }}</p>
 				<button class="btn btn-ghost" type="button" :disabled="loading" @click="refresh">Réessayer</button>
 			</div>
 		</div>
+		<AddFriendSheet v-if="addingFriend" @close="addingFriend = false" @added="friendAdded" @show-qr="showQrFromAdd" />
 		<FriendQrSheet v-if="showingQr" @close="closeQr" />
+		<FriendProfileSheet
+			v-if="profileFriendship"
+			:friendship="profileFriendship"
+			:cheering="busy === `cheer-${profileFriendship.id}`"
+			:cheer-error="cheerError"
+			@close="profileId = null"
+			@cheer="cheerFromProfile"
+			@actions="actionsFromProfile"
+		/>
 		<PlayerActionsSheet
 			v-if="actionsFor"
 			:pseudo="actionsFor.pseudo"
@@ -489,6 +516,29 @@ onMounted(refresh);
 	display: flex;
 	align-items: center;
 	gap: 14px;
+}
+
+.profile-btn {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 0;
+	border: none;
+	background: none;
+	font-family: inherit;
+	color: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.profile-btn:active:not(:disabled) {
+	opacity: 0.6;
+}
+
+.profile-btn:disabled {
+	cursor: default;
 }
 
 .identity {
@@ -597,56 +647,158 @@ onMounted(refresh);
 	padding: 4px 0 12px;
 }
 
-.invite-box input {
-	min-width: 0;
-	width: 100%;
+/* Message éphémère, fixé au-dessus de la barre du bas pour rester visible même après avoir fait défiler la liste. */
+.toast {
+	position: fixed;
+	left: 50%;
+	bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+	z-index: 40;
+	width: max-content;
+	max-width: calc(100% - 48px);
+	margin: 0;
+	padding: 12px 18px;
+	border-radius: var(--radius-sm);
+	background: var(--ink);
+	color: var(--white);
+	font-size: 14px;
+	font-weight: 600;
+	text-align: center;
+	box-shadow: var(--shadow-float);
+	transform: translateX(-50%);
 }
 
-.invite-box .btn {
+.name-row .cheer-waiting {
+	width: 16px;
+	height: 16px;
+	color: var(--coral);
+}
+
+.meta-masked {
 	flex: 0 0 auto;
-	box-shadow: none;
+	width: 16px;
+	height: 16px;
+	stroke: var(--ocean-light);
 }
 
-.scan-btn {
-	gap: 8px;
+.friend-search {
+	margin: 4px 0 6px;
+	padding: 10px 12px;
+	border: 1px solid var(--mist);
+	border-radius: var(--radius-sm);
+	font-family: inherit;
+	font-size: 14px;
+	color: var(--ink);
 }
 
-.scan-btn svg {
-	width: 18px;
-	height: 18px;
-	stroke: currentColor;
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 0 16px;
+	text-align: center;
 }
 
-.own-code {
+.empty-logo {
+	width: 72px;
+	height: 72px;
+	object-fit: contain;
+}
+
+.empty-state .btn {
+	width: auto;
+	padding: 10px 20px;
+}
+
+/* Indicateur du « tirer pour rafraîchir » : il grandit avec le geste, puis tourne pendant le chargement. */
+.pull-indicator {
+	/* Compense le gap de .content : replié, l'indicateur ne décale pas la page. */
+	margin-bottom: -18px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
-	font-size: 13px;
-	color: var(--ink-soft);
+	overflow: hidden;
+	transition: height 0.15s ease-out;
 }
 
-.own-code b {
-	font-family: 'Baloo 2', sans-serif;
-	letter-spacing: 1px;
-	color: var(--ocean-dark);
+.pull-indicator svg {
+	width: 22px;
+	height: 22px;
+	stroke: var(--ocean-light);
+	transition: transform 0.15s;
 }
 
-.inline-action {
-	padding: 8px 6px;
-	border: none;
-	background: none;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 600;
-	color: var(--ocean);
-	cursor: pointer;
+.pull-indicator.ready svg {
+	stroke: var(--ocean);
+	transform: rotate(180deg);
 }
 
-.dev-field {
-	padding: 10px;
-	border: 1px dashed var(--ocean-light);
-	border-radius: var(--radius-sm);
+.pull-indicator.spinning svg {
+	stroke: var(--ocean);
+	animation: pull-spin 0.8s linear infinite;
+}
+
+@keyframes pull-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.skeleton-row {
+	flex-direction: row;
+	align-items: center;
+	gap: 14px;
+}
+
+.skeleton {
+	display: block;
+	background: var(--mist);
+	animation: skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+	flex: 0 0 44px;
+	height: 44px;
+	border-radius: 50%;
+}
+
+.skeleton-lines {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.skeleton-line {
+	height: 12px;
+	width: 60%;
+	border-radius: 6px;
+}
+
+.skeleton-line.short {
+	width: 35%;
+}
+
+@keyframes skeleton-pulse {
+	50% {
+		opacity: 0.5;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skeleton,
+	.pull-indicator.spinning svg {
+		animation: none;
+	}
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
 }
 
 .link-under {

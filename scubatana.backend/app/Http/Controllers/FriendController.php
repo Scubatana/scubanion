@@ -7,6 +7,7 @@ use App\Http\Requests\InviteFriendRequest;
 use App\Http\Requests\ScanFriendQrRequest;
 use App\Models\Friendship;
 use App\Models\User;
+use App\Services\CheerService;
 use App\Services\FriendQrService;
 use App\Services\FriendshipService;
 use Illuminate\Http\JsonResponse;
@@ -66,6 +67,24 @@ class FriendController extends Controller
 		}
 
 		$friends->accept($friendship);
+
+		return response()->json($friends->overview($player));
+	}
+
+	public function cheer(Request $request, Friendship $friendship, CheerService $cheers, FriendshipService $friends): JsonResponse
+	{
+		$player = $request->user();
+		$this->ensureInvolved($player, $friendship);
+
+		if ($friendship->status !== FriendshipStatus::Accepted) {
+			return response()->json(['message' => 'Vous devez être amis pour vous envoyer un coup de patte.'], 409);
+		}
+
+		$friend = $friendship->otherThan($player);
+
+		if (! $cheers->send($player, $friend)) {
+			return response()->json(['message' => "Tu as déjà envoyé un coup de patte à {$friend->pseudo} aujourd'hui."], 409);
+		}
 
 		return response()->json($friends->overview($player));
 	}

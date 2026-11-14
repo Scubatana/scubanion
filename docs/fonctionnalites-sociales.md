@@ -18,9 +18,9 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 | Fonctionnalité                                               | § | Exigence          | Priorité proposée | État                                              |
 | ------------------------------------------------------------- | -- | ----------------- | ------------------- | -------------------------------------------------- |
 | Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage et signalement : fait (API et écran, [api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
-| Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | À faire                                           |
+| Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | Pas et série : fait (API et écran). Le reste à faire |
 | Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | Fait (API et écran)                               |
-| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code : fait (API et écran, [api/amis.md](api/amis.md)). Le reste à faire |
+| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code, fiche du compagnon et coup de patte : faits (API et écran, [api/amis.md](api/amis.md)). La notification du coup de patte attend les notifications (§ 7) |
 | Squads : invitation, QR code, marche ensemble                 | 4  | APP-08, APP-10    | Should              | Table `encounters` faite, le reste à faire      |
 | Moment partagé (animation des compagnons)                    | 4  | APP-10            | Should              | À faire                                           |
 | Quêtes à plusieurs, défis du jour et de la semaine, collection | 5  | APP-05, APP-10    | Should              | À faire, sur le moteur de quêtes existant        |
@@ -63,7 +63,7 @@ Chaque joueur règle, dans son compte, ce que ses amis voient de lui. Les pas so
 
 - Un membre de sa squad qui n'est pas son ami ne voit que son pseudo et son compagnon.
 - Une invitation reçue ne montre que le pseudo.
-- Changement à prévoir dans l'API : `GET /me/friends` renvoie aujourd'hui toujours les pas du jour et la série ; elle devra respecter ces réglages.
+- `GET /me/friends` respecte déjà les réglages des pas du jour et de la série : sans accord, elle renvoie `null` et l'app affiche « Masqué ».
 
 ## 3. Amis
 
@@ -84,6 +84,7 @@ Un bouton « Coup de patte » sur la fiche de chaque ami : le compagnon envoie u
 - L'ami reçoit une notification (§ 7), et son compagnon gagne un petit bonus d'humeur, plafonné.
 - Il peut répondre d'un coup de patte le même jour, ce qui fait avancer leur série (§ 3.6).
 - But : un lien de tous les jours, sans avoir besoin d'écrire.
+- Avec les messages (§ 8), les coups de patte s'afficheront aussi dans la conversation entre les deux amis, à leur place dans l'ordre chronologique (« Lina t'a envoyé un coup de patte »). La table `cheers` garde déjà l'historique ; seule l'API ne renvoie pour l'instant que ceux du jour.
 
 ### 3.3 Fiche du compagnon d'un ami
 
@@ -313,6 +314,7 @@ Pas de chat libre : seulement des **messages prédéfinis** et des **emotes**, e
 - Messages : « On marche ce soir ? », « Je suis en route », « Rendez-vous à la borne », « Bravo ! ».
 - Emotes : 6 à 10 animations du compagnon (saute de joie, applaudit, dort…).
 - Les textes sont des données en base, ajoutés sans livrer l'app.
+- La conversation entre deux amis montre aussi leurs coups de patte (§ 3.2), mêlés aux messages dans l'ordre où ils ont été envoyés.
 
 Un chat libre demanderait une modération qu'une équipe de quatre ne peut pas assurer, avec des joueurs qui peuvent être mineurs. Priorité Could : le coup de patte et les invitations de squad couvrent déjà une partie du besoin.
 

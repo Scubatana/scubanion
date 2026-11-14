@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
+const { received, loaded, load } = useFriends();
 
 const items = [
 	{ to: "/", label: "Accueil", icon: "home" },
@@ -8,11 +9,28 @@ const items = [
 	{ to: "/carte", label: "Carte", icon: "map" },
 	{ to: "/quetes", label: "Quêtes", icon: "quests" }
 ];
+
+const invitationsLabel = computed(() => (received.value.length === 1 ? "Amis, 1 invitation reçue" : `Amis, ${received.value.length} invitations reçues`));
+
+// Pour la pastille des invitations reçues. La page Amis charge déjà la liste elle-même.
+onMounted(() => {
+	if (!loaded.value && route.path !== "/amis") {
+		load().catch(() => undefined);
+	}
+});
 </script>
 
 <template>
 	<nav class="bottomnav">
-		<NuxtLink v-for="item in items" :key="item.to" class="navitem" :class="{ active: route.path === item.to }" :to="item.to">
+		<NuxtLink
+			v-for="item in items"
+			:key="item.to"
+			class="navitem"
+			:class="{ active: route.path === item.to }"
+			:to="item.to"
+			:aria-label="item.to === '/amis' && received.length > 0 ? invitationsLabel : undefined"
+		>
+			<span v-if="item.to === '/amis' && received.length > 0" class="dot" aria-hidden="true"></span>
 			<svg v-if="item.icon === 'home'" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
 			<svg v-else-if="item.icon === 'friends'" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M14.5 20c0-2.6 1.9-4.6 4.3-5"/></svg>
 			<svg v-else-if="item.icon === 'chat'" viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4V5z"/></svg>

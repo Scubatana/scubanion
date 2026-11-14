@@ -68,6 +68,10 @@ export function useFriends() {
 		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/accept`));
 	}
 
+	async function cheer(id: number): Promise<void> {
+		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/cheer`));
+	}
+
 	async function remove(id: number): Promise<void> {
 		applyView(await useApi().del<FriendsView>(`/me/friends/${id}`));
 	}
@@ -80,5 +84,5 @@ export function useFriends() {
 		loaded.value = false;
 	}
 
-	return { code, friends, received, sent, loaded, load, invite, qrToken, scanQr, accept, remove, reset };
+	return { code, friends, received, sent, loaded, load, invite, qrToken, scanQr, accept, cheer, remove, reset };
 }

@@ -19,6 +19,7 @@ class CompanionProgressService
 	public function __construct(
 		private StepService $steps,
 		private CompanionService $companions,
+		private CheerService $cheers,
 	) {}
 
 	public function refresh(User $user): ?Companion
@@ -37,7 +38,7 @@ class CompanionProgressService
 		$companion->update([
 			'level' => $level,
 			'xp' => $xp,
-			'mood' => $this->mood($days, $today, $joined),
+			'mood' => min(100, $this->mood($days, $today, $joined) + $this->cheers->moodBonus($user, $today)),
 			'health' => $this->health($days, $today, $joined),
 		]);
 

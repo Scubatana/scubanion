@@ -25,7 +25,8 @@ vi.mock("@capacitor/preferences", () => ({
 mockNuxtImport("navigateTo", () => navigateTo);
 
 const sampleView: BlocksView = {
-	blocked: [{ id: 7, since: "2026-11-09", player: { id: 3, pseudo: "Yanis" } }]
+	blocked: [{ id: 7, since: "2026-11-09",
+	cheer: { sent: false, received: false }, player: { id: 3, pseudo: "Yanis" } }]
 };
 
 describe("useSafety", () => {

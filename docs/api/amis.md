@@ -14,6 +14,7 @@ Les routes des amis, sauf `GET /me/friends/qr`, renvoient le même objet, la vue
     {
       "id": 12,
       "since": "2026-10-13",
+      "cheer": { "sent": false, "received": true },
       "player": {
         "id": 3,
         "pseudo": "Yanis",
@@ -34,6 +35,7 @@ Les routes des amis, sauf `GET /me/friends/qr`, renvoient le même objet, la vue
 
 - `code` : le code ami du joueur, à partager.
 - `friends` : les amitiés acceptées, avec le compagnon, les pas du jour et la série de chaque ami. `companion` vaut `null` si l'ami n'en a pas encore ; `today` et `streak` valent `null` tant que l'ami n'active pas leur partage (`PUT /me/privacy`).
+- `cheer` : les coups de patte du jour avec cet ami. `sent` : le joueur lui en a envoyé un ; `received` : l'ami en a envoyé un au joueur. Les deux repassent à `false` à minuit, heure de Paris.
 - `received` : les invitations reçues, à accepter ou refuser. `sent` : les invitations envoyées, en attente.
 - `id` est l'identifiant de l'amitié ou de l'invitation, à utiliser dans les routes ci-dessous.
 
@@ -57,6 +59,16 @@ Invite un joueur par son code.
 ## `POST /me/friends/{id}/accept`
 
 Accepte une invitation reçue. **409** si le joueur n'est pas celui qui a été invité, ou si l'invitation est déjà acceptée. **404** si le joueur n'est pas concerné.
+
+## `POST /me/friends/{id}/cheer`
+
+Envoie un coup de patte à un ami ([fonctionnalites-sociales.md](../fonctionnalites-sociales.md) § 3.2). Pas de corps. Renvoie la vue des amis, où `cheer.sent` passe à `true`.
+
+- Un coup de patte par jour et par ami, heure de Paris : la contrainte unique de la table `cheers` le garantit, même si deux requêtes arrivent en même temps. Les deux amis peuvent s'en envoyer un chacun le même jour.
+- Chaque coup de patte reçu dans la journée ajoute 5 points à l'humeur du compagnon de l'ami, 15 au plus par jour, sans dépasser 100 ([regles-du-jeu.md](../regles-du-jeu.md)).
+- **409** si un coup de patte a déjà été envoyé à cet ami aujourd'hui, ou si le lien n'est qu'une invitation. **404** si le joueur n'est pas concerné.
+- Limite : 30 par minute et par joueur, puis **429**.
+- Pas encore de notification à l'ami : elle viendra avec les notifications (§ 7). L'ami le voit dans l'app, sur sa liste et sur la fiche.
 
 ## `DELETE /me/friends/{id}`
 

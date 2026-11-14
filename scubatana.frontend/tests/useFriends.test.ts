@@ -1,6 +1,8 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { formatFriendCode, friendGoalFill, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, type FriendsView } from "~/utils/friends";
+import { FRIEND_SEARCH_FROM, filterFriends, formatFriendCode, formatFriendSince, friendCompanionDetails, friendGoalFill, friendRowLabel, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, type FriendsView } from "~/utils/friends";
+import { formatCount } from "~/utils/labels";
+import type { CompanionCatalog } from "~/utils/types";
 
 const { httpRequest, navigateTo, storage } = vi.hoisted(() => ({
 	httpRequest: vi.fn(),
@@ -30,6 +32,7 @@ const sampleView: FriendsView = {
 		{
 			id: 12,
 			since: "2026-10-13",
+			cheer: { sent: false, received: false },
 			player: {
 				id: 3,
 				pseudo: "Yanis",
@@ -60,6 +63,7 @@ describe("friends utils", () => {
 			{
 				id: 15,
 				since: "2026-10-13",
+				cheer: { sent: false, received: false },
 				player: {
 					id: 4,
 					pseudo: "Amine",
@@ -80,6 +84,55 @@ describe("friends utils", () => {
 		expect(qrRefreshDelay("2026-11-09T16:00:12+01:00", now)).toBe(5_000);
 		expect(qrRefreshDelay("2026-11-09T15:59:00+01:00", now)).toBe(5_000);
 		expect(qrRefreshDelay("pas une date", now)).toBe(5_000);
+	});
+
+	it("writes the friendship date in full, and nothing for an unreadable date", () => {
+		expect(formatFriendSince("2026-10-13")).toBe("13 octobre 2026");
+		expect(formatFriendSince("2026-10-13T08:00:00+02:00")).toBe("13 octobre 2026");
+		expect(formatFriendSince("")).toBe("");
+	});
+
+	it("finds friends by pseudo, ignoring case and accents", () => {
+		const friend = sampleView.friends[0];
+		const ines = { ...friend, id: 20, player: { ...friend.player, id: 20, pseudo: "Inès" } };
+		const list = [friend, ines];
+
+		expect(filterFriends(list, "ines").map((entry) => entry.player.pseudo)).toEqual(["Inès"]);
+		expect(filterFriends(list, " YAN ").map((entry) => entry.player.pseudo)).toEqual(["Yanis"]);
+		expect(filterFriends(list, "")).toEqual(list);
+		expect(filterFriends(list, "zoé")).toEqual([]);
+		expect(FRIEND_SEARCH_FROM).toBeGreaterThan(1);
+	});
+
+	it("names the friend row with what a screen reader would otherwise miss", () => {
+		const friendship = sampleView.friends[0];
+		const player = friendship.player;
+
+		expect(friendRowLabel(friendship)).toBe(`Yanis, niveau 3, ${formatCount(4200)} pas sur ${formatCount(5000)}. Voir sa fiche`);
+		expect(friendRowLabel({ ...friendship, player: { ...player, companion: null, today: null } })).toBe("Yanis, pas masqués. Voir sa fiche");
+		expect(friendRowLabel({ ...friendship, cheer: { sent: false, received: true } })).toContain("t'a envoyé un coup de patte. Voir sa fiche");
+		expect(friendRowLabel({ ...friendship, cheer: { sent: true, received: true } })).not.toContain("coup de patte");
+	});
+
+	it("names the friend's species and worn accessories in catalog order", () => {
+		const catalog: CompanionCatalog = {
+			categories: [],
+			species: [{ id: "dog", label: "Chien", svg: "", anchors: {} }],
+			colors: [],
+			accessories: [
+				{ id: "scarf", label: "Écharpe", category: "neck", image: "/scarf.png" },
+				{ id: "cap", label: "Casquette", category: "head", image: "/cap.png" },
+				{ id: "glasses", label: "Lunettes", category: "eyes", image: "/glasses.png" }
+			]
+		};
+		const companion = { name: "Bulle", species: "dog", color: "sand", accessories: ["cap", "scarf", "unknown"], level: 3 };
+
+		const details = friendCompanionDetails(catalog, companion);
+
+		expect(details.species).toBe("Chien");
+		expect(details.accessories.map((accessory) => accessory.label)).toEqual(["Écharpe", "Casquette"]);
+		expect(friendCompanionDetails(catalog, { ...companion, species: "cat" }).species).toBeNull();
+		expect(friendCompanionDetails(null, companion)).toEqual({ species: null, accessories: [] });
 	});
 });
 
@@ -143,6 +196,7 @@ describe("useFriends", () => {
 					{
 						id: 13,
 						since: "2026-10-13",
+						cheer: { sent: false, received: false },
 						player: {
 							id: 9,
 							pseudo: "Lina",
@@ -158,6 +212,18 @@ describe("useFriends", () => {
 		const mutualOutcome = await friends.invite("LINA2345");
 		expect(mutualOutcome).toBe("mutual");
 		expect(usePlayer().player.value?.stats.friends_count).toBe(2);
+	});
+
+	it("sends a cheer and keeps the view the server returns", async () => {
+		const cheered: FriendsView = { ...sampleView, friends: [{ ...sampleView.friends[0], cheer: { sent: true, received: false } }] };
+		httpRequest.mockResolvedValueOnce({ status: 200, data: cheered });
+		const friends = useFriends();
+
+		await friends.cheer(12);
+
+		expect(httpRequest.mock.calls[0][0]).toBe("POST");
+		expect(httpRequest.mock.calls[0][1]).toMatch(/\/api\/me\/friends\/12\/cheer$/);
+		expect(friends.friends.value[0].cheer.sent).toBe(true);
 	});
 
 	it("accepts and deletes invitations or friendships using the returned view", async () => {
@@ -207,6 +273,7 @@ describe("useFriends", () => {
 					{
 						id: 20,
 						since: "2026-11-09",
+						cheer: { sent: false, received: false },
 						player: {
 							id: 9,
 							pseudo: "Lina",
