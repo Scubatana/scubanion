@@ -1,8 +1,10 @@
 #include <Arduino.h>
 #include <MQTT.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <time.h>
 
+#include "autorites_racines.h"
 #include "messages.h"
 #include "screen.h"
 #include "token.h"
@@ -14,9 +16,17 @@
 #include "borne_config.example.h"
 #endif
 
+#ifndef MQTT_TLS
+#error "MQTT_TLS manquant dans include/borne_config.h : reprendre le bloc MQTT de borne_config.example.h"
+#endif
+
+#if MQTT_TLS && !defined(MQTT_CA_CERT)
+#define MQTT_CA_CERT LETS_ENCRYPT_ROOTS
+#endif
+
 namespace {
 
-constexpr const char* FIRMWARE_VERSION = "0.3.0";
+constexpr const char* FIRMWARE_VERSION = "0.4.0";
 
 constexpr time_t EARLIEST_VALID_TIME = 1767225600;
 
@@ -46,7 +56,11 @@ const std::string OFFLINE_MESSAGE = messages::offline();
 
 const std::string MQTT_ACCOUNT_PASSWORD = token::mqttPassword(BORNE_SECRET);
 
+#if MQTT_TLS
+WiFiClientSecure network;
+#else
 WiFiClient network;
+#endif
 
 MQTTClient mqtt(512);
 
@@ -166,6 +180,13 @@ void connectMqtt()
 	if (!mqtt.connect(BORNE_CODE, BORNE_CODE, MQTT_ACCOUNT_PASSWORD.c_str())) {
 		Serial.printf("Connexion au broker MQTT %s:%d refusée ou impossible (erreur %d, code %d)\n",
 			MQTT_HOST, MQTT_PORT, static_cast<int>(mqtt.lastError()), static_cast<int>(mqtt.returnCode()));
+#if MQTT_TLS
+		char reason[128];
+
+		if (network.lastError(reason, sizeof(reason)) != 0) {
+			Serial.printf("TLS : %s\n", reason);
+		}
+#endif
 		return;
 	}
 
@@ -177,6 +198,11 @@ void connectMqtt()
 void keepMqttConnected()
 {
 	if (WiFi.status() != WL_CONNECTED) {
+		return;
+	}
+
+	// Le certificat du broker a des dates de validité : sans l'heure, la borne ne peut pas le vérifier.
+	if (MQTT_TLS && !clockIsSet()) {
 		return;
 	}
 
@@ -204,6 +230,10 @@ void setup()
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 	configTime(0, 0, NTP_SERVER);
+
+#if MQTT_TLS
+	network.setCACert(MQTT_CA_CERT);
+#endif
 
 	mqtt.begin(MQTT_HOST, MQTT_PORT, network);
 	mqtt.setKeepAlive(MQTT_KEEP_ALIVE_SECONDS);
