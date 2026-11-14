@@ -16,4 +16,4 @@ Indiquer la brique concernée (app, API, borne, infrastructure), comment reprodu
 - le firmware des bornes (`scubatana.borne`), le broker MQTT et le jeton NFC signé ;
 - la chaîne CI/CD (GitHub Actions, GitLab CI) et les images DockerHub.
 
-Limite déjà connue et documentée : MQTT circule en clair sur le port 1883 en attendant le passage en TLS ([docs/mqtt.md](docs/mqtt.md)).
+Les bornes se connectent au broker MQTT en TLS sur le port 8883 ([docs/mqtt.md](docs/mqtt.md#chiffrement-tls)). Le port 1883, en clair, reste interne au serveur.
