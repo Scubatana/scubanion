@@ -18,7 +18,8 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("${rootProject.projectDir}/../android-keystore/scubanion-dev.keystore")
+            // ANDROID_KEYSTORE_FILE : clé de release hors dépôt (fournie par la CI). Sinon, la clé dev versionnée.
+            storeFile file(System.getenv("ANDROID_KEYSTORE_FILE") ?: "${rootProject.projectDir}/../android-keystore/scubanion-dev.keystore")
             storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
             keyAlias System.getenv("ANDROID_KEY_ALIAS")
             keyPassword System.getenv("ANDROID_KEY_PASSWORD")
