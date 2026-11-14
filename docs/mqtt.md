@@ -169,11 +169,25 @@ Les bornes passent par Internet : en clair, quelqu'un sur le chemin lirait leur 
 | 8883 (TLS) | publié sur Internet | les bornes |
 | 1883 (en clair) | réseau Docker `iot` seulement | l'API et `bornes:ecouter`, qui tournent à côté du broker |
 
-**Côté serveur.** Le dossier de l'hôte qui contient le certificat et sa clé est monté en lecture seule dans le conteneur `mosquitto` (`MQTT_TLS_DIR`, avec les chemins `MQTT_TLS_CERT` et `MQTT_TLS_KEY` dans ce dossier ; voir `.env.exemple`, réglé pour certbot). Au démarrage, `scubatana.mosquitto/demarrer.sh` :
+**Côté serveur.** Un dossier de l'hôte qui contient **seulement** le certificat et la clé de `scuba.picsou06.fr` est monté en lecture seule dans le conteneur `mosquitto` (`MQTT_TLS_DIR`, avec les noms `MQTT_TLS_CERT` et `MQTT_TLS_KEY` dans ce dossier ; voir `.env.exemple`). On ne monte pas tout `/etc/letsencrypt` : le broker est exposé sur Internet, et s'il était compromis il emporterait les clés des autres domaines et celle du compte Let's Encrypt. Un *deploy hook* certbot copie le certificat à chaque renouvellement :
+
+```bash
+#!/bin/sh
+# /etc/letsencrypt/renewal-hooks/deploy/certificat-mqtt.sh (exécutable), à lancer aussi une fois à la main
+set -eu
+dest=/opt/scubatana/certificat-mqtt
+mkdir -p "$dest"
+cp /etc/letsencrypt/live/scuba.picsou06.fr/fullchain.pem /etc/letsencrypt/live/scuba.picsou06.fr/privkey.pem "$dest/"
+chmod 600 "$dest/privkey.pem"
+```
+
+Au démarrage, `scubatana.mosquitto/demarrer.sh` :
 
 - copie le certificat et la clé dans le conteneur, pour l'utilisateur `mosquitto` : la clé de Let's Encrypt n'est lisible que par root, et Mosquitto refuse alors de démarrer ;
 - ajoute le listener 8883 ;
-- vérifie toutes les heures si le certificat a changé et, après un renouvellement, le fait recharger par Mosquitto (`SIGHUP`, sans couper les connexions).
+- vérifie toutes les heures si le certificat a changé et, après un renouvellement, le fait recharger par Mosquitto (`SIGHUP`, sans couper les connexions) ;
+- relaie à Mosquitto le `SIGHUP` de `docker compose kill -s HUP mosquitto` (relecture des comptes après `bornes:creer`) : avec un certificat, c'est ce script qui reçoit les signaux du conteneur ;
+- vérifie toutes les 10 secondes que Mosquitto tourne : s'il s'arrête, le conteneur s'arrête avec lui et Docker le relance.
 
 Sans certificat dans le dossier, le broker démarre seulement sur 1883 et l'écrit dans ses journaux : c'est le cas en dev.
 

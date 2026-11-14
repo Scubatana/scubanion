@@ -52,16 +52,27 @@ stop() {
 }
 
 trap stop TERM INT
+# Relaie la relecture des comptes (docker compose kill -s HUP mosquitto, après bornes:creer) :
+# ce script est le PID 1 du conteneur, le signal arrive ici et pas à Mosquitto.
+trap 'kill -HUP "$broker" 2>/dev/null || true' HUP
 
 current=$(fingerprint)
+elapsed=0
 
-# Mosquitto relit son certificat sur SIGHUP, sans couper les connexions.
+# Toutes les 10 s : Mosquitto tourne-t-il encore ? S'il s'arrête, le script sort avec son code et Docker relance le conteneur.
+# Toutes les CHECK_SECONDS : le certificat a-t-il changé ? Mosquitto le relit sur SIGHUP, sans couper les connexions.
 while kill -0 "$broker" 2>/dev/null; do
-	sleep "$CHECK_SECONDS" &
+	sleep 10 &
 	sleeper=$!
 	wait "$sleeper" || true
 	sleeper=
+	elapsed=$((elapsed + 10))
 
+	if [ "$elapsed" -lt "$CHECK_SECONDS" ]; then
+		continue
+	fi
+
+	elapsed=0
 	latest=$(fingerprint 2>/dev/null || echo "$current")
 
 	if [ "$latest" != "$current" ]; then
