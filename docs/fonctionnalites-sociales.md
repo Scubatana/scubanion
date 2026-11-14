@@ -27,7 +27,7 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 | Échanges d'objets entre joueurs                               | 5  | nouvelle exigence | Could               | À faire                                           |
 | Cadeaux entre amis                                            | 5  | nouvelle exigence | Could               | À faire                                           |
 | Succès sociaux                                                | 5  | nouvelle exigence | Should              | À faire                                           |
-| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | Calcul de la série et du record : fait (API). Affichage et paliers à faire |
+| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | Série et record : faits (API et écran). Paliers à faire |
 | Raid de borne                                                 | 6  | BOR-05            | Should              | À faire                                           |
 | Notifications                                                 | 7  | APP-12            | Should              | À faire                                           |
 | Fil d'activité réduit, classement facultatif                | 3  | APP-07            | Could               | À faire                                           |
@@ -110,7 +110,7 @@ Entre deux amis, une **série** compte les jours d'affilée où ils se sont **é
 
 - Seuls les échanges depuis l'amitié actuelle comptent : deux joueurs qui se retirent puis se rajoutent repartent de zéro.
 - Elle démarre toute seule au premier jour d'échange, entre n'importe quels amis : pas besoin de l'activer, elle ne révèle rien d'autre que les coups de patte.
-- Le compteur s'affiche à côté de l'ami dans la liste, avec une petite flamme.
+- Le compteur s'affiche à côté de l'ami dans la liste, avec une petite flamme. Elle s'allume quand les deux amis ont échangé aujourd'hui. La fiche de l'ami montre la série et le record ; la série de pas de l'ami n'y apparaît que comme un nombre de jours d'objectif, pour qu'une flamme ne veuille dire qu'une chose sur la page Amis.
 - Elle n'a rien à voir avec la série personnelle déjà en place, qui compte les jours où le joueur atteint son objectif de pas (`streak` dans l'API des pas).
 
 **Paliers.** À 7, 30 et 100 jours, les deux compagnons gagnent un **accessoire assorti** (non échangeable) et l'app joue le moment partagé (§ 4.4).
