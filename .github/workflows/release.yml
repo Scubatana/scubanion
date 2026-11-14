@@ -22,6 +22,8 @@ concurrency:
 jobs:
   release:
     name: Tag et release
+    # Lancé à la main depuis une autre branche, il taguerait (et ferait déployer) du code non relu.
+    if: github.ref_name == 'master' || github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
