@@ -43,11 +43,15 @@ services:
     environment:
       MQTT_USERNAME: ${MQTT_USERNAME:-}
       MQTT_PASSWORD: ${MQTT_PASSWORD:-}
+      MQTT_TLS_CERT: ${MQTT_TLS_CERT:-fullchain.pem}
+      MQTT_TLS_KEY: ${MQTT_TLS_KEY:-privkey.pem}
+    # Seul le port TLS est publié : 1883 (en clair) reste sur le réseau iot, pour l'API.
     ports:
-      - "${MQTT_PORT:-1883}:1883"
+      - "${MQTT_TLS_PORT:-8883}:8883"
     volumes:
       - mosquitto_data:/mosquitto/data
       - mqtt_comptes:/mosquitto/comptes:ro
+      - ${MQTT_TLS_DIR:-./certificat-mqtt}:/certificat:ro
     depends_on:
       backend:
         condition: service_healthy
