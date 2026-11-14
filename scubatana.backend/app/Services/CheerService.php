@@ -6,6 +6,7 @@ use App\Models\Cheer;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 
 class CheerService
 {
@@ -44,6 +45,50 @@ class CheerService
 		$received = Cheer::where('friend_id', $user->id)->whereDate('day', $day->toDateString())->count();
 
 		return min(self::MOOD_BONUS_MAX, $received * self::MOOD_BONUS);
+	}
+
+	public function exchangeDaysFor(User $player): array
+	{
+		return DB::table('cheers as sent')
+			->join('cheers as back', function ($join) {
+				$join->on('back.user_id', '=', 'sent.friend_id')
+					->on('back.friend_id', '=', 'sent.user_id')
+					->on('back.day', '=', 'sent.day');
+			})
+			->where('sent.user_id', $player->id)
+			->orderBy('sent.day')
+			->get(['sent.friend_id', 'sent.day'])
+			->groupBy('friend_id')
+			->map(fn ($rows) => $rows->map(fn ($row) => substr($row->day, 0, 10))->all())
+			->all();
+	}
+
+	public function streak(array $exchangeDays, CarbonImmutable $since): array
+	{
+		$exchanged = array_flip(array_filter($exchangeDays, fn (string $day) => $day >= $since->toDateString()));
+
+		if ($exchanged === []) {
+			return ['days' => 0, 'record' => 0];
+		}
+
+		$today = CarbonImmutable::now()->startOfDay();
+		$last = isset($exchanged[$today->toDateString()]) ? $today : $today->subDay();
+		$days = 0;
+		$record = 0;
+		$jokerWeek = null;
+
+		for ($day = CarbonImmutable::parse(array_key_first($exchanged)); $day->lte($last); $day = $day->addDay()) {
+			if (isset($exchanged[$day->toDateString()])) {
+				$record = max($record, ++$days);
+			} elseif ($days > 0 && $jokerWeek !== $day->format('o-W')) {
+				$jokerWeek = $day->format('o-W');
+			} else {
+				$days = 0;
+				$jokerWeek = null;
+			}
+		}
+
+		return ['days' => $days, 'record' => $record];
 	}
 
 	private function today(): string

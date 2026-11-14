@@ -59,11 +59,11 @@ class CheersTest extends TestCase
 	{
 		$this->cheer($this->lea)
 			->assertOk()
-			->assertJsonPath('friends.0.cheer', ['sent' => true, 'received' => false]);
+			->assertJsonPath('friends.0.cheer', ['sent' => true, 'received' => false, 'streak' => ['days' => 0, 'record' => 0]]);
 
 		$this->as($this->yanis)->getJson('/api/me/friends')
 			->assertOk()
-			->assertJsonPath('friends.0.cheer', ['sent' => false, 'received' => true]);
+			->assertJsonPath('friends.0.cheer', ['sent' => false, 'received' => true, 'streak' => ['days' => 0, 'record' => 0]]);
 	}
 
 	public function test_both_friends_can_cheer_each_other_the_same_day(): void
@@ -72,7 +72,7 @@ class CheersTest extends TestCase
 
 		$this->cheer($this->yanis)
 			->assertOk()
-			->assertJsonPath('friends.0.cheer', ['sent' => true, 'received' => true]);
+			->assertJsonPath('friends.0.cheer', ['sent' => true, 'received' => true, 'streak' => ['days' => 1, 'record' => 1]]);
 	}
 
 	public function test_only_one_cheer_per_friend_and_per_day(): void
@@ -103,7 +103,7 @@ class CheersTest extends TestCase
 		$this->cheer($this->lea)->assertOk();
 		$this->travelTo('2026-10-14 09:00:00');
 
-		$this->as($this->yanis)->getJson('/api/me/friends')->assertJsonPath('friends.0.cheer', ['sent' => false, 'received' => false]);
+		$this->as($this->yanis)->getJson('/api/me/friends')->assertJsonPath('friends.0.cheer', ['sent' => false, 'received' => false, 'streak' => ['days' => 0, 'record' => 0]]);
 	}
 
 	public function test_an_invitation_cannot_be_cheered(): void
