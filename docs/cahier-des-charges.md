@@ -356,11 +356,11 @@ Pistes, à confirmer quand les consignes arriveront :
 - Une GitHub Action le **copie automatiquement sur GitLab IUT** (toutes les branches et tous les tags). C'est ce miroir que les enseignants évaluent, et son runner exécute le pipeline officiel.
 - Les PR ne sont pas copiées sur GitLab. On fusionne donc avec un commit de merge (pas de squash) : les commits de chacun et les numéros de PR restent visibles dans l'historique.
 
-**Branches** (`dev` → `master`, détaillé dans [CONTRIBUTING.md](../CONTRIBUTING.md))
+**Branches** (`develop` → `master`, détaillé dans [CONTRIBUTING.md](../CONTRIBUTING.md))
 
-- `dev` : branche d'intégration et branche par défaut, protégée. Elle ne reçoit que des PR.
-- `feature/<sujet>`, `fix/<sujet>`, `docs/<sujet>`, `ci/<sujet>`, `build/<sujet>` : une branche par tâche, créée depuis `dev` et fusionnée dans `dev` par PR quand la CI est verte et qu'un autre membre a relu.
-- `master` : la version livrée, protégée. Elle ne reçoit que la PR de release `dev` → `master` ; une branche de travail n'y est jamais fusionnée (la garde des PR la redirige vers `dev`).
+- `develop` : branche d'intégration et branche par défaut, protégée. Elle ne reçoit que des PR.
+- `feature/<sujet>`, `fix/<sujet>`, `docs/<sujet>`, `ci/<sujet>`, `build/<sujet>` : une branche par tâche, créée depuis `develop` et fusionnée dans `develop` par PR quand la CI est verte et qu'un autre membre a relu.
+- `master` : la version livrée, protégée. Elle ne reçoit que la PR de release `develop` → `master` ; une branche de travail n'y est jamais fusionnée (la garde des PR la redirige vers `develop`).
 - Tags `vX.Y.Z` : créés automatiquement à chaque fusion dans `master` (`release.yml`), numéro calculé depuis les Conventional Commits ; une release par jalon (§ 9).
 
 **Commits**
@@ -382,8 +382,8 @@ flowchart LR
 
 | Événement              | GitHub Actions        | GitLab CI (runner IUT)                                                  |
 | ------------------------ | --------------------- | ----------------------------------------------------------------------- |
-| PR vers `dev` ou `master` | Tests rapides, garde des PR | —                                                                       |
-| Fusion dans `dev`      | Miroir                | —                                                                       |
+| PR vers `develop` ou `master` | Tests rapides, garde des PR | —                                                                       |
+| Fusion dans `develop`      | Miroir                | —                                                                       |
 | Fusion dans `master` (release) | Tag `vX.Y.Z` et release GitHub, miroir | Tests → SonarQube → build (APK + site) → vérifications |
 | Tag `vX.Y.Z`           | Miroir                | Idem + release : APK signé et images DockerHub `vX.Y.Z`, puis déploiement |
 
@@ -433,7 +433,7 @@ Rôles proposés par l'équipe, confirmés (D9) : un référent par lot, et chaq
 | D7  | SonarQube                                 | Instance de l'IUT, auto-hébergé                                                                                                               |                                                                                                                                                              | 18/10                                   |
 | D8  | Miroir GitHub → GitLab                   | GitHub Action, double push depuis les postes                                                                                                    | Vérifier que le GitLab IUT est joignable depuis GitHub                                                                                                      | 04/10                                   |
 | D9  | Rôles                                    | **Tranchée : rôles du § 7 confirmés.** Un référent par lot et une étape du pipeline par membre                                                  | Appliqué dans le plan d'action (§ 2.3)                                                                                                                       | 04/10                                   |
-| D10 | Stratégie Git                            | **Révisée (13/11) : branche d'intégration `dev`.** Les PR de travail visent `dev` ; seule une PR `dev` → `master` fusionne dans `master`, et chaque fusion crée le tag `vX.Y.Z` et la release. Fusion sans squash après relecture et CI verte. Remplace le GitHub Flow tranché le 04/10 | Une version livrée n'embarque que ce qui a été intégré et relu ensemble sur `dev` ; tags et notes de version automatiques. Rulesets sur `dev` et `master`, `garde-des-pull-requests.yml`, `release.yml`, [CONTRIBUTING.md](../CONTRIBUTING.md) | 04/10, révisée le 13/11                 |
+| D10 | Stratégie Git                            | **Révisée (13/11) : branche d'intégration `develop`.** Les PR de travail visent `develop` ; seule une PR `develop` → `master` fusionne dans `master`, et chaque fusion crée le tag `vX.Y.Z` et la release. Fusion sans squash après relecture et CI verte. Remplace le GitHub Flow tranché le 04/10 | Une version livrée n'embarque que ce qui a été intégré et relu ensemble sur `develop` ; tags et notes de version automatiques. Rulesets sur `develop` et `master`, `garde-des-pull-requests.yml`, `release.yml`, [CONTRIBUTING.md](../CONTRIBUTING.md) | 04/10, révisée le 13/11                 |
 
 ## 9. Planning (*proposition*)
 

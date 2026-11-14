@@ -5,9 +5,9 @@ Ce document décrit la chaîne d'intégration et de déploiement continu du proj
 ## 1. Dépôts et stratégie Git
 
 - **Dépôt de travail** : GitHub (`Scubatana/scubanion`). Les règles complètes sont dans [CONTRIBUTING.md](../CONTRIBUTING.md).
-  - `dev` : branche d'intégration et branche par défaut. Chaque tâche part de `dev` sur une branche courte (`feature/...`, `fix/...`, `docs/...`, `ci/...`, `build/...`) et y revient par PR : relecture d'un autre membre, CI verte, commit de merge (pas de squash ni de rebase).
-  - `master` : la version livrée. Elle ne reçoit que des PR `dev` → `master`, une par version. La fusion crée le tag `vX.Y.Z` et la release GitHub (`.github/workflows/release.yml`), avec un numéro calculé depuis les Conventional Commits.
-  - `garde-des-pull-requests.yml` redirige vers `dev` toute PR qui vise `master` depuis une autre branche que `dev`, et signale en commentaire une PR en retard sur sa branche cible : l'auteur fusionne lui-même, pour que le commit de merge lui soit attribué (Git est noté sur GitLab IUT).
+  - `develop` : branche d'intégration et branche par défaut. Chaque tâche part de `develop` sur une branche courte (`feature/...`, `fix/...`, `docs/...`, `ci/...`, `build/...`) et y revient par PR : relecture d'un autre membre, CI verte, commit de merge (pas de squash ni de rebase).
+  - `master` : la version livrée. Elle ne reçoit que des PR `develop` → `master`, une par version. La fusion crée le tag `vX.Y.Z` et la release GitHub (`.github/workflows/release.yml`), avec un numéro calculé depuis les Conventional Commits.
+  - `garde-des-pull-requests.yml` redirige vers `develop` toute PR qui vise `master` depuis une autre branche que `develop`, et signale en commentaire une PR en retard sur sa branche cible : l'auteur fusionne lui-même, pour que le commit de merge lui soit attribué (Git est noté sur GitLab IUT).
 - **Miroir évalué** : GitLab IUT, synchronisé automatiquement depuis GitHub (`.github/workflows/miroir-gitlab.yml`) : branches copiées à l'identique, tags ajoutés sans jamais être supprimés. Son runner (`picsou06`) exécute le pipeline officiel.
 - **Commits** : format Conventional Commits en français (`feat:`, `fix:`, `docs:`, `ci:`, `test:`, `build:`).
 
@@ -15,8 +15,8 @@ Ce document décrit la chaîne d'intégration et de déploiement continu du proj
 
 ```mermaid
 flowchart LR
-  DEV["Poste d'un membre"] -->|"PR vers dev"| GHA["GitHub Actions<br/>Tests API (SQLite, MariaDB), borne, app"]
-  GHA -->|"PR dev → master"| REL["Release GitHub<br/>tag vX.Y.Z"]
+  DEV["Poste d'un membre"] -->|"PR vers develop"| GHA["GitHub Actions<br/>Tests API (SQLite, MariaDB), borne, app"]
+  GHA -->|"PR develop → master"| REL["Release GitHub<br/>tag vX.Y.Z"]
   REL -->|"miroir"| GL["GitLab IUT<br/>.gitlab-ci.yml"]
   GL --> T["1. test<br/>PHPUnit + pcov, Vitest + LCOV"]
   T --> Q["2. quality<br/>SonarQube"]
@@ -29,7 +29,7 @@ flowchart LR
 
 | Événement | GitHub Actions | GitLab CI (runner IUT) |
 | --------- | -------------- | ---------------------- |
-| PR vers `dev` ou `master` | Tests API, Tests API MariaDB, Tests borne, Tests app ; garde des PR | — |
+| PR vers `develop` ou `master` | Tests API, Tests API MariaDB, Tests borne, Tests app ; garde des PR | — |
 | Fusion dans `master` | Tag `vX.Y.Z` et release GitHub ; miroir | test → quality → build → verify |
 | Tag `vX.Y.Z` (reçu par le miroir) | — | test → quality → build → verify → release → deploy |
 

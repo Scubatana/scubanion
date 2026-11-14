@@ -43,9 +43,9 @@ update() {
 		return 0
 	fi
 
-	# La PR de release dev → master n'est jamais mise à jour : dev est protégée, et master ne reçoit que dev.
+	# La PR de release develop → master n'est jamais mise à jour : develop est protégée, et master ne reçoit que develop.
 	case "$head" in
-	dev | master | main)
+	develop | master | main)
 		return 0
 		;;
 	esac

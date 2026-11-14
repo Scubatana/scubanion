@@ -1,6 +1,6 @@
 name: Release
 
-# À chaque fusion d'une PR dev → master : tag vX.Y.Z calculé depuis les Conventional Commits,
+# À chaque fusion d'une PR develop → master : tag vX.Y.Z calculé depuis les Conventional Commits,
 # release GitHub avec les notes de version, puis copie du tag sur GitLab IUT (qui publie et déploie).
 on:
   push:

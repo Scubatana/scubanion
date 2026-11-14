@@ -14,8 +14,8 @@ output() {
 
 subject=$(git log -1 --format=%s)
 
-if [ "${EVENT:-push}" = "push" ] && ! [[ "$subject" =~ ^Merge\ pull\ request\ \#[0-9]+\ from\ [^/]+/dev$ ]]; then
-	echo "Ce commit ne vient pas d'une PR dev → master : pas de release."
+if [ "${EVENT:-push}" = "push" ] && ! [[ "$subject" =~ ^Merge\ pull\ request\ \#[0-9]+\ from\ [^/]+/develop$ ]]; then
+	echo "Ce commit ne vient pas d'une PR develop → master : pas de release."
 	output ""
 	exit 0
 fi
@@ -100,7 +100,7 @@ section() {
 	section "CI et build" '^(ci|build)(\([^)]*\))?!?:'
 	section "Autres changements" '^(feat|fix|docs|test|ci|build)(\([^)]*\))?!?:' autres
 
-	merged=$(git log --merges --format=%s "$range" | sed -nE 's/^Merge pull request (#[0-9]+) from [^/]+\/(.+)$/\1 \2/p' | grep -v ' dev$' || true)
+	merged=$(git log --merges --format=%s "$range" | sed -nE 's/^Merge pull request (#[0-9]+) from [^/]+\/(.+)$/\1 \2/p' | grep -v ' develop$' || true)
 
 	if [ -n "$merged" ]; then
 		printf '### Pull requests\n\n'

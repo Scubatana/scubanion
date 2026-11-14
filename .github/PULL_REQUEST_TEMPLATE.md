@@ -14,7 +14,7 @@
 
 ## Avant de demander une relecture
 
-- [ ] La PR vise `dev` (seule la PR de release `dev` → `master` vise `master`)
+- [ ] La PR vise `develop` (seule la PR de release `develop` → `master` vise `master`)
 - [ ] Commits au format Conventional Commits, en français, sous mon vrai nom et l'email de mon compte GitLab IUT
 - [ ] Tests ajoutés ou mis à jour, CI verte
 - [ ] Documentation à jour si besoin (`docs/api/`, modèle de données, règles du jeu, `mqtt.md`, cahier des charges)

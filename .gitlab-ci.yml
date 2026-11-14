@@ -1,4 +1,4 @@
-# master reçoit une PR dev → master par version ; GitHub crée alors le tag vX.Y.Z, copié ici par le miroir.
+# master reçoit une PR develop → master par version ; GitHub crée alors le tag vX.Y.Z, copié ici par le miroir.
 # Pipeline de master : tests, analyse, build et vérifications. Pipeline du tag : en plus, release et déploiement.
 workflow:
   rules:

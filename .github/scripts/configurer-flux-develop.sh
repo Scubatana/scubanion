@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Met en place le flux dev → master sur GitHub. À lancer une seule fois, par un administrateur du dépôt,
-# APRÈS la fusion dans master de la PR qui ajoute ce script (sinon la garde des PR fermerait les PR vers dev).
+# Met en place le flux develop → master sur GitHub. À lancer une seule fois, par un administrateur du dépôt,
+# APRÈS la fusion dans master de la PR qui ajoute ce script (sinon la garde des PR fermerait les PR vers develop).
 #
-#   bash .github/scripts/configurer-flux-dev.sh
+#   bash .github/scripts/configurer-flux-develop.sh
 #
 # Le script peut être relancé sans risque : chaque étape vérifie ce qui existe déjà.
 set -euo pipefail
@@ -14,13 +14,13 @@ step() {
 	printf '\n== %s\n' "$1"
 }
 
-step "Branche dev, créée depuis master"
-if gh api "repos/$REPO/branches/dev" > /dev/null 2>&1; then
-	echo "dev existe déjà."
+step "Branche develop, créée depuis master"
+if gh api "repos/$REPO/branches/develop" > /dev/null 2>&1; then
+	echo "develop existe déjà."
 else
 	sha=$(gh api "repos/$REPO/git/ref/heads/master" --jq .object.sha)
-	gh api -X POST "repos/$REPO/git/refs" -f ref=refs/heads/dev -f sha="$sha" > /dev/null
-	echo "dev créée sur $sha."
+	gh api -X POST "repos/$REPO/git/refs" -f ref=refs/heads/develop -f sha="$sha" > /dev/null
+	echo "develop créée sur $sha."
 fi
 
 main_id=$(gh api "repos/$REPO/rulesets" --jq '.[] | select(.name == "Branches principales") | .id')
@@ -30,7 +30,7 @@ if [ -z "$main_id" ]; then
 	exit 1
 fi
 
-step "Ruleset « Branche d'intégration » sur dev"
+step "Ruleset « Branche d'intégration » sur develop"
 if [ -n "$(gh api "repos/$REPO/rulesets" --jq '.[] | select(.name == "Branche d'"'"'intégration") | .id')" ]; then
 	echo "Il existe déjà."
 else
@@ -41,7 +41,7 @@ else
 		target: \"branch\",
 		enforcement: \"active\",
 		bypass_actors: .bypass_actors,
-		conditions: { ref_name: { include: [\"refs/heads/dev\"], exclude: [] } },
+		conditions: { ref_name: { include: [\"refs/heads/develop\"], exclude: [] } },
 		rules: [
 			{ type: \"deletion\" },
 			{ type: \"non_fast_forward\" },
@@ -67,8 +67,8 @@ else
 fi
 
 step "master : plus d'obligation d'être à jour avant la fusion"
-# master ne reçoit que dev : après une release, master a un commit de merge que dev n'a pas.
-# Exiger une branche à jour forcerait à pousser sur dev, qui est protégée. Les tests tournent sur dev,
+# master ne reçoit que develop : après une release, master a un commit de merge que develop n'a pas.
+# Exiger une branche à jour forcerait à pousser sur develop, qui est protégée. Les tests tournent sur develop,
 # dont l'arbre est exactement celui que la fusion produit.
 gh api "repos/$REPO/rulesets/$main_id" --jq '{
 	name, target, enforcement, bypass_actors, conditions,
@@ -76,9 +76,9 @@ gh api "repos/$REPO/rulesets/$main_id" --jq '{
 }' | gh api -X PUT "repos/$REPO/rulesets/$main_id" --input - > /dev/null
 echo "Fait."
 
-step "dev par défaut, commits de merge seulement, branches supprimées après fusion"
+step "develop par défaut, commits de merge seulement, branches supprimées après fusion"
 gh api -X PATCH "repos/$REPO" \
-	-f default_branch=dev \
+	-f default_branch=develop \
 	-F allow_merge_commit=true \
 	-F allow_squash_merge=false \
 	-F allow_rebase_merge=false \
@@ -89,10 +89,10 @@ step "Signalement privé des failles (bouton « Report a vulnerability » de SEC
 gh api -X PUT "repos/$REPO/private-vulnerability-reporting" > /dev/null
 echo "Fait."
 
-step "PR ouvertes vers master redirigées vers dev"
-for number in $(gh pr list --repo "$REPO" --state open --base master --limit 100 --json number,headRefName --jq '.[] | select(.headRefName != "dev") | .number'); do
-	gh pr edit "$number" --repo "$REPO" --base dev > /dev/null
-	echo "#$number → dev"
+step "PR ouvertes vers master redirigées vers develop"
+for number in $(gh pr list --repo "$REPO" --state open --base master --limit 100 --json number,headRefName --jq '.[] | select(.headRefName != "develop") | .number'); do
+	gh pr edit "$number" --repo "$REPO" --base develop > /dev/null
+	echo "#$number → develop"
 done
 
-printf '\nFlux dev → master en place. Chacun : git fetch origin && git switch dev\n'
+printf '\nFlux develop → master en place. Chacun : git fetch origin && git switch develop\n'

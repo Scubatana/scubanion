@@ -4,7 +4,7 @@ on:
   pull_request_target:
     types: [opened, reopened, edited, synchronize]
   push:
-    branches: [dev, master, main]
+    branches: [develop, master, main]
 
 permissions:
   contents: read
@@ -20,7 +20,7 @@ jobs:
     if: github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     steps:
-      - name: N'accepter que dev, et la PR de release dev → master
+      - name: N'accepter que develop, et la PR de release develop → master
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -29,31 +29,31 @@ jobs:
           HEAD: ${{ github.event.pull_request.head.ref }}
           SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
-          if [ "$BASE" = "dev" ]; then
+          if [ "$BASE" = "develop" ]; then
             exit 0
           fi
 
           if [ "$BASE" = "master" ] || [ "$BASE" = "main" ]; then
-            if [ "$HEAD" = "dev" ] && [ "$SAME_REPO" = "true" ]; then
+            if [ "$HEAD" = "develop" ] && [ "$SAME_REPO" = "true" ]; then
               exit 0
             fi
 
-            # Tant que dev n'existe pas (avant .github/scripts/configurer-flux-dev.sh), master reste la cible.
-            if ! gh api "repos/$GH_REPO/branches/dev" > /dev/null 2>&1; then
+            # Tant que develop n'existe pas (avant .github/scripts/configurer-flux-develop.sh), master reste la cible.
+            if ! gh api "repos/$GH_REPO/branches/develop" > /dev/null 2>&1; then
               exit 0
             fi
 
-            gh pr edit "$NUMBER" --base dev
-            gh pr comment "$NUMBER" --body "Cette PR visait \`$BASE\` : elle a été redirigée vers \`dev\`. Les branches de travail fusionnent dans \`dev\` ; seule la PR de release \`dev\` → \`$BASE\` vise \`$BASE\` (voir CONTRIBUTING.md)."
+            gh pr edit "$NUMBER" --base develop
+            gh pr comment "$NUMBER" --body "Cette PR visait \`$BASE\` : elle a été redirigée vers \`develop\`. Les branches de travail fusionnent dans \`develop\` ; seule la PR de release \`develop\` → \`$BASE\` vise \`$BASE\` (voir CONTRIBUTING.md)."
             exit 0
           fi
 
-          gh pr close "$NUMBER" --comment "Cette PR vise \`$BASE\`. Les pull requests visent \`dev\` (ou \`master\` pour la seule PR de release depuis \`dev\`) : change la branche cible puis rouvre la PR."
+          gh pr close "$NUMBER" --comment "Cette PR vise \`$BASE\`. Les pull requests visent \`develop\` (ou \`master\` pour la seule PR de release depuis \`develop\`) : change la branche cible puis rouvre la PR."
           exit 1
 
   update:
     name: Branche à jour
-    if: github.event_name == 'push' || contains(fromJSON('["dev", "master", "main"]'), github.event.pull_request.base.ref)
+    if: github.event_name == 'push' || contains(fromJSON('["develop", "master", "main"]'), github.event.pull_request.base.ref)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

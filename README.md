@@ -182,4 +182,4 @@ Une version debug et une version release ne peuvent pas se remplacer l'une l'aut
 
 ## Contribuer
 
-Les branches de travail partent de `dev` et y reviennent par pull request ; seule la PR de release `dev` → `master` fusionne dans `master`, ce qui crée le tag `vX.Y.Z` et la release. Branches, commits, relecture et release : [CONTRIBUTING.md](CONTRIBUTING.md).
+Les branches de travail partent de `develop` et y reviennent par pull request ; seule la PR de release `develop` → `master` fusionne dans `master`, ce qui crée le tag `vX.Y.Z` et la release. Branches, commits, relecture et release : [CONTRIBUTING.md](CONTRIBUTING.md).
