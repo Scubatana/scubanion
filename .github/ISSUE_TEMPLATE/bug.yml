@@ -1,0 +1,51 @@
+name: Bug
+description: Quelque chose ne marche pas comme prévu (app, API, borne, CI).
+title: "fix: "
+labels: [bug]
+body:
+  - type: dropdown
+    id: brique
+    attributes:
+      label: Brique concernée
+      options:
+        - App Android
+        - API
+        - Borne
+        - CI/CD et déploiement
+        - Supervision
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: constat
+    attributes:
+      label: Ce qui se passe
+      description: Le comportement observé, avec le message d'erreur, les logs ou une capture.
+    validations:
+      required: true
+  - type: textarea
+    id: attendu
+    attributes:
+      label: Ce qui était attendu
+    validations:
+      required: true
+  - type: textarea
+    id: reproduire
+    attributes:
+      label: Pour reproduire
+      placeholder: |
+        1. Ouvrir l'écran ...
+        2. Toucher ...
+        3. Le message ... s'affiche
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Tag (vX.Y.Z), branche ou commit ; pour l'app, le modèle de téléphone et la version d'Android.
+  - type: input
+    id: exigence
+    attributes:
+      label: Exigence liée
+      placeholder: APP-07, PAS-02, BOR-08, BCK-03...

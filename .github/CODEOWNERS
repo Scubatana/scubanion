@@ -1,0 +1,34 @@
+# Référents par lot (cahier des charges § 7) : GitHub leur demande automatiquement la relecture
+# des PR qui touchent leur partie. Ce n'est pas bloquant : n'importe quel autre membre peut approuver.
+
+/scubatana.frontend/         @Picsou06
+/scubatana.backend/          @CodeByHaamza
+/scubatana.mariadb/          @CodeByHaamza
+/docs/api/                   @CodeByHaamza
+/docs/modele-de-donnees.md   @CodeByHaamza
+/docs/regles-du-jeu.md       @CodeByHaamza
+
+# Partie bornes de l'API : la dernière règle qui correspond l'emporte, ces lignes restent donc après /scubatana.backend/.
+/scubatana.backend/config/bornes.php                          @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/PassageService.php            @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/BorneListener.php             @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/BorneMessageHandler.php       @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/TerminalDisplay.php           @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/TerminalTokenService.php      @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/MqttAccounts.php              @shalee-pnt @CodeByHaamza
+/scubatana.backend/app/Services/MqttConnector.php             @shalee-pnt @CodeByHaamza
+/scubatana.backend/tests/Feature/Bornes/                      @shalee-pnt @CodeByHaamza
+/scubatana.backend/tests/Unit/Services/TerminalTokenServiceTest.php @shalee-pnt @CodeByHaamza
+/docs/api/bornes.md                                           @shalee-pnt @CodeByHaamza
+/scubatana.borne/            @shalee-pnt
+/scubatana.mosquitto/        @shalee-pnt
+/docs/mqtt.md                @shalee-pnt
+/docs/borne-materiel.md      @shalee-pnt
+/scubatana.prometheus/       @shalee-pnt
+/scubatana.grafana/          @shalee-pnt
+/.github/                    @Tiretinium
+/.gitlab-ci.yml              @Tiretinium
+/sonar-project.properties    @Tiretinium
+/docker-compose.yml          @Tiretinium @Picsou06
+/scubatana.nginx/            @Tiretinium @Picsou06
+/deploy/                     @Picsou06
