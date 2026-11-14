@@ -1,0 +1,55 @@
+name: Release
+
+# À chaque fusion d'une PR develop → master : tag vX.Y.Z calculé depuis les Conventional Commits,
+# release GitHub avec les notes de version, puis copie du tag sur GitLab IUT (qui publie et déploie).
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version à publier (X.Y.Z). Vide : calculée depuis les commits."
+        required: false
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag et release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculer la version et les notes
+        id: version
+        env:
+          EVENT: ${{ github.event_name }}
+          VERSION: ${{ inputs.version }}
+        run: bash .github/scripts/preparer-la-release.sh
+
+      - name: Créer le tag et la release GitHub
+        if: steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: gh release create "$TAG" --target "$GITHUB_SHA" --title "Scubanion $TAG" --notes-file notes.md
+
+      # Un tag créé avec GITHUB_TOKEN ne déclenche aucun workflow : on lance le miroir à la main.
+      - name: Copier le tag sur GitLab IUT
+        if: steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh workflow view miroir-gitlab.yml > /dev/null 2>&1; then
+            gh workflow run miroir-gitlab.yml --ref "$GITHUB_REF_NAME"
+          else
+            echo "::notice::Pas de workflow miroir-gitlab.yml : le tag n'est pas copié automatiquement sur GitLab."
+          fi
