@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { readableMessage } from "~/utils/apiError";
-import { FRIEND_SEARCH_FROM, filterFriends, friendGoalFill, friendRowLabel, sortFriendsBySteps } from "~/utils/friends";
+import { FRIEND_SEARCH_FROM, cheerFlame, filterFriends, friendGoalFill, friendRowLabel, sortFriendsBySteps } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
 import { PULL_THRESHOLD } from "~/utils/pullToRefresh";
 
@@ -187,7 +187,6 @@ async function cheerFromProfile(): Promise<void> {
 	cheerError.value = "";
 
 	try {
-		// Pas de message éphémère : il passerait sous la fiche. La fiche montre elle-même que c'est envoyé.
 		await cheer(friendship.id);
 	} catch (error) {
 		cheerError.value = readableMessage(error);
@@ -385,7 +384,7 @@ onMounted(refresh);
 							<span class="identity">
 								<span class="name-row">
 									<span class="name">{{ friendship.player.pseudo }}</span>
-									<StreakFlame v-if="friendship.player.streak" :streak="friendship.player.streak" />
+									<StreakFlame v-if="friendship.cheer.streak.days > 0" :streak="cheerFlame(friendship.cheer)" />
 									<PawIcon v-if="friendship.cheer.received && !friendship.cheer.sent" class="cheer-waiting" />
 								</span>
 								<span v-if="friendship.player.companion" class="sub">

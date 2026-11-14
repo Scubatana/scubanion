@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { formatFriendSince, friendCompanionDetails, friendGoalFill, type Friendship } from "~/utils/friends";
+import { cheerFlame, formatDays, formatFriendSince, friendCompanionDetails, friendGoalFill, type Friendship } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
 
 const props = defineProps<{
@@ -20,6 +20,7 @@ const closeButton = ref<HTMLButtonElement | null>(null);
 const player = computed(() => props.friendship.player);
 const details = computed(() => (player.value.companion ? friendCompanionDetails(catalog.value, player.value.companion) : null));
 const since = computed(() => formatFriendSince(props.friendship.since));
+const cheerStreak = computed(() => props.friendship.cheer.streak);
 const sharesEverything = computed(() => player.value.today !== null && player.value.streak !== null);
 
 const cheerLabel = computed(() => {
@@ -91,12 +92,12 @@ onMounted(() => closeButton.value?.focus());
 					</div>
 					<div class="stat-tile" :class="{ masked: !player.streak }">
 						<template v-if="player.streak">
-							<StreakFlame :streak="player.streak" />
-							<span class="eyebrow">{{ player.streak.days <= 1 ? "jour de série" : "jours de série" }}</span>
+							<span class="stat-value">{{ player.streak.days }}</span>
+							<span class="eyebrow">{{ player.streak.days <= 1 ? "jour d'objectif" : "jours d'objectif" }}</span>
 						</template>
 						<template v-else>
 							<span class="stat-value stat-masked" aria-hidden="true">–</span>
-							<span class="eyebrow">Série masquée</span>
+							<span class="eyebrow">Objectifs masqués</span>
 						</template>
 					</div>
 				</div>
@@ -115,6 +116,19 @@ onMounted(() => closeButton.value?.focus());
 				<p v-if="friendship.cheer.received" class="cheer-received" role="status">
 					<PawIcon />
 					{{ player.pseudo }} t'a envoyé un coup de patte aujourd'hui.
+				</p>
+				<p class="cheer-streak-info">
+					<template v-if="cheerStreak.days > 0">
+						<StreakFlame :streak="cheerFlame(friendship.cheer)" :label="`Série de coups de patte de ${formatDays(cheerStreak.days)}`" />
+						<span>Série de coups de patte : <b>{{ formatDays(cheerStreak.days) }}</b></span>
+						<span v-if="cheerStreak.record > cheerStreak.days" class="cheer-record">Record : {{ formatDays(cheerStreak.record) }}</span>
+					</template>
+					<template v-else-if="cheerStreak.record > 0">
+						<span>Record de série : <b>{{ formatDays(cheerStreak.record) }}</b>. Un échange aujourd'hui en relance une.</span>
+					</template>
+					<template v-else>
+						<span>Échangez un coup de patte le même jour pour lancer une série.</span>
+					</template>
 				</p>
 				<p v-if="cheerError" class="form-error">{{ cheerError }}</p>
 				<button
@@ -273,6 +287,26 @@ onMounted(() => closeButton.value?.focus());
 	font-weight: 600;
 	color: var(--ocean-dark);
 	text-align: center;
+}
+
+.cheer-streak-info {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 4px 8px;
+	margin: 0;
+	font-size: 13px;
+	color: var(--ink-soft);
+	text-align: center;
+}
+
+.cheer-streak-info b {
+	color: var(--ocean-dark);
+}
+
+.cheer-record {
+	color: var(--ocean-light);
 }
 
 .cheer-btn {

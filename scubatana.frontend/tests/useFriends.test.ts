@@ -32,7 +32,7 @@ const sampleView: FriendsView = {
 		{
 			id: 12,
 			since: "2026-10-13",
-			cheer: { sent: false, received: false },
+			cheer: { sent: false, received: false, streak: { days: 0, record: 0 } },
 			player: {
 				id: 3,
 				pseudo: "Yanis",
@@ -63,7 +63,7 @@ describe("friends utils", () => {
 			{
 				id: 15,
 				since: "2026-10-13",
-				cheer: { sent: false, received: false },
+				cheer: { sent: false, received: false, streak: { days: 0, record: 0 } },
 				player: {
 					id: 4,
 					pseudo: "Amine",
@@ -110,8 +110,9 @@ describe("friends utils", () => {
 
 		expect(friendRowLabel(friendship)).toBe(`Yanis, niveau 3, ${formatCount(4200)} pas sur ${formatCount(5000)}. Voir sa fiche`);
 		expect(friendRowLabel({ ...friendship, player: { ...player, companion: null, today: null } })).toBe("Yanis, pas masqués. Voir sa fiche");
-		expect(friendRowLabel({ ...friendship, cheer: { sent: false, received: true } })).toContain("t'a envoyé un coup de patte. Voir sa fiche");
-		expect(friendRowLabel({ ...friendship, cheer: { sent: true, received: true } })).not.toContain("coup de patte");
+		expect(friendRowLabel({ ...friendship, cheer: { sent: false, received: true, streak: { days: 0, record: 0 } } })).toContain("t'a envoyé un coup de patte. Voir sa fiche");
+		expect(friendRowLabel({ ...friendship, cheer: { sent: true, received: true, streak: { days: 0, record: 0 } } })).not.toContain("coup de patte");
+		expect(friendRowLabel({ ...friendship, cheer: { sent: true, received: true, streak: { days: 4, record: 9 } } })).toContain(", série de coups de patte de 4 jours. Voir sa fiche");
 	});
 
 	it("names the friend's species and worn accessories in catalog order", () => {
@@ -196,7 +197,7 @@ describe("useFriends", () => {
 					{
 						id: 13,
 						since: "2026-10-13",
-						cheer: { sent: false, received: false },
+						cheer: { sent: false, received: false, streak: { days: 0, record: 0 } },
 						player: {
 							id: 9,
 							pseudo: "Lina",
@@ -215,7 +216,7 @@ describe("useFriends", () => {
 	});
 
 	it("sends a cheer and keeps the view the server returns", async () => {
-		const cheered: FriendsView = { ...sampleView, friends: [{ ...sampleView.friends[0], cheer: { sent: true, received: false } }] };
+		const cheered: FriendsView = { ...sampleView, friends: [{ ...sampleView.friends[0], cheer: { sent: true, received: false, streak: { days: 0, record: 0 } } }] };
 		httpRequest.mockResolvedValueOnce({ status: 200, data: cheered });
 		const friends = useFriends();
 
@@ -273,7 +274,7 @@ describe("useFriends", () => {
 					{
 						id: 20,
 						since: "2026-11-09",
-						cheer: { sent: false, received: false },
+						cheer: { sent: false, received: false, streak: { days: 0, record: 0 } },
 						player: {
 							id: 9,
 							pseudo: "Lina",

@@ -36,7 +36,7 @@ const view: FriendsView = {
 		{
 			id: 12,
 			since: "2026-10-13",
-			cheer: { sent: false, received: false },
+			cheer: { sent: false, received: false, streak: { days: 0, record: 0 } },
 			player: {
 				id: 3,
 				pseudo: "Yanis",
@@ -181,7 +181,7 @@ describe("page Amis", () => {
 
 	it("sends a cheer from the profile and shows it as sent", async () => {
 		const wrapper = await mountPage();
-		const cheered = { ...view, friends: [{ ...view.friends[0], cheer: { sent: true, received: false } }] };
+		const cheered = { ...view, friends: [{ ...view.friends[0], cheer: { sent: true, received: false, streak: { days: 0, record: 0 } } }] };
 
 		await wrapper.get("button.profile-btn").trigger("click");
 		await flushPromises();
@@ -198,9 +198,31 @@ describe("page Amis", () => {
 	});
 
 	it("marks a friend who cheered the player in the list", async () => {
-		answer({ ...view, friends: [{ ...view.friends[0], cheer: { sent: false, received: true } }] });
+		answer({ ...view, friends: [{ ...view.friends[0], cheer: { sent: false, received: true, streak: { days: 0, record: 0 } } }] });
 		const wrapper = await mountPage();
 
 		expect(wrapper.find(".cheer-waiting").exists()).toBe(true);
+	});
+
+	it("shows the flame of the cheer streak next to the friend, lit once both cheered today", async () => {
+		answer({ ...view, friends: [{ ...view.friends[0], cheer: { sent: true, received: true, streak: { days: 4, record: 9 } } }] });
+		const wrapper = await mountPage();
+
+		expect(wrapper.get(".name-row .streak").text()).toBe("4");
+		expect(wrapper.get(".name-row .streak").classes()).toContain("active");
+	});
+
+	it("keeps the flame unlit until both friends cheered today", async () => {
+		answer({ ...view, friends: [{ ...view.friends[0], cheer: { sent: false, received: true, streak: { days: 4, record: 9 } } }] });
+		const wrapper = await mountPage();
+
+		expect(wrapper.get(".name-row .streak").classes()).not.toContain("active");
+		expect(wrapper.find(".cheer-waiting").exists()).toBe(true);
+	});
+
+	it("shows no flame without a cheer streak, even when the friend shares their steps streak", async () => {
+		const wrapper = await mountPage();
+
+		expect(wrapper.find(".name-row .streak").exists()).toBe(false);
 	});
 });

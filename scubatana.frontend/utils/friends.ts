@@ -18,9 +18,15 @@ export interface FriendPlayer {
 }
 
 // Coups de patte du jour : envoyé par le joueur à cet ami, et reçu de lui.
+export interface CheerStreak {
+	days: number;
+	record: number;
+}
+
 export interface FriendCheer {
 	sent: boolean;
 	received: boolean;
+	streak: CheerStreak;
 }
 
 export interface Friendship {
@@ -122,9 +128,18 @@ export function friendRowLabel(friendship: Friendship): string {
 	const { player, cheer } = friendship;
 	const steps = player.today ? `${formatCount(player.today.steps)} pas sur ${formatCount(player.today.goal)}` : "pas masqués";
 	const level = player.companion ? `niveau ${player.companion.level}, ` : "";
+	const streak = cheer.streak.days > 0 ? `, série de coups de patte de ${formatDays(cheer.streak.days)}` : "";
 	const cheered = cheer.received && !cheer.sent ? ", t'a envoyé un coup de patte" : "";
 
-	return `${player.pseudo}, ${level}${steps}${cheered}. Voir sa fiche`;
+	return `${player.pseudo}, ${level}${steps}${streak}${cheered}. Voir sa fiche`;
+}
+
+export function cheerFlame(cheer: FriendCheer): Streak {
+	return { days: cheer.streak.days, active: cheer.sent && cheer.received };
+}
+
+export function formatDays(days: number): string {
+	return days <= 1 ? `${days} jour` : `${days} jours`;
 }
 
 // Au-delà de ce nombre d'amis, la liste propose une recherche.

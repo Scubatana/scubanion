@@ -26,7 +26,7 @@ mockNuxtImport("navigateTo", () => navigateTo);
 
 const sampleView: BlocksView = {
 	blocked: [{ id: 7, since: "2026-11-09",
-	cheer: { sent: false, received: false }, player: { id: 3, pseudo: "Yanis" } }]
+	cheer: { sent: false, received: false, streak: { days: 0, record: 0 } }, player: { id: 3, pseudo: "Yanis" } }]
 };
 
 describe("useSafety", () => {

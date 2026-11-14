@@ -8,7 +8,6 @@ export function useFriends() {
 	const received = useState<FriendInvitation[]>("friends-received", () => []);
 	const sent = useState<FriendInvitation[]>("friends-sent", () => []);
 	const loaded = useState<boolean>("friends-loaded", () => false);
-	// Heure du dernier essai de chargement, réussi ou non, pour ne pas réessayer à chaque changement de page.
 	const checkedAt = useState<number>("friends-checked-at", () => 0);
 
 	const session = useSession();

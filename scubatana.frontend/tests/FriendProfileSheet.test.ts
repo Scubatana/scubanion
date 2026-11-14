@@ -16,7 +16,7 @@ const catalog: CompanionCatalog = {
 	accessories: [{ id: "cap", label: "Casquette", category: "head", image: "/cap.png" }]
 };
 
-function friendship(player: Partial<Friendship["player"]> = {}, cheer: Friendship["cheer"] = { sent: false, received: false }): Friendship {
+function friendship(player: Partial<Friendship["player"]> = {}, cheer: Friendship["cheer"] = { sent: false, received: false, streak: { days: 0, record: 0 } }): Friendship {
 	return {
 		id: 12,
 		since: "2026-10-13",
@@ -55,7 +55,7 @@ describe("FriendProfileSheet", () => {
 		expect(text).toContain("Amis depuis le 13 octobre 2026");
 		expect(text).toContain(formatCount(4200));
 		expect(text).toContain(`pas sur ${formatCount(5000)}`);
-		expect(text).toContain("jours de série");
+		expect(text).toContain("jours d'objectif");
 		expect(text).toContain("Casquette");
 		expect(text).not.toContain("ne pas tout partager");
 	});
@@ -65,7 +65,7 @@ describe("FriendProfileSheet", () => {
 		const text = wrapper.text();
 
 		expect(text).toContain("Pas masqués");
-		expect(text).toContain("Série masquée");
+		expect(text).toContain("Objectifs masqués");
 		expect(text).toContain("Yanis a choisi de ne pas tout partager.");
 		expect(wrapper.find(".wave-bar").exists()).toBe(false);
 	});
@@ -106,7 +106,7 @@ describe("FriendProfileSheet", () => {
 		await button.trigger("click");
 		expect(ready.emitted("cheer")).toHaveLength(1);
 
-		const sent = await mount(friendship({}, { sent: true, received: false }));
+		const sent = await mount(friendship({}, { sent: true, received: false, streak: { days: 0, record: 0 } }));
 
 		expect(sent.get("button.cheer-btn").text()).toBe("Coup de patte envoyé");
 		expect(sent.get("button.cheer-btn").attributes("disabled")).toBeDefined();
@@ -114,7 +114,7 @@ describe("FriendProfileSheet", () => {
 	});
 
 	it("tells the player a friend cheered them and offers to answer", async () => {
-		const wrapper = await mount(friendship({}, { sent: false, received: true }));
+		const wrapper = await mount(friendship({}, { sent: false, received: true, streak: { days: 0, record: 0 } }));
 
 		expect(wrapper.text()).toContain("Yanis t'a envoyé un coup de patte aujourd'hui.");
 		expect(wrapper.get("button.cheer-btn").text()).toBe("Répondre d'un coup de patte");
@@ -126,5 +126,32 @@ describe("FriendProfileSheet", () => {
 		expect(wrapper.get("button.cheer-btn").text()).toBe("Envoi…");
 		expect(wrapper.get("button.cheer-btn").attributes("disabled")).toBeDefined();
 		expect(wrapper.text()).toContain("Tu as déjà envoyé un coup de patte à Yanis aujourd'hui.");
+	});
+
+	it("shows the cheer streak and the record when it is higher", async () => {
+		const wrapper = await mount(friendship({}, { sent: false, received: false, streak: { days: 4, record: 9 } }));
+
+		expect(wrapper.get(".cheer-streak-info").text()).toContain("Série de coups de patte : 4 jours");
+		expect(wrapper.get(".cheer-record").text()).toBe("Record : 9 jours");
+		expect(wrapper.get(".cheer-streak-info .streak").attributes("aria-label")).toBe("Série de coups de patte de 4 jours");
+	});
+
+	it("hides the record while the streak is the record", async () => {
+		const wrapper = await mount(friendship({}, { sent: false, received: false, streak: { days: 1, record: 1 } }));
+
+		expect(wrapper.get(".cheer-streak-info").text()).toContain("Série de coups de patte : 1 jour");
+		expect(wrapper.find(".cheer-record").exists()).toBe(false);
+	});
+
+	it("keeps only the record once a streak has stopped, without blaming anyone", async () => {
+		const wrapper = await mount(friendship({}, { sent: false, received: false, streak: { days: 0, record: 9 } }));
+
+		expect(wrapper.get(".cheer-streak-info").text()).toBe("Record de série : 9 jours. Un échange aujourd'hui en relance une.");
+	});
+
+	it("explains how to start a streak", async () => {
+		const wrapper = await mount(friendship());
+
+		expect(wrapper.get(".cheer-streak-info").text()).toBe("Échangez un coup de patte le même jour pour lancer une série.");
 	});
 });
