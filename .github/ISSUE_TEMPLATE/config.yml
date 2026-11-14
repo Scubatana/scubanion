@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Cahier des charges
+    url: https://github.com/Scubatana/scubanion/blob/master/docs/cahier-des-charges.md
+    about: Exigences numérotées, décisions et planning. À relire avant d'ouvrir une issue.
+  - name: Signaler une faille de sécurité
+    url: https://github.com/Scubatana/scubanion/blob/master/SECURITY.md
+    about: Pas d'issue publique pour une faille, voir la marche à suivre.

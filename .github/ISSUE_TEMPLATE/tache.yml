@@ -1,0 +1,24 @@
+name: Tâche technique
+description: CI, infra, dette technique, documentation, préparation de la soutenance...
+labels: [documentation]
+body:
+  - type: textarea
+    id: objectif
+    attributes:
+      label: Objectif
+      description: Ce qu'il faut faire, et pourquoi maintenant.
+    validations:
+      required: true
+  - type: textarea
+    id: fini
+    attributes:
+      label: Fini quand
+      value: |
+        - [ ] ...
+    validations:
+      required: true
+  - type: input
+    id: echeance
+    attributes:
+      label: Échéance
+      description: Jalon du planning (§ 9 du cahier des charges) ou date.

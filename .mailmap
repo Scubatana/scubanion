@@ -1,0 +1,16 @@
+# Regroupe les identités de chaque membre pour git shortlog et git log (Git est noté individuellement).
+# Format : Nom affiché <email retenu> <email trouvé dans les commits>. Chacun corrige sa ligne si besoin.
+
+Hamza Karrouchi <hamza.karrouchi@etu.univ-cotedazur.fr> <hamza.karrouchi.dev@gmail.com>
+Hamza Karrouchi <hamza.karrouchi@etu.univ-cotedazur.fr>
+
+Thomas Bandieras <thomas.bandieras@etu.unice.fr>
+Thomas Bandieras <thomas.bandieras@etu.unice.fr> <thomas.bandieras@unice.fr>
+Thomas Bandieras <thomas.bandieras@etu.unice.fr> <thomasbanderas06@gmail.com>
+
+Shaleena Lesueur <shaleena.lesueur@etu.unice.fr>
+Shaleena Lesueur <shaleena.lesueur@etu.unice.fr> <shaleenalesueur@gmail.com>
+
+Evan Dalmasso <evan@ecaste.com>
+Evan Dalmasso <evan@ecaste.com> <evan.ossamlad@gmail.com>
+Evan Dalmasso <evan@ecaste.com> <110305876+Picsou06@users.noreply.github.com>
