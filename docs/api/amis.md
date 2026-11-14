@@ -14,7 +14,7 @@ Les routes des amis, sauf `GET /me/friends/qr`, renvoient le même objet, la vue
     {
       "id": 12,
       "since": "2026-10-13",
-      "cheer": { "sent": false, "received": true },
+      "cheer": { "sent": false, "received": true, "streak": { "days": 4, "record": 9 } },
       "player": {
         "id": 3,
         "pseudo": "Yanis",
@@ -36,6 +36,7 @@ Les routes des amis, sauf `GET /me/friends/qr`, renvoient le même objet, la vue
 - `code` : le code ami du joueur, à partager.
 - `friends` : les amitiés acceptées, avec le compagnon, les pas du jour et la série de chaque ami. `companion` vaut `null` si l'ami n'en a pas encore ; `today` et `streak` valent `null` tant que l'ami n'active pas leur partage (`PUT /me/privacy`).
 - `cheer` : les coups de patte du jour avec cet ami. `sent` : le joueur lui en a envoyé un ; `received` : l'ami en a envoyé un au joueur. Les deux repassent à `false` à minuit, heure de Paris.
+- `cheer.streak` : la série de coups de patte avec cet ami ([fonctionnalites-sociales.md](../fonctionnalites-sociales.md) § 3.6). `days` : les jours d'échange de la série en cours, `record` : la plus longue série depuis qu'ils sont amis. Un jour d'échange est un jour où chacun a envoyé un coup de patte à l'autre. Tant que ce n'est pas fait aujourd'hui, la série tient jusqu'à minuit.
 - `received` : les invitations reçues, à accepter ou refuser. `sent` : les invitations envoyées, en attente.
 - `id` est l'identifiant de l'amitié ou de l'invitation, à utiliser dans les routes ci-dessous.
 

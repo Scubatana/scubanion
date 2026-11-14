@@ -27,7 +27,7 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 | Échanges d'objets entre joueurs                               | 5  | nouvelle exigence | Could               | À faire                                           |
 | Cadeaux entre amis                                            | 5  | nouvelle exigence | Could               | À faire                                           |
 | Succès sociaux                                                | 5  | nouvelle exigence | Should              | À faire                                           |
-| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | À faire                                           |
+| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | Calcul de la série et du record : fait (API). Affichage et paliers à faire |
 | Raid de borne                                                 | 6  | BOR-05            | Should              | À faire                                           |
 | Notifications                                                 | 7  | APP-12            | Should              | À faire                                           |
 | Fil d'activité réduit, classement facultatif                | 3  | APP-07            | Could               | À faire                                           |
@@ -108,6 +108,7 @@ Un classement entre amis, remis à zéro chaque lundi, au pourcentage moyen de l
 
 Entre deux amis, une **série** compte les jours d'affilée où ils se sont **échangé un coup de patte** : l'un en envoie un, l'autre y répond le même jour (heure de Paris). Peu importe qui commence.
 
+- Seuls les échanges depuis l'amitié actuelle comptent : deux joueurs qui se retirent puis se rajoutent repartent de zéro.
 - Elle démarre toute seule au premier jour d'échange, entre n'importe quels amis : pas besoin de l'activer, elle ne révèle rien d'autre que les coups de patte.
 - Le compteur s'affiche à côté de l'ami dans la liste, avec une petite flamme.
 - Elle n'a rien à voir avec la série personnelle déjà en place, qui compte les jours où le joueur atteint son objectif de pas (`streak` dans l'API des pas).
@@ -116,7 +117,7 @@ Entre deux amis, une **série** compte les jours d'affilée où ils se sont **é
 
 **Ne pas en faire une corvée.** Les séries de Snapchat sont connues pour la pression qu'elles mettent sur les adolescents ; celle de Scubanion suit ces règles :
 
-- **Un joker par semaine** : un jour sans échange par semaine ne casse pas la série. Il s'applique tout seul.
+- **Un joker par semaine** : un jour sans échange par semaine (du lundi au dimanche) ne casse pas la série. Il s'applique tout seul. Le jour du joker ne compte pas dans la série ; un dimanche et un lundi ratés passent tous les deux, chacun sur sa semaine.
 - **Aucun rappel** du type « votre série va s'arrêter » : les seules notifications sont le coup de patte reçu et les paliers atteints.
 - Quand une série s'arrête, l'app ne dit pas qui l'a fait tomber, et ne montre aucun message triste. Le **record** reste affiché, et une nouvelle série repart dès le prochain échange.
 - La série ne sert jamais de condition à une quête, un défi ou un succès : elle reste un bonus.
