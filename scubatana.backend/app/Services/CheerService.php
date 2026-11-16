@@ -109,7 +109,7 @@ class CheerService
 			return [];
 		}
 
-		$ids = Accessory::whereIn('code', $codes)->pluck('id', 'code');
+		$ids = Accessory::active()->whereIn('code', $codes)->pluck('id', 'code');
 		$unlocked = [];
 
 		foreach ($codes as $code) {

@@ -192,6 +192,7 @@ async function cheerFromProfile(): Promise<void> {
 		unlocked.value = await cheer(friendship.id);
 	} catch (error) {
 		cheerError.value = readableMessage(error);
+		load().catch(() => undefined);
 	} finally {
 		busy.value = null;
 	}

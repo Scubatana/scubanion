@@ -88,6 +88,18 @@ class CheerMilestonesTest extends TestCase
 		$this->cheer($this->lea)->assertJsonPath('unlocked', []);
 	}
 
+	public function test_an_inactive_milestone_accessory_is_not_given(): void
+	{
+		Accessory::where('code', 'paw_scarf')->update(['active' => false]);
+		$this->exchangeBefore(6);
+		$this->cheer($this->yanis);
+
+		$this->cheer($this->lea)->assertJsonPath('unlocked', []);
+
+		$this->assertSame([], $this->owned($this->lea));
+		$this->assertSame([], $this->owned($this->yanis));
+	}
+
 	public function test_an_accessory_is_never_given_twice(): void
 	{
 		$this->exchangeBefore(6);

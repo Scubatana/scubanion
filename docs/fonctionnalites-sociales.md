@@ -346,7 +346,7 @@ Proposition, à affiner au moment du développement. Chaque table est supprimée
 | `squad_windows`                   | Fenêtres de 10 minutes validées et membres ensemble                         |
 | `weekly_challenges`               | Défi de la semaine d'un joueur, avancement, date de réussite                |
 | `trades`, `trade_items`           | Échange : les deux joueurs, état, dates ; accessoires donnés par chacun    |
-| `friend_streaks`                  | Série de coups de patte entre deux amis : début, valeur, record, joker utilisé cette semaine |
+| `friend_streaks`                  | Pas de table : la série de coups de patte, son record et le joker sont calculés à la volée depuis `cheers` (§ 3.6) |
 | `gifts`                           | Cadeau : qui, à qui, accessoire, message, état (en attente, accepté, refusé, annulé) |
 | `achievements`, `user_achievements` | Catalogue des succès (condition, seuil, accessoire éventuel) ; succès débloqués et date |
 | `raids`, `raid_participants`    | Borne, jour, palier, skin ; joueurs passés                                   |

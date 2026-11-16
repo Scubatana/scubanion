@@ -199,6 +199,29 @@ describe("page Amis", () => {
 		expect(wrapper.find(".toast").exists()).toBe(false);
 	});
 
+	it("reloads the list when the cheer was already sent from another phone", async () => {
+		const wrapper = await mountPage();
+		const cheered = { ...view, friends: [{ ...view.friends[0], cheer: { sent: true, received: false, streak: { days: 0, record: 0 } } }] };
+
+		await wrapper.get("button.profile-btn").trigger("click");
+		await flushPromises();
+		answer(cheered);
+		const served = httpRequest.getMockImplementation()!;
+		httpRequest.mockImplementation(async (method: string, url: string, ...rest: unknown[]) => {
+			if (method === "POST" && url.endsWith("/me/friends/12/cheer")) {
+				return { status: 409, data: { message: "Tu as déjà envoyé un coup de patte à Yanis aujourd'hui." } };
+			}
+
+			return served(method, url, ...rest);
+		});
+		await wrapper.get("button.cheer-btn").trigger("click");
+		await flushPromises();
+
+		expect(wrapper.get(".form-error").text()).toBe("Tu as déjà envoyé un coup de patte à Yanis aujourd'hui.");
+		expect(wrapper.get("button.cheer-btn").text()).toBe("Coup de patte envoyé");
+		expect(wrapper.get("button.cheer-btn").attributes("disabled")).toBeDefined();
+	});
+
 	it("marks a friend who cheered the player in the list", async () => {
 		answer({ ...view, friends: [{ ...view.friends[0], cheer: { sent: false, received: true, streak: { days: 0, record: 0 } } }] });
 		const wrapper = await mountPage();
