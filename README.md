@@ -133,7 +133,7 @@ Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de 
 | `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
 | `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
 | `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
-| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé sur `${MQTT_PORT}`. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
+| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé en TLS sur `${MQTT_TLS_PORT}` (8883) avec le certificat de `MQTT_TLS_DIR` ; le port 1883, en clair, reste interne. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
 | `bornes` | `scubanion-backend` | même image que `backend`, qui écoute les signaux de vie des bornes (`php artisan bornes:ecouter`) |
 
 ```bash
@@ -179,3 +179,7 @@ npm run adb:install
 Cette commande build une version release signée et l'installe sur l'unique téléphone connecté, en mise à jour (`adb install -r`, sans perte des données locales de l'app). La clé de signature dev (`android-keystore/scubanion-dev.keystore`) est versionnée dans le dépôt pour simplifier le partage entre membres de l'équipe. Le dépôt étant public, l'APK des releases peut être signé par une clé distincte, gardée hors du dépôt : voir [scubatana.frontend/android-keystore/README.md](scubatana.frontend/android-keystore/README.md). L'adresse de l'API est choisie au build par le script : `NUXT_PUBLIC_API_URL_DEV` pour `adb:install:debug` (par défaut `http://localhost:8000`) et `NUXT_PUBLIC_API_URL_PROD` pour `adb:install` (par défaut `https://scuba.picsou06.fr`). Les deux se règlent dans `scubatana.frontend/.env`.
 
 Une version debug et une version release ne peuvent pas se remplacer l'une l'autre : désinstaller l'app avant de changer de type de build.
+
+## Contribuer
+
+Les branches de travail partent de `develop` et y reviennent par pull request ; seule la PR de release `develop` → `master` fusionne dans `master`, ce qui crée le tag `vX.Y.Z` et la release. Branches, commits, relecture et release : [CONTRIBUTING.md](CONTRIBUTING.md).

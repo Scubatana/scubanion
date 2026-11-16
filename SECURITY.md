@@ -7,7 +7,7 @@ Scubanion traite des données personnelles (position, pas, date de naissance, re
 - Dans l'onglet **Security** du dépôt GitHub, bouton **Report a vulnerability** (signalement privé) ;
 - ou directement à un membre de l'équipe, par message privé.
 
-Indiquer la brique concernée (app, API, borne, infrastructure), comment reproduire et l'impact estimé. L'équipe répond sous une semaine ; le correctif passe par une PR vers `dev` et sort à la release suivante.
+Indiquer la brique concernée (app, API, borne, infrastructure), comment reproduire et l'impact estimé. L'équipe répond sous une semaine ; le correctif passe par une PR vers `develop` et sort à la release suivante.
 
 ## Périmètre
 
@@ -16,4 +16,4 @@ Indiquer la brique concernée (app, API, borne, infrastructure), comment reprodu
 - le firmware des bornes (`scubatana.borne`), le broker MQTT et le jeton NFC signé ;
 - la chaîne CI/CD (GitHub Actions, GitLab CI) et les images DockerHub.
 
-Limite déjà connue et documentée : MQTT circule en clair sur le port 1883 en attendant le passage en TLS ([docs/mqtt.md](docs/mqtt.md)).
+Les bornes se connectent au broker MQTT en TLS sur le port 8883 ([docs/mqtt.md](docs/mqtt.md#chiffrement-tls)). Le port 1883, en clair, reste interne au serveur.
