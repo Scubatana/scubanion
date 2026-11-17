@@ -108,7 +108,7 @@ export interface ProfilePayload {
 	ambition: Ambition;
 }
 
-export type QuestAction = "auto" | "checkin" | "scan" | "answer" | "meet";
+export type QuestAction = "auto" | "checkin" | "scan" | "answer" | "meet" | "photo";
 
 export type QuestStatus = "active" | "completed" | "failed" | "expired";
 
