@@ -53,25 +53,47 @@ services:
       - mqtt_comptes:/mosquitto/comptes:ro
       - ${MQTT_TLS_DIR:-./certificat-mqtt}:/certificat:ro
     depends_on:
-      backend:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - iot
     restart: unless-stopped
 
-  backend:
+  # Tâche unique, avant tout le reste : migrations et comptes du broker. La sortir de backend permet de
+  # répliquer l'API sans que chaque réplique lance les migrations en même temps.
+  migrate:
     build: &backend-build
       context: ./scubatana.backend
     image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-backend:${IMAGE_TAG:-latest}
+    # docker-entrypoint.sh migre et écrit les comptes MQTT (RUN_MIGRATIONS), puis lance la commande : true termine le conteneur.
+    command: ["true"]
     environment:
       <<: *laravel-environment
       RUN_MIGRATIONS: "true"
-      METRICS_TOKEN: ${METRICS_TOKEN:-}
     volumes:
       - mqtt_comptes:/var/www/html/storage/app/mqtt
     depends_on:
       mariadb:
         condition: service_healthy
+    networks:
+      - donnees
+    restart: "no"
+
+  backend:
+    build: *backend-build
+    image: ${DOCKERHUB_NAMESPACE:-scubatana}/scubanion-backend:${IMAGE_TAG:-latest}
+    environment:
+      <<: *laravel-environment
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+    volumes:
+      - mqtt_comptes:/var/www/html/storage/app/mqtt
+    # L'API est sans état (jetons, cache et sessions en base) : on peut en lancer plusieurs répliques,
+    # que nginx se partage. Voir docs/r507-pipeline.md, « Passage à l'échelle ».
+    deploy:
+      replicas: ${BACKEND_REPLICAS:-1}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     networks:
       - donnees
       - web
@@ -90,8 +112,8 @@ services:
       timeout: 3s
       retries: 3
     depends_on:
-      backend:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     networks:
       - donnees
     restart: unless-stopped
@@ -108,8 +130,8 @@ services:
       timeout: 3s
       retries: 3
     depends_on:
-      backend:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       mosquitto:
         condition: service_healthy
     networks:
