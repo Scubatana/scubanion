@@ -79,6 +79,14 @@ class QuestSeeder extends Seeder
 				],
 				'rewards' => [['task' => 0, 'accessory' => 'diving_mask'], ['xp' => 100]],
 			],
+			[
+				'quest' => ['name' => 'Souvenirs de balade', 'description' => 'Garde un souvenir de tes sorties : la photo reste sur ton téléphone.', 'icon' => 'camera', 'auto_assign' => true, 'target_ambition' => Ambition::GoOut],
+				'tasks' => [
+					[1, 'photo_place_type', 'Prends une photo dans un parc', 1, ['place_type_id' => $types['park']]],
+					[2, 'photo_place', 'Prends une photo depuis la Colline du Château', 1, ['place_id' => $castle->id]],
+				],
+				'rewards' => [['step' => 1, 'xp' => 50], ['xp' => 150]],
+			],
 		];
 
 		foreach ($quests as $definition) {
