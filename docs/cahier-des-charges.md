@@ -97,6 +97,18 @@ K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui 
 | K6 Rétention à 30 jours | - | Aucun joueur hors équipe à ce jour. Première mesure au pilote. |
 | K7 Lieux et revenu | 0 lieu, 0 € | Aucun rendez-vous partenaire tenu. C'est l'action A2 de la charte. |
 
+**Relevé du 17/11/2026**
+
+| Indicateur | Valeur | État |
+| ---------- | ------ | ---- |
+| K1 Avancement *Must* | 14 / 18, soit 78 % | Au-dessus du palier de 50 % du 08/11. Les 4 restantes ont chacune une PR : BOR-04 (#76, approuvée), BOR-02 (#77, approuvée, à valider sur la carte), APP-05 (#79 rencontres et #80 photos de sortie, en relecture), BOR-09 (#81, en brouillon après #77, à valider sur la carte). |
+| K2 Santé du pipeline | - | Non relevé : le miroir vers GitLab IUT attend ses secrets (#68), donc le pipeline officiel ne tourne pas encore sur `develop` et `master`. |
+| K3 Qualité du code | API 95,4 % ; app 93,8 % (`composables/`, `utils/`) | Mesuré en local (pcov et v8). Les composants Vue n'étaient pas mesurés : 44,5 % avec #82. SonarQube pas encore branché (D7, variables de #68). |
+| K4 Contributions | Commits : Hamza 40, Shaleena 9, Thomas 7, Evan 1. Revues : Shaleena 15, Evan 15, Hamza 11, Thomas 6 | Du 10 au 17/11, sur `develop`, hors commits de fusion ; revues déposées sur GitHub. **Hors cible pour Evan** (1 commit pour 5 visés) ; écart toujours fort entre Hamza et les autres. |
+| K5 Passage en borne | - | Pas encore mesurable : l'écriture du jeton dans le tag NFC (#77) n'est pas validée sur la carte. |
+| K6 Rétention à 30 jours | - | Non relevé dans ce document. |
+| K7 Lieux et revenu | - | Non relevé dans ce document. |
+
 ### 2.3 Plan d'action du 13/10/2026 au 13/01/2027
 
 Dix actions, chacune avec un responsable nommé et une échéance. Elles découlent du point
@@ -169,8 +181,8 @@ flowchart LR
 
 | Brique                | Techno                                                   | Pourquoi                                                                                                | État            |
 | --------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
-| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas, quêtes, amis (QR, partage choisi), carte, passages en borne par NFC avec file hors ligne |
-| Borne                 | ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231, anneau de LED | Vrai système cyber-physique, programmé par l'équipe. Détail dans [borne-materiel.md](borne-materiel.md) | Carte reçue et brochage relevé ; firmware : jeton signé, MQTT (signal de vie, testament, affichage), écran. Restent l'écriture du jeton dans le tag NFC (ST25DV), l'anneau de LED et l'horloge DS3231 ; TLS et mise au repos de l'écran en relecture (#69, #70) |
+| App mobile            | Nuxt 4, Vue 3, TypeScript, Capacitor 8 (Android)         | Une seule base web, accès natif au BLE et au podomètre par plugin                                                      | Connexion, profil, compagnon, pas, quêtes, amis (QR, partage choisi), carte, passages en borne par NFC avec file hors ligne. En relecture : rencontres par QR ou passage à la même borne (#79), photos de sortie (#80) |
+| Borne                 | ESP32 avec écran tactile, tag NFC dynamique ST25DV, horloge DS3231, anneau de LED | Vrai système cyber-physique, programmé par l'équipe. Détail dans [borne-materiel.md](borne-materiel.md) | Carte reçue et brochage relevé ; firmware : jeton signé, MQTT en TLS (signal de vie, testament, affichage), écran. En relecture, à valider sur la carte : écriture du jeton dans le tag NFC (#77), horloge DS3231 (#81), mise au repos de l'écran (#70). Reste l'anneau de LED |
 | API                   | PHP 8.4, Laravel 13                                      | ORM, migrations, authentification et tests intégrés                                                   | Connexion, profil, compagnon, pas, quêtes, carte, amis, passages en borne |
 | Base de données      | MariaDB 11.4                                             | Données très relationnelles (amitiés, inventaires, passages) : un SGBD plutôt que des fichiers JSON | Joueurs, compagnons, pas, lieux, quêtes, récompenses, amitiés, bornes, passages |
 | Messagerie IoT        | MQTT (broker type Mosquitto)                             | Pub/sub léger, fait pour les objets contraints (vu en R5.04)                                           | Mosquitto conteneurisé, un compte par borne, abonné Laravel `bornes:ecouter` |
@@ -401,7 +413,7 @@ flowchart LR
 
 L'app traite des données personnelles : position, activité physique, rencontres entre joueurs, date de naissance.
 
-- [ ] Consentement explicite et retirable pour la localisation, le Bluetooth et l'activité.
+- [x] Consentement explicite et retirable pour la localisation, le Bluetooth et l'activité. Interrupteurs de la page Paramètres, désactivés par défaut et gardés par joueur (`utils/consents.ts`). Le Bluetooth n'est pas utilisé : les rencontres se prouvent sans lui (`fonctionnalites-sociales.md` § 11), il n'y a donc pas de consentement à demander.
 - [x] Minimisation : pas d'historique GPS brut conservé, rencontres enregistrées avec une zone approximative.
 - [x] Durée de conservation définie ; suppression du compte et des données sur demande.
 - [x] Âge minimum fixé : en France, un mineur consent seul à partir de 15 ans.
@@ -491,6 +503,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
+| 0.13    | 17/11/2026 | Relevé des indicateurs du 17/11 (K1 à 78 %, une PR pour chacune des 4 *Must* restantes ; miroir GitLab pas encore synchronisé ; K4 hors cible pour Evan). Case RGPD du consentement retirable cochée. État de l'app et de la borne mis à jour au § 4 avec les PR en relecture |
 | 0.12    | 14/11/2026 | BOR-03 et BOR-08 cochés (14 *Must* sur 18) : la borne parle MQTT (signal de vie, affichage à l'écran) et chaque borne est suivie dans Grafana. Décisions D5 (Kafka et oneM2M écartés en v1) et D8 (miroir par GitHub Action) tranchées. Cases R5.07 de la supervision, de la documentation du pipeline et du compose cochées. État des briques du § 4 mis à jour |
 | 0.11    | 13/11/2026 | APP-03 et APP-06 cochés (12 *Must* sur 18), ainsi que APP-07 et APP-09 (*Should*) : compagnon animé, consentements RGPD, amis et carte sont sur `master` |
 | 0.10    | 02/11/2026 | Suivi synchronisé avec `master` : BCK-01, BCK-02 et BCK-03 cochés (10 *Must* sur 18), état des briques au § 4 mis à jour (quêtes, carte, amis, bornes, GitHub Actions, VPS), cases R5.07 et RGPD cochées aux § 6.2 et § 6.5, décisions D4, D6, D9 et D10 actées au § 8, renommage Scubanion et workflows cochés au § 11 |
