@@ -20,6 +20,8 @@ function close(): void {
 		emit("close");
 	}
 }
+
+useSheet(close);
 </script>
 
 <template>
@@ -61,24 +63,6 @@ function close(): void {
 </template>
 
 <style scoped>
-.sheet-backdrop {
-	position: fixed;
-	inset: 0;
-	z-index: 50;
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-	padding: 16px;
-	background: rgba(30, 58, 66, 0.45);
-}
-
-.sheet {
-	width: 100%;
-	max-width: 480px;
-	max-height: calc(100vh - 32px);
-	overflow-y: auto;
-}
-
 .sheet-action {
 	width: 100%;
 	min-height: 48px;

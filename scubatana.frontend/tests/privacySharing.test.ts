@@ -28,6 +28,7 @@ function makeFriend(id: number, pseudo: string, today: Friendship["player"]["tod
 	return {
 		id,
 		since: "2026-10-13",
+		cheer: { sent: false, received: false, streak: { days: 0, record: 0 } },
 		player: {
 			id,
 			pseudo,

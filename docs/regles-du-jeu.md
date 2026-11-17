@@ -16,7 +16,7 @@ Le compagnon est recalculé à chaque ouverture de l'accueil (`GET /api/me`), à
 | ------ | ----- |
 | XP | 1 XP pour 10 pas, plus 50 XP de bonus chaque jour où l'objectif est atteint, plus l'XP des récompenses de quête déjà récupérées (`user_rewards`) et de chaque passage récompensé à une borne (`passages.reward_xp`). |
 | Niveau | Passer du niveau N au niveau N + 1 demande N × 1 000 XP : 1 000 XP pour le niveau 2, 2 000 de plus pour le niveau 3, etc. L'API renvoie l'XP gagnée dans le niveau en cours (`xp`) et celle qu'il faut pour passer au suivant (`xp_for_next_level`). |
-| Humeur (0 à 100) | La part de l'objectif atteinte aujourd'hui ou hier, la meilleure des deux. Elle tombe à 0 après deux jours sans marcher, et remonte dès la première balade. |
+| Humeur (0 à 100) | La part de l'objectif atteinte aujourd'hui ou hier, la meilleure des deux. Elle tombe à 0 après deux jours sans marcher, et remonte dès la première balade. Chaque coup de patte reçu d'un ami dans la journée ajoute 5 points, 15 au plus par jour, sans dépasser 100. |
 | Santé (0 à 100) | La part moyenne de l'objectif atteinte sur les 7 jours précédant aujourd'hui. Elle reflète la régularité et bouge lentement. |
 
 Les jours antérieurs à la création du compte comptent comme des jours où l'objectif est atteint : un nouveau compagnon commence au niveau 1, avec 0 XP, une humeur et une santé à 100.
