@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\CompanionController;
+use App\Http\Controllers\EncounterController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeController;
@@ -26,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::put('/me/privacy', [MeController::class, 'updatePrivacy'])->middleware('throttle:30,1');
 	Route::put('/me/companion', [CompanionController::class, 'update']);
 	Route::post('/me/position', [PositionController::class, 'store'])->middleware('throttle:10,1');
+	Route::post('/me/encounters', [EncounterController::class, 'store'])->middleware('throttle:20,1');
 	Route::get('/map', [MapController::class, 'index']);
 	Route::get('/catalog/types', [MapController::class, 'types'])->middleware('cache.headers:private;etag');
 	Route::get('/me/steps', [StepController::class, 'index']);
