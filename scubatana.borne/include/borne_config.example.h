@@ -12,7 +12,8 @@
 
 #define NTP_SERVER "pool.ntp.org"
 
-// Broker MQTT (voir docs/mqtt.md). En dev, l'adresse IP du PC qui fait tourner docker compose.
+// Broker MQTT (voir docs/mqtt.md). En dev, l'adresse IP du PC qui fait tourner docker compose, avec MQTT_BIND=0.0.0.0
+// dans son .env (voir « Tester une borne en dev » dans docs/mqtt.md).
 #define MQTT_HOST "scuba.picsou06.fr"
 
 // Chiffrement TLS sur le port 8883 : la borne vérifie le certificat du broker avec les autorités de
