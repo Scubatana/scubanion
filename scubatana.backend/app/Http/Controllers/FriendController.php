@@ -13,6 +13,7 @@ use App\Services\FriendshipService;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FriendController extends Controller
 {
@@ -83,11 +84,13 @@ class FriendController extends Controller
 
 		$friend = $friendship->otherThan($player);
 
-		if (! $cheers->send($player, $friend)) {
+		$unlocked = DB::transaction(fn () => $cheers->send($player, $friend)
+			? $cheers->rewardMilestones($player, $friend, CarbonImmutable::instance($friendship->accepted_at))
+			: null);
+
+		if ($unlocked === null) {
 			return response()->json(['message' => "Tu as déjà envoyé un coup de patte à {$friend->pseudo} aujourd'hui."], 409);
 		}
-
-		$unlocked = $cheers->rewardMilestones($player, $friend, CarbonImmutable::instance($friendship->accepted_at));
 
 		return response()->json([...$friends->overview($player), 'unlocked' => $unlocked]);
 	}

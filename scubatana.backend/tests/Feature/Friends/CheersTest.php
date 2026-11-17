@@ -86,6 +86,15 @@ class CheersTest extends TestCase
 		$this->assertSame(1, Cheer::count());
 	}
 
+	public function test_a_cheer_is_not_kept_when_the_milestone_reward_fails(): void
+	{
+		$this->partialMock(CheerService::class, fn ($mock) => $mock->shouldReceive('rewardMilestones')->andThrow(new \RuntimeException('base indisponible')));
+
+		$this->cheer($this->lea)->assertStatus(500);
+
+		$this->assertSame(0, Cheer::count());
+	}
+
 	public function test_a_new_day_starts_at_midnight_in_paris(): void
 	{
 		$this->cheer($this->lea)->assertOk();

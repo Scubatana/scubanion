@@ -1,6 +1,6 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { FRIEND_SEARCH_FROM, filterFriends, formatFriendCode, formatFriendSince, friendGoalFill, friendRowLabel, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, friendSpeciesLabel, type FriendsView } from "~/utils/friends";
+import { FRIEND_SEARCH_FROM, filterFriends, formatFriendCode, formatFriendSince, friendGoalFill, friendRowLabel, friendSpeciesLabel, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, type FriendsView } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
 import type { CompanionCatalog } from "~/utils/types";
 
@@ -155,6 +155,33 @@ describe("useFriends", () => {
 		expect(friends.received.value).toHaveLength(1);
 		expect(friends.sent.value).toHaveLength(1);
 		expect(usePlayer().player.value?.stats.friends_count).toBe(1);
+	});
+
+	it("ignores a reload that answers after a newer view, such as a cheer", async () => {
+		let answerLoad: (value: unknown) => void = () => undefined;
+		const cheered = { ...sampleView, friends: [{ ...sampleView.friends[0], cheer: { sent: true, received: false, streak: { days: 0, record: 0 } } }] };
+		httpRequest.mockImplementation((method: string) => (method === "GET" ? new Promise((resolve) => { answerLoad = resolve; }) : Promise.resolve({ status: 200, data: cheered })));
+		const friends = useFriends();
+
+		const loading = friends.load();
+		await vi.waitFor(() => expect(httpRequest).toHaveBeenCalledTimes(1));
+		await friends.cheer(12);
+		answerLoad({ status: 200, data: sampleView });
+		await loading;
+
+		expect(friends.friends.value[0].cheer.sent).toBe(true);
+	});
+
+	it("tries again on the next check when loading failed", async () => {
+		httpRequest.mockResolvedValueOnce({ status: 503, data: {} });
+		const friends = useFriends();
+
+		await expect(friends.load()).rejects.toThrow();
+		httpRequest.mockResolvedValueOnce({ status: 200, data: sampleView });
+		await friends.loadIfStale(60_000);
+
+		expect(httpRequest).toHaveBeenCalledTimes(2);
+		expect(friends.received.value).toHaveLength(1);
 	});
 
 	it("sends a normalized invite code and distinguishes pending vs mutual invitations", async () => {

@@ -93,7 +93,6 @@ class CheerService
 				$jokerWeek = $day->format('o-W');
 			} else {
 				$days = 0;
-				$jokerWeek = null;
 			}
 		}
 

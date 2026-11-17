@@ -100,6 +100,13 @@ class CheerStreakTest extends TestCase
 		$this->assertSame(['days' => 3, 'record' => 4], $this->streakOf($this->lea));
 	}
 
+	public function test_a_new_streak_gets_no_second_joker_in_the_same_week(): void
+	{
+		$this->exchange('2026-10-05', '2026-10-08', '2026-10-10', '2026-10-11', '2026-10-12', '2026-10-13', '2026-10-14', '2026-10-15', '2026-10-16');
+
+		$this->assertSame(['days' => 7, 'record' => 7], $this->streakOf($this->lea));
+	}
+
 	public function test_a_streak_ends_when_yesterday_was_a_second_missed_day(): void
 	{
 		$this->exchange('2026-10-12', '2026-10-13');

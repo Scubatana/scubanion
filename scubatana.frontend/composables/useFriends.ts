@@ -9,6 +9,7 @@ export function useFriends() {
 	const sent = useState<FriendInvitation[]>("friends-sent", () => []);
 	const loaded = useState<boolean>("friends-loaded", () => false);
 	const checkedAt = useState<number>("friends-checked-at", () => 0);
+	const generation = useState<number>("friends-generation", () => 0);
 
 	const session = useSession();
 	const player = usePlayer();
@@ -20,6 +21,8 @@ export function useFriends() {
 	}, { immediate: true });
 
 	function applyView(view: FriendsView): void {
+		generation.value++;
+		checkedAt.value = Date.now();
 		code.value = view.code;
 		friends.value = view.friends;
 		received.value = view.received;
@@ -38,9 +41,14 @@ export function useFriends() {
 	}
 
 	async function load(): Promise<void> {
-		checkedAt.value = Date.now();
+		const startedAt = generation.value;
+
 		await useSteps().settled();
-		applyView(await useApi().get<FriendsView>("/me/friends"));
+		const view = await useApi().get<FriendsView>("/me/friends");
+
+		if (generation.value === startedAt) {
+			applyView(view);
+		}
 	}
 
 	async function loadIfStale(maxAgeMs: number): Promise<void> {
@@ -105,6 +113,7 @@ export function useFriends() {
 		sent.value = [];
 		loaded.value = false;
 		checkedAt.value = 0;
+		generation.value++;
 	}
 
 	return { code, friends, received, sent, loaded, load, loadIfStale, invite, qrToken, scanQr, accept, cheer, remove, reset };
