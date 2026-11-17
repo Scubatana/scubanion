@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Accessory;
 use App\Models\Place;
 use App\Models\Terminal;
 use App\Services\MqttAccounts;
 use App\Services\TerminalTokenService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use RuntimeException;
@@ -16,18 +18,20 @@ class CreateTerminal extends Command
 	protected $signature = 'bornes:creer
 		{code : identifiant de la borne dans les topics MQTT (3 à 16 minuscules, chiffres et tirets)}
 		{nom : nom affiché}
-		{--lieu= : identifiant du lieu où la borne est installée}';
+		{--lieu= : identifiant du lieu où la borne est installée}
+		{--accessoire= : code d’un accessoire earnable, gagné au premier passage récompensé}';
 
 	protected $description = 'Déclare une nouvelle borne : seules les bornes déclarées sont écoutées';
 
 	public function handle(MqttAccounts $accounts): int
 	{
-		$input = ['code' => $this->argument('code'), 'name' => $this->argument('nom'), 'place_id' => $this->option('lieu')];
+		$input = ['code' => $this->argument('code'), 'name' => $this->argument('nom'), 'place_id' => $this->option('lieu'), 'accessory' => $this->option('accessoire')];
 
 		$validator = Validator::make($input, [
 			'code' => ['required', 'regex:/^[a-z0-9-]{3,16}$/', 'unique:terminals,code', Rule::notIn([config('bornes.mqtt.username')])],
 			'name' => ['required', 'string', 'max:80'],
 			'place_id' => ['nullable', 'integer', 'exists:'.Place::class.',id'],
+			'accessory' => ['nullable', 'string', Rule::exists(Accessory::class, 'code')->where('earnable', true)->where('active', true)],
 		]);
 
 		if ($validator->fails()) {
@@ -39,7 +43,12 @@ class CreateTerminal extends Command
 		}
 
 		$secret = TerminalTokenService::newSecret();
-		$terminal = Terminal::create([...$validator->validated(), 'secret' => $secret]);
+		$data = $validator->validated();
+		$terminal = Terminal::create([
+			...Arr::except($data, 'accessory'),
+			'accessory_id' => isset($data['accessory']) ? Accessory::where('code', $data['accessory'])->value('id') : null,
+			'secret' => $secret,
+		]);
 		$this->info("Borne {$terminal->code} créée. Topics : ".config('bornes.topic_prefix')."/{$terminal->code}/…");
 		$this->line("Secret à enregistrer dans la borne (il ne sera plus affiché) : {$secret}");
 

@@ -127,6 +127,8 @@ Publié par l'API dès qu'un passage est enregistré :
 | `rewarded` | premier passage du joueur à cette borne ce jour-là | « Bravo {pseudo} ! +100 XP » |
 | `already_rewarded` | le joueur est déjà passé ce jour-là : le passage est enregistré, sans récompense | « Ton passage du jour est déjà compté, {pseudo}. Reviens demain ! » |
 
+Quand le passage débloque l'accessoire de la borne, le message devient « Bravo {pseudo} ! +100 XP, nouvel accessoire : {nom} » et le message porte en plus `"accessory": { "id": "crown", "label": "Couronne" }`, que le firmware peut ignorer.
+
 `scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne l'ignore si son `scanned_at` a plus de 10 minutes (le jeton est écrit au plus 5 minutes avant le scan).
 
 ## Connexion au broker
@@ -222,7 +224,7 @@ Le mot de passe de la borne circule alors en clair : à faire seulement sur un r
 
 | Commande | Rôle |
 | -------- | ---- |
-| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT |
+| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT. `--accessoire=crown` lui donne un accessoire à faire gagner (un accessoire `earnable`) |
 | `php artisan bornes:comptes-mqtt` | réécrit les comptes et les droits du broker (voir [Connexion au broker](#connexion-au-broker)) |
 | `php artisan bornes:ecouter` | écoute les signaux de vie des bornes. Processus permanent : un conteneur ou un service dédié en prod |
 | `php artisan bornes:simuler chateau-01` | joue le rôle de la borne : affiche le jeton qu'elle donnerait au téléphone, puis attend et affiche la réponse publiée sur `affichage` |
