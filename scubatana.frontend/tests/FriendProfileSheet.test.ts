@@ -50,7 +50,7 @@ describe("FriendProfileSheet", () => {
 		useCatalog().catalog.value = catalog;
 	});
 
-	it("shows the companion, level, shared steps and streak, and worn accessories", async () => {
+	it("shows the companion, level, shared steps and streak, without listing worn accessories", async () => {
 		const wrapper = await mount(friendship());
 		const text = wrapper.text();
 
@@ -60,7 +60,7 @@ describe("FriendProfileSheet", () => {
 		expect(text).toContain(formatCount(4200));
 		expect(text).toContain(`pas sur ${formatCount(5000)}`);
 		expect(text).toContain("jours d'objectif");
-		expect(text).toContain("Casquette");
+		expect(text).not.toContain("Accessoires portés");
 		expect(text).not.toContain("ne pas tout partager");
 	});
 

@@ -1,5 +1,5 @@
 import { formatCount } from "./labels";
-import type { CatalogAccessory, CompanionCatalog, Streak, Today } from "./types";
+import type { CompanionCatalog, Streak, Today } from "./types";
 
 export interface FriendCompanion {
 	name: string;
@@ -115,16 +115,8 @@ export function formatFriendSince(since: string): string {
 	return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(year, month - 1, day));
 }
 
-// Espèce et accessoires portés, dans l'ordre du catalogue, pour la fiche d'un ami. Sans catalogue, rien à afficher.
-export function friendCompanionDetails(catalog: CompanionCatalog | null, companion: FriendCompanion): { species: string | null; accessories: CatalogAccessory[] } {
-	if (catalog === null) {
-		return { species: null, accessories: [] };
-	}
-
-	return {
-		species: catalog.species.find((entry) => entry.id === companion.species)?.label ?? null,
-		accessories: catalog.accessories.filter((entry) => companion.accessories.includes(entry.id))
-	};
+export function friendSpeciesLabel(catalog: CompanionCatalog | null, species: string): string | null {
+	return catalog?.species.find((entry) => entry.id === species)?.label ?? null;
 }
 
 // Nom du bouton qui ouvre la fiche : il remplace le contenu de la ligne pour un lecteur d'écran, il doit donc en reprendre l'essentiel.

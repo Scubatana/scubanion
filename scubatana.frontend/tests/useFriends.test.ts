@@ -1,6 +1,6 @@
 import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { FRIEND_SEARCH_FROM, filterFriends, formatFriendCode, formatFriendSince, friendCompanionDetails, friendGoalFill, friendRowLabel, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, type FriendsView } from "~/utils/friends";
+import { FRIEND_SEARCH_FROM, filterFriends, formatFriendCode, formatFriendSince, friendGoalFill, friendRowLabel, normalizeFriendCodeInput, qrRefreshDelay, sortFriendsBySteps, friendSpeciesLabel, type FriendsView } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
 import type { CompanionCatalog } from "~/utils/types";
 
@@ -115,25 +115,12 @@ describe("friends utils", () => {
 		expect(friendRowLabel({ ...friendship, cheer: { sent: true, received: true, streak: { days: 4, record: 9 } } })).toContain(", série de coups de patte de 4 jours. Voir sa fiche");
 	});
 
-	it("names the friend's species and worn accessories in catalog order", () => {
-		const catalog: CompanionCatalog = {
-			categories: [],
-			species: [{ id: "dog", label: "Chien", svg: "", anchors: {} }],
-			colors: [],
-			accessories: [
-				{ id: "scarf", label: "Écharpe", category: "neck", image: "/scarf.png" },
-				{ id: "cap", label: "Casquette", category: "head", image: "/cap.png" },
-				{ id: "glasses", label: "Lunettes", category: "eyes", image: "/glasses.png" }
-			]
-		};
-		const companion = { name: "Bulle", species: "dog", color: "sand", accessories: ["cap", "scarf", "unknown"], level: 3 };
+	it("names the friend's species from the catalog", () => {
+		const catalog: CompanionCatalog = { categories: [], species: [{ id: "dog", label: "Chien", svg: "", anchors: {} }], colors: [], accessories: [] };
 
-		const details = friendCompanionDetails(catalog, companion);
-
-		expect(details.species).toBe("Chien");
-		expect(details.accessories.map((accessory) => accessory.label)).toEqual(["Écharpe", "Casquette"]);
-		expect(friendCompanionDetails(catalog, { ...companion, species: "cat" }).species).toBeNull();
-		expect(friendCompanionDetails(null, companion)).toEqual({ species: null, accessories: [] });
+		expect(friendSpeciesLabel(catalog, "dog")).toBe("Chien");
+		expect(friendSpeciesLabel(catalog, "cat")).toBeNull();
+		expect(friendSpeciesLabel(null, "dog")).toBeNull();
 	});
 });
 

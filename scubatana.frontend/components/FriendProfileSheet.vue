@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cheerFlame, formatDays, formatFriendSince, friendCompanionDetails, friendGoalFill, type Friendship } from "~/utils/friends";
+import { cheerFlame, formatDays, formatFriendSince, friendGoalFill, friendSpeciesLabel, type Friendship } from "~/utils/friends";
 import { formatCount } from "~/utils/labels";
 
 const props = defineProps<{
@@ -19,7 +19,7 @@ const { catalog } = useCatalog();
 const closeButton = ref<HTMLButtonElement | null>(null);
 
 const player = computed(() => props.friendship.player);
-const details = computed(() => (player.value.companion ? friendCompanionDetails(catalog.value, player.value.companion) : null));
+const species = computed(() => (player.value.companion ? friendSpeciesLabel(catalog.value, player.value.companion.species) : null));
 const since = computed(() => formatFriendSince(props.friendship.since));
 const unlockedAccessories = computed(() => (catalog.value?.accessories ?? []).filter((accessory) => props.unlocked?.includes(accessory.id)));
 const cheerStreak = computed(() => props.friendship.cheer.streak);
@@ -65,7 +65,7 @@ onMounted(() => closeButton.value?.focus());
 				<div class="profile-identity">
 					<h2 id="friend-profile-title" class="profile-pseudo">{{ player.pseudo }}</h2>
 					<span v-if="player.companion" class="profile-companion">
-						{{ player.companion.name }}<template v-if="details?.species"> · {{ details.species }}</template>
+						{{ player.companion.name }}<template v-if="species"> · {{ species }}</template>
 					</span>
 					<span v-else class="profile-companion">N'a pas encore choisi son compagnon</span>
 					<span v-if="since" class="eyebrow">Amis depuis le {{ since }}</span>
@@ -104,16 +104,6 @@ onMounted(() => closeButton.value?.focus());
 					</div>
 				</div>
 				<p v-if="!sharesEverything" class="gallery-note privacy-note">{{ player.pseudo }} a choisi de ne pas tout partager.</p>
-
-				<div v-if="details && details.accessories.length > 0" class="showcase">
-					<span class="section-title">Accessoires portés</span>
-					<ul class="showcase-list">
-						<li v-for="accessory in details.accessories" :key="accessory.id" class="showcase-item">
-							<span class="showcase-thumb"><img :src="accessory.image" alt=""></span>
-							<span class="showcase-label">{{ accessory.label }}</span>
-						</li>
-					</ul>
-				</div>
 
 				<p v-if="friendship.cheer.received" class="cheer-received" role="status">
 					<PawIcon />
@@ -360,12 +350,6 @@ onMounted(() => closeButton.value?.focus());
 	margin-top: -8px;
 	text-align: center;
 	font-size: 13px;
-}
-
-.showcase {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
 }
 
 .showcase-list {
