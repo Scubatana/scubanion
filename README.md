@@ -134,7 +134,7 @@ Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de 
 | `backend` | `scubanion-backend` | API Laravel sous php-fpm, en une ou plusieurs répliques (`BACKEND_REPLICAS`, 1 par défaut). Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
 | `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
 | `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
-| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé en TLS sur `${MQTT_TLS_PORT}` (8883) avec le certificat de `MQTT_TLS_DIR` ; le port 1883, en clair, reste interne. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
+| `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé en TLS sur `${MQTT_TLS_PORT}` (8883) avec le certificat de `MQTT_TLS_DIR` ; le port 1883, en clair, reste interne. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits dans le volume `mqtt_comptes` par `migrate` au démarrage, puis par `backend` à chaque `bornes:creer` (voir `docs/mqtt.md`) |
 | `bornes` | `scubanion-backend` | même image que `backend`, qui écoute les signaux de vie des bornes (`php artisan bornes:ecouter`) |
 
 ```bash
@@ -143,7 +143,7 @@ docker compose up -d --build
 ```
 
 - `APP_KEY` se génère avec `php artisan key:generate --show` (depuis `scubatana.backend`). Sans elle, le conteneur `backend` refuse de démarrer.
-- Au démarrage, `backend` met en cache la configuration, les routes et les vues, puis lance les migrations.
+- Au démarrage, chaque conteneur de l'image backend met en cache la configuration, les routes et les vues. Seul `migrate` lance ensuite les migrations et écrit les comptes du broker.
 - Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend : `mariadb`, puis `migrate`, qui doit se terminer sans erreur, puis `backend`, `scheduler` et `bornes`, puis `nginx`. `scheduler` remplace le healthcheck de l'image par la présence du processus `schedule:work`.
 - Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb`, `backend` et `scheduler` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
 - `backend` et `scheduler` partagent la même configuration (bloc `x-laravel-environment` du compose) ; seul `migrate` lance les migrations, une seule fois : les répliques de `backend` ne se gênent pas au démarrage.
