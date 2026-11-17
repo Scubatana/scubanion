@@ -52,6 +52,7 @@ Une quête est donnée à un joueur (automatiquement selon son ambition ou sa zo
 | -------- | ----------------- |
 | `auto` | rien : le serveur fait avancer la tâche seul (les pas) |
 | `checkin` | rien d'obligatoire : la tâche se valide toute seule avec la position envoyée chaque minute. Un bouton « Je suis sur place » envoie la position tout de suite |
+| `photo` | ouvrir l'appareil photo, puis envoyer la position du moment. Passer dans le lieu ne suffit pas : la tâche ne se valide qu'après la photo. La photo reste sur le téléphone, elle n'est jamais envoyée |
 | `scan` | envoyer le code scanné |
 | `answer` | afficher les questions et envoyer les réponses une par une |
 | `meet` | rien : la tâche avance quand une rencontre avec un autre joueur est validée |
@@ -68,6 +69,7 @@ Fait avancer une tâche de l'étape en cours. Le corps dépend de l'action :
 | `action` | Corps |
 | -------- | ----- |
 | `checkin` | `latitude`, `longitude`, et si possible `accuracy_m` (précision en mètres) et `mocked` (position simulée signalée par Android) |
+| `photo` | comme `checkin` : la position au moment de la photo, sans la photo |
 | `scan` | `code` |
 | `answer` | `question` (indice, dans l'ordre), `choice` (indice du choix) |
 
@@ -81,7 +83,7 @@ Réponse **200** :
 
 - `status` : `active`, `completed` (la quête est finie) ou `failed` (mauvaise réponse à un quiz : la quête est ratée).
 - `quest` vaut `null` quand la quête n'a plus rien à montrer : finie ou ratée, sans récompense à récupérer.
-- Un `checkin` passe par le même contrôle anti téléportation que `POST /me/position`. La précision envoyée élargit la zone du lieu, au plus de 50 m. Pour un type de lieu avec une cible supérieure à 1, chaque lieu ne compte qu'une fois.
+- Un `checkin` ou une `photo` passe par le même contrôle anti téléportation que `POST /me/position`. La précision envoyée élargit la zone du lieu, au plus de 50 m. Pour un type de lieu avec une cible supérieure à 1, chaque lieu ne compte qu'une fois.
 
 Erreurs :
 - **422** `position` : « Tu n'es pas encore sur place. », ou « Tu as déjà validé ce lieu » pour un type de lieu ;
