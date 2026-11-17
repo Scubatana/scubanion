@@ -24,11 +24,12 @@ gitGraph
 
 | Branche | Rôle | Qui écrit dessus |
 | ------- | ---- | ---------------- |
-| `develop` | Branche d'intégration et branche par défaut : la prochaine version en préparation | Uniquement des PR depuis les branches de travail |
-| `master` | La version livrée : chaque commit est une release taguée `vX.Y.Z` et déployée | Uniquement la PR de release `develop` → `master` |
+| `develop` | Branche d'intégration : la prochaine version en préparation | Uniquement des PR depuis les branches de travail |
+| `master` | Branche par défaut et version livrée : chaque commit est une release taguée `vX.Y.Z` et déployée | Uniquement la PR de release `develop` → `master` |
 | `feature/<sujet>`, `fix/<sujet>`, `docs/<sujet>`, `ci/<sujet>`, `build/<sujet>` | Une branche courte par tâche, créée depuis `develop` | Son auteur |
 
 - **On ne fusionne jamais une branche de travail dans `master`.** Une PR qui vise `master` depuis une autre branche que `develop` est redirigée vers `develop` par `garde-des-pull-requests.yml`.
+- **`master` est la branche par défaut** : la page d'accueil du dépôt et un `git clone` montrent la version livrée. GitHub propose donc `master` comme cible d'une nouvelle PR : choisir `develop` (`gh pr create --base develop`). Une PR ouverte vers `master` par erreur est redirigée par la garde, sans rien perdre.
 - Pas de push direct sur `develop` ni sur `master` (rulesets GitHub).
 - Les PR sont fusionnées avec un **commit de merge** (ni squash ni rebase) : les commits de chacun et les numéros de PR restent visibles sur le miroir GitLab, où Git est noté.
 
@@ -46,7 +47,7 @@ gh pr create --base develop --fill
 2. La CI doit être verte : `Tests API` et `Tests app` sont obligatoires, `Tests API MariaDB` et `Tests borne` doivent passer aussi.
 3. Un autre membre relit et approuve **le dernier push**. Tous les fils de revue sont résolus.
 4. Si `develop` a avancé entre-temps, la garde le signale en commentaire et la fusion reste bloquée : l'auteur fusionne `develop` dans sa branche (`git fetch origin`, `git merge origin/develop`, `git push`). C'est voulu : le commit de merge est ainsi le sien, et il compte dans son historique Git sur GitLab IUT, alors qu'un commit fait par le bot ne compte pour personne.
-5. L'auteur fusionne, la branche est supprimée.
+5. L'auteur fusionne, la branche est supprimée. GitHub ne ferme les issues citées par `Closes #n` qu'à la fusion dans la branche par défaut, donc à la release : fermer à la main une issue réglée sur `develop`.
 
 ## Release
 
@@ -64,4 +65,4 @@ Pour forcer un numéro (la `v1.0.0` du rendu, par exemple) : Actions → *Releas
 
 ## Mise en place (une fois, par un administrateur)
 
-Après la fusion dans `master` de la PR qui introduit ce flux : `bash .github/scripts/configurer-flux-develop.sh`. Le script crée `develop`, la protège, en fait la branche par défaut et redirige vers elle les PR ouvertes vers `master`.
+Après la fusion dans `master` de la PR qui introduit ce flux : `bash .github/scripts/configurer-flux-develop.sh`. Le script crée `develop`, la protège, laisse `master` comme branche par défaut et redirige vers `develop` les PR ouvertes vers `master`.

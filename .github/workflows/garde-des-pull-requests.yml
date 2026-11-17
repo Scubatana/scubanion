@@ -58,7 +58,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          # Le script de la branche concernée (cible de la PR, ou branche poussée), pas celui de la branche par
+          # défaut : master n'a la dernière version du script qu'à la release suivante.
+          ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
           sparse-checkout: .github/scripts
       - name: Prévenir les PR en retard sur leur branche cible
         env:
