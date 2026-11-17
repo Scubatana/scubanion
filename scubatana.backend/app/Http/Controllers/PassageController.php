@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CompanionResource;
+use App\Services\EncounterService;
 use App\Services\PassageService;
 use App\Services\TerminalDisplay;
 use Carbon\CarbonImmutable;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 
 class PassageController extends Controller
 {
-	public function store(Request $request, PassageService $passages): JsonResponse
+	public function store(Request $request, PassageService $passages, EncounterService $encounters): JsonResponse
 	{
 		$data = $request->validate([
 			'token' => ['required', 'string', 'max:64'],
@@ -23,6 +24,7 @@ class PassageController extends Controller
 		]);
 
 		$passage = $passages->record($request->user(), $data['token'], $this->position($request, $data));
+		$encounters->meetAtTerminal($passage);
 		$display = $passages->display($passage);
 		$terminal = $passage->terminal;
 
