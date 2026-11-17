@@ -104,7 +104,7 @@ K4 existe parce que **Git est noté individuellement** (§ 6.5) : un membre qui 
 | K1 Avancement *Must* | 15 / 18, soit 83 % | Au-dessus du palier de 50 % du 08/11. BOR-04 cochée (#76). Les 3 restantes : BOR-02 (#77 fusionnée, à valider sur la carte), APP-05 (#79 rencontres et #80 photos de sortie, en relecture), BOR-09 (#81 en relecture, à valider sur la carte). |
 | K2 Santé du pipeline | - | Non relevé : le miroir vers GitLab IUT attend ses secrets (#68), donc le pipeline officiel ne tourne pas encore sur `develop` et `master`. |
 | K3 Qualité du code | API 95,4 % ; app 93,8 % (`composables/`, `utils/`) | Mesuré en local (pcov et v8). Les composants Vue n'étaient pas mesurés : 44,5 % avec #82. SonarQube pas encore branché (D7, variables de #68). |
-| K4 Contributions | Commits : Hamza 40, Shaleena 9, Thomas 7, Evan 1. Revues : Shaleena 15, Evan 15, Hamza 11, Thomas 6 | Du 10 au 17/11, sur `develop`, hors commits de fusion ; revues déposées sur GitHub. **Hors cible pour Evan** (1 commit pour 5 visés) ; écart toujours fort entre Hamza et les autres. |
+| K4 Contributions | Commits : Hamza 44, Shaleena 9, Thomas 7, Evan 1. Revues : Thomas 18, Hamza 15, Evan 15, Shaleena 15 | Du 10/11 à 0 h au 17/11 à 23 h 59, sur `develop`, hors commits de fusion (`git shortlog -sn --no-merges --since="2026-11-10 00:00" --until="2026-11-17 23:59"` : sans l'heure, `--since` part de l'heure du relevé) ; revues déposées sur GitHub sur la même période. Relevé le 17/11 à 11 h. **Hors cible pour Evan** (1 commit pour 5 visés) ; écart toujours fort entre Hamza et les autres. |
 | K5 Passage en borne | - | Pas encore mesurable : l'écriture du jeton dans le tag NFC (#77) n'est pas validée sur la carte. |
 | K6 Rétention à 30 jours | - | Non relevé dans ce document. |
 | K7 Lieux et revenu | - | Non relevé dans ce document. |
@@ -413,7 +413,7 @@ flowchart LR
 
 L'app traite des données personnelles : position, activité physique, rencontres entre joueurs, date de naissance.
 
-- [x] Consentement explicite et retirable pour la localisation, le Bluetooth et l'activité. Interrupteurs de la page Paramètres, désactivés par défaut et gardés par joueur (`utils/consents.ts`). Le Bluetooth n'est pas utilisé : les rencontres se prouvent sans lui (`fonctionnalites-sociales.md` § 11), il n'y a donc pas de consentement à demander.
+- [ ] Consentement explicite et retirable pour la localisation, le Bluetooth et l'activité. Localisation et activité : en place (interrupteurs de la page Paramètres, désactivés par défaut et gardés par joueur, `utils/consents.ts`). Bluetooth : aucun code ne l'utilise, les rencontres se prouvent sans lui (`fonctionnalites-sociales.md` § 11), mais le plugin `bluetooth-le` reste installé et l'APK déclare encore `BLUETOOTH_SCAN` et `BLUETOOTH_CONNECT`. À cocher une fois le plugin et ses permissions retirés, avec les mentions du BLE au § 1, au § 4 et dans APP-06 et APP-08 harmonisées.
 - [x] Minimisation : pas d'historique GPS brut conservé, rencontres enregistrées avec une zone approximative.
 - [x] Durée de conservation définie ; suppression du compte et des données sur demande.
 - [x] Âge minimum fixé : en France, un mineur consent seul à partir de 15 ans.
@@ -503,7 +503,7 @@ En place : Nuxt 4 + Capacitor (Android, plugin BLE), Laravel 13, MariaDB 11.4, n
 | Version | Date       | Changements                                                                                                               |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 0.1     | 24/09/2026 | Première version : résumé du projet, règles des matières, exigences, décisions, planning, risques, état du dépôt |
-| 0.13    | 17/11/2026 | Relevé des indicateurs du 17/11 (K1 à 83 %, une PR pour chacune des 3 *Must* restantes ; miroir GitLab pas encore synchronisé ; K4 hors cible pour Evan). Case RGPD du consentement retirable cochée. État de l'app et de la borne mis à jour au § 4 avec les PR en relecture |
+| 0.13    | 17/11/2026 | Relevé des indicateurs du 17/11 (K1 à 83 %, une PR pour chacune des 3 *Must* restantes ; miroir GitLab pas encore synchronisé ; K4 hors cible pour Evan). Case RGPD du consentement retirable précisée : localisation et activité en place, Bluetooth à retirer de l'APK avant de la cocher. État de l'app et de la borne mis à jour au § 4 avec les PR en relecture |
 | 0.12    | 14/11/2026 | BOR-03 et BOR-08 cochés (14 *Must* sur 18) : la borne parle MQTT (signal de vie, affichage à l'écran) et chaque borne est suivie dans Grafana. Décisions D5 (Kafka et oneM2M écartés en v1) et D8 (miroir par GitHub Action) tranchées. Cases R5.07 de la supervision, de la documentation du pipeline et du compose cochées. État des briques du § 4 mis à jour |
 | 0.11    | 13/11/2026 | APP-03 et APP-06 cochés (12 *Must* sur 18), ainsi que APP-07 et APP-09 (*Should*) : compagnon animé, consentements RGPD, amis et carte sont sur `master` |
 | 0.10    | 02/11/2026 | Suivi synchronisé avec `master` : BCK-01, BCK-02 et BCK-03 cochés (10 *Must* sur 18), état des briques au § 4 mis à jour (quêtes, carte, amis, bornes, GitHub Actions, VPS), cases R5.07 et RGPD cochées aux § 6.2 et § 6.5, décisions D4, D6, D9 et D10 actées au § 8, renommage Scubanion et workflows cochés au § 11 |
