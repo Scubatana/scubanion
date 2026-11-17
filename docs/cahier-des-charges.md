@@ -183,7 +183,7 @@ flowchart LR
 | Registre d'images     | DockerHub                                                | Exigé par R5.07                                                                                        | Job prêt sur GitLab CI |
 | Hébergement          | VPS déployé par SSH depuis GitLab CI (Ansible optionnel) | Exigé par R5.07                                                                                        | VPS en place (`scuba.picsou06.fr`, D6) ; playbook Ansible de repli dans `deploy/` |
 | Monitoring            | Prometheus + Grafana (+ Alertmanager)                    | Pile vue en R5.07                                                                                       | `/metrics`, Prometheus et Grafana dans le compose, signal de vie de chaque borne ([r507-pipeline.md](r507-pipeline.md)) |
-| Passage à l'échelle | Docker Swarm (réplicas de l'API)                        | Bonus R5.07                                                                                             | Bonus            |
+| Passage à l'échelle | Répliques de l'API avec Docker Compose, réparties par nginx | Bonus R5.07. Un seul VPS : Swarm n'apporterait rien ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)) | En place : `BACKEND_REPLICAS`, migrations dans un service `migrate` à part |
 
 ## 5. Exigences fonctionnelles
 
@@ -279,7 +279,7 @@ Pipeline de déploiement continu exigé :
 - [ ] 4. Publier les images Docker sur DockerHub.
 - [x] 5. Pouvoir lancer l'application avec un fichier docker-compose.
 - [ ] 6. Déployer automatiquement sur Azure ou ailleurs (Ansible possible pour configurer l'hôte).
-- [ ] 7. *Bonus* : faire passer à l'échelle les services qui en ont besoin.
+- [x] 7. *Bonus* : faire passer à l'échelle les services qui en ont besoin. L'API se réplique (`BACKEND_REPLICAS`) et nginx lui répartit les requêtes ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)).
 - [x] 8. Mettre en place une pile de monitoring : `/metrics`, Prometheus et Grafana ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)).
 - [x] Stratégie Git définie et documentée.
 - [x] Déclencheurs du pipeline définis et documentés.
@@ -302,7 +302,7 @@ Grille d'évaluation, à relire avant le rendu :
   - [ ] Rapports SonarQube au vert.
 - **Déploiement**
   - [x] docker-compose de qualité (pas d'IP en dur, réseaux) et fichiers Ansible ([docker-compose.yml](../docker-compose.yml), [deploy/](../deploy/)).
-  - [ ] Mécanisme de passage à l'échelle expliqué, s'il est mis en place.
+  - [x] Mécanisme de passage à l'échelle expliqué, s'il est mis en place ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)).
   - [x] Mécanisme de monitoring expliqué ([r507-pipeline.md](r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle)).
 
 ### 6.3 R5.04 - Programmation avancée (IoT)

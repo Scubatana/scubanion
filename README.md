@@ -130,7 +130,8 @@ Une mise à jour faite par l'automatisation ne peut pas toucher aux fichiers de 
 | Service | Image | Rôle |
 | ------- | ----- | ---- |
 | `mariadb` | `scubanion-mariadb` | base de données, données dans le volume `mariadb_data` |
-| `backend` | `scubanion-backend` | API Laravel sous php-fpm. Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
+| `migrate` | `scubanion-backend` | même image que `backend`, lancée une fois avant les autres : migrations, puis comptes du broker MQTT. Elle se termine ensuite |
+| `backend` | `scubanion-backend` | API Laravel sous php-fpm, en une ou plusieurs répliques (`BACKEND_REPLICAS`, 1 par défaut). Image multi-stage : les dépendances sont installées au build, sans celles de dev ; ni git, ni composer, ni les tests dans l'image finale |
 | `scheduler` | `scubanion-backend` | même image que `backend`, qui lance le planificateur de Laravel (`php artisan schedule:work`) : tâches planifiées comme la purge nocturne des codes de connexion |
 | `nginx` | `scubanion-nginx` | point d'entrée HTTP, exposé sur `${NGINX_PORT}`. Il embarque `public/` et transmet le PHP à `backend:9000` |
 | `mosquitto` | `scubanion-mosquitto` | broker MQTT des bornes, exposé en TLS sur `${MQTT_TLS_PORT}` (8883) avec le certificat de `MQTT_TLS_DIR` ; le port 1883, en clair, reste interne. Il refuse les connexions sans compte : un compte pour l'API, un par borne, écrits par `backend` dans le volume `mqtt_comptes` (voir `docs/mqtt.md`) |
@@ -143,11 +144,12 @@ docker compose up -d --build
 
 - `APP_KEY` se génère avec `php artisan key:generate --show` (depuis `scubatana.backend`). Sans elle, le conteneur `backend` refuse de démarrer.
 - Au démarrage, `backend` met en cache la configuration, les routes et les vues, puis lance les migrations.
-- Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend (`mariadb`, puis `backend`, puis `nginx` et `scheduler`). `scheduler` remplace le healthcheck de l'image par la présence du processus `schedule:work`.
+- Chaque image a un `HEALTHCHECK` : MariaDB répond au ping, php-fpm répond sur `/ping`, nginx répond sur `/healthz`. Le compose attend qu'un service soit en bonne santé avant de lancer celui qui en dépend : `mariadb`, puis `migrate`, qui doit se terminer sans erreur, puis `backend`, `scheduler` et `bornes`, puis `nginx`. `scheduler` remplace le healthcheck de l'image par la présence du processus `schedule:work`.
 - Deux réseaux : `donnees` (interne, sans accès à Internet) relie `mariadb`, `backend` et `scheduler` ; `web` relie `backend` et `nginx`. nginx ne voit pas la base.
-- `backend` et `scheduler` partagent la même configuration (bloc `x-laravel-environment` du compose) ; seul `backend` lance les migrations.
+- `backend` et `scheduler` partagent la même configuration (bloc `x-laravel-environment` du compose) ; seul `migrate` lance les migrations, une seule fois : les répliques de `backend` ne se gênent pas au démarrage.
 - Le code est dans les images, pas dans un volume : un redéploiement sert toujours la nouvelle version.
-- `MQTT_USERNAME` et `MQTT_PASSWORD` sont obligatoires : sans eux, `backend` ne peut pas écrire les comptes du broker, et `mosquitto` ne démarre pas. Après avoir déclaré une borne (`docker compose exec backend php artisan bornes:creer …`), `docker compose kill -s HUP mosquitto` fait relire les comptes au broker, sans coupure.
+- Passage à l'échelle : `BACKEND_REPLICAS=3` dans `.env`, ou `docker compose up -d --scale backend=3`, lance trois répliques de l'API. nginx les retrouve par le DNS de Docker (relu toutes les 10 s) et leur répartit les requêtes. Détails et mesures dans [docs/r507-pipeline.md](docs/r507-pipeline.md#4-déploiement-supervision-et-passage-à-léchelle).
+- `MQTT_USERNAME` et `MQTT_PASSWORD` sont obligatoires : sans eux, `migrate` ne peut pas écrire les comptes du broker, et `mosquitto` ne démarre pas. Après avoir déclaré une borne (`docker compose exec backend php artisan bornes:creer …`), `docker compose kill -s HUP mosquitto` fait relire les comptes au broker, sans coupure.
 - L'image nginx se construit par `docker compose build` : elle récupère `public/` dans `scubatana.backend` grâce au contexte de build supplémentaire `backend` (`additional_contexts`). Un `docker build` seul demande `--build-context backend=scubatana.backend`.
 - Les images portent le nom `${DOCKERHUB_NAMESPACE}/scubanion-<service>:${IMAGE_TAG}`. Pour déployer une version publiée sans rebuild : `docker compose pull && docker compose up -d`.
 
