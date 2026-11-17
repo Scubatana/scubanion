@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Accessory;
 use App\Models\Passage;
 use App\Models\Place;
 use App\Models\Terminal;
@@ -59,11 +60,18 @@ class PassageService
 					->whereBetween('scanned_at', [$scannedAt->startOfDay(), $scannedAt->endOfDay()])
 					->exists();
 
+				$accessory = $alreadyRewarded ? null : $this->newAccessory($player, $terminal);
+
+				if ($accessory !== null) {
+					$player->accessories()->create(['accessory_id' => $accessory->id, 'unlocked_at' => now()]);
+				}
+
 				return $terminal->passages()->create([
 					'user_id' => $player->id,
 					'token_hash' => $tokenHash,
 					'scanned_at' => $scannedAt,
 					'reward_xp' => $alreadyRewarded ? 0 : config('bornes.reward_xp'),
+					'accessory_id' => $accessory?->id,
 				]);
 			});
 		} catch (UniqueConstraintViolationException) {
@@ -75,6 +83,17 @@ class PassageService
 		}
 
 		return $passage;
+	}
+
+	private function newAccessory(User $player, Terminal $terminal): ?Accessory
+	{
+		$accessory = $terminal->accessory;
+
+		if ($accessory === null || ! $accessory->active || $player->accessories()->where('accessory_id', $accessory->id)->exists()) {
+			return null;
+		}
+
+		return $accessory;
 	}
 
 	private function ensurePresent(User $player, Terminal $terminal, CarbonImmutable $scannedAt, ?array $position): void
@@ -130,12 +149,21 @@ class PassageService
 	public function display(Passage $passage): array
 	{
 		$pseudo = $passage->user->pseudo ?? 'toi';
-
-		return [
+		$display = [
 			'scanned_at' => $passage->scanned_at->toIso8601String(),
 			'status' => $passage->isRewarded() ? 'rewarded' : 'already_rewarded',
 			'message' => $passage->isRewarded() ? "Bravo {$pseudo} ! +{$passage->reward_xp} XP" : "Ton passage du jour est déjà compté, {$pseudo}. Reviens demain !",
 			'reward_xp' => $passage->reward_xp,
+		];
+
+		if ($passage->accessory === null) {
+			return $display;
+		}
+
+		return [
+			...$display,
+			'message' => "{$display['message']}, nouvel accessoire : {$passage->accessory->label}",
+			'accessory' => ['id' => $passage->accessory->code, 'label' => $passage->accessory->label],
 		];
 	}
 }

@@ -128,6 +128,8 @@ Publié par l'API dès qu'un passage est enregistré :
 | `rewarded` | premier passage du joueur à cette borne ce jour-là | « Bravo {pseudo} ! +100 XP » |
 | `already_rewarded` | le joueur est déjà passé ce jour-là : le passage est enregistré, sans récompense | « Ton passage du jour est déjà compté, {pseudo}. Reviens demain ! » |
 
+Quand le passage débloque l'accessoire de la borne, le message devient « Bravo {pseudo} ! +100 XP, nouvel accessoire : {nom} » et le message porte en plus `"accessory": { "id": "crown", "label": "Couronne" }`, que le firmware peut ignorer.
+
 `scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne l'ignore si son `scanned_at` a plus de 10 minutes (le jeton est écrit au plus 5 minutes avant le scan).
 
 ## Connexion au broker
@@ -210,11 +212,21 @@ L'écran est une dalle ST7789 (identifiant `81 81 B3`) pilotée par Adafruit ST7
 
 Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`), `lib/text` (coupure du message en lignes) et `lib/ndef` (contenu du tag NFC), testé par `pio test -e native`.
 
+### Tester une borne en dev
+
+Le broker de `dev-docker-compose.yml` n'a pas de certificat : il écoute seulement en clair sur 1883, publié sur `127.0.0.1` par défaut. Une borne en Wi-Fi ne peut donc pas le joindre sans ces réglages :
+
+1. Dans le `.env` racine du PC : `MQTT_BIND=0.0.0.0`, puis `docker compose -f dev-docker-compose.yml up -d mosquitto` (le conteneur est recréé avec le nouveau port).
+2. Autoriser le port 1883 en entrée dans le pare-feu du PC, pour le réseau privé seulement.
+3. Dans `include/borne_config.h` : `MQTT_HOST` à l'adresse IP du PC sur le réseau local (`ipconfig` sous Windows, `ip addr` sous Linux), `MQTT_TLS` à `false` et `MQTT_PORT` à `1883`, puis flasher la borne.
+
+Le mot de passe de la borne circule alors en clair : à faire seulement sur un réseau de confiance, et remettre `MQTT_BIND=127.0.0.1` ensuite. Pour tester le TLS lui-même en local, il faut un broker avec un certificat signé par une autorité de test, et `MQTT_CA_CERT` sur la borne (voir [Chiffrement TLS](#chiffrement-tls)).
+
 ## Côté serveur
 
 | Commande | Rôle |
 | -------- | ---- |
-| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT |
+| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT. `--accessoire=crown` lui donne un accessoire à faire gagner (un accessoire `earnable`) |
 | `php artisan bornes:comptes-mqtt` | réécrit les comptes et les droits du broker (voir [Connexion au broker](#connexion-au-broker)) |
 | `php artisan bornes:ecouter` | écoute les signaux de vie des bornes. Processus permanent : un conteneur ou un service dédié en prod |
 | `php artisan bornes:simuler chateau-01` | joue le rôle de la borne : affiche le jeton qu'elle donnerait au téléphone, puis attend et affiche la réponse publiée sur `affichage` |
