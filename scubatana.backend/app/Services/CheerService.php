@@ -38,7 +38,7 @@ class CheerService
 	// Ceux à qui le joueur a envoyé un coup de patte aujourd'hui, et ceux qui lui en ont envoyé un.
 	public function todayFor(User $player): array
 	{
-		$cheers = Cheer::whereDate('day', $this->today())
+		$cheers = Cheer::where('day', $this->today())
 			->where(fn ($query) => $query->where('user_id', $player->id)->orWhere('friend_id', $player->id))
 			->get();
 
@@ -50,7 +50,7 @@ class CheerService
 
 	public function moodBonus(User $user, CarbonImmutable $day): int
 	{
-		$received = Cheer::where('friend_id', $user->id)->whereDate('day', $day->toDateString())->count();
+		$received = Cheer::where('friend_id', $user->id)->where('day', $day->toDateString())->count();
 
 		return min(self::MOOD_BONUS_MAX, $received * self::MOOD_BONUS);
 	}

@@ -15,7 +15,6 @@ class Cheer extends Model
 		return [
 			'user_id' => 'integer',
 			'friend_id' => 'integer',
-			'day' => 'date',
 		];
 	}
 
