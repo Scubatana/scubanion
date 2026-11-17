@@ -280,7 +280,7 @@ class QuestEngineTest extends TestCase
 
 		$this->putJson('/api/me/companion', ['name' => 'Bulle', 'species' => 'scuba', 'color' => 'ocean', 'accessories' => ['medal']])
 			->assertUnprocessable()
-			->assertJsonValidationErrors(['accessories' => 'Cet accessoire se gagne en terminant une quête.']);
+			->assertJsonValidationErrors(['accessories' => "Cet accessoire n'est pas encore débloqué."]);
 		$this->putJson('/api/me/companion', ['name' => 'Bulle', 'species' => 'scuba', 'color' => 'ocean', 'accessories' => ['tophat']])->assertOk();
 	}
 

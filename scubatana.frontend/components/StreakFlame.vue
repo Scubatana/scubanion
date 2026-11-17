@@ -2,9 +2,13 @@
 import { FLAME_INNER_PATH, FLAME_OUTER_PATH } from "~/utils/icons";
 import type { Streak } from "~/utils/types";
 
-const props = defineProps<{ streak: Streak }>();
+const props = defineProps<{ streak: Streak; label?: string }>();
 
 const label = computed(() => {
+	if (props.label) {
+		return props.label;
+	}
+
 	if (props.streak.days === 0) {
 		return "Aucune série en cours";
 	}
