@@ -22,6 +22,7 @@ export interface PassageResponse {
 	status: "rewarded" | "already_rewarded";
 	message: string;
 	reward_xp: number;
+	accessory?: { id: string; label: string };
 	terminal: PassageTerminalInfo;
 	companion: Companion | null;
 }

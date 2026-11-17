@@ -30,6 +30,7 @@ Réponse **200** :
 ```
 
 - `status` : `rewarded` au premier passage du jour à cette borne (100 XP, ajoutés tout de suite au compagnon), `already_rewarded` ensuite (passage enregistré, sans récompense).
+- `accessory` : présent seulement quand le passage débloque l'accessoire de la borne (`{ "id": "crown", "label": "Couronne" }`) ; le message devient alors « Bravo Lea ! +100 XP, nouvel accessoire : Couronne », et `companion.unlocked_accessories` le contient déjà.
 - Le même message est publié sur l'écran de la borne.
 - Sans réseau, l'app garde le jeton et l'envoie plus tard : il reste valable 24 h après l'heure du scan.
 
