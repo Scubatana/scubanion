@@ -54,7 +54,7 @@ Une quête est donnée à un joueur (automatiquement selon son ambition ou sa zo
 | `checkin` | rien d'obligatoire : la tâche se valide toute seule avec la position envoyée chaque minute. Un bouton « Je suis sur place » envoie la position tout de suite |
 | `scan` | envoyer le code scanné |
 | `answer` | afficher les questions et envoyer les réponses une par une |
-| `meet` | rien : la tâche avance quand une rencontre avec un autre joueur est validée |
+| `meet` | proposer de valider une rencontre (scan du QR de l'autre joueur, voir [rencontres.md](rencontres.md)). La tâche avance aussi toute seule après un passage à la même borne qu'un autre joueur |
 
 - `place` : le lieu à rejoindre, avec son rayon (`radius_m`) ou son contour (`outline`, liste de `[latitude, longitude]`). `place_type` : le type de lieu à rejoindre, quand n'importe quel lieu de ce type convient (« passe par un parc »).
 - `questions` (pour `answer`) : les questions et leurs choix, **sans les réponses**. `value` est le nombre de bonnes réponses déjà données, donc l'indice de la prochaine question.

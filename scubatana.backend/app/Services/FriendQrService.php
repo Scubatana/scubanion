@@ -7,19 +7,25 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Crypt;
 
+/**
+ * QR d'un joueur, valable 60 secondes. Son usage est écrit dans le jeton et chaque route vérifie le sien :
+ * un QR montré pour une rencontre ne permet pas de devenir ami, et inversement.
+ */
 class FriendQrService
 {
 	public const TTL_SECONDS = 60;
 
-	private const PURPOSE = 'friend-qr';
+	public const FRIEND = 'friend-qr';
 
-	public function issue(User $player): array
+	public const MEET = 'meet-qr';
+
+	public function issue(User $player, string $purpose = self::FRIEND): array
 	{
 		$expiresAt = now()->addSeconds(self::TTL_SECONDS);
 
 		return [
 			'token' => Crypt::encryptString(json_encode([
-				'purpose' => self::PURPOSE,
+				'purpose' => $purpose,
 				'player' => $player->id,
 				'expires' => $expiresAt->getTimestamp(),
 			])),
@@ -27,7 +33,7 @@ class FriendQrService
 		];
 	}
 
-	public function resolve(string $token): ?User
+	public function resolve(string $token, string $purpose = self::FRIEND): ?User
 	{
 		try {
 			$payload = json_decode(Crypt::decryptString($token), true);
@@ -35,7 +41,7 @@ class FriendQrService
 			return null;
 		}
 
-		if (! is_array($payload) || ($payload['purpose'] ?? null) !== self::PURPOSE || ! is_int($payload['player'] ?? null) || ! is_int($payload['expires'] ?? null)) {
+		if (! is_array($payload) || ($payload['purpose'] ?? null) !== $purpose || ! is_int($payload['player'] ?? null) || ! is_int($payload['expires'] ?? null)) {
 			return null;
 		}
 

@@ -56,6 +56,12 @@ class Encounter extends Model
 		$query->where(fn (Builder $either) => $either->where('user_id', $player->id)->orWhere('other_user_id', $player->id));
 	}
 
+	#[Scope]
+	protected function between(Builder $query, User $player, User $other): void
+	{
+		$query->where('user_id', min($player->id, $other->id))->where('other_user_id', max($player->id, $other->id));
+	}
+
 	public function isValidated(): bool
 	{
 		return $this->validated_at !== null;

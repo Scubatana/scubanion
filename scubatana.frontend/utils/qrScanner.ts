@@ -6,7 +6,7 @@ export class QrScanError extends Error {}
 const CAMERA_ERROR = "Impossible d'utiliser la caméra. Vérifie que Scubanion a le droit d'y accéder, ou saisis le code de ton ami.";
 const NO_CAMERA_ERROR = "Aucune caméra trouvée sur cet appareil. Saisis plutôt le code de ton ami.";
 
-export async function scanQrCode(): Promise<string | null> {
+export async function scanQrCode(instructions = "Vise le QR code de ton ami"): Promise<string | null> {
 	if (!Capacitor.isNativePlatform()) {
 		await ensureWebCamera();
 	}
@@ -14,7 +14,7 @@ export async function scanQrCode(): Promise<string | null> {
 	try {
 		const result = await CapacitorBarcodeScanner.scanBarcode({
 			hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
-			scanInstructions: "Vise le QR code de ton ami",
+			scanInstructions: instructions,
 			cameraDirection: CapacitorBarcodeScannerCameraDirection.BACK
 		});
 		const text = result.ScanResult?.trim() ?? "";
