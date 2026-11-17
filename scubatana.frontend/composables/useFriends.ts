@@ -1,4 +1,4 @@
-import { normalizeFriendCodeInput, type FriendInvitation, type FriendQrToken, type Friendship, type FriendsView } from "~/utils/friends";
+import { normalizeFriendCodeInput, type CheerResult, type FriendInvitation, type FriendQrToken, type Friendship, type FriendsView } from "~/utils/friends";
 
 export type InviteOutcome = "sent" | "mutual";
 
@@ -8,6 +8,8 @@ export function useFriends() {
 	const received = useState<FriendInvitation[]>("friends-received", () => []);
 	const sent = useState<FriendInvitation[]>("friends-sent", () => []);
 	const loaded = useState<boolean>("friends-loaded", () => false);
+	const checkedAt = useState<number>("friends-checked-at", () => 0);
+	const generation = useState<number>("friends-generation", () => 0);
 
 	const session = useSession();
 	const player = usePlayer();
@@ -19,6 +21,8 @@ export function useFriends() {
 	}, { immediate: true });
 
 	function applyView(view: FriendsView): void {
+		generation.value++;
+		checkedAt.value = Date.now();
 		code.value = view.code;
 		friends.value = view.friends;
 		received.value = view.received;
@@ -37,8 +41,22 @@ export function useFriends() {
 	}
 
 	async function load(): Promise<void> {
+		const startedAt = generation.value;
+
 		await useSteps().settled();
-		applyView(await useApi().get<FriendsView>("/me/friends"));
+		const view = await useApi().get<FriendsView>("/me/friends");
+
+		if (generation.value === startedAt) {
+			applyView(view);
+		}
+	}
+
+	async function loadIfStale(maxAgeMs: number): Promise<void> {
+		if (Date.now() - checkedAt.value < maxAgeMs) {
+			return;
+		}
+
+		await load();
 	}
 
 	async function invite(rawCode: string): Promise<InviteOutcome> {
@@ -68,6 +86,22 @@ export function useFriends() {
 		applyView(await useApi().post<FriendsView>(`/me/friends/${id}/accept`));
 	}
 
+	async function cheer(id: number): Promise<string[]> {
+		const { unlocked = [], ...view } = await useApi().post<CheerResult>(`/me/friends/${id}/cheer`);
+
+		applyView(view);
+
+		const companion = usePlayer().companion;
+
+		if (unlocked.length > 0 && companion.value !== null) {
+			const known = companion.value.unlocked_accessories ?? [];
+
+			companion.value = { ...companion.value, unlocked_accessories: [...known, ...unlocked.filter((code) => !known.includes(code))] };
+		}
+
+		return unlocked;
+	}
+
 	async function remove(id: number): Promise<void> {
 		applyView(await useApi().del<FriendsView>(`/me/friends/${id}`));
 	}
@@ -78,7 +112,9 @@ export function useFriends() {
 		received.value = [];
 		sent.value = [];
 		loaded.value = false;
+		checkedAt.value = 0;
+		generation.value++;
 	}
 
-	return { code, friends, received, sent, loaded, load, invite, qrToken, scanQr, accept, remove, reset };
+	return { code, friends, received, sent, loaded, load, loadIfStale, invite, qrToken, scanQr, accept, cheer, remove, reset };
 }

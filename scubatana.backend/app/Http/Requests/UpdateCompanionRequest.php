@@ -47,7 +47,7 @@ class UpdateCompanionRequest extends FormRequest
 				$locked = array_diff(array_intersect($accessories, $catalog->earnableAccessoryIds()), $this->user()->ownedAccessoryCodes(), $this->wornAccessories());
 
 				if ($locked !== []) {
-					$validator->errors()->add('accessories', 'Cet accessoire se gagne en terminant une quête.');
+					$validator->errors()->add('accessories', "Cet accessoire n'est pas encore débloqué.");
 				}
 			},
 		];
