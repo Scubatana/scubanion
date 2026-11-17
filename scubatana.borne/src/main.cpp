@@ -3,11 +3,14 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <Wire.h>
+#include <esp_sntp.h>
+#include <sys/time.h>
 #include <time.h>
 
 #include "autorites_racines.h"
 #include "messages.h"
 #include "ndef.h"
+#include "rtc.h"
 #include "screen.h"
 #include "token.h"
 
@@ -47,6 +50,9 @@ constexpr uint8_t TAG_USER_MEMORY = 0x53;
 
 // La puce programme 4 octets en 5 ms environ : un jeton d'environ 70 octets demande moins de 100 ms.
 constexpr unsigned long TAG_WRITE_TIMEOUT_MS = 250;
+
+// Horloge DS3231, sur la même chaîne I2C que la puce NFC.
+constexpr uint8_t RTC_ADDRESS = 0x68;
 
 constexpr unsigned long WAITING_MESSAGE_MS = 5000;
 
@@ -106,9 +112,88 @@ bool idleShown = false;
 
 bool idleShownOnline = false;
 
+// Levé par la tâche SNTP à chaque synchronisation : le DS3231 est réglé ensuite dans loop(),
+// pour ne jamais utiliser le bus I2C en même temps que l'écriture du tag.
+volatile bool clockJustSynced = false;
+
 bool clockIsSet()
 {
 	return time(nullptr) > EARLIEST_VALID_TIME;
+}
+
+bool readRtc(uint8_t firstRegister, uint8_t* values, uint8_t count)
+{
+	Wire.beginTransmission(RTC_ADDRESS);
+	Wire.write(firstRegister);
+
+	if (Wire.endTransmission() != 0 || Wire.requestFrom(RTC_ADDRESS, count) != count) {
+		return false;
+	}
+
+	for (uint8_t i = 0; i < count; i++) {
+		values[i] = Wire.read();
+	}
+
+	return true;
+}
+
+bool writeRtc(uint8_t firstRegister, const uint8_t* values, uint8_t count)
+{
+	Wire.beginTransmission(RTC_ADDRESS);
+	Wire.write(firstRegister);
+	Wire.write(values, count);
+
+	return Wire.endTransmission() == 0;
+}
+
+// Au démarrage, l'ESP32 n'a pas l'heure. Le DS3231 l'a gardée sur sa pile : la borne écrit donc des
+// jetons valables même sans Wi-Fi (BOR-09), et NTP la corrige dès que le réseau revient.
+void restoreClock()
+{
+	uint8_t status = 0;
+	rtc::Registers registers{};
+	uint64_t seconds = 0;
+
+	if (!readRtc(rtc::STATUS_REGISTER, &status, 1)) {
+		Serial.println("Horloge DS3231 absente : l'heure viendra de NTP");
+		return;
+	}
+
+	if (!rtc::isTrustworthy(status) || !readRtc(rtc::TIME_REGISTER, registers.data(), registers.size())
+		|| !rtc::toUnix(registers, seconds) || seconds <= static_cast<uint64_t>(EARLIEST_VALID_TIME)) {
+		Serial.println("Heure du DS3231 perdue ou jamais réglée : l'heure viendra de NTP");
+		return;
+	}
+
+	const timeval now = {static_cast<time_t>(seconds), 0};
+	settimeofday(&now, nullptr);
+	Serial.println("Heure reprise du DS3231");
+}
+
+// Recopie l'heure NTP dans le DS3231 et efface son drapeau d'arrêt d'oscillateur.
+void saveClock()
+{
+	const rtc::Registers registers = rtc::fromUnix(static_cast<uint64_t>(time(nullptr)));
+	uint8_t status = 0;
+
+	if (!writeRtc(rtc::TIME_REGISTER, registers.data(), registers.size()) || !readRtc(rtc::STATUS_REGISTER, &status, 1)) {
+		Serial.println("Horloge DS3231 non réglée (absente ?)");
+		return;
+	}
+
+	const uint8_t cleared = rtc::clearedStatus(status);
+
+	if (cleared != status && !writeRtc(rtc::STATUS_REGISTER, &cleared, 1)) {
+		Serial.println("Drapeau d'arrêt du DS3231 non effacé");
+		return;
+	}
+
+	Serial.println("Horloge DS3231 réglée sur l'heure NTP");
+}
+
+void onClockSynced(timeval*)
+{
+	clockJustSynced = true;
 }
 
 void waitForClock()
@@ -278,9 +363,11 @@ void setup()
 
 	screen::begin();
 	Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
+	restoreClock();
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+	sntp_set_time_sync_notification_cb(onClockSynced);
 	configTime(0, 0, NTP_SERVER);
 
 #if MQTT_TLS
@@ -296,6 +383,11 @@ void setup()
 
 void loop()
 {
+	if (clockJustSynced) {
+		clockJustSynced = false;
+		saveClock();
+	}
+
 	keepMqttConnected();
 	updateScreen();
 
