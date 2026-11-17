@@ -4,6 +4,7 @@ namespace Tests\Feature\Encounters;
 
 use App\Models\Block;
 use App\Models\Encounter;
+use App\Models\Friendship;
 use App\Models\Quest;
 use App\Models\QuestBan;
 use App\Models\QuestTask;
@@ -59,7 +60,7 @@ class MeetPlayerTest extends TestCase
 	{
 		Sanctum::actingAs($player);
 
-		return $this->getJson('/api/me/friends/qr')->assertOk()->json('token');
+		return $this->getJson('/api/me/encounters/qr')->assertOk()->json('token');
 	}
 
 	private function meet(User $scanner, string $token, array $position = [])
@@ -243,5 +244,36 @@ class MeetPlayerTest extends TestCase
 		$this->meet($this->yanis, $this->qrOf($this->lea))->assertCreated();
 
 		$this->assertSame(2, UserQuest::whereNotNull('completed_at')->count());
+	}
+
+	public function test_the_meeting_qr_lasts_a_minute_and_needs_a_profile(): void
+	{
+		Sanctum::actingAs($this->lea);
+		$this->getJson('/api/me/encounters/qr')->assertOk()->assertJsonPath('expires_at', '2026-11-17T16:01:00+01:00');
+
+		$this->lea->update(['pseudo' => null]);
+		$this->getJson('/api/me/encounters/qr')->assertStatus(409);
+	}
+
+	public function test_showing_a_meeting_qr_does_not_make_friends(): void
+	{
+		$this->bothAtTheCastle();
+		$meetingQr = $this->qrOf($this->lea);
+
+		Sanctum::actingAs($this->yanis);
+		$this->postJson('/api/me/friends/qr', ['token' => $meetingQr])
+			->assertJsonValidationErrors(['token' => "Ce QR code n'est plus valable. Demande à ton ami de l'afficher à nouveau."]);
+
+		$this->assertSame(0, Friendship::count());
+	}
+
+	public function test_a_friend_qr_does_not_validate_an_encounter(): void
+	{
+		$this->bothAtTheCastle();
+		Sanctum::actingAs($this->lea);
+		$friendQr = $this->getJson('/api/me/friends/qr')->assertOk()->json('token');
+
+		$this->meet($this->yanis, $friendQr)->assertJsonValidationErrors(['token' => self::INVALID]);
+		$this->assertSame(0, Encounter::count());
 	}
 }

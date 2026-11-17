@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::put('/me/privacy', [MeController::class, 'updatePrivacy'])->middleware('throttle:30,1');
 	Route::put('/me/companion', [CompanionController::class, 'update']);
 	Route::post('/me/position', [PositionController::class, 'store'])->middleware('throttle:10,1');
+	Route::get('/me/encounters/qr', [EncounterController::class, 'qr'])->middleware('throttle:30,1');
 	Route::post('/me/encounters', [EncounterController::class, 'store'])->middleware('throttle:20,1');
 	Route::get('/map', [MapController::class, 'index']);
 	Route::get('/catalog/types', [MapController::class, 'types'])->middleware('cache.headers:private;etag');
