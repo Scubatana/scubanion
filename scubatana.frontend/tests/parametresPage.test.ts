@@ -1,6 +1,6 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ParametresPage from "~/pages/parametres.vue";
 import type { Player } from "~/utils/types";
 
@@ -70,6 +70,21 @@ const STEPS = "Autoriser le suivi de l'activité physique";
 
 const LOCATION = "Autoriser l'utilisation de la position géographique";
 
+// Chaque page montée est démontée après son test : sinon, clearNuxtState() du test suivant vide
+// l'état qu'elle affiche encore, et son rendu plante (erreur non rattrapée qui fait échouer Vitest).
+const mounted: Array<{ unmount: () => void }> = [];
+
+async function mountPage(page: Parameters<typeof mountSuspended>[0]) {
+	const wrapper = await mountSuspended(page);
+	mounted.push(wrapper);
+
+	return wrapper;
+}
+
+afterEach(() => {
+	mounted.splice(0).forEach((wrapper) => wrapper.unmount());
+});
+
 describe("page Paramètres", () => {
 	beforeEach(async () => {
 		httpRequest.mockReset();
@@ -83,7 +98,7 @@ describe("page Paramètres", () => {
 	});
 
 	it("shows both consents off until the player gives them", async () => {
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 
 		expect(consentSwitch(wrapper, STEPS).attributes("aria-checked")).toBe("false");
@@ -92,7 +107,7 @@ describe("page Paramètres", () => {
 	});
 
 	it("lets the player give the location consent, then withdraw it", async () => {
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 
 		await consentSwitch(wrapper, LOCATION).trigger("click");
@@ -110,7 +125,7 @@ describe("page Paramètres", () => {
 
 	it("lets the player withdraw the activity consent given before", async () => {
 		storage.set("consents.7", JSON.stringify({ steps: true, location: true }));
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 
 		await consentSwitch(wrapper, STEPS).trigger("click");
@@ -123,7 +138,7 @@ describe("page Paramètres", () => {
 	it("keeps the consents given on this phone for the next visit", async () => {
 		storage.set("consents.7", JSON.stringify({ steps: true, location: false }));
 
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 
 		expect(consentSwitch(wrapper, STEPS).attributes("aria-checked")).toBe("true");
@@ -131,7 +146,7 @@ describe("page Paramètres", () => {
 	});
 
 	it("raises the daily goal by 500 steps", async () => {
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 		httpRequest.mockResolvedValueOnce({ status: 200, data: { today: { date: "2026-11-17", steps: 1200, goal: 5500 }, streak: { days: 0, active: false } } });
 
@@ -143,7 +158,7 @@ describe("page Paramètres", () => {
 	});
 
 	it("deletes the account only after a confirmation, then goes back to the login page", async () => {
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 		httpRequest.mockResolvedValueOnce({ status: 204, data: null });
 
@@ -163,7 +178,7 @@ describe("page Paramètres", () => {
 	});
 
 	it("keeps the account and explains why when the deletion fails", async () => {
-		const wrapper = await mountSuspended(ParametresPage);
+		const wrapper = await mountPage(ParametresPage);
 		await flushPromises();
 		httpRequest.mockResolvedValueOnce({ status: 500, data: { message: "Server Error" } });
 

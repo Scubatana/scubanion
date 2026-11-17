@@ -1,6 +1,6 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import LoginPage from "~/pages/login.vue";
 import VerificationPage from "~/pages/verification.vue";
 import { UNREACHABLE_MESSAGE } from "~/utils/apiError";
@@ -48,6 +48,21 @@ function validationError(field: string, message: string) {
 	return { status: 422, data: { message, errors: { [field]: [message] } } };
 }
 
+// Chaque page montée est démontée après son test : sinon, clearNuxtState() du test suivant vide
+// l'état qu'elle affiche encore, et son rendu plante (erreur non rattrapée qui fait échouer Vitest).
+const mounted: Array<{ unmount: () => void }> = [];
+
+async function mountPage(page: Parameters<typeof mountSuspended>[0]) {
+	const wrapper = await mountSuspended(page);
+	mounted.push(wrapper);
+
+	return wrapper;
+}
+
+afterEach(() => {
+	mounted.splice(0).forEach((wrapper) => wrapper.unmount());
+});
+
 describe("page de connexion", () => {
 	beforeEach(() => {
 		httpRequest.mockReset();
@@ -58,7 +73,7 @@ describe("page de connexion", () => {
 
 	it("asks for a code for the normalized email, then goes to the verification", async () => {
 		httpRequest.mockResolvedValue({ status: 204, data: null });
-		const wrapper = await mountSuspended(LoginPage);
+		const wrapper = await mountPage(LoginPage);
 
 		await wrapper.find("#email").setValue("  Lea@Example.com ");
 		await wrapper.find("form").trigger("submit");
@@ -71,7 +86,7 @@ describe("page de connexion", () => {
 
 	it("shows an invalid email under the field", async () => {
 		httpRequest.mockResolvedValue(validationError("email", "The email field must be a valid email address."));
-		const wrapper = await mountSuspended(LoginPage);
+		const wrapper = await mountPage(LoginPage);
 
 		await wrapper.find("#email").setValue("pas-un-email");
 		await wrapper.find("form").trigger("submit");
@@ -84,7 +99,7 @@ describe("page de connexion", () => {
 
 	it("explains that the server cannot be reached", async () => {
 		httpRequest.mockRejectedValue(new Error("offline"));
-		const wrapper = await mountSuspended(LoginPage);
+		const wrapper = await mountPage(LoginPage);
 
 		await wrapper.find("#email").setValue("lea@example.com");
 		await wrapper.find("form").trigger("submit");
@@ -118,14 +133,14 @@ describe("page de vérification du code", () => {
 		clearNuxtState();
 		await askedCodeFor(null);
 
-		await mountSuspended(VerificationPage);
+		await mountPage(VerificationPage);
 
 		expect(navigateTo).toHaveBeenCalledWith("/login", { replace: true });
 	});
 
 	it("opens the session with a right code and the terms accepted", async () => {
 		httpRequest.mockResolvedValue({ status: 200, data: { token: "jeton-7", player: lea } });
-		const wrapper = await mountSuspended(VerificationPage);
+		const wrapper = await mountPage(VerificationPage);
 
 		expect(wrapper.text()).toContain("lea@example.com");
 
@@ -143,7 +158,7 @@ describe("page de vérification du code", () => {
 
 	it("tells which field is wrong: the code, or the terms not accepted", async () => {
 		httpRequest.mockResolvedValueOnce(validationError("code", "Code invalide."));
-		const wrapper = await mountSuspended(VerificationPage);
+		const wrapper = await mountPage(VerificationPage);
 
 		await wrapper.find("#code").setValue("000000");
 		await wrapper.find("form").trigger("submit");
@@ -162,7 +177,7 @@ describe("page de vérification du code", () => {
 
 	it("sends a new code and clears the one typed", async () => {
 		httpRequest.mockResolvedValue({ status: 204, data: null });
-		const wrapper = await mountSuspended(VerificationPage);
+		const wrapper = await mountPage(VerificationPage);
 
 		await wrapper.find("#code").setValue("999999");
 		await wrapper.find("button.link-under").trigger("click");

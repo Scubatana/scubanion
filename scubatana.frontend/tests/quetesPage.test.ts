@@ -1,6 +1,6 @@
 import { mockNuxtImport, mountSuspended } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import QuetesPage from "~/pages/quetes.vue";
 import type { PlayerQuest, QuestTask } from "~/utils/types";
 
@@ -70,6 +70,21 @@ function button(wrapper: Awaited<ReturnType<typeof mountSuspended>>, label: stri
 	return found;
 }
 
+// Chaque page montée est démontée après son test : sinon, clearNuxtState() du test suivant vide
+// l'état qu'elle affiche encore, et son rendu plante (erreur non rattrapée qui fait échouer Vitest).
+const mounted: Array<{ unmount: () => void }> = [];
+
+async function mountPage(page: Parameters<typeof mountSuspended>[0]) {
+	const wrapper = await mountSuspended(page);
+	mounted.push(wrapper);
+
+	return wrapper;
+}
+
+afterEach(() => {
+	mounted.splice(0).forEach((wrapper) => wrapper.unmount());
+});
+
 describe("page Quêtes", () => {
 	beforeEach(async () => {
 		httpRequest.mockReset();
@@ -84,7 +99,7 @@ describe("page Quêtes", () => {
 	it("shows each quest with its step, its task and its rewards", async () => {
 		api({ "GET /me/quests": () => ({ status: 200, data: { quests: [quest({})] } }), "GET /companion/catalog": () => ({ status: 200, data: catalog }) });
 
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		expect(wrapper.text()).toContain("Le belvédère");
@@ -96,7 +111,7 @@ describe("page Quêtes", () => {
 	it("says when there is no quest", async () => {
 		api({ "GET /me/quests": () => ({ status: 200, data: { quests: [] } }), "GET /companion/catalog": () => ({ status: 200, data: catalog }) });
 
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		expect(wrapper.text()).toContain("Aucune quête pour le moment.");
@@ -109,7 +124,7 @@ describe("page Quêtes", () => {
 			"GET /companion/catalog": () => ({ status: 200, data: catalog }),
 			"POST /me/quests/4/tasks/10": () => ({ status: 200, data: { status: "active", quest: quest({ step: 2, tasks: [task({ id: 11, type: "quiz", action: "answer", description: "Réponds au quiz" })] }) } })
 		});
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		await button(wrapper, "Je suis sur place").trigger("click");
@@ -127,7 +142,7 @@ describe("page Quêtes", () => {
 			"GET /companion/catalog": () => ({ status: 200, data: catalog }),
 			"POST /me/quests/4/tasks/10": () => ({ status: 422, data: { message: "Erreur", errors: { position: ["Tu n'es pas encore sur place."] } } })
 		});
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		await button(wrapper, "Je suis sur place").trigger("click");
@@ -142,7 +157,7 @@ describe("page Quêtes", () => {
 			"GET /companion/catalog": () => ({ status: 200, data: catalog }),
 			"POST /me/quests/4/tasks/10": () => ({ status: 422, data: { message: "Erreur", errors: { code: ["Ce code ne correspond pas."] } } })
 		});
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		await wrapper.find("input[placeholder=Code]").setValue("SCUBA-THE");
@@ -160,7 +175,7 @@ describe("page Quêtes", () => {
 			"GET /companion/catalog": () => ({ status: 200, data: catalog }),
 			"POST /me/quests/4/tasks/10": () => ({ status: 200, data: { status: "failed", quest: null } })
 		});
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		expect(wrapper.text()).toContain("Quelle mer vois-tu ?");
@@ -179,7 +194,7 @@ describe("page Quêtes", () => {
 			"GET /companion/catalog": () => ({ status: 200, data: catalog }),
 			"POST /me/quests/4/claim": () => ({ status: 200, data: { claimed: [{ id: 3, xp: 200, accessory: "crown" }], quest: null, companion: null } })
 		});
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		await button(wrapper, "Récupérer : 200 XP + Couronne").trigger("click");
@@ -194,7 +209,7 @@ describe("page Quêtes", () => {
 		api({ "GET /companion/catalog": () => ({ status: 200, data: catalog }) });
 		httpRequest.mockRejectedValueOnce(new Error("offline"));
 
-		const wrapper = await mountSuspended(QuetesPage);
+		const wrapper = await mountPage(QuetesPage);
 		await flushPromises();
 
 		expect(wrapper.find(".form-error").exists()).toBe(true);
