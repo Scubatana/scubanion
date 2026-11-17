@@ -50,7 +50,7 @@ cd scubatana.backend && php artisan bornes:comptes-mqtt && cd ..
 docker compose -f dev-docker-compose.yml up -d mosquitto
 ```
 
-Après chaque `php artisan bornes:creer`, `docker compose -f dev-docker-compose.yml kill -s HUP mosquitto` fait relire les comptes au broker (voir `docs/mqtt.md`).
+Après chaque `php artisan bornes:creer`, `docker compose -f dev-docker-compose.yml kill -s HUP mosquitto` fait relire les comptes au broker (voir `docs/mqtt.md`). Pour brancher une vraie borne sur ce broker, voir « Tester une borne en dev » dans `docs/mqtt.md`.
 
 L'API répond alors sur `http://localhost:8000/api`. Ses routes : `POST /auth/code`, `POST /auth/verify`, `POST /auth/logout`, `GET /me`, `DELETE /me?confirm=1` (suppression du compte), `PUT /me/profile`, `PUT /me/companion`, `GET /companion/catalog`, `GET /me/steps`, `POST /me/steps`, `PUT /me/goal`.
 

@@ -213,7 +213,7 @@ flowchart LR
 - [x] **BOR-01** · Must : Matériel choisi et justifié : microcontrôleur, puce NFC, écran (D3). Choix, commande et montage dans [borne-materiel.md](borne-materiel.md).
 - [ ] **BOR-02** · Must : Passage prouvé par NFC (D2) : la borne transmet au téléphone un jeton signé avec son propre secret, horodaté et à usage unique. Le joueur est identifié par sa session dans l'app : aucun identifiant de joueur ne passe par la borne.
 - [x] **BOR-03** · Must : Communication avec le serveur en MQTT, via Wi-Fi : signal de vie de la borne, et réponse du serveur à afficher après chaque passage. Firmware : signal de vie et testament sur `etat`, affichage reçu sur `affichage` et dessiné à l'écran ([mqtt.md](mqtt.md#côté-borne)).
-- [ ] **BOR-04** · Must : Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur.
+- [x] **BOR-04** · Must : Récompense au passage (skin, objet ou XP), affichée à l'écran et ajoutée à l'inventaire du joueur. 100 XP par jour et par borne, et l'accessoire de la borne au premier passage (`bornes:creer --accessoire`).
 - [ ] **BOR-05** · Should : Événements limités dans le temps (bonus d'un week-end, skin de saison).
 - [ ] **BOR-06** · Should : Jeux et énigmes à résoudre sur la borne.
 - [ ] **BOR-07** · Should : Collabs : une borne chez un partenaire débloque un contenu exclusif (ex. Decathlon Châtelet-les-Halles).

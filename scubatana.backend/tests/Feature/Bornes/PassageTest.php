@@ -3,6 +3,7 @@
 namespace Tests\Feature\Bornes;
 
 use App\Enums\TerminalStatus;
+use App\Models\Accessory;
 use App\Models\Companion;
 use App\Models\Passage;
 use App\Models\Place;
@@ -307,6 +308,42 @@ class PassageTest extends TestCase
 		$this->send($this->token())->assertOk()->assertJsonPath('companion.xp', 100);
 
 		$this->assertSame(100, $companion->fresh()->xp);
+	}
+
+	public function test_a_terminal_with_an_accessory_gives_it_once_and_shows_it(): void
+	{
+		$crown = Accessory::where('code', 'crown')->sole();
+		$this->terminal->update(['accessory_id' => $crown->id]);
+		Companion::factory()->for($this->lea)->create();
+		$shown = [];
+		$this->display->shouldReceive('show')->andReturnUsing(function (Terminal $terminal, array $display) use (&$shown) {
+			$shown[] = $display;
+		});
+
+		$this->send($this->token())
+			->assertOk()
+			->assertJsonPath('accessory', ['id' => 'crown', 'label' => 'Couronne'])
+			->assertJsonPath('companion.unlocked_accessories', ['crown']);
+
+		$this->travelTo('2026-10-14 09:00:00');
+
+		$this->send($this->token())->assertOk()->assertJsonPath('status', 'rewarded')->assertJsonMissingPath('accessory')->assertJsonPath('message', 'Bravo Lea ! +100 XP');
+		$this->assertSame(1, $this->lea->accessories()->count());
+		$this->assertSame([$crown->id, null], Passage::orderBy('id')->pluck('accessory_id')->all());
+		$this->assertSame('Bravo Lea ! +100 XP, nouvel accessoire : Couronne', $shown[0]['message']);
+		$this->assertSame(['id' => 'crown', 'label' => 'Couronne'], $shown[0]['accessory']);
+		$this->assertArrayNotHasKey('accessory', end($shown));
+	}
+
+	public function test_an_accessory_already_owned_is_not_given_again(): void
+	{
+		$crown = Accessory::where('code', 'crown')->sole();
+		$this->terminal->update(['accessory_id' => $crown->id]);
+		$this->lea->accessories()->create(['accessory_id' => $crown->id, 'unlocked_at' => now()]);
+
+		$this->send($this->token())->assertOk()->assertJsonPath('status', 'rewarded')->assertJsonMissingPath('accessory');
+
+		$this->assertSame(1, $this->lea->accessories()->count());
 	}
 
 	public function test_the_heartbeat_tells_whether_a_terminal_is_online(): void

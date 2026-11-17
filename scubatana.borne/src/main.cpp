@@ -2,10 +2,12 @@
 #include <MQTT.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
+#include <Wire.h>
 #include <time.h>
 
 #include "autorites_racines.h"
 #include "messages.h"
+#include "ndef.h"
 #include "screen.h"
 #include "token.h"
 
@@ -31,6 +33,20 @@ constexpr const char* FIRMWARE_VERSION = "0.4.0";
 constexpr time_t EARLIEST_VALID_TIME = 1767225600;
 
 constexpr unsigned long TOKEN_REFRESH_MS = 5UL * 60 * 1000;
+
+// La puce refuse l'I2C pendant qu'un téléphone la lit : on réessaie peu après.
+constexpr unsigned long TAG_RETRY_MS = 1000;
+
+// Chaîne I2C sur le port SPI de la carte (voir docs/borne-materiel.md).
+constexpr int I2C_SDA_PIN = 27;
+
+constexpr int I2C_SCL_PIN = 18;
+
+// Mémoire utilisateur du ST25DV, adressée sur deux octets.
+constexpr uint8_t TAG_USER_MEMORY = 0x53;
+
+// La puce programme 4 octets en 5 ms environ : un jeton d'environ 70 octets demande moins de 100 ms.
+constexpr unsigned long TAG_WRITE_TIMEOUT_MS = 250;
 
 constexpr unsigned long WAITING_MESSAGE_MS = 5000;
 
@@ -63,6 +79,8 @@ WiFiClient network;
 #endif
 
 MQTTClient mqtt(512);
+
+bool tokenAttempted = false;
 
 bool hasToken = false;
 
@@ -103,15 +121,48 @@ void waitForClock()
 	Serial.println(WiFi.status() == WL_CONNECTED ? "Heure en cours de synchronisation..." : "En attente du Wi-Fi...");
 }
 
+bool writeTag(const std::vector<uint8_t>& tag)
+{
+	if (tag.empty() || tag.size() + 2 > I2C_BUFFER_LENGTH) {
+		Serial.println("Adresse du tag trop longue : vérifier NFC_URL_PREFIX");
+		return false;
+	}
+
+	Wire.beginTransmission(TAG_USER_MEMORY);
+	Wire.write(0x00);
+	Wire.write(0x00);
+	Wire.write(tag.data(), tag.size());
+
+	if (Wire.endTransmission() != 0) {
+		return false;
+	}
+
+	// Pendant qu'elle programme sa mémoire, la puce ne répond pas : on attend qu'elle réponde à nouveau.
+	const unsigned long startedAt = millis();
+
+	while (millis() - startedAt < TAG_WRITE_TIMEOUT_MS) {
+		Wire.beginTransmission(TAG_USER_MEMORY);
+
+		if (Wire.endTransmission() == 0) {
+			return true;
+		}
+
+		delay(5);
+	}
+
+	return false;
+}
+
 void writeToken()
 {
 	const std::string scanToken = token::generate(BORNE_CODE, BORNE_SECRET, static_cast<uint64_t>(time(nullptr)));
+	const std::string address = std::string(NFC_URL_PREFIX) + scanToken;
 
-	Serial.printf("Jeton : %s\n", scanToken.c_str());
-	Serial.printf("Adresse du tag : %s%s\n", NFC_URL_PREFIX, scanToken.c_str());
-
-	hasToken = true;
+	tokenAttempted = true;
 	lastTokenAt = millis();
+	hasToken = writeTag(ndef::uriTag(address));
+
+	Serial.printf(hasToken ? "Tag écrit : %s\n" : "Tag NFC non écrit (puce absente ou occupée) : %s\n", address.c_str());
 }
 
 // Appelé pendant mqtt.loop() : ne pas publier ici. L'écran est dessiné ensuite, dans updateScreen().
@@ -226,6 +277,7 @@ void setup()
 	Serial.printf("Borne %s, firmware %s\n", BORNE_CODE, FIRMWARE_VERSION);
 
 	screen::begin();
+	Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
 
 	WiFi.mode(WIFI_STA);
 	WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -252,7 +304,7 @@ void loop()
 		return;
 	}
 
-	if (!hasToken || millis() - lastTokenAt >= TOKEN_REFRESH_MS) {
+	if (!tokenAttempted || millis() - lastTokenAt >= (hasToken ? TOKEN_REFRESH_MS : TAG_RETRY_MS)) {
 		writeToken();
 	}
 }
