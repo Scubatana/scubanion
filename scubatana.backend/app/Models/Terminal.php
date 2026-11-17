@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['code', 'name', 'secret', 'place_id', 'status', 'firmware', 'last_seen_at'])]
+#[Fillable(['code', 'name', 'secret', 'place_id', 'accessory_id', 'status', 'firmware', 'last_seen_at'])]
 #[Hidden(['secret'])]
 class Terminal extends Model
 {
@@ -28,6 +28,11 @@ class Terminal extends Model
 	public function place(): BelongsTo
 	{
 		return $this->belongsTo(Place::class);
+	}
+
+	public function accessory(): BelongsTo
+	{
+		return $this->belongsTo(Accessory::class);
 	}
 
 	public function passages(): HasMany

@@ -59,6 +59,21 @@ class CreateTerminalCommandTest extends TestCase
 		$this->assertSame(0, Terminal::count());
 	}
 
+	public function test_it_attaches_an_earnable_accessory_to_the_terminal(): void
+	{
+		$this->artisan('bornes:creer', ['code' => 'chateau-01', 'nom' => 'Borne du Château', '--accessoire' => 'crown'])->assertSuccessful();
+
+		$this->assertSame('crown', Terminal::sole()->accessory->code);
+	}
+
+	public function test_it_refuses_an_accessory_that_cannot_be_earned(): void
+	{
+		$this->artisan('bornes:creer', ['code' => 'chateau-01', 'nom' => 'Borne', '--accessoire' => 'tophat'])->assertFailed();
+		$this->artisan('bornes:creer', ['code' => 'chateau-01', 'nom' => 'Borne', '--accessoire' => 'inconnu'])->assertFailed();
+
+		$this->assertSame(0, Terminal::count());
+	}
+
 	public function test_it_refuses_a_bad_code_a_taken_code_and_an_unknown_place(): void
 	{
 		Terminal::factory()->create(['code' => 'chateau-01']);
