@@ -66,6 +66,7 @@ Par exemple `https://scuba.picsou06.fr/b/chateau-01.tmuk40.` suivi des 16 caract
 
 - Les caractères du jeton (lettres, chiffres, `-`, `_` et `.`) passent tels quels dans une adresse, sans encodage.
 - Le tout fait moins de 80 octets, en-têtes compris : la zone 1 de la puce suffit largement.
+- Octets écrits à l'adresse 0 de la mémoire utilisateur (`lib/ndef`) : l'en-tête Type 5 `E1 40 40 01` (512 octets déclarés, lecture de plusieurs blocs), le TLV NDEF `03 {longueur}`, un enregistrement URI court `D1 01 {longueur} 55 04` (`04` abrège `https://`), le reste de l'adresse, puis `FE`.
 - Le domaine est un réglage du firmware, comme le Wi-Fi. L'app doit reconnaître celui qu'utilisent les bornes.
 - Le téléphone ne fait que lire : la puce refuse toute écriture en NFC (voir [Protéger la puce NFC](borne-materiel.md#protéger-la-puce-nfc)).
 
@@ -204,11 +205,12 @@ Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `
 - **Session persistante** (`clean session` à faux) et abonnement en QoS 1 à `affichage` : un affichage publié pendant une courte coupure arrive à la reconnexion, et la règle des 10 minutes écarte ceux qui sont trop vieux.
 - **Keep alive de 15 secondes** : le broker publie le testament environ 20 secondes après une coupure franche (borne débranchée, Wi-Fi perdu).
 - **Reconnexion** toutes les 5 secondes tant que le broker ne répond pas. Le jeton continue d'être écrit, mais une tentative vers une adresse injoignable bloque la boucle quelques secondes : à revoir avec la détection du téléphone par la broche GPO.
+- **Tag NFC** : le jeton est écrit en I2C (SDA IO27, SCL IO18) dans la mémoire utilisateur du ST25DV (`0x53`), au démarrage dès que la borne a l'heure puis toutes les 5 minutes. Si la puce ne répond pas (absente, ou occupée par un téléphone), la borne réessaie chaque seconde. Restent à faire avec la carte en main : la protection de la puce ([Protéger la puce NFC](borne-materiel.md#protéger-la-puce-nfc)) et l'écriture au départ du téléphone (broche GPO).
 - **Écran** : au repos, l'accueil : le logo de l'app qui flotte doucement (±6 px, un aller-retour en 3,6 s), « Pose ton téléphone sur le cercle », et en bas à gauche une pastille verte ou rouge selon la connexion au broker, pour l'équipe. Un affichage reçu reste 8 secondes : fond vert et titre « Bien joué ! » pour `rewarded`, fond orange pour `already_rewarded`, avec le `message` de l'API coupé en lignes. Il est aussi écrit sur le port série.
 
 L'écran est une dalle ST7789 (identifiant `81 81 B3`) pilotée par Adafruit ST7789, sans inversion des couleurs, et le texte passe par U8g2 pour les accents. Ses broches sont dans `src/screen.cpp`. Le logo est une image RGB565 dans `src/logo.h`, générée par `tools/logo.py` depuis `scubatana.frontend/public/img/logo.png`.
 
-Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`) et `lib/text` (coupure du message en lignes), testé par `pio test -e native`.
+Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`), `lib/text` (coupure du message en lignes) et `lib/ndef` (contenu du tag NFC), testé par `pio test -e native`.
 
 ### Tester une borne en dev
 
