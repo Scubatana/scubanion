@@ -90,17 +90,18 @@ Le code est dans `app/Services/PassageService.php`, les tests dans `tests/Featur
 
 Une rencontre, c'est deux joueurs qui se sont vus en vrai. Elle fait avancer les tâches `meet` des quêtes (« Croise un autre joueur ») chez les deux joueurs. Le Bluetooth entre téléphones étant reporté ([fonctionnalites-sociales.md § 11](fonctionnalites-sociales.md#11-écarté-ou-reporté-et-pourquoi)), le serveur la valide sur l'une de ces deux preuves.
 
-**Le QR de l'autre joueur.** L'un montre son QR (le même que pour ajouter un ami, valable 60 secondes), l'autre le scanne. Un QR à jour ne prouve pas que les deux sont au même endroit : une capture envoyée par message arrive en quelques secondes. Le serveur recoupe donc les positions.
+**Le QR de l'autre joueur.** L'un montre son QR de rencontre (valable 60 secondes), l'autre le scanne. Ce QR n'est pas le QR d'ami : l'usage est écrit dans le jeton, donc montrer son QR à un inconnu pour une rencontre ne lui permet pas de devenir ami. Un QR à jour ne prouve pas que les deux sont au même endroit : une capture envoyée par message arrive en quelques secondes. Le serveur recoupe donc les positions.
 
-- Chaque joueur doit avoir une position de moins de 10 minutes : celle envoyée avec le scan, ou la dernière reçue (l'app envoie la sienne dès qu'elle montre son QR, puis chaque minute).
+- Chaque joueur doit avoir une position de moins de 10 minutes : celle envoyée avec le scan, ou la dernière reçue (l'app envoie la sienne dès qu'elle montre son QR, puis chaque minute). L'app ne lit la position qu'avec le consentement « position géographique » : sans lui, elle refuse de scanner.
 - Les deux positions doivent être à 100 m au plus l'une de l'autre, plus la précision du GPS de chacun, plafonnée à 50 m comme pour les lieux : 200 m au plus.
-- Une position simulée bloque son auteur 24 h, comme ailleurs. Un joueur bloqué pour triche ne rencontre personne. Dans ces cas, le refus est le même que pour deux joueurs trop éloignés : la triche n'est jamais annoncée.
+- Une position simulée bloque son auteur 24 h, comme ailleurs. Le refus est alors le même que pour deux joueurs trop éloignés.
 
-**Un passage à la même borne.** Deux joueurs dont les passages à une même borne sont à moins de 10 minutes d'écart se sont rencontrés. C'est la preuve la plus forte : chaque passage porte un jeton signé et à usage unique (D2), et la présence du joueur à une borne rattachée à un lieu est déjà vérifiée. L'heure retenue est celle du scan, pas celle de l'envoi : un passage gardé hors ligne puis envoyé plus tard crée la rencontre à la bonne heure.
+**Un passage à la même borne.** Deux joueurs dont les passages à une même borne sont à moins de 10 minutes d'écart se sont rencontrés. C'est la preuve la plus forte : chaque passage porte un jeton signé et à usage unique (D2), et la présence du joueur à une borne rattachée à un lieu est déjà vérifiée. L'heure retenue est celle du scan, pas celle de l'envoi : un passage gardé hors ligne puis envoyé plus tard crée la rencontre à la bonne heure. Une erreur pendant la création de la rencontre est journalisée et n'empêche pas le passage.
 
 **Dans tous les cas :**
 
 - une seule rencontre par paire et par jour : la suivante ne compte pas en plus ;
+- un joueur bloqué pour triche (position simulée, téléportation) ne rencontre personne, ni par QR ni à une borne ; la triche n'est jamais annoncée ;
 - deux joueurs dont l'un a bloqué l'autre ne se rencontrent pas, et rien ne le leur indique ;
 - seule une zone approximative est gardée (geohash de 6 caractères, environ 1,2 km sur 0,6 km), jamais les positions. Elle est effacée au bout de 30 jours (`php artisan rencontres:oublier-zones`, chaque nuit) ; il reste la paire et la date, qui comptent pour les quêtes.
 
