@@ -208,6 +208,16 @@ L'écran est une dalle ST7789 (identifiant `81 81 B3`) pilotée par Adafruit ST7
 
 Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`) et `lib/text` (coupure du message en lignes), testé par `pio test -e native`.
 
+### Tester une borne en dev
+
+Le broker de `dev-docker-compose.yml` n'a pas de certificat : il écoute seulement en clair sur 1883, publié sur `127.0.0.1` par défaut. Une borne en Wi-Fi ne peut donc pas le joindre sans ces réglages :
+
+1. Dans le `.env` racine du PC : `MQTT_BIND=0.0.0.0`, puis `docker compose -f dev-docker-compose.yml up -d mosquitto` (le conteneur est recréé avec le nouveau port).
+2. Autoriser le port 1883 en entrée dans le pare-feu du PC, pour le réseau privé seulement.
+3. Dans `include/borne_config.h` : `MQTT_HOST` à l'adresse IP du PC sur le réseau local (`ipconfig` sous Windows, `ip addr` sous Linux), `MQTT_TLS` à `false` et `MQTT_PORT` à `1883`, puis flasher la borne.
+
+Le mot de passe de la borne circule alors en clair : à faire seulement sur un réseau de confiance, et remettre `MQTT_BIND=127.0.0.1` ensuite. Pour tester le TLS lui-même en local, il faut un broker avec un certificat signé par une autorité de test, et `MQTT_CA_CERT` sur la borne (voir [Chiffrement TLS](#chiffrement-tls)).
+
 ## Côté serveur
 
 | Commande | Rôle |
