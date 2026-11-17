@@ -55,6 +55,7 @@ class EncounterService
 
 	/**
 	 * Crée une rencontre avec chaque joueur passé à la même borne à quelques minutes d'écart.
+	 * Comme pour le QR, un joueur bloqué pour triche (position simulée, téléportation) ne rencontre personne.
 	 *
 	 * @return list<Encounter> les rencontres créées par ce passage
 	 */
@@ -63,6 +64,11 @@ class EncounterService
 		$window = config('encounters.borne_window_minutes');
 		$scannedAt = CarbonImmutable::instance($passage->scanned_at);
 		$player = $passage->user;
+
+		if ($player->isBannedFromLocationTasks()) {
+			return [];
+		}
+
 		$place = $passage->terminal->place;
 		$zone = $place === null ? null : $this->zone($place->latitude, $place->longitude);
 
@@ -76,7 +82,7 @@ class EncounterService
 		$created = [];
 
 		foreach ($others as $other) {
-			if (Block::between($player, $other)->exists()) {
+			if ($other->isBannedFromLocationTasks() || Block::between($player, $other)->exists()) {
 				continue;
 			}
 

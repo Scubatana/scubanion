@@ -5,13 +5,17 @@ namespace Tests\Feature\Encounters;
 use App\Models\Block;
 use App\Models\Encounter;
 use App\Models\Place;
+use App\Models\QuestBan;
 use App\Models\Terminal;
 use App\Models\User;
+use App\Services\EncounterService;
 use App\Services\TerminalDisplay;
 use App\Services\TerminalTokenService;
 use App\Support\Geo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Exceptions;
 use Laravel\Sanctum\Sanctum;
+use RuntimeException;
 use Tests\TestCase;
 
 class BorneEncounterTest extends TestCase
@@ -116,5 +120,26 @@ class BorneEncounterTest extends TestCase
 		$this->pass($this->lea, '2026-11-17 15:01:00');
 
 		$this->assertSame(0, Encounter::count());
+	}
+
+	public function test_a_player_blocked_for_cheating_meets_nobody_at_a_borne(): void
+	{
+		QuestBan::factory()->create(['user_id' => $this->yanis->id]);
+
+		$this->pass($this->lea, '2026-11-17 15:00:00');
+		$this->pass($this->yanis, '2026-11-17 15:01:00');
+		$this->pass($this->lea, '2026-11-17 15:02:00');
+
+		$this->assertSame(0, Encounter::count());
+	}
+
+	public function test_a_failure_while_meeting_does_not_fail_the_passage(): void
+	{
+		Exceptions::fake();
+		$this->mock(EncounterService::class)->shouldReceive('meetAtTerminal')->andThrow(new RuntimeException('base indisponible'));
+
+		$this->pass($this->lea, '2026-11-17 15:00:00')->assertJsonPath('status', 'rewarded');
+
+		Exceptions::assertReported(RuntimeException::class);
 	}
 }

@@ -24,7 +24,8 @@ class PassageController extends Controller
 		]);
 
 		$passage = $passages->record($request->user(), $data['token'], $this->position($request, $data));
-		$encounters->meetAtTerminal($passage);
+		// Le passage est déjà enregistré : une erreur dans les rencontres est journalisée, sans faire échouer le passage.
+		rescue(fn () => $encounters->meetAtTerminal($passage));
 		$display = $passages->display($passage);
 		$terminal = $passage->terminal;
 
