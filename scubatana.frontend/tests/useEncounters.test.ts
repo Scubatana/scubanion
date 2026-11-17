@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "~/utils/apiError";
+import { MEET_NEEDS_LOCATION } from "~/composables/useEncounters";
 import { encounterMessage } from "~/utils/encounters";
 
 const { httpRequest, scanQrCode, currentPosition, storage } = vi.hoisted(() => ({
@@ -48,7 +49,24 @@ describe("useEncounters", () => {
 		currentPosition.mockReset();
 		storage.clear();
 		clearNuxtState();
-		await useSession().open("jeton-1", true);
+		await useSession().open("jeton-1", true, 7);
+		storage.set("consents.7", JSON.stringify({ steps: false, location: true }));
+	});
+
+	it("asks for a meeting QR, which is not the friend QR", async () => {
+		httpRequest.mockResolvedValue({ status: 200, data: { token: "eyJtZWV0...", expires_at: "2026-11-17T16:01:00+01:00" } });
+
+		await expect(useEncounters().qrToken()).resolves.toEqual({ token: "eyJtZWV0...", expires_at: "2026-11-17T16:01:00+01:00" });
+		expect(requests()).toEqual([["GET", "/me/encounters/qr", undefined]]);
+	});
+
+	it("refuses to scan without the location consent, and reads no position", async () => {
+		storage.set("consents.7", JSON.stringify({ steps: true, location: false }));
+
+		await expect(useEncounters().scanAndMeet()).rejects.toThrow(MEET_NEEDS_LOCATION);
+		expect(scanQrCode).not.toHaveBeenCalled();
+		expect(currentPosition).not.toHaveBeenCalled();
+		expect(httpRequest).not.toHaveBeenCalled();
 	});
 
 	it("does nothing when the scanner is closed without reading a QR", async () => {

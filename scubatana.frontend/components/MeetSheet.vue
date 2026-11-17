@@ -8,8 +8,7 @@ const emit = defineEmits<{
 	close: [];
 }>();
 
-const { qrToken } = useFriends();
-const { scanAndMeet } = useEncounters();
+const { qrToken, scanAndMeet } = useEncounters();
 const svg = ref("");
 const qrError = ref("");
 const scanning = ref(false);
@@ -86,7 +85,7 @@ onBeforeUnmount(() => {
 		<div class="sheet-backdrop" @click.self="close">
 			<div class="card stack-tight sheet" role="dialog" aria-modal="true" aria-labelledby="meet-title">
 				<span id="meet-title" class="section-title">Valider une rencontre</span>
-				<p class="gallery-note">Vous êtes ensemble ? L'un montre son QR, l'autre le scanne. Gardez tous les deux la localisation activée : vos positions doivent se recouper.</p>
+				<p class="gallery-note">Vous êtes ensemble ? L'un montre son QR de rencontre, l'autre le scanne. Gardez tous les deux la position géographique activée : vos positions doivent se recouper. Ce QR ne sert qu'aux rencontres : il ne permet pas de t'ajouter en ami.</p>
 				<div class="qr-box">
 					<div v-if="svg" class="qr-image" role="img" aria-label="Mon QR, à scanner par l'autre joueur" v-html="svg"></div>
 					<p v-else-if="!qrError" class="gallery-note">Chargement…</p>
