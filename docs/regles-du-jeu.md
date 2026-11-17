@@ -85,3 +85,23 @@ Un refus ne consomme pas le jeton : le joueur peut le renvoyer avec sa localisat
 **Limites connues.** Une app modifiée peut envoyer n'importe quelle position, et un ami qui coupe sa localisation n'est arrêté que si sa dernière position le trahit. La vérification bloque surtout l'ami qui reçoit un jeton à l'autre bout de la ville ou du pays avec l'app normale. Une borne sans lieu n'est pas vérifiée.
 
 Le code est dans `app/Services/PassageService.php`, les tests dans `tests/Feature/Bornes/PassageTest.php`.
+
+## Rencontres
+
+Une rencontre, c'est deux joueurs qui se sont vus en vrai. Elle fait avancer les tâches `meet` des quêtes (« Croise un autre joueur ») chez les deux joueurs. Le Bluetooth entre téléphones étant reporté ([fonctionnalites-sociales.md § 11](fonctionnalites-sociales.md#11-écarté-ou-reporté-et-pourquoi)), le serveur la valide sur l'une de ces deux preuves.
+
+**Le QR de l'autre joueur.** L'un montre son QR (le même que pour ajouter un ami, valable 60 secondes), l'autre le scanne. Un QR à jour ne prouve pas que les deux sont au même endroit : une capture envoyée par message arrive en quelques secondes. Le serveur recoupe donc les positions.
+
+- Chaque joueur doit avoir une position de moins de 10 minutes : celle envoyée avec le scan, ou la dernière reçue (l'app envoie la sienne dès qu'elle montre son QR, puis chaque minute).
+- Les deux positions doivent être à 100 m au plus l'une de l'autre, plus la précision du GPS de chacun, plafonnée à 50 m comme pour les lieux : 200 m au plus.
+- Une position simulée bloque son auteur 24 h, comme ailleurs. Un joueur bloqué pour triche ne rencontre personne. Dans ces cas, le refus est le même que pour deux joueurs trop éloignés : la triche n'est jamais annoncée.
+
+**Un passage à la même borne.** Deux joueurs dont les passages à une même borne sont à moins de 10 minutes d'écart se sont rencontrés. C'est la preuve la plus forte : chaque passage porte un jeton signé et à usage unique (D2), et la présence du joueur à une borne rattachée à un lieu est déjà vérifiée. L'heure retenue est celle du scan, pas celle de l'envoi : un passage gardé hors ligne puis envoyé plus tard crée la rencontre à la bonne heure.
+
+**Dans tous les cas :**
+
+- une seule rencontre par paire et par jour : la suivante ne compte pas en plus ;
+- deux joueurs dont l'un a bloqué l'autre ne se rencontrent pas, et rien ne le leur indique ;
+- seule une zone approximative est gardée (geohash de 6 caractères, environ 1,2 km sur 0,6 km), jamais les positions. Elle est effacée au bout de 30 jours (`php artisan rencontres:oublier-zones`, chaque nuit) ; il reste la paire et la date, qui comptent pour les quêtes.
+
+Les seuils se règlent dans `config/encounters.php`. Le code est dans `app/Services/EncounterService.php`, les tests dans `tests/Feature/Encounters/`.

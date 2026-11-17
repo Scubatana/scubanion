@@ -89,7 +89,7 @@ Les types, les textes, les conditions, les lieux et les bornes sont des **donné
 
 `encounters` garde une ligne par paire, toujours dans le même ordre : le modèle `Encounter` range le plus petit identifiant dans `user_id`, le plus grand dans `other_user_id`, et refuse qu'un joueur se rencontre lui-même. `Encounter::involving($joueur)` retrouve les rencontres d'un joueur des deux côtés.
 
-Pour respecter la minimisation du RGPD, aucune coordonnée brute n'est gardée : `zone` contient un geohash de précision 6, soit une case d'environ 1,2 km sur 0,6 km. `validated_at` est renseigné une fois la rencontre recoupée côté serveur.
+Pour respecter la minimisation du RGPD, aucune coordonnée brute n'est gardée : `zone` contient un geohash de précision 6 (`Geo::geohash()`), soit une case d'environ 1,2 km sur 0,6 km. Il est vidé au bout de 30 jours par `php artisan rencontres:oublier-zones`, planifiée chaque nuit ; la ligne reste, car elle compte pour les tâches `meet`. `validated_at` est renseigné une fois la rencontre recoupée côté serveur : c'est le cas de toutes celles que crée `EncounterService` (scan du QR de l'autre joueur, ou passage à la même borne). `Encounter::between($a, $b)` trouve les rencontres d'une paire ; il n'y en a qu'une par paire et par jour.
 
 ## Pour plus tard
 
