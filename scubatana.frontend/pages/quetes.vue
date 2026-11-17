@@ -2,17 +2,21 @@
 import { readableMessage } from "~/utils/apiError";
 import { currentPosition } from "~/utils/geolocation";
 import { formatCount } from "~/utils/labels";
+import { photoDate, thumbnailOf } from "~/utils/photos";
 import { actionMessage, currentQuestion, rewardLabel, statusLabel, taskFill } from "~/utils/quests";
 import type { PlayerQuest, QuestTask } from "~/utils/types";
 
 const { quests, flushErrors, flushNotice, load, act, claim, waiting, clearFlushError } = useQuests();
 const { catalog, ensureLoaded } = useCatalog();
 const { today } = usePlayer();
+const { album, load: loadAlbum, add: addPhoto } = usePhotos();
 const loading = ref(false);
 const loadError = ref("");
 const busy = ref<string | null>(null);
 const errors = ref<Record<string, string>>({});
 const notice = ref("");
+const photoInput = ref<HTMLInputElement | null>(null);
+const photoTask = ref<{ quest: PlayerQuest; task: QuestTask } | null>(null);
 const codes = ref<Record<number, string>>({});
 
 const accessories = computed(() => catalog.value?.accessories ?? []);
@@ -68,6 +72,34 @@ function checkIn(quest: PlayerQuest, task: QuestTask): void {
 	});
 }
 
+function choosePhoto(quest: PlayerQuest, task: QuestTask): void {
+	photoTask.value = { quest, task };
+	photoInput.value?.click();
+}
+
+// La photo reste sur le téléphone : on n'envoie que la position du moment, vérifiée comme une visite du lieu.
+function photoTaken(event: Event): void {
+	const input = event.target as HTMLInputElement;
+	const file = input.files?.[0] ?? null;
+	const target = photoTask.value;
+	input.value = "";
+	photoTask.value = null;
+
+	if (file === null || target === null) {
+		return;
+	}
+
+	void run(`task-${target.task.id}`, async () => {
+		const thumbnail = await thumbnailOf(file);
+		const outcome = await act(target.quest.id, target.task.id, { ...(await currentPosition(true)) }, true);
+		const takenAt = new Date().toISOString();
+		await addPhoto({ id: `${target.quest.id}-${target.task.id}-${takenAt}`, quest: target.quest.name, label: target.task.description, taken_at: takenAt, thumbnail });
+		void usePosition().start(false);
+
+		return queuedNotice(outcome) || "Photo gardée dans tes souvenirs, sur ce téléphone.";
+	});
+}
+
 function scan(quest: PlayerQuest, task: QuestTask): void {
 	void run(`task-${task.id}`, async () => queuedNotice(await act(quest.id, task.id, { code: codes.value[task.id] ?? "" }, true)));
 }
@@ -88,7 +120,10 @@ watch(() => today.value?.steps, () => {
 	void load().catch(() => undefined);
 });
 
-onMounted(refresh);
+onMounted(() => {
+	void refresh();
+	void loadAlbum().catch(() => undefined);
+});
 </script>
 
 <template>
@@ -119,6 +154,7 @@ onMounted(refresh);
 					<span v-if="task.rewards.length > 0" class="eyebrow">Récompense : {{ rewardLabel(task.rewards, accessories) }}</span>
 					<span v-if="waiting(quest.id, task.id)" class="eyebrow">En attente de réseau</span>
 					<template v-else-if="!task.completed">
+						<button v-if="task.action === 'photo'" class="btn btn-ghost" type="button" :disabled="busy !== null" @click="choosePhoto(quest, task)">{{ busy === `task-${task.id}` ? "Validation…" : "Prendre la photo" }}</button>
 						<button v-if="task.action === 'checkin'" class="btn btn-ghost" type="button" :disabled="busy !== null" @click="checkIn(quest, task)">{{ busy === `task-${task.id}` ? "Localisation…" : "Je suis sur place" }}</button>
 						<template v-if="task.action === 'scan'">
 							<div class="field">
@@ -138,6 +174,16 @@ onMounted(refresh);
 				<button v-if="quest.rewards_to_claim.length > 0" class="btn btn-primary" type="button" :disabled="busy !== null" @click="collect(quest)">Récupérer : {{ rewardLabel(quest.rewards_to_claim, accessories) }}</button>
 				<p v-if="errors[`quest-${quest.id}`]" class="form-error">{{ errors[`quest-${quest.id}`] }}</p>
 			</div>
+			<div v-if="album.length > 0" class="card stack-tight">
+				<span class="section-title">Mes souvenirs</span>
+				<p class="gallery-note">Tes photos de sortie restent sur ce téléphone : elles ne sont jamais envoyées.</p>
+				<div class="photo-grid">
+					<figure v-for="photo in album" :key="photo.id" class="photo-item">
+						<img :src="photo.thumbnail" :alt="photo.label">
+						<figcaption class="eyebrow">{{ photo.quest }}, {{ photoDate(photo.taken_at) }}</figcaption>
+					</figure>
+				</div>
+			</div>
 			<p v-if="!loading && !loadError && quests.length === 0" class="gallery-note note-self-centered">Aucune quête pour le moment.</p>
 			<p v-if="loading && quests.length === 0" class="gallery-note note-self-centered">Chargement…</p>
 			<div v-if="loadError" class="card stack-tight">
@@ -145,6 +191,29 @@ onMounted(refresh);
 				<button class="btn btn-ghost" type="button" :disabled="loading" @click="refresh">Réessayer</button>
 			</div>
 		</div>
+		<input ref="photoInput" type="file" accept="image/*" capture="environment" hidden @change="photoTaken">
 		<BottomNav />
 	</div>
 </template>
+
+<style scoped>
+.photo-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+	gap: 8px;
+}
+
+.photo-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 0;
+}
+
+.photo-item img {
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: var(--radius-md);
+}
+</style>

@@ -610,8 +610,8 @@ class QuestEngineTest extends TestCase
 		$this->seed(QuestSeeder::class);
 		$this->seed(QuestSeeder::class);
 
-		$this->assertSame(5, Quest::count());
-		$this->assertSame(10, QuestTask::count());
+		$this->assertSame(6, Quest::count());
+		$this->assertSame(12, QuestTask::count());
 		$this->assertSame(['Premiers pas', 'Balade du jour', 'Défi de la semaine'], collect($this->myQuests()->json('quests'))->pluck('name')->all());
 	}
 

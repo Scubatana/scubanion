@@ -60,6 +60,7 @@ export function useAuth() {
 		await forgetPendingEmail();
 		player.reset();
 		useQuests().reset();
+		usePhotos().reset();
 		useConsents().reset();
 		useFriends().reset();
 		useMap().reset();
@@ -72,6 +73,7 @@ export function useAuth() {
 		await useQuests().discard();
 		await useConsents().discard();
 		await usePassages().discard();
+		await usePhotos().discard();
 		await session.clear();
 		await forgetPendingEmail();
 		player.reset();
