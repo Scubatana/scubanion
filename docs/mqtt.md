@@ -66,6 +66,7 @@ Par exemple `https://scuba.picsou06.fr/b/chateau-01.tmuk40.` suivi des 16 caract
 
 - Les caractères du jeton (lettres, chiffres, `-`, `_` et `.`) passent tels quels dans une adresse, sans encodage.
 - Le tout fait moins de 80 octets, en-têtes compris : la zone 1 de la puce suffit largement.
+- Octets écrits à l'adresse 0 de la mémoire utilisateur (`lib/ndef`) : l'en-tête Type 5 `E1 40 40 01` (512 octets déclarés, lecture de plusieurs blocs), le TLV NDEF `03 {longueur}`, un enregistrement URI court `D1 01 {longueur} 55 04` (`04` abrège `https://`), le reste de l'adresse, puis `FE`.
 - Le domaine est un réglage du firmware, comme le Wi-Fi. L'app doit reconnaître celui qu'utilisent les bornes.
 - Le téléphone ne fait que lire : la puce refuse toute écriture en NFC (voir [Protéger la puce NFC](borne-materiel.md#protéger-la-puce-nfc)).
 
@@ -127,6 +128,8 @@ Publié par l'API dès qu'un passage est enregistré :
 | `rewarded` | premier passage du joueur à cette borne ce jour-là | « Bravo {pseudo} ! +100 XP » |
 | `already_rewarded` | le joueur est déjà passé ce jour-là : le passage est enregistré, sans récompense | « Ton passage du jour est déjà compté, {pseudo}. Reviens demain ! » |
 
+Quand le passage débloque l'accessoire de la borne, le message devient « Bravo {pseudo} ! +100 XP, nouvel accessoire : {nom} » et le message porte en plus `"accessory": { "id": "crown", "label": "Couronne" }`, que le firmware peut ignorer.
+
 `scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne l'ignore si son `scanned_at` a plus de 10 minutes (le jeton est écrit au plus 5 minutes avant le scan).
 
 ## Connexion au broker
@@ -156,27 +159,75 @@ Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'
 - Le conteneur `backend` les écrit à chaque démarrage (`php artisan bornes:comptes-mqtt`), avant que le broker ne démarre.
 - `php artisan bornes:creer` ajoute aussitôt le compte de la nouvelle borne. Le broker ne relit ses fichiers que sur demande : `docker compose kill -s HUP mosquitto`, sans redémarrage ni coupure.
 
-**Limite connue.** Le port 1883 n'est pas chiffré : quelqu'un sur le même réseau que la borne peut lire son mot de passe MQTT et se faire passer pour elle (faux signaux de vie, lecture de son affichage). Le secret des jetons, lui, reste protégé. La suite est de passer en TLS (port 8883), que l'ESP32 sait gérer.
+## Chiffrement TLS
+
+Les bornes passent par Internet : en clair, quelqu'un sur le chemin lirait leur mot de passe MQTT et pourrait se faire passer pour elles (faux signaux de vie, lecture de l'affichage). Elles se connectent donc en **TLS sur le port 8883**, comme HTTPS pour un site :
+
+1. Mosquitto présente le certificat de `scuba.picsou06.fr`, celui du site, signé par Let's Encrypt ;
+2. la borne le vérifie avec les autorités racines de Let's Encrypt, gravées dans le firmware (`include/autorites_racines.h` : ISRG Root X1, valable jusqu'en 2035, et ISRG Root X2, jusqu'en 2040). Un faux broker, même à la bonne adresse, est refusé (`Certificate verification failed`) ;
+3. tout ce qui suit est chiffré, mot de passe compris.
+
+| Port | Où | Pour qui |
+| ---- | -- | -------- |
+| 8883 (TLS) | publié sur Internet | les bornes |
+| 1883 (en clair) | réseau Docker `iot` seulement | l'API et `bornes:ecouter`, qui tournent à côté du broker |
+
+**Côté serveur.** Un dossier de l'hôte qui contient **seulement** le certificat et la clé de `scuba.picsou06.fr` est monté en lecture seule dans le conteneur `mosquitto` (`MQTT_TLS_DIR`, avec les noms `MQTT_TLS_CERT` et `MQTT_TLS_KEY` dans ce dossier ; voir `.env.exemple`). On ne monte pas tout `/etc/letsencrypt` : le broker est exposé sur Internet, et s'il était compromis il emporterait les clés des autres domaines et celle du compte Let's Encrypt. Un *deploy hook* certbot copie le certificat à chaque renouvellement :
+
+```bash
+#!/bin/sh
+# /etc/letsencrypt/renewal-hooks/deploy/certificat-mqtt.sh (exécutable), à lancer aussi une fois à la main
+set -eu
+dest=/opt/scubatana/certificat-mqtt
+mkdir -p "$dest"
+cp /etc/letsencrypt/live/scuba.picsou06.fr/fullchain.pem /etc/letsencrypt/live/scuba.picsou06.fr/privkey.pem "$dest/"
+chmod 600 "$dest/privkey.pem"
+```
+
+Au démarrage, `scubatana.mosquitto/demarrer.sh` :
+
+- copie le certificat et la clé dans le conteneur, pour l'utilisateur `mosquitto` : la clé de Let's Encrypt n'est lisible que par root, et Mosquitto refuse alors de démarrer ;
+- ajoute le listener 8883 ;
+- vérifie toutes les heures si le certificat a changé et, après un renouvellement, le fait recharger par Mosquitto (`SIGHUP`, sans couper les connexions) ;
+- relaie à Mosquitto le `SIGHUP` de `docker compose kill -s HUP mosquitto` (relecture des comptes après `bornes:creer`) : avec un certificat, c'est ce script qui reçoit les signaux du conteneur ;
+- vérifie toutes les 10 secondes que Mosquitto tourne : s'il s'arrête, le conteneur s'arrête avec lui et Docker le relance.
+
+Sans certificat dans le dossier, le broker démarre seulement sur 1883 et l'écrit dans ses journaux : c'est le cas en dev.
+
+**Côté borne.** `MQTT_TLS` à `true` et `MQTT_PORT` à 8883 dans `include/borne_config.h`. La borne attend d'avoir l'heure (NTP) avant de se connecter : sans elle, elle ne peut pas vérifier les dates de validité du certificat. Pour un broker de test signé par sa propre autorité, `MQTT_CA_CERT` remplace les autorités de Let's Encrypt (voir `borne_config.example.h`).
+
+**Testé** sur la vraie carte avec un broker de test (image `scubatana.mosquitto`, certificat signé par une autorité de test) : connexion chiffrée, signal de vie, affichage, testament, refus d'un broker signé par une autre autorité, renouvellement du certificat pris en compte sans redémarrage.
 
 ## Côté borne
 
-Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `include/borne_config.h`, avec son code comme identifiant de client et comme nom d'utilisateur.
+Le firmware (`scubatana.borne`) se connecte au broker `MQTT_HOST:MQTT_PORT` de `include/borne_config.h`, en TLS (voir [Chiffrement TLS](#chiffrement-tls)), avec son code comme identifiant de client et comme nom d'utilisateur.
 
 - **Session persistante** (`clean session` à faux) et abonnement en QoS 1 à `affichage` : un affichage publié pendant une courte coupure arrive à la reconnexion, et la règle des 10 minutes écarte ceux qui sont trop vieux.
 - **Keep alive de 15 secondes** : le broker publie le testament environ 20 secondes après une coupure franche (borne débranchée, Wi-Fi perdu).
 - **Reconnexion** toutes les 5 secondes tant que le broker ne répond pas. Le jeton continue d'être écrit, mais une tentative vers une adresse injoignable bloque la boucle quelques secondes : à revoir avec la détection du téléphone par la broche GPO.
+- **Tag NFC** : le jeton est écrit en I2C (SDA IO27, SCL IO18) dans la mémoire utilisateur du ST25DV (`0x53`), au démarrage dès que la borne a l'heure puis toutes les 5 minutes. Si la puce ne répond pas (absente, ou occupée par un téléphone), la borne réessaie chaque seconde. Restent à faire avec la carte en main : la protection de la puce ([Protéger la puce NFC](borne-materiel.md#protéger-la-puce-nfc)) et l'écriture au départ du téléphone (broche GPO).
 - **Écran** : l'accueil montre le logo de l'app qui flotte doucement (±6 px, un aller-retour en 3,6 s), « Pose ton téléphone sur le cercle », et en bas à gauche une pastille verte ou rouge selon la connexion au broker, pour l'équipe. Un affichage reçu reste 8 secondes : fond vert et titre « Bien joué ! » pour `rewarded`, fond orange pour `already_rewarded`, avec le `message` de l'API coupé en lignes. Il est aussi écrit sur le port série.
 - **Repos de l'écran** (sobriété, R5.13) : 2 minutes sans passage (et 2 minutes après l'allumage), le rétroéclairage descend à environ 10 % (PWM `ledc` sur IO21) et le logo s'immobilise ; l'accueil reste lisible. Un affichage reçu rallume l'écran à fond. Quand la détection du téléphone par la broche GPO sera en place, elle le réveillera aussi.
 
 L'écran est une dalle ST7789 (identifiant `81 81 B3`) pilotée par Adafruit ST7789, sans inversion des couleurs, et le texte passe par U8g2 pour les accents. Ses broches sont dans `src/screen.cpp`. Le logo est une image RGB565 dans `src/logo.h`, générée par `tools/logo.py` depuis `scubatana.frontend/public/img/logo.png`.
 
-Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`) et `lib/text` (coupure du message en lignes), testé par `pio test -e native`.
+Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `scanned_at`), `lib/text` (coupure du message en lignes) et `lib/ndef` (contenu du tag NFC), testé par `pio test -e native`.
+
+### Tester une borne en dev
+
+Le broker de `dev-docker-compose.yml` n'a pas de certificat : il écoute seulement en clair sur 1883, publié sur `127.0.0.1` par défaut. Une borne en Wi-Fi ne peut donc pas le joindre sans ces réglages :
+
+1. Dans le `.env` racine du PC : `MQTT_BIND=0.0.0.0`, puis `docker compose -f dev-docker-compose.yml up -d mosquitto` (le conteneur est recréé avec le nouveau port).
+2. Autoriser le port 1883 en entrée dans le pare-feu du PC, pour le réseau privé seulement.
+3. Dans `include/borne_config.h` : `MQTT_HOST` à l'adresse IP du PC sur le réseau local (`ipconfig` sous Windows, `ip addr` sous Linux), `MQTT_TLS` à `false` et `MQTT_PORT` à `1883`, puis flasher la borne.
+
+Le mot de passe de la borne circule alors en clair : à faire seulement sur un réseau de confiance, et remettre `MQTT_BIND=127.0.0.1` ensuite. Pour tester le TLS lui-même en local, il faut un broker avec un certificat signé par une autorité de test, et `MQTT_CA_CERT` sur la borne (voir [Chiffrement TLS](#chiffrement-tls)).
 
 ## Côté serveur
 
 | Commande | Rôle |
 | -------- | ---- |
-| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT |
+| `php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3` | déclare une borne, rattachée à un lieu, affiche son secret une seule fois et ajoute son compte MQTT. `--accessoire=crown` lui donne un accessoire à faire gagner (un accessoire `earnable`) |
 | `php artisan bornes:comptes-mqtt` | réécrit les comptes et les droits du broker (voir [Connexion au broker](#connexion-au-broker)) |
 | `php artisan bornes:ecouter` | écoute les signaux de vie des bornes. Processus permanent : un conteneur ou un service dédié en prod |
 | `php artisan bornes:simuler chateau-01` | joue le rôle de la borne : affiche le jeton qu'elle donnerait au téléphone, puis attend et affiche la réponse publiée sur `affichage` |
@@ -186,7 +237,7 @@ Le code testable est dans `lib/messages` (topics, messages JSON, lecture de `sca
 
 1. Déclarer la borne : `docker compose exec backend php artisan bornes:creer chateau-01 "Borne du Château" --lieu=3`, et noter le secret affiché.
 2. Faire relire les comptes au broker : `docker compose kill -s HUP mosquitto`. Sans ça, la borne est refusée par le broker jusqu'au prochain redémarrage de `mosquitto`.
-3. Mettre le code, le secret et l'adresse du broker (`MQTT_HOST`) dans `include/borne_config.h` du firmware, puis flasher la borne.
+3. Mettre le code, le secret et l'adresse du broker (`MQTT_HOST`, port 8883 en TLS) dans `include/borne_config.h` du firmware, puis flasher la borne.
 4. Vérifier que la borne passe en ligne : `online` à `true` dans `GET /api/bornes`.
 
 Réglages (`config/bornes.php`, variables d'environnement) : `MQTT_HOST` (le nom du service du broker, `mosquitto` par défaut, jamais une IP), `MQTT_PORT`, `MQTT_USERNAME`, `MQTT_PASSWORD`, `MQTT_CLIENT_ID`, `MQTT_ACCOUNTS_DIRECTORY` (`storage/app/mqtt`), `BORNE_REWARD_XP` (100), `BORNE_MAX_REPLAY_HOURS` (24), `BORNE_FUTURE_TOLERANCE_MINUTES` (5), `BORNE_TOKEN_REFRESH_MINUTES` (5), `BORNE_MAX_TRAVEL_SPEED_KMH` (150). Les deux derniers servent à vérifier que le joueur était à la borne (voir les [règles du jeu](regles-du-jeu.md#bornes)).

@@ -66,6 +66,8 @@ function close(): void {
 	emit("close");
 }
 
+useSheet(close);
+
 onMounted(refresh);
 
 onBeforeUnmount(() => {
@@ -108,24 +110,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.sheet-backdrop {
-	position: fixed;
-	inset: 0;
-	z-index: 50;
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-	padding: 16px;
-	background: rgba(30, 58, 66, 0.45);
-}
-
-.sheet {
-	width: 100%;
-	max-width: 480px;
-	max-height: calc(100vh - 32px);
-	overflow-y: auto;
-}
-
 .qr-box {
 	align-self: center;
 	width: min(72vw, 260px);

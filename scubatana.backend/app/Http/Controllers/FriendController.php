@@ -7,10 +7,13 @@ use App\Http\Requests\InviteFriendRequest;
 use App\Http\Requests\ScanFriendQrRequest;
 use App\Models\Friendship;
 use App\Models\User;
+use App\Services\CheerService;
 use App\Services\FriendQrService;
 use App\Services\FriendshipService;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FriendController extends Controller
 {
@@ -68,6 +71,28 @@ class FriendController extends Controller
 		$friends->accept($friendship);
 
 		return response()->json($friends->overview($player));
+	}
+
+	public function cheer(Request $request, Friendship $friendship, CheerService $cheers, FriendshipService $friends): JsonResponse
+	{
+		$player = $request->user();
+		$this->ensureInvolved($player, $friendship);
+
+		if ($friendship->status !== FriendshipStatus::Accepted) {
+			return response()->json(['message' => 'Vous devez être amis pour vous envoyer un coup de patte.'], 409);
+		}
+
+		$friend = $friendship->otherThan($player);
+
+		$unlocked = DB::transaction(fn () => $cheers->send($player, $friend)
+			? $cheers->rewardMilestones($player, $friend, CarbonImmutable::instance($friendship->accepted_at))
+			: null);
+
+		if ($unlocked === null) {
+			return response()->json(['message' => "Tu as déjà envoyé un coup de patte à {$friend->pseudo} aujourd'hui."], 409);
+		}
+
+		return response()->json([...$friends->overview($player), 'unlocked' => $unlocked]);
 	}
 
 	public function destroy(Request $request, Friendship $friendship, FriendshipService $friends): JsonResponse
