@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['code', 'name', 'secret', 'place_id', 'accessory_id', 'status', 'firmware', 'last_seen_at'])]
@@ -38,6 +39,11 @@ class Terminal extends Model
 	public function passages(): HasMany
 	{
 		return $this->hasMany(Passage::class);
+	}
+
+	public function events(): BelongsToMany
+	{
+		return $this->belongsToMany(Event::class);
 	}
 
 	public function isOnline(): bool
