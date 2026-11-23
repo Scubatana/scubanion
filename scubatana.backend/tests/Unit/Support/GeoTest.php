@@ -14,6 +14,14 @@ class GeoTest extends TestCase
 		$this->assertEqualsWithDelta(966, Geo::distanceInMeters(43.6953, 7.2806, 43.6956, 7.2686), 5);
 	}
 
+	public function test_it_encodes_a_point_as_a_geohash(): void
+	{
+		$this->assertSame('u4pruydqqvj', Geo::geohash(57.64911, 10.40744, 11));
+		$this->assertSame('u4pruy', Geo::geohash(57.64911, 10.40744, 6));
+		$this->assertSame('s00000', Geo::geohash(0.0, 0.0, 6));
+		$this->assertSame(Geo::geohash(43.6953, 7.2806, 6), Geo::geohash(43.6955, 7.2809, 6));
+	}
+
 	public function test_it_tells_whether_a_point_is_inside_a_polygon(): void
 	{
 		$square = [[43.70, 7.20], [43.70, 7.30], [43.60, 7.30], [43.60, 7.20]];

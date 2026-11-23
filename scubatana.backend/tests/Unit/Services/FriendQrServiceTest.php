@@ -79,4 +79,15 @@ class FriendQrServiceTest extends TestCase
 
 		$this->assertNull($this->qr->resolve($token));
 	}
+
+	public function test_a_token_only_serves_the_use_it_was_issued_for(): void
+	{
+		$player = User::factory()->create();
+		$friendToken = $this->qr->issue($player)['token'];
+		$meetToken = $this->qr->issue($player, FriendQrService::MEET)['token'];
+
+		$this->assertTrue($this->qr->resolve($meetToken, FriendQrService::MEET)->is($player));
+		$this->assertNull($this->qr->resolve($meetToken));
+		$this->assertNull($this->qr->resolve($friendToken, FriendQrService::MEET));
+	}
 }

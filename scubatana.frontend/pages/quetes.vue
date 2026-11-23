@@ -14,6 +14,7 @@ const busy = ref<string | null>(null);
 const errors = ref<Record<string, string>>({});
 const notice = ref("");
 const codes = ref<Record<number, string>>({});
+const meeting = ref(false);
 
 const accessories = computed(() => catalog.value?.accessories ?? []);
 
@@ -120,6 +121,7 @@ onMounted(refresh);
 					<span v-if="waiting(quest.id, task.id)" class="eyebrow">En attente de réseau</span>
 					<template v-else-if="!task.completed">
 						<button v-if="task.action === 'checkin'" class="btn btn-ghost" type="button" :disabled="busy !== null" @click="checkIn(quest, task)">{{ busy === `task-${task.id}` ? "Localisation…" : "Je suis sur place" }}</button>
+						<button v-if="task.action === 'meet'" class="btn btn-ghost" type="button" :disabled="busy !== null" @click="meeting = true">Valider une rencontre</button>
 						<template v-if="task.action === 'scan'">
 							<div class="field">
 								<input v-model="codes[task.id]" type="text" autocomplete="off" placeholder="Code">
@@ -146,5 +148,6 @@ onMounted(refresh);
 			</div>
 		</div>
 		<BottomNav />
+		<MeetSheet v-if="meeting" @close="meeting = false" />
 	</div>
 </template>
