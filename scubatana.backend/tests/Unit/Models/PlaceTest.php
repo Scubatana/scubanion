@@ -18,7 +18,7 @@ class PlaceTest extends TestCase
 	{
 		$this->assertEqualsCanonicalizing(['park', 'point_of_interest', 'partner', 'bus_stop', 'zone'], PlaceType::pluck('code')->all());
 		$this->assertFalse(PlaceType::where('code', 'zone')->value('on_map'));
-		$this->assertEqualsCanonicalizing(['auto', 'checkin', 'scan', 'answer', 'meet'], TaskType::all()->map(fn (TaskType $type) => $type->app_action->value)->unique()->values()->all());
+		$this->assertEqualsCanonicalizing(['auto', 'checkin', 'scan', 'answer', 'meet', 'photo'], TaskType::all()->map(fn (TaskType $type) => $type->app_action->value)->unique()->values()->all());
 
 		PlaceType::create(['code' => 'forest', 'label' => 'Forêt']);
 

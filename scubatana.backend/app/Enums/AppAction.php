@@ -9,4 +9,5 @@ enum AppAction: string
 	case Scan = 'scan';
 	case Answer = 'answer';
 	case Meet = 'meet';
+	case Photo = 'photo';
 }

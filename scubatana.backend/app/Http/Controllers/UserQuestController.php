@@ -54,7 +54,7 @@ class UserQuestController extends Controller
 		$recordedAt = $this->recordedAt($request);
 		$input = $this->input($request, $action);
 
-		if ($action === AppAction::Checkin) {
+		if ($action === AppAction::Checkin || $action === AppAction::Photo) {
 			$positions->record($request->user(), $input['latitude'], $input['longitude'], $input['accuracy'], $input['mocked'], $recordedAt);
 		}
 
@@ -72,7 +72,7 @@ class UserQuestController extends Controller
 			}
 
 			match ($action) {
-				AppAction::Checkin => $this->checkIn($engine, $userQuest, $userTask, $input),
+				AppAction::Checkin, AppAction::Photo => $this->checkIn($engine, $userQuest, $userTask, $input),
 				AppAction::Scan => $this->scan($engine, $userQuest, $userTask, $input['code']),
 				AppAction::Answer => $this->answer($engine, $userQuest, $userTask, $input['question'], $input['choice']),
 			};
@@ -132,7 +132,7 @@ class UserQuestController extends Controller
 	private function input(Request $request, AppAction $action): array
 	{
 		return match ($action) {
-			AppAction::Checkin => $this->position($request),
+			AppAction::Checkin, AppAction::Photo => $this->position($request),
 			AppAction::Scan => $request->validate(['code' => ['required', 'string', 'max:64']]),
 			AppAction::Answer => array_map('intval', $request->validate([
 				'question' => ['required', 'integer'],

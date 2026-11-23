@@ -24,6 +24,7 @@ export function useApi() {
 			usePosition().stop();
 			await useSteps().halt();
 			useQuests().reset();
+			usePhotos().reset();
 			useConsents().reset();
 			useFriends().reset();
 			useMap().reset();
