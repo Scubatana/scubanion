@@ -31,6 +31,7 @@ Un fichier par domaine dans ce dossier :
 - [Carte](carte.md) : lieux et bornes dans un rectangle géographique, types de lieux.
 - [Amis](amis.md) : code d'ami, demandes reçues et envoyées, activité des amis.
 - [Bornes](bornes.md) : validation d'un passage par jeton NFC signé, historique des passages.
+- [Événements](evenements.md) : événements limités dans le temps (bonus d'XP, accessoire de saison) et leur création.
 - [Sécurité entre joueurs](securite.md) : bloquer, débloquer et signaler un joueur.
 
 Chaque nouvelle fonctionnalité (rencontres, équipes…) ajoute son propre fichier dans ce dossier, pour que les PR en parallèle ne se gênent pas.

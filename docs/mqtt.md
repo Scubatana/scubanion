@@ -130,6 +130,8 @@ Publié par l'API dès qu'un passage est enregistré :
 
 Quand le passage débloque l'accessoire de la borne, le message devient « Bravo {pseudo} ! +100 XP, nouvel accessoire : {nom} » et le message porte en plus `"accessory": { "id": "crown", "label": "Couronne" }`, que le firmware peut ignorer.
 
+Pendant un événement ([api/evenements.md](api/evenements.md)), le format ne change pas : `reward_xp` comprend le bonus et le message nomme l'événement, par exemple « Bravo {pseudo} ! +150 XP, bonus Week-end au parc, nouvel accessoire : Couronne ». Le nom d'un événement fait 40 caractères au plus, mais deux événements et plusieurs accessoires allongent le message, que l'écran coupe sur plusieurs lignes.
+
 `scanned_at` reprend l'heure du jeton : la borne sait ainsi à quel scan correspond la réponse. Un jeton refusé (faux, expiré ou déjà utilisé) ne produit pas d'affichage : seul le téléphone reçoit l'erreur. Si le téléphone envoie le jeton plus tard (hors ligne), l'affichage arrive plus tard aussi ; la borne l'ignore si son `scanned_at` a plus de 10 minutes (le jeton est écrit au plus 5 minutes avant le scan).
 
 ## Connexion au broker

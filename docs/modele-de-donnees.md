@@ -10,6 +10,12 @@ erDiagram
     places ||--o{ place_points : "contour"
     places |o--o{ terminals : "accueille"
     terminals ||--o{ passages : "enregistre"
+    events ||--o{ event_terminal : "bornes concernées"
+    terminals ||--o{ event_terminal : "concernée par"
+    accessories |o--o{ events : "accessoire de saison"
+    events ||--o{ event_passage : "a récompensé"
+    passages ||--o{ event_passage : "bonus reçus"
+    accessories |o--o{ event_passage : "accessoire donné"
     task_types ||--o{ quest_tasks : "type"
     quests ||--o{ quest_tasks : "étapes et tâches"
     places |o--o{ quest_tasks : "lieu visé"
@@ -52,6 +58,8 @@ Les types, les textes, les conditions, les lieux et les bornes sont des **donné
 | `places` | Un lieu ponctuel ou une grande zone | `latitude` et `longitude` (point de référence), `radius_m` pour un lieu ponctuel (enregistré à la création, 100 m si rien n'est donné, pour qu'un changement de la valeur par défaut ne change pas les lieux existants ; vidé quand on trace un contour), rectangle englobant (`min_lat`, `max_lat`, `min_lng`, `max_lng`) toujours renseigné : calculé depuis le rayon pour un lieu ponctuel, depuis le contour pour une zone. C'est lui que la carte et la validation interrogent. `attributes` (JSON libre), `source` et `external_id` pour les imports (unique ensemble), `synced_at`, `active`. |
 | `place_points` | Le contour d'une grande zone | Les sommets dans l'ordre (`position`) : 4 pour un carré, autant qu'il faut pour une forêt. |
 | `terminals` | Les bornes IoT installées sur le terrain | `code` (identifiant MQTT et NFC, unique sur 32 car.), `name`, `secret` (secret HMAC-SHA256 chiffré au repos par Laravel et masqué des réponses JSON), `place_id` (lieu rattaché, mis à `null` si le lieu est retiré), `accessory_id` (accessoire à gagner à cette borne, facultatif), `status` (`online` ou `offline`), `firmware`, `last_seen_at` (dernier signal de vie MQTT reçu ; `Terminal::isOnline()` vérifie aussi sa fraîcheur). |
+| `events` | Les événements limités dans le temps (BOR-05) | `name` (40 car., affiché sur l'écran de la borne), `description`, `starts_at` (inclus) et `ends_at` (exclu), `bonus_xp` (XP ajoutée au passage récompensé, 0 par défaut), `accessory_id` (accessoire de saison, facultatif, `earnable`), `all_terminals` (toutes les bornes, y compris les futures), `active`. Refusé s'il finit avant de commencer, s'il ne donne ni XP ni accessoire, ou si l'accessoire n'est pas `earnable` (modèle `Event`). |
+| `event_terminal` | Les bornes concernées par un événement | `event_id` et `terminal_id`, clé primaire sur les deux. Ignorée quand `events.all_terminals` est vrai. |
 | `task_types` | Les types de tâches | `code`, `label`, `app_action`, `params_schema` (forme attendue des paramètres), `active`. |
 | `accessories` | Les accessoires du compagnon | `code`, `label`, `category` (une des catégories de `config/companion.php`), `image` (le dessin SVG, 100 × 100), `earnable` (se gagne par une récompense), `active`. Un accessoire ajouté ici apparaît dans l'app sans livraison. |
 | `quests` | Les quêtes | `name`, `description`, `icon`, attribution (`auto_assign`, `target_ambition`, `target_zone_id`), `repeat` (`once`, `daily`, `weekly`), `starts_at`, `ends_at`, `status` (`draft`, `published`, `archived`). |
@@ -70,21 +78,22 @@ Les types, les textes, les conditions, les lieux et les bornes sont des **donné
 | `user_quest_tasks` | L'avancement d'une tâche | `value`, `baseline` (la valeur de départ au déblocage de l'étape, par exemple le total de pas du joueur à ce moment), `completed_at`. |
 | `user_quest_task_places` | Les lieux déjà validés pour une tâche | Unique par tâche et lieu : « passe par 3 arrêts de bus » demande 3 arrêts différents. |
 | `user_rewards` | Les récompenses gagnées | `xp` et `accessory_id` recopiés au moment du gain, `earned_at`, `claimed_at` (rempli quand le joueur appuie sur « Récupérer »). Unique par quête du joueur et récompense : une récompense ne se gagne qu'une fois. |
-| `user_accessories` | Les accessoires débloqués | `accessory_id`, `quest_id` (la quête qui l'a donné, vide pour un passage en borne ou un palier de série de coups de patte), `unlocked_at`. Unique par joueur et accessoire. |
+| `user_accessories` | Les accessoires débloqués | `accessory_id`, `quest_id` (la quête qui l'a donné, vide pour un passage en borne, un événement ou un palier de série de coups de patte), `unlocked_at`. Unique par joueur et accessoire. |
 | `user_positions` | La dernière position connue | Une seule ligne par joueur, remplacée à chaque nouvelle position : `latitude`, `longitude`, `accuracy_m`, `mocked` (position simulée signalée par Android), `recorded_at`. |
 | `quest_bans` | Les blocages sur les tâches de localisation | `reason`, `evidence` (JSON), `starts_at`, `ends_at`. |
 | `friendships` | Les demandes et liens d'amitié (APP-07) | `user_id` (demandeur) et `friend_id` (invité), `status` (`pending` ou `accepted`), `accepted_at`. Unique sur `(user_id, friend_id)` et consulté dans les deux sens par `Friendship::between()`. |
 | `cheers` | Les coups de patte entre amis (§ 3.2 des fonctionnalités sociales) | `user_id` (celui qui l'envoie), `friend_id` (l'ami qui le reçoit), `day` (le jour, heure de Paris). Unique sur `(user_id, friend_id, day)` : un par jour et par ami, même avec deux requêtes simultanées. Index sur `(friend_id, day)` pour compter ceux reçus dans la journée, qui remontent l'humeur du compagnon. |
-| `passages` | Les passages validés en borne (BOR-02, BCK-04) | `terminal_id`, `user_id`, `token_hash` (empreinte SHA-256 unique du jeton NFC pour empêcher tout rejeu), `scanned_at`, `reward_xp` (0 si le joueur est déjà passé sur cette borne le même jour), `accessory_id` (l'accessoire débloqué par ce passage, sinon `null`). |
+| `passages` | Les passages validés en borne (BOR-02, BCK-04) | `terminal_id`, `user_id`, `token_hash` (empreinte SHA-256 unique du jeton NFC pour empêcher tout rejeu), `scanned_at`, `reward_xp` (l'XP gagnée, bonus des événements compris ; 0 si le joueur est déjà passé sur cette borne le même jour), `accessory_id` (l'accessoire débloqué par ce passage, sinon `null`). |
+| `event_passage` | Ce que chaque événement a donné à un passage (BOR-05) | `passage_id`, `event_id`, `bonus_xp` (la part de `passages.reward_xp` venue de cet événement), `accessory_id` (l'accessoire de l'événement débloqué par ce passage, sinon `null`). Unique par passage et événement ; une ligne seulement si l'événement a donné quelque chose. Garde ce qui a été donné même si l'événement change ensuite. |
 | `encounters` | Deux joueurs qui se sont croisés (APP-08) | Voir ci-dessous. |
 | `blocks` | Un joueur qui en bloque un autre (APP-07) | `user_id` (celui qui bloque), `blocked_id` (le joueur bloqué). Unique par paire ; le modèle `Block` refuse qu'un joueur se bloque lui-même. `Block::between($a, $b)` trouve un blocage dans un sens ou dans l'autre. À ne pas confondre avec `quest_bans`, l'anti-triche. Règles dans [api/securite.md](api/securite.md). |
 | `reports` | Un joueur qui en signale un autre (APP-07) | `user_id` (celui qui signale), `reported_id` (le joueur signalé), `reported_pseudo` (son pseudo au moment du signalement), `reason` (`pseudo`, `behavior`, `other` : enum `ReportReason`), `comment` (facultatif, 500 caractères), `status` (`pending` puis `reviewed` : enum `ReportStatus`). Pas d'unicité : un joueur peut être signalé plusieurs fois. Le modèle `Report` refuse qu'un joueur se signale lui-même ; `Report::pending()` liste ceux à examiner. |
 
 ## Règles garanties par la base et les modèles
 
-- **Rien d'utilisé ne disparaît.** Une quête, une tâche, une récompense, un lieu, un type ou un accessoire déjà utilisés ne peuvent pas être supprimés : clés étrangères en `restrict`. Une quête sans joueur se supprime seulement après ses récompenses et ses tâches, pour qu'un clic n'efface pas 40 tâches d'un coup. Un accessoire qu'on ne veut plus proposer passe en `active = false`.
+- **Rien d'utilisé ne disparaît.** Une quête, une tâche, une récompense, un lieu, un type, un accessoire ou un événement déjà utilisés ne peuvent pas être supprimés : clés étrangères en `restrict`. Une quête sans joueur se supprime seulement après ses récompenses et ses tâches, pour qu'un clic n'efface pas 40 tâches d'un coup. Un accessoire qu'on ne veut plus proposer, ou un événement qu'on veut arrêter, passe en `active = false`.
 - **Une quête commencée ne change plus de structure.** Dès qu'un joueur l'a reçue, seuls son nom, sa description, son icône et son statut (pour l'archiver) peuvent changer, et pour ses tâches seule la description. Ajouter, retirer ou modifier une tâche ou une récompense lève une erreur (`Quest`, `QuestTask` et `QuestReward`).
-- **Supprimer un compte efface tout ce qui le concerne** : ses quêtes, leur avancement, ses récompenses, ses accessoires, sa position, ses blocages anti-triche, ses amitiés, ses coups de patte envoyés et reçus, ses passages, ses rencontres, ainsi que les blocages entre joueurs dans les deux sens (en cascade). **Seule exception : les signalements** (`reports`). Pour la modération, ils restent : `user_id` et `reported_id` passent à `null` (`nullOnDelete`), et `reported_pseudo` garde le nom du joueur signalé.
+- **Supprimer un compte efface tout ce qui le concerne** : ses quêtes, leur avancement, ses récompenses, ses accessoires, sa position, ses blocages anti-triche, ses amitiés, ses coups de patte envoyés et reçus, ses passages et ce que les événements leur ont donné, ses rencontres, ainsi que les blocages entre joueurs dans les deux sens (en cascade). **Seule exception : les signalements** (`reports`). Pour la modération, ils restent : `user_id` et `reported_id` passent à `null` (`nullOnDelete`), et `reported_pseudo` garde le nom du joueur signalé.
 - **Un blocage anti-triche (`quest_bans`) ne gêne que la localisation.** `User::isBannedFromLocationTasks()` dit si un blocage est en cours.
 
 ## Rencontres
@@ -95,4 +104,4 @@ Pour respecter la minimisation du RGPD, aucune coordonnée brute n'est gardée :
 
 ## Pour plus tard
 
-Photos, import automatique des arrêts de bus et des zones (GTFS, OpenStreetMap), interface admin pour créer les quêtes, rôle admin en base, table des sponsors, consentements. Restent aussi à modéliser : événements, partenaires, équipes et messages.
+Photos, import automatique des arrêts de bus et des zones (GTFS, OpenStreetMap), interface admin pour créer les quêtes, rôle admin en base, table des sponsors, consentements. Restent aussi à modéliser : partenaires, équipes et messages.

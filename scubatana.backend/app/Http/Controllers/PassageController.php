@@ -32,6 +32,7 @@ class PassageController extends Controller
 
 		return response()->json([
 			...$display,
+			'events' => $passages->events($passage),
 			'terminal' => ['code' => $terminal->code, 'name' => $terminal->name],
 			'companion' => $companion === null ? null : new CompanionResource($companion),
 		]);

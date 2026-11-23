@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['terminal_id', 'user_id', 'token_hash', 'scanned_at', 'reward_xp', 'accessory_id'])]
 class Passage extends Model
@@ -33,6 +34,11 @@ class Passage extends Model
 	public function accessory(): BelongsTo
 	{
 		return $this->belongsTo(Accessory::class);
+	}
+
+	public function eventPassages(): HasMany
+	{
+		return $this->hasMany(EventPassage::class);
 	}
 
 	public function isRewarded(): bool
