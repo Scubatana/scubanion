@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlockController;
 use App\Http\Controllers\CompanionController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\MeController;
@@ -36,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::put('/me/goal', [StepController::class, 'updateGoal']);
 	Route::post('/me/passages', [PassageController::class, 'store'])->middleware('throttle:30,1');
 	Route::get('/bornes', [TerminalController::class, 'index']);
+	Route::get('/events', [EventController::class, 'index']);
 	Route::get('/companion/catalog', [CompanionController::class, 'catalog']);
 	Route::get('/me/friends', [FriendController::class, 'index']);
 	Route::post('/me/friends', [FriendController::class, 'store'])->middleware('throttle:friend-invite');
