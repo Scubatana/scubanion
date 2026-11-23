@@ -60,6 +60,15 @@ Le jeton contient l'heure du scan, et l'API refuse un jeton de plus de 24 h ou d
 
 Le **DS3231** garde l'heure grâce à sa pile (précision d'environ une minute par an). Au démarrage, la borne lit l'heure dans le DS3231 ; dès que le Wi-Fi est là, elle la corrige par NTP. C'est ce qui permet le mode hors ligne (BOR-09).
 
+Dans le firmware (`lib/rtc` et `src/main.cpp`) :
+
+- au démarrage, la borne lit le registre d'état du DS3231. Si son oscillateur ne s'est pas arrêté depuis le dernier réglage (bit `OSF` à 0), elle reprend son heure (en UTC) et écrit aussitôt un jeton, sans attendre le Wi-Fi ;
+- à chaque synchronisation NTP (au démarrage, puis toutes les heures), elle recopie l'heure dans le DS3231 et efface le bit `OSF`. Le réglage est fait dans `loop()`, jamais pendant l'écriture du tag NFC, qui partage le bus I2C ;
+- un DS3231 absent, à la pile vide ou jamais réglé ne bloque rien : la borne attend NTP, comme sans horloge ;
+- la même heure sert à vérifier le certificat du broker en TLS : une borne qui redémarre se reconnecte sans attendre NTP.
+
+La conversion des registres (BCD, mode 12 ou 24 h, bit du siècle, dates impossibles) est testée sur le poste : `pio test -e native -f test_rtc`.
+
 Le module retenu est l'**Adafruit DS3231 Precision RTC** (réf. 5188), et non un module générique, pour deux raisons :
 
 - les modules DS3231 génériques embarquent une mémoire AT24C32 à l'adresse I2C `0x57`, **la même que l'adresse système de la puce NFC**. Il faudrait un pont de soudure pour la déplacer ;
