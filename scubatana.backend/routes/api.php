@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me/friends/qr', [FriendController::class, 'qr'])->middleware('throttle:30,1');
 	Route::post('/me/friends/qr', [FriendController::class, 'scan'])->middleware('throttle:20,1');
 	Route::post('/me/friends/{friendship}/accept', [FriendController::class, 'accept']);
+	Route::post('/me/friends/{friendship}/cheer', [FriendController::class, 'cheer'])->middleware('throttle:30,1');
 	Route::delete('/me/friends/{friendship}', [FriendController::class, 'destroy']);
 	Route::get('/me/blocks', [BlockController::class, 'index']);
 	Route::post('/me/blocks', [BlockController::class, 'store'])->middleware('throttle:30,1');

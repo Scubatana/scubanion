@@ -1,4 +1,5 @@
-import type { Streak, Today } from "./types";
+import { formatCount } from "./labels";
+import type { CompanionCatalog, Streak, Today } from "./types";
 
 export interface FriendCompanion {
 	name: string;
@@ -16,10 +17,23 @@ export interface FriendPlayer {
 	streak: Streak | null;
 }
 
+// Coups de patte du jour : envoyé par le joueur à cet ami, et reçu de lui.
+export interface CheerStreak {
+	days: number;
+	record: number;
+}
+
+export interface FriendCheer {
+	sent: boolean;
+	received: boolean;
+	streak: CheerStreak;
+}
+
 export interface Friendship {
 	id: number;
 	since: string;
 	player: FriendPlayer;
+	cheer: FriendCheer;
 }
 
 export interface FriendInvitation {
@@ -36,6 +50,10 @@ export interface FriendsView {
 	friends: Friendship[];
 	received: FriendInvitation[];
 	sent: FriendInvitation[];
+}
+
+export interface CheerResult extends FriendsView {
+	unlocked: string[];
 }
 
 export interface FriendQrToken {
@@ -85,4 +103,55 @@ export function sortFriendsBySteps(friends: Friendship[]): Friendship[] {
 
 		return first.player.pseudo.localeCompare(second.player.pseudo, "fr");
 	});
+}
+
+export function formatFriendSince(since: string): string {
+	const [year, month, day] = since.slice(0, 10).split("-").map(Number);
+
+	if (!year || !month || !day) {
+		return "";
+	}
+
+	return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(year, month - 1, day));
+}
+
+export function friendSpeciesLabel(catalog: CompanionCatalog | null, species: string): string | null {
+	return catalog?.species.find((entry) => entry.id === species)?.label ?? null;
+}
+
+// Nom du bouton qui ouvre la fiche : il remplace le contenu de la ligne pour un lecteur d'écran, il doit donc en reprendre l'essentiel.
+export function friendRowLabel(friendship: Friendship): string {
+	const { player, cheer } = friendship;
+	const steps = player.today ? `${formatCount(player.today.steps)} pas sur ${formatCount(player.today.goal)}` : "pas masqués";
+	const level = player.companion ? `niveau ${player.companion.level}, ` : "";
+	const streak = cheer.streak.days > 0 ? `, série de coups de patte de ${formatDays(cheer.streak.days)}` : "";
+	const cheered = cheer.received && !cheer.sent ? ", t'a envoyé un coup de patte" : "";
+
+	return `${player.pseudo}, ${level}${steps}${streak}${cheered}. Voir sa fiche`;
+}
+
+export function cheerFlame(cheer: FriendCheer): Streak {
+	return { days: cheer.streak.days, active: cheer.sent && cheer.received };
+}
+
+export function formatDays(days: number): string {
+	return days <= 1 ? `${days} jour` : `${days} jours`;
+}
+
+// Au-delà de ce nombre d'amis, la liste propose une recherche.
+export const FRIEND_SEARCH_FROM = 8;
+
+// Recherche par pseudo, sans tenir compte des majuscules ni des accents (« ines » trouve « Inès »).
+export function filterFriends(friends: Friendship[], query: string): Friendship[] {
+	const needle = foldForSearch(query.trim());
+
+	if (needle === "") {
+		return friends;
+	}
+
+	return friends.filter((friendship) => foldForSearch(friendship.player.pseudo).includes(needle));
+}
+
+function foldForSearch(text: string): string {
+	return text.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLocaleLowerCase("fr");
 }

@@ -7,12 +7,13 @@ use App\Models\Block;
 use App\Models\Friendship;
 use App\Models\User;
 use App\Support\FriendCode;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class FriendshipService
 {
-	public function __construct(private StepService $steps) {}
+	public function __construct(private StepService $steps, private CheerService $cheers) {}
 
 	public function invite(User $player, string $code): Friendship
 	{
@@ -96,14 +97,25 @@ class FriendshipService
 	{
 		$friendships = Friendship::involving($player)->with(['requester.companion', 'invitee.companion'])->orderBy('id')->get();
 		$pending = $friendships->where('status', FriendshipStatus::Pending);
+		$cheers = $this->cheers->todayFor($player);
+		$exchanges = $this->cheers->exchangeDaysFor($player);
 
 		return [
 			'code' => $player->friend_code,
-			'friends' => $friendships->where('status', FriendshipStatus::Accepted)->map(fn (Friendship $friendship) => [
-				'id' => $friendship->id,
-				'since' => $friendship->accepted_at->toDateString(),
-				'player' => $this->friendCard($friendship->otherThan($player)),
-			])->values()->all(),
+			'friends' => $friendships->where('status', FriendshipStatus::Accepted)->map(function (Friendship $friendship) use ($player, $cheers, $exchanges) {
+				$friend = $friendship->otherThan($player);
+
+				return [
+					'id' => $friendship->id,
+					'since' => $friendship->accepted_at->toDateString(),
+					'player' => $this->friendCard($friend),
+					'cheer' => [
+						'sent' => in_array($friend->id, $cheers['sent'], true),
+						'received' => in_array($friend->id, $cheers['received'], true),
+						'streak' => $this->cheers->streak($exchanges[$friend->id] ?? [], CarbonImmutable::instance($friendship->accepted_at)),
+					],
+				];
+			})->values()->all(),
 			'received' => $pending->where('friend_id', $player->id)->map(fn (Friendship $friendship) => $this->invitation($friendship, $friendship->requester))->values()->all(),
 			'sent' => $pending->where('user_id', $player->id)->map(fn (Friendship $friendship) => $this->invitation($friendship, $friendship->invitee))->values()->all(),
 		];
