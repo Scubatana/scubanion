@@ -24,6 +24,7 @@ Réponse **200** :
   "status": "rewarded",
   "message": "Bravo Lea ! +100 XP",
   "reward_xp": 100,
+  "events": [],
   "terminal": { "code": "chateau-01", "name": "Borne du Château" },
   "companion": { "...": "voir compagnon.md" }
 }
@@ -31,6 +32,7 @@ Réponse **200** :
 
 - `status` : `rewarded` au premier passage du jour à cette borne (100 XP, ajoutés tout de suite au compagnon), `already_rewarded` ensuite (passage enregistré, sans récompense).
 - `accessory` : présent seulement quand le passage débloque l'accessoire de la borne (`{ "id": "crown", "label": "Couronne" }`) ; le message devient alors « Bravo Lea ! +100 XP, nouvel accessoire : Couronne », et `companion.unlocked_accessories` le contient déjà.
+- `events` : les événements en cours qui ont donné quelque chose à ce passage ([evenements.md](evenements.md)), toujours présent, vide sans événement. Chacun : `{ "id": 4, "name": "Week-end au parc", "bonus_xp": 50, "accessory": null }`, où `accessory` est l'accessoire de l'événement débloqué par ce passage (`{ "id", "label" }`), sinon `null`. Leur bonus est déjà compris dans `reward_xp` (100 + 50 = 150), et le message les nomme : « Bravo Lea ! +150 XP, bonus Week-end au parc ». Un accessoire gagné grâce à un événement est cité dans le message (« nouvel accessoire : … », ou « nouveaux accessoires : … et … » s'il y en a plusieurs) et ajouté à `companion.unlocked_accessories`, mais n'apparaît pas dans `accessory`, qui reste celui de la borne. Le passage déjà récompensé du jour n'a jamais d'événement.
 - Le même message est publié sur l'écran de la borne.
 - Sans réseau, l'app garde le jeton et l'envoie plus tard : il reste valable 24 h après l'heure du scan.
 

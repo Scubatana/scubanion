@@ -14,7 +14,7 @@ Le compagnon est recalculé à chaque ouverture de l'accueil (`GET /api/me`), à
 
 | Valeur | Règle |
 | ------ | ----- |
-| XP | 1 XP pour 10 pas, plus 50 XP de bonus chaque jour où l'objectif est atteint, plus l'XP des récompenses de quête déjà récupérées (`user_rewards`) et de chaque passage récompensé à une borne (`passages.reward_xp`). |
+| XP | 1 XP pour 10 pas, plus 50 XP de bonus chaque jour où l'objectif est atteint, plus l'XP des récompenses de quête déjà récupérées (`user_rewards`) et de chaque passage récompensé à une borne (`passages.reward_xp`, bonus des [événements](#événements) compris). |
 | Niveau | Passer du niveau N au niveau N + 1 demande N × 1 000 XP : 1 000 XP pour le niveau 2, 2 000 de plus pour le niveau 3, etc. L'API renvoie l'XP gagnée dans le niveau en cours (`xp`) et celle qu'il faut pour passer au suivant (`xp_for_next_level`). |
 | Humeur (0 à 100) | La part de l'objectif atteinte aujourd'hui ou hier, la meilleure des deux. Elle tombe à 0 après deux jours sans marcher, et remonte dès la première balade. Chaque coup de patte reçu d'un ami dans la journée ajoute 5 points, 15 au plus par jour, sans dépasser 100. |
 | Santé (0 à 100) | La part moyenne de l'objectif atteinte sur les 7 jours précédant aujourd'hui. Elle reflète la régularité et bouge lentement. |
@@ -65,7 +65,7 @@ Le code est dans `app/Services/QuestEngine.php` (avancement), `QuestAssigner.php
 
 ## Bornes
 
-Un passage à une borne rapporte 100 XP, une fois par jour et par borne. Une borne peut aussi porter un accessoire : le joueur le gagne avec sa première récompense à cette borne, une seule fois, et le retrouve dans l'inventaire de son compagnon. Le jeton lu sur la borne prouve que quelqu'un était devant elle, mais pas que c'est le joueur qui l'envoie : un joueur sur place pourrait scanner plusieurs fois et donner les jetons à des amis restés chez eux. Pour une borne rattachée à un lieu, le serveur vérifie donc aussi la position du joueur. Il y a deux cas.
+Un passage à une borne rapporte 100 XP, une fois par jour et par borne, plus le bonus des [événements](#événements) en cours. Une borne peut aussi porter un accessoire : le joueur le gagne avec sa première récompense à cette borne, une seule fois, et le retrouve dans l'inventaire de son compagnon. Le jeton lu sur la borne prouve que quelqu'un était devant elle, mais pas que c'est le joueur qui l'envoie : un joueur sur place pourrait scanner plusieurs fois et donner les jetons à des amis restés chez eux. Pour une borne rattachée à un lieu, le serveur vérifie donc aussi la position du joueur. Il y a deux cas.
 
 **L'app envoie la position du scan.** Elle doit tomber dans le lieu de la borne, avec la même marge que pour valider un lieu dans une quête : le rayon du lieu (100 m par défaut) ou son contour, plus la précision du GPS plafonnée à 50 m. Cette règle vaut pour une position qui date du scan : entre 5 minutes avant l'heure du jeton et 10 minutes après (la borne écrit son jeton jusqu'à 5 minutes avant sa lecture, plus 5 minutes de tolérance sur les horloges). Une position plus ancienne ou plus récente, par exemple un GPS qui a mis du temps à répondre, n'est pas refusée : elle compte comme une position reçue parmi les autres, et on applique la règle sans position ci-dessous. Une position simulée ne prouve rien, et bloque le joueur 24 h comme ailleurs.
 
@@ -85,3 +85,18 @@ Un refus ne consomme pas le jeton : le joueur peut le renvoyer avec sa localisat
 **Limites connues.** Une app modifiée peut envoyer n'importe quelle position, et un ami qui coupe sa localisation n'est arrêté que si sa dernière position le trahit. La vérification bloque surtout l'ami qui reçoit un jeton à l'autre bout de la ville ou du pays avec l'app normale. Une borne sans lieu n'est pas vérifiée.
 
 Le code est dans `app/Services/PassageService.php`, les tests dans `tests/Feature/Bornes/PassageTest.php`.
+
+## Événements
+
+Un événement est limité dans le temps (BOR-05) : un bonus d'XP pour un week-end, un accessoire de saison, ou les deux. Il a une période, des bornes concernées (une liste, ou toutes les bornes) et sa récompense. Il se crée avec `php artisan evenements:creer` ([api/evenements.md](api/evenements.md#créer-un-événement)) et l'app l'annonce avec `GET /api/events`.
+
+- **Quand il s'applique.** L'événement est actif, la borne est concernée, et l'heure du scan est dans sa période : le début est inclus, la fin exclue (un week-end va du samedi 00:00 au lundi 00:00). C'est l'heure du scan qui compte, celle écrite et signée par la borne dans le jeton, et non l'heure d'envoi : un scan fait hors ligne pendant l'événement compte, même envoyé après la fin ; un scan fait avant le début ne compte pas, même envoyé pendant.
+- **Seul le passage récompensé en profite**, c'est-à-dire le premier du jour à cette borne. L'événement ne change pas la règle « une fois par jour et par borne » : rescanner ne cumule pas les bonus. Un passage refusé (position, jeton déjà utilisé) ne donne rien.
+- **Bonus.** Le bonus de l'événement s'ajoute aux 100 XP du passage : avec +50, le passage rapporte 150 XP.
+- **Accessoire.** Il est gagné au premier passage récompensé pendant l'événement, à n'importe quelle borne concernée, s'il est encore actif et que le joueur ne l'a pas déjà, quelle qu'en soit l'origine. Un même accessoire n'est jamais donné deux fois, même si la borne et l'événement le proposent tous les deux.
+- **Plusieurs événements en même temps** se cumulent : leurs bonus s'additionnent et chacun donne son accessoire. Avec un événement à +50 et un autre à +30, le passage rapporte 100 + 50 + 30 = 180 XP.
+- Le message de la borne et de l'app nomme les événements appliqués : « Bravo Lea ! +150 XP, bonus Week-end au parc, nouvel accessoire : Couronne ». Un événement qui n'a plus rien à donner au joueur (pas de bonus, accessoire déjà gagné) n'est pas cité.
+
+Ce que chaque événement a donné est gardé dans `event_passage` ([modele-de-donnees.md](modele-de-donnees.md)) : changer ensuite le bonus ou la période d'un événement ne modifie pas les passages déjà faits.
+
+Le code est dans `app/Services/PassageService.php` et `app/Models/Event.php`, les tests dans `tests/Feature/Bornes/EventPassageTest.php`, `tests/Feature/Bornes/EventApiTest.php`, `tests/Feature/Bornes/CreateEventCommandTest.php` et `tests/Unit/Models/EventTest.php`.
