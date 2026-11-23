@@ -76,9 +76,11 @@ gh api "repos/$REPO/rulesets/$main_id" --jq '{
 }' | gh api -X PUT "repos/$REPO/rulesets/$main_id" --input - > /dev/null
 echo "Fait."
 
-step "develop par défaut, commits de merge seulement, branches supprimées après fusion"
+step "master par défaut, commits de merge seulement, branches supprimées après fusion"
+# master par défaut : la page d'accueil du dépôt et un clone montrent la version livrée. Les PR visent quand même
+# develop : la garde redirige celles qui visent master par erreur.
 gh api -X PATCH "repos/$REPO" \
-	-f default_branch=develop \
+	-f default_branch=master \
 	-F allow_merge_commit=true \
 	-F allow_squash_merge=false \
 	-F allow_rebase_merge=false \
