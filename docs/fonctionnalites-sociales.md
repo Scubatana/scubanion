@@ -18,16 +18,16 @@ Ce qui est déjà en place est décrit ailleurs : le contrat de l'API des amis d
 | Fonctionnalité                                               | § | Exigence          | Priorité proposée | État                                              |
 | ------------------------------------------------------------- | -- | ----------------- | ------------------- | -------------------------------------------------- |
 | Bloquer, signaler, quitter, exclure, suppression complète    | 1  | APP-06, APP-07    | Must                | Blocage et signalement : fait (API et écran, [api/securite.md](api/securite.md)). Le reste à faire (suppression de compte déjà en cascade) |
-| Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | À faire                                           |
+| Choix de ce que l'on partage                                  | 2  | APP-07            | Must                | Pas et série : fait (API et écran). Le reste à faire |
 | Liste d'amis, invitation par code                             | 3  | APP-07            | Should              | Fait (API et écran)                               |
-| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code : fait (API et écran, [api/amis.md](api/amis.md)). Le reste à faire |
+| Ajout d'un ami par QR code, coup de patte, fiche du compagnon | 3  | APP-07            | Should              | QR code, fiche du compagnon et coup de patte : faits (API et écran, [api/amis.md](api/amis.md)). La notification du coup de patte attend les notifications (§ 7) |
 | Squads : invitation, QR code, marche ensemble                 | 4  | APP-08, APP-10    | Should              | Table `encounters` faite, le reste à faire      |
 | Moment partagé (animation des compagnons)                    | 4  | APP-10            | Should              | À faire                                           |
 | Quêtes à plusieurs, défis du jour et de la semaine, collection | 5  | APP-05, APP-10    | Should              | À faire, sur le moteur de quêtes existant        |
 | Échanges d'objets entre joueurs                               | 5  | nouvelle exigence | Could               | À faire                                           |
 | Cadeaux entre amis                                            | 5  | nouvelle exigence | Could               | À faire                                           |
 | Succès sociaux                                                | 5  | nouvelle exigence | Should              | À faire                                           |
-| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | À faire                                           |
+| Série de coups de patte entre amis                            | 3  | nouvelle exigence | Should              | Fait (API et écran). Le moment partagé attend le § 4.4, l'annonce à l'ami qui avait envoyé en premier attend les notifications (§ 7) |
 | Raid de borne                                                 | 6  | BOR-05            | Should              | À faire                                           |
 | Notifications                                                 | 7  | APP-12            | Should              | À faire                                           |
 | Fil d'activité réduit, classement facultatif                | 3  | APP-07            | Could               | À faire                                           |
@@ -63,7 +63,7 @@ Chaque joueur règle, dans son compte, ce que ses amis voient de lui. Les pas so
 
 - Un membre de sa squad qui n'est pas son ami ne voit que son pseudo et son compagnon.
 - Une invitation reçue ne montre que le pseudo.
-- Changement à prévoir dans l'API : `GET /me/friends` renvoie aujourd'hui toujours les pas du jour et la série ; elle devra respecter ces réglages.
+- `GET /me/friends` respecte déjà les réglages des pas du jour et de la série : sans accord, elle renvoie `null` et l'app affiche « Masqué ».
 
 ## 3. Amis
 
@@ -84,6 +84,7 @@ Un bouton « Coup de patte » sur la fiche de chaque ami : le compagnon envoie u
 - L'ami reçoit une notification (§ 7), et son compagnon gagne un petit bonus d'humeur, plafonné.
 - Il peut répondre d'un coup de patte le même jour, ce qui fait avancer leur série (§ 3.6).
 - But : un lien de tous les jours, sans avoir besoin d'écrire.
+- Avec les messages (§ 8), les coups de patte s'afficheront aussi dans la conversation entre les deux amis, à leur place dans l'ordre chronologique (« Lina t'a envoyé un coup de patte »). La table `cheers` garde déjà l'historique ; seule l'API ne renvoie pour l'instant que ceux du jour.
 
 ### 3.3 Fiche du compagnon d'un ami
 
@@ -107,15 +108,24 @@ Un classement entre amis, remis à zéro chaque lundi, au pourcentage moyen de l
 
 Entre deux amis, une **série** compte les jours d'affilée où ils se sont **échangé un coup de patte** : l'un en envoie un, l'autre y répond le même jour (heure de Paris). Peu importe qui commence.
 
+- Seuls les échanges depuis l'amitié actuelle comptent : deux joueurs qui se retirent puis se rajoutent repartent de zéro.
 - Elle démarre toute seule au premier jour d'échange, entre n'importe quels amis : pas besoin de l'activer, elle ne révèle rien d'autre que les coups de patte.
-- Le compteur s'affiche à côté de l'ami dans la liste, avec une petite flamme.
+- Le compteur s'affiche à côté de l'ami dans la liste, avec une petite flamme. Elle s'allume quand les deux amis ont échangé aujourd'hui. La fiche de l'ami montre la série et le record ; la série de pas de l'ami n'y apparaît que comme un nombre de jours d'objectif, pour qu'une flamme ne veuille dire qu'une chose sur la page Amis.
 - Elle n'a rien à voir avec la série personnelle déjà en place, qui compte les jours où le joueur atteint son objectif de pas (`streak` dans l'API des pas).
 
-**Paliers.** À 7, 30 et 100 jours, les deux compagnons gagnent un **accessoire assorti** (non échangeable) et l'app joue le moment partagé (§ 4.4).
+**Paliers.** À 7, 30 et 100 jours, les deux compagnons gagnent un **accessoire assorti** (non échangeable) et l'app joue le moment partagé (§ 4.4) :
+
+| Palier | Accessoire |
+| ------ | ---------- |
+| 7 jours | Foulard de l'amitié (`paw_scarf`, cou) |
+| 30 jours | Bob à pattes (`paw_bucket_hat`, chapeau) |
+| 100 jours | Lunettes étoiles de mer (`starfish_glasses`, lunettes) |
+
+Le serveur les donne au coup de patte qui complète l'échange du jour, aux deux amis en même temps. Un accessoire déjà débloqué, avec un autre ami par exemple, n'est pas redonné. Une série déjà longue au moment où les paliers sont arrivés est récompensée au coup de patte suivant. Celui dont le coup de patte complète l'échange voit le palier fêté sur la fiche de l'ami, avec un lien vers son compagnon pour porter l'accessoire ; l'autre le trouve débloqué dans son compagnon, en attendant les notifications.
 
 **Ne pas en faire une corvée.** Les séries de Snapchat sont connues pour la pression qu'elles mettent sur les adolescents ; celle de Scubanion suit ces règles :
 
-- **Un joker par semaine** : un jour sans échange par semaine ne casse pas la série. Il s'applique tout seul.
+- **Un joker par semaine** : un jour sans échange par semaine (du lundi au dimanche) ne casse pas la série. Il s'applique tout seul. Le jour du joker ne compte pas dans la série ; un dimanche et un lundi ratés passent tous les deux, chacun sur sa semaine.
 - **Aucun rappel** du type « votre série va s'arrêter » : les seules notifications sont le coup de patte reçu et les paliers atteints.
 - Quand une série s'arrête, l'app ne dit pas qui l'a fait tomber, et ne montre aucun message triste. Le **record** reste affiché, et une nouvelle série repart dès le prochain échange.
 - La série ne sert jamais de condition à une quête, un défi ou un succès : elle reste un bonus.
@@ -313,6 +323,7 @@ Pas de chat libre : seulement des **messages prédéfinis** et des **emotes**, e
 - Messages : « On marche ce soir ? », « Je suis en route », « Rendez-vous à la borne », « Bravo ! ».
 - Emotes : 6 à 10 animations du compagnon (saute de joie, applaudit, dort…).
 - Les textes sont des données en base, ajoutés sans livrer l'app.
+- La conversation entre deux amis montre aussi leurs coups de patte (§ 3.2), mêlés aux messages dans l'ordre où ils ont été envoyés.
 
 Un chat libre demanderait une modération qu'une équipe de quatre ne peut pas assurer, avec des joueurs qui peuvent être mineurs. Priorité Could : le coup de patte et les invitations de squad couvrent déjà une partie du besoin.
 
@@ -335,7 +346,7 @@ Proposition, à affiner au moment du développement. Chaque table est supprimée
 | `squad_windows`                   | Fenêtres de 10 minutes validées et membres ensemble                         |
 | `weekly_challenges`               | Défi de la semaine d'un joueur, avancement, date de réussite                |
 | `trades`, `trade_items`           | Échange : les deux joueurs, état, dates ; accessoires donnés par chacun    |
-| `friend_streaks`                  | Série de coups de patte entre deux amis : début, valeur, record, joker utilisé cette semaine |
+| `friend_streaks`                  | Pas de table : la série de coups de patte, son record et le joker sont calculés à la volée depuis `cheers` (§ 3.6) |
 | `gifts`                           | Cadeau : qui, à qui, accessoire, message, état (en attente, accepté, refusé, annulé) |
 | `achievements`, `user_achievements` | Catalogue des succès (condition, seuil, accessoire éventuel) ; succès débloqués et date |
 | `raids`, `raid_participants`    | Borne, jour, palier, skin ; joueurs passés                                   |
