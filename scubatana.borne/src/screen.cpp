@@ -34,6 +34,13 @@ constexpr int LOGO_TOP = 28;
 constexpr float LOGO_FLOAT_PX = 6;
 constexpr unsigned long LOGO_FLOAT_PERIOD_MS = 3600;
 
+// Rétroéclairage piloté en PWM (LEDC de l'ESP32) : plein pendant l'activité, environ 10 % au repos.
+constexpr uint8_t BACKLIGHT_CHANNEL = 7;
+constexpr uint32_t BACKLIGHT_FREQUENCY = 5000;
+constexpr uint8_t BACKLIGHT_RESOLUTION_BITS = 8;
+constexpr uint8_t BACKLIGHT_FULL = 255;
+constexpr uint8_t BACKLIGHT_RESTING = 26;
+
 SPIClass bus(HSPI);
 
 Adafruit_ST7789 tft(&bus, PIN_CS, PIN_DC, -1);
@@ -42,7 +49,19 @@ U8G2_FOR_ADAFRUIT_GFX u8g2;
 
 bool idleShown = false;
 
+bool resting = false;
+
 int logoY = LOGO_TOP;
+
+// L'API LEDC a changé avec le core Arduino-ESP32 3.x (plateforme espressif32 7.x) : la broche remplace le canal.
+void setBacklight(uint8_t duty)
+{
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+	ledcWrite(PIN_BACKLIGHT, duty);
+#else
+	ledcWrite(BACKLIGHT_CHANNEL, duty);
+#endif
+}
 
 // Même couleur que BACKGROUND dans tools/logo.py, qui remplace la transparence du logo.
 uint16_t idleColor()
@@ -122,8 +141,13 @@ void drawParagraph(const std::string& paragraph, const uint8_t* font, int center
 
 void begin()
 {
-	pinMode(PIN_BACKLIGHT, OUTPUT);
-	digitalWrite(PIN_BACKLIGHT, HIGH);
+#if ESP_ARDUINO_VERSION_MAJOR >= 3
+	ledcAttach(PIN_BACKLIGHT, BACKLIGHT_FREQUENCY, BACKLIGHT_RESOLUTION_BITS);
+#else
+	ledcSetup(BACKLIGHT_CHANNEL, BACKLIGHT_FREQUENCY, BACKLIGHT_RESOLUTION_BITS);
+	ledcAttachPin(PIN_BACKLIGHT, BACKLIGHT_CHANNEL);
+#endif
+	setBacklight(BACKLIGHT_FULL);
 
 	bus.begin(PIN_SCK, PIN_MISO, PIN_MOSI, PIN_CS);
 	tft.init(240, 320);
@@ -140,7 +164,7 @@ void showIdle(bool online)
 {
 	clear(idleColor());
 
-	logoY = floatingLogoY();
+	logoY = resting ? LOGO_TOP : floatingLogoY();
 	drawLogo(logoY);
 	idleShown = true;
 
@@ -154,7 +178,7 @@ void showIdle(bool online)
 
 void animate()
 {
-	if (!idleShown) {
+	if (!idleShown || resting) {
 		return;
 	}
 
@@ -165,8 +189,38 @@ void animate()
 	}
 }
 
+void rest()
+{
+	if (resting) {
+		return;
+	}
+
+	resting = true;
+	setBacklight(BACKLIGHT_RESTING);
+
+	if (idleShown && logoY != LOGO_TOP) {
+		moveLogo(LOGO_TOP);
+	}
+}
+
+void wake()
+{
+	if (!resting) {
+		return;
+	}
+
+	resting = false;
+	setBacklight(BACKLIGHT_FULL);
+}
+
+bool isResting()
+{
+	return resting;
+}
+
 void showDisplay(const messages::Display& display)
 {
+	wake();
 	idleShown = false;
 
 	if (display.status == "rewarded") {
