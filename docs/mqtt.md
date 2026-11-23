@@ -154,9 +154,9 @@ Le nom du compte de l'API contient un point, qu'un code de borne ne peut pas con
 
 Une borne ne peut donc ni se faire passer pour une autre, ni lire l'affichage d'une autre borne (qui contient le pseudo des joueurs), ni écrire sur son propre écran.
 
-**Où sont les comptes.** L'API écrit les fichiers `passwd` (mots de passe hachés au format de `mosquitto_passwd`) et `acl` (droits) dans `storage/app/mqtt`, que le broker lit dans `/mosquitto/comptes`. En prod, c'est le volume `mqtt_comptes`, partagé entre `backend` et `mosquitto`.
+**Où sont les comptes.** L'API écrit les fichiers `passwd` (mots de passe hachés au format de `mosquitto_passwd`) et `acl` (droits) dans `storage/app/mqtt`, que le broker lit dans `/mosquitto/comptes`. En prod, c'est le volume `mqtt_comptes`, partagé entre `migrate`, `backend` et `mosquitto`.
 
-- Le conteneur `backend` les écrit à chaque démarrage (`php artisan bornes:comptes-mqtt`), avant que le broker ne démarre.
+- Le service `migrate` les écrit à chaque démarrage de la pile (`php artisan bornes:comptes-mqtt`), avant que le broker ne démarre.
 - `php artisan bornes:creer` ajoute aussitôt le compte de la nouvelle borne. Le broker ne relit ses fichiers que sur demande : `docker compose kill -s HUP mosquitto`, sans redémarrage ni coupure.
 
 ## Chiffrement TLS
